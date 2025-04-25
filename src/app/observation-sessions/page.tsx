@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function ObservationSessionsPage() {
   return (
-    <div className="max-w-6xl mx-auto py-8  bg-white rounded-lg border p-6 shadow-md">
+    <div className="max-w-6xl h-full mx-auto py-8  bg-white rounded-lg border p-6 shadow-md">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-semibold">Observation Sessions</h1>
         <Link

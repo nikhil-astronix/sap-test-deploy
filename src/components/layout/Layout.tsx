@@ -13,9 +13,9 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <AnimatedContainer variant="fade" className="min-h-screen bg-gray-50 ">
       <Header />
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex h-[calc(100vh-64px)] overflow-hidden">
         <Sidebar />
-        <AnimatedContainer variant="slide" className="flex-1 p-6 overflow-auto w-full ">
+        <AnimatedContainer variant="slide" className="flex-1 py-6 px-2 pr-6  w-full ">
           {children}
         </AnimatedContainer>
       </div>

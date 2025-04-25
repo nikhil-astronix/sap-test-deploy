@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Toggle Switch Styles */
+.toggle-checkbox {
+  transition: all 0.3s;
+  right: 0;
+}
+
+.toggle-checkbox:checked {
+  right: 4px;
+  border-color: #047857;
+}
+
+.toggle-label {
+  transition: background-color 0.3s;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #047857;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 249, 250, 251;

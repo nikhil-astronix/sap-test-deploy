@@ -166,7 +166,7 @@ export default function ScheduleObservationPage() {
   };
 
   return (
-    <AnimatedContainer variant="fade" className="max-w-full  max-h-auto py-8 px-24 bg-white rounded-xl border p-6 shadow-md">
+    <AnimatedContainer variant="fade" className="max-w-full  h-full py-8 px-24 bg-white rounded-xl border p-6 shadow-md overflow-y-auto">
       <AnimatedContainer variant="slide" custom={direction}>
         <h1 className="text-2xl font-semibold mb-6 text-center">Schedule Observation Session</h1>
         <p className="text-gray-600 mb-8 text-center">

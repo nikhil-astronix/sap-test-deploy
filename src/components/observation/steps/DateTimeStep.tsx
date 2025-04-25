@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CustomCalendar } from '@/components/CustomCalendar';
 import CustomTimePicker from '@/components/CustomTimePicker';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DateTimeStepProps {
   observationDate: Date | null;
@@ -75,72 +76,79 @@ const DateTimeStep = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-1">Observation Date</label>
-          <CustomCalendar
-            selectedDate={observationDate}
-            onChange={(date) => {
-              onDateChange(date);
-              setErrors(prev => ({ ...prev, date: undefined }));
-            }}
-            error={errors.date}
-          />
-          {errors.date && (
-            <p className="mt-1 text-sm text-red-500">{errors.date}</p>
-          )}
-        </div>
+    <AnimatePresence mode="wait">
+      <motion.div 
+        className="max-w-2xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-1">Observation Date</label>
+            <CustomCalendar
+              selectedDate={observationDate}
+              onChange={(date) => {
+                onDateChange(date);
+                setErrors(prev => ({ ...prev, date: undefined }));
+              }}
+              error={errors.date}
+            />
+            {errors.date && (
+              <p className="mt-1 text-sm text-red-500">{errors.date}</p>
+            )}
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Start Time</label>
-          <CustomTimePicker
-            value={startTime}
-            onChange={(time) => {
-              onStartTimeChange(time);
-              setErrors(prev => ({ ...prev, startTime: undefined }));
-            }}
-            label=""
-            error={errors.startTime}
-        
-          />
-          {errors.startTime && (
-            <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
-          )}
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Start Time</label>
+            <CustomTimePicker
+              value={startTime}
+              onChange={(time) => {
+                onStartTimeChange(time);
+                setErrors(prev => ({ ...prev, startTime: undefined }));
+              }}
+              label=""
+              error={errors.startTime}
+            />
+            {errors.startTime && (
+              <p className="mt-1 text-sm text-red-500">{errors.startTime}</p>
+            )}
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">End Time</label>
-          <CustomTimePicker
-            value={endTime}
-            onChange={(time) => {
-              onEndTimeChange(time);
-              setErrors(prev => ({ ...prev, endTime: undefined }));
-            }}
-            label=""
-            error={errors.endTime}
-          />
-          {errors.endTime && (
-            <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
-          )}
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">End Time</label>
+            <CustomTimePicker
+              value={endTime}
+              onChange={(time) => {
+                onEndTimeChange(time);
+                setErrors(prev => ({ ...prev, endTime: undefined }));
+              }}
+              label=""
+              error={errors.endTime}
+            />
+            {errors.endTime && (
+              <p className="mt-1 text-sm text-red-500">{errors.endTime}</p>
+            )}
+          </div>
 
-        <div className="flex justify-end space-x-4 pt-6">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={validateAndNext}
-            className="px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors"
-          >
-            Next
-          </button>
+          <div className="flex justify-end space-x-4 pt-6">
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 text-gray-700 hover:text-gray-900 bg-gray-100 rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={validateAndNext}
+              className="px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors"
+            >
+              Next
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
