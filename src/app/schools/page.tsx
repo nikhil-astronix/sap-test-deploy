@@ -255,6 +255,8 @@ export default function SchoolsPage() {
         onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange}
         loading={loading}
+        staticbg={"#2264AC"}
+        dynamicbg={"#F3F8FF"}
       />
     </div>
   );

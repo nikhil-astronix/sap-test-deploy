@@ -40,6 +40,8 @@ interface TableProps {
   onSortChange?: (key: string, direction: "asc" | "desc" | null) => void;
   loading?: boolean;
   currentPage?: number;
+  staticbg: string;
+  dynamicbg: string;
 }
 
 export default function Table({
@@ -56,6 +58,8 @@ export default function Table({
   onSortChange,
   loading = false,
   currentPage: controlledCurrentPage,
+  staticbg,
+  dynamicbg,
 }: TableProps) {
   // State for sorting
   const [sortConfig, setSortConfig] = useState<{
@@ -286,7 +290,7 @@ export default function Table({
         <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#2264AC] text-white">
+              <tr style={{ backgroundColor: staticbg }} className="text-white">
                 {selectionMode && (
                   <th className="px-4 py-3 w-10">
                     <div className="flex items-center justify-center">
@@ -369,7 +373,7 @@ export default function Table({
                   return (
                     <tr
                       key={rowId || index}
-                      className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                      className={index % 2 === 0 ? dynamicbg : "bg-white"}
                     >
                       {selectionMode && (
                         <td className="px-4 py-4 w-10">
