@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import CurriculumList from '@/components/curriculum/CurriculumList';
 
 export const metadata: Metadata = {
-  title: 'Curriculums | Student Achievement Partners',
-  description: 'View, edit, and organize all available curriculums in one place.',
+  title: 'Curricula | Student Achievement Partners',
+  description: 'View, edit, and organize all available curricula in one place.',
 };
 
 export default function CurriculumsPage() {

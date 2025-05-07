@@ -36,7 +36,7 @@ const SAMPLE_CURRICULUMS: Curriculum[] = [
     title: 'Amplify',
     description: 'Amplify Desmos Math promotes a collaborative classroom & guides teachers as facilitator.',
     type: 'Custom',
-    isArchived: true,
+    isArchived: false,
   },
   {
     id: '2',
@@ -132,9 +132,9 @@ export default function CurriculumList() {
      
         <div className="flex-none space-y-6 mb-8">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 text-center">Curriculums</h1>
+            <h1 className="text-2xl font-bold text-gray-900 text-center">Curricula</h1>
             <p className="mt-1 text-sm text-gray-600 text-center">
-              View, edit, and organize all available curriculums in one place.
+              View, edit, and organize all available curricula in one place.
             </p>
           </div>
 
@@ -260,7 +260,7 @@ export default function CurriculumList() {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowArchived(!showArchived)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  showArchived ? 'bg-emerald-600' : 'bg-gray-200'
+                  showArchived ? 'bg-emerald-600' : 'bg-emerald-600' //'bg-gray-200'
                 }`}
               >
                 <motion.span

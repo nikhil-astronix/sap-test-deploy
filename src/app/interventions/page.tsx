@@ -321,7 +321,7 @@ export default function InterventionsPage() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsActive(!isActive)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isActive ? 'bg-emerald-600' : 'bg-gray-200'
+              isActive ? 'bg-emerald-600' : 'bg-emerald-600'  //'bg-gray-200'
             }`}
           >
             <motion.span

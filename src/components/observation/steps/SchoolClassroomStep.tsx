@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import MultiSelectDropdown from '../../MultiSelectDropdown';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
 
 interface Classroom {
   id: string;
@@ -35,112 +33,107 @@ const SchoolClassroomStep = ({
   onBack,
   onCancel,
 }: SchoolClassroomStepProps) => {
-  const [selectedObservationTool, setSelectedObservationTool] = useState<string>('');
-
-  // Convert schools to options format
-  const schoolOptions = schools.map(school => ({
-    id: school.id,
-    label: school.name,
-    value: school.id
-  }));
-
-  // Convert classrooms to options format
-  const classroomOptions = classrooms.map(classroom => ({
-    id: classroom.id,
-    label: classroom.name,
-    value: classroom.id
-  }));
-
-  // Convert observation tools to options format (placeholder)
-  const observationToolOptions = [
-    { id: '1', label: 'Tool 1', value: '1' },
-    { id: '2', label: 'Tool 2', value: '2' }
-  ];
-
   return (
-    <AnimatePresence mode="wait">
-      <motion.div 
-        className="max-w-2xl mx-auto"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="space-y-6">
-          <div>
-            <MultiSelectDropdown
-              label="School"
-              options={schoolOptions}
-              selectedValues={selectedSchool ? [selectedSchool] : []}
-              onChange={(values) => onSchoolChange(values[0] || '')}
-              placeholder="Select a school"
-              required
-              allowClear={false}
-              isMulti={false}
-            />
-          </div>
-
-          <div>
-            <MultiSelectDropdown
-              label="Classroom(s)"
-              options={classroomOptions}
-              selectedValues={selectedClassrooms}
-              onChange={onClassroomChange}
-              placeholder="Select classrooms"
-              required
-              isMulti={true}
-              showTags={true}
-            />
-          </div>
-
-          <div>
-            <MultiSelectDropdown
-              label="Observation Tool"
-              options={observationToolOptions}
-              selectedValues={selectedObservationTool ? [selectedObservationTool] : []}
-              onChange={(values) => setSelectedObservationTool(values[0] || '')}
-              placeholder="Select an observation tool"
-              required
-              isMulti={false}
-            />
-          </div>
-
-          <div className="flex justify-end space-x-4 pt-6">
-            <button
-              onClick={onBack}
-              className="px-4 py-2 text-emerald-700 hover:text-emerald-900 mr-auto inline-flex items-center"
-            >
-              <svg
-                className="w-5 h-5 mr-1"
-                fill="none" 
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-                />
-              </svg>
-              Back
-            </button>
-            <button 
-              onClick={onCancel} 
-              className="px-4 py-2 text-gray-700 hover:text-gray-900 bg-gray-100 rounded-md"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onNext}
-              className="px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors"
-            >
-              Next
-            </button>
-          </div>
+    <div className="max-w-2xl mx-auto">
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium mb-1">School</label>
+          <select
+            className="w-full p-2 bg-gray-50 border rounded-md"
+            value={selectedSchool}
+            onChange={(e) => onSchoolChange(e.target.value)}
+          >
+            <option value="">Select a school</option>
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
         </div>
-      </motion.div>
-    </AnimatePresence>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Classroom(s)</label>
+          <div className="space-y-2">
+            {selectedClassrooms.map((id) => {
+              const classroom = classrooms.find((c) => c.id === id);
+              if (!classroom) return null;
+              return (
+                <div
+                  key={id}
+                  className="inline-flex items-center bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full mr-2"
+                >
+                  <span>{classroom.name}</span>
+                  <button
+                    onClick={() =>
+                      onClassroomChange(selectedClassrooms.filter((cid) => cid !== id))
+                    }
+                    className="ml-2"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <select
+            className="w-full p-2 bg-gray-50 border rounded-md mt-2"
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                onClassroomChange([...selectedClassrooms, e.target.value]);
+              }
+            }}
+          >
+            <option value="">Select classrooms</option>
+            {classrooms
+              .filter((c) => !selectedClassrooms.includes(c.id))
+              .map((classroom) => (
+                <option key={classroom.id} value={classroom.id}>
+                  {classroom.name}
+                </option>
+              ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Observation Tool</label>
+          <select className="w-full p-2 bg-gray-50 border rounded-md">
+            <option value="">Select an observation tool</option>
+          </select>
+        </div>
+
+        <div className="flex justify-end space-x-4 pt-6">
+          <button
+            onClick={onBack}
+            className="px-4 py-2 text-gray-700 hover:text-gray-900"
+          >
+            Back
+          </button>
+          <button onClick={onCancel} className="px-4 py-2 text-gray-700 hover:text-gray-900">
+            Cancel
+          </button>
+          <button
+            onClick={onNext}
+            className="px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

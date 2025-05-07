@@ -17,7 +17,7 @@ const Header = () => {
         whileTap={{ scale: 0.95 }}
       >
         <Link href="/" className="flex items-center">
-          <Logo height={30} className="text-emerald-800" />
+          <img src="\logo.png" alt="Logo" />
         </Link>
       </motion.div>
 

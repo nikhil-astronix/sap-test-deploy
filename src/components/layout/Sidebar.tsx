@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
   { icon: <FaBuilding className="w-5 h-5" />, label: 'Districts', path: '/districts' },
   { icon: <FaSchool className="w-5 h-5" />, label: 'Schools', path: '/schools' },
   { icon: <FaCog className="w-5 h-5" />, label: 'Interventions/PD', path: '/interventions' },
-  { icon: <FaBook className="w-5 h-5" />, label: 'Curriculums', path: '/curriculums' },
+  { icon: <FaBook className="w-5 h-5" />, label: 'Curricula', path: '/curriculums' },
   { icon: <FaGraduationCap className="w-5 h-5" />, label: 'Classrooms', path: '/classrooms' },
   { icon: <FaUsers className="w-5 h-5" />, label: 'Users', path: '/users' },
   { icon: <FaChartBar className="w-5 h-5" />, label: 'Observation Tools', path: '/observation-tools' },
@@ -96,7 +96,7 @@ const Sidebar = () => {
           ? 'fixed left-0 top-0 bottom-0 z-40' 
           : 'relative'}`}
     >
-      {!isMobile && (
+       {isMobile && (
         <div className="relative">
           <button
             onClick={toggleSidebar}
@@ -110,7 +110,7 @@ const Sidebar = () => {
             )}
           </button>
         </div>
-      )}
+      )} 
 
       <div className={`p-6 ${!isExpanded && !isMobile ? 'px-6' : ''}`}>
         <AnimatedContainer variant="fade">

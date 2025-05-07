@@ -30,8 +30,8 @@ const NewCurriculumPage = () => {
           className="max-w-3xl mx-auto"
         >
           <div className="mb-8 text-center">
-            <h1 className="text-2xl font-semibold mb-2">Curriculums</h1>
-            <p className="text-md text-gray-600">View, edit, and organize all available curriculums in one place.</p>
+            <h1 className="text-2xl font-semibold mb-2">Curricula</h1>
+            <p className="text-md text-gray-600">View, edit, and organize all available curricula in one place.</p>
           </div>
 
           <div className="px-40 py-0">
