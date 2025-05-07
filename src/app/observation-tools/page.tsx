@@ -222,7 +222,6 @@ export default function ObservationToolsPage() {
               <th className="px-4 py-3 text-left font-medium text-sm last:border-r-0">
                 <div className="flex items-center">
                   <span>Action</span>
-                 
                 </div>
               </th>
             </tr>

@@ -6,7 +6,7 @@ import { Logo } from '@/components/ui/logo';
 import { AnimatedContainer } from '@/components/ui/animated-container';
 import { motion } from 'framer-motion';
 
-const Header = () => {
+const Header = ({ handleSetupClick } :any) => {
   return (
     <AnimatedContainer 
       variant="fade" 
@@ -29,6 +29,7 @@ const Header = () => {
           <Link 
             href="/dashboard" 
             className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+            onClick={handleSetupClick}
           >
             Dashboard
           </Link>
@@ -38,6 +39,7 @@ const Header = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="px-6 py-1.5 bg-emerald-700 text-white text-sm rounded-md hover:bg-emerald-800 transition-colors"
+          onClick={handleSetupClick}
         >
           Set up
         </motion.button>
