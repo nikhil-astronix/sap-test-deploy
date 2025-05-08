@@ -6,7 +6,7 @@ import Sidebar from './Sidebar';
 import { useState } from 'react';
 import { AnimatedContainer } from '@/components/ui/animated-container';
 import { any } from 'zod';
-import Dashboard from '@/app/dashboard/page';
+import Dashboard from '@/app/system-dashboard/page';
 
 interface LayoutProps {
   children: React.ReactNode;
