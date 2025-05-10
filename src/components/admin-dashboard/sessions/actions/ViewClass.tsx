@@ -1,14 +1,15 @@
 "use client";
 
-import { ChevronLeft, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { TableRow } from '../../AdminDashboardTable';
 
 interface ViewClassProps {
-  session: any;
-  sessionType: 'today' | 'upcoming' | 'past';
-  onBack: () => void;
+  session: TableRow;
+  sessionType?: 'today' | 'upcoming' | 'past';
+  onBack?: () => void;
 }
 
-const ViewClass = ({ session, sessionType, onBack }: ViewClassProps) => {
+const ViewClass = ({ session, sessionType = 'today', onBack }: ViewClassProps) => {
   // Sample classroom data
   const classrooms = [
     { id: 1, teacher: 'Teacher Sample A', course: 'Course Sample A', grade: 2, materials: 'Illustrative Math, Amplify', hasMore: true, moreCount: 2 },
@@ -24,68 +25,123 @@ const ViewClass = ({ session, sessionType, onBack }: ViewClassProps) => {
 
   return (
     <div className="w-full">
-      
-      {/* Classrooms table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Teacher
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Course/Subject
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Grade
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Instructional Material(s)
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {classrooms.map((classroom) => (
-              <tr key={classroom.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{classroom.teacher}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{classroom.course}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="text-sm text-gray-900">{classroom.grade}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {classroom.materials}
-                    {classroom.hasMore && <span className="ml-1 text-green-600">+{classroom.moreCount}more</span>}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <button className="flex items-center bg-teal-600 text-white px-3 py-1 rounded-md hover:bg-teal-700">
-                    <span className="mr-1">View Calibration</span>
-                    <Eye size={16} />
+        <h2 className="text-xl font-medium mb-4">Observation Classrooms</h2>
+        
+        {/* Classrooms table */}
+        <div className="overflow-hidden border border-gray-200 rounded-md w-full mx-auto">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-white">
+                  <th className="bg-teal-600 border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm">
+                    <div className="flex items-center space-x-1">
+                      <span>Teacher</span>
+                    </div>
+                  </th>
+                  <th className="bg-teal-600 border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm">
+                    <div className="flex items-center space-x-1">
+                      <span>Course/Subject</span>
+                    </div>
+                  </th>
+                  <th className="bg-teal-600 border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm">
+                    <div className="flex items-center space-x-1">
+                      <span>Grade</span>
+                    </div>
+                  </th>
+                  <th className="bg-teal-600 border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm">
+                    <div className="flex items-center space-x-1">
+                      <span>Instructional Material(s)</span>
+                    </div>
+                  </th>
+                  <th className="bg-teal-600 border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm">
+                    <div className="flex items-center space-x-1">
+                      <span>Action</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {classrooms.map((classroom, rowIndex) => (
+                  <tr key={classroom.id} className={`hover:bg-gray-50 ${rowIndex % 2 === 1 ? 'bg-teal-100' : 'bg-white'}`}>
+                    <td className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
+                      <div className="text-sm font-medium text-gray-900">{classroom.teacher}</div>
+                    </td>
+                    <td className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
+                      <div className="text-sm text-gray-900">{classroom.course}</div>
+                    </td>
+                    <td className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm text-center">
+                      <div className="text-sm text-gray-900">{classroom.grade}</div>
+                    </td>
+                    <td className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
+                      <div className="text-sm text-gray-900">
+                        {classroom.materials}
+                        {classroom.hasMore && <span className="ml-1 text-green-600">+{classroom.moreCount}more</span>}
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
+                      <button className="flex items-center bg-teal-600 hover:bg-teal-700 text-white px-2 py-1 rounded text-xs font-medium">
+                        <span className="mr-1">View Calibration</span>
+                        <Eye size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Pagination */}
+          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md bg-white text-gray-700 hover:bg-gray-50">
+                Previous
+              </button>
+              <button className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md bg-white text-gray-700 hover:bg-gray-50">
+                Next
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing <span className="font-medium">1</span> to <span className="font-medium">9</span> of{' '}
+                  <span className="font-medium">97</span> results
+                </p>
+              </div>
+              <div className="flex items-center">
+                <span className="mr-2 text-sm text-gray-700">Rows per page:</span>
+                <select className="mr-4 border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                  <option value={5}>5</option>
+                  <option value={9} selected>9</option>
+                  <option value={15}>15</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span className="sr-only">First</span>
+                    <ChevronLeft size={14} />
+                    <ChevronLeft size={14} className="-ml-1" />
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-        <div>1-9 of 97</div>
-        <div className="flex items-center">
-          <span className="mr-2">Rows per page: 9</span>
-          <button className="mx-1 px-2 py-1 rounded hover:bg-gray-200">&lt;</button>
-          <button className="mx-1 px-2 py-1 rounded hover:bg-gray-200">&gt;</button>
+                  <button className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span className="sr-only">Previous</span>
+                    <ChevronLeft size={14} />
+                  </button>
+                  <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">1</button>
+                  <button className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span className="sr-only">Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                  <button className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span className="sr-only">Last</span>
+                    <ChevronRight size={14} />
+                    <ChevronRight size={14} className="-ml-1" />
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+        
     </div>
   );
 };

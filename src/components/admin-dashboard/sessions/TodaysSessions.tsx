@@ -11,6 +11,7 @@ import {
 import AdminDashboardTable, { TableRow, Column } from '../AdminDashboardTable';
 import { useState } from 'react';
 import ViewClass from './actions/ViewClass';
+import EditSession from './actions/EditSession';
 
 interface TodaysSessionsProps {
   searchTerm?: string;
@@ -20,6 +21,11 @@ interface TodaysSessionsProps {
 const TodaysSessions = ({ searchTerm = '', viewClassroomsSession }: TodaysSessionsProps) => {
   // State for session view type
   const [sessionViewType, setSessionViewType] = useState<'today' | 'upcoming' | 'past'>('today');
+  
+  // State for modals
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewClassroomsOpen, setIsViewClassroomsOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<TableRow | null>(null);
 
   // Sample data for Today's Sessions tab
   const sessionsData: TableRow[] = [
@@ -195,39 +201,28 @@ const TodaysSessions = ({ searchTerm = '', viewClassroomsSession }: TodaysSessio
     { key: 'endTime', label: 'End Time', icon: <Clock size={16} />, sortable: true },
     { key: 'sessionAdmin', label: 'Session Admin', icon: <User size={16} />, sortable: true },
     { key: 'observer', label: 'Observer(s)', icon: <User size={16} />, sortable: true },
+    { key: 'observationTool', label: 'Observation Tool(s)', icon: <Activity size={16} />, sortable: true },
     { key: 'action', label: 'Action', icon: <Activity size={16} />, sortable: false },
   ];
 
   // Custom render function for cells
   const renderCell = (row: TableRow, column: string) => {
-    if (column === 'observer') {
-      const observer = row[column] as string;
-      const observerCount = (row as any).observerCount;
-      
-      return (
-        <div>
-          {observer}
-          {observerCount > 0 && <span className="text-gray-500 text-xs"> +{observerCount} more</span>}
-        </div>
-      );
-    }
-    
     if (column === 'action') {
       return (
         <div className="flex space-x-2">
-          <button className="text-teal-600 hover:text-teal-800 flex items-center">
+          <button
+            onClick={() => handleEditSession(row)}
+            className="text-teal-600 hover:text-teal-800 flex items-center"
+          >
             <span className="mr-1">Edit Session</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
             </svg>
           </button>
-          
-          {(row as any).viewClassrooms && (
+          {row.viewClassrooms && (
             <button 
-              className="text-teal-600 hover:text-teal-800 flex items-center"
-              onClick={() => {
-                window.postMessage({ type: 'VIEW_CLASSROOMS', session: row }, '*');
-              }}
+              className="text-blue-600 hover:text-blue-800 flex items-center"
+              onClick={() => handleViewClassrooms(row)}
             >
               <span className="mr-1">View Classrooms</span>
               <Play size={16} />
@@ -242,8 +237,9 @@ const TodaysSessions = ({ searchTerm = '', viewClassroomsSession }: TodaysSessio
       return (
         <span 
           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            tool?.includes('IPG') ? 'bg-green-100 text-green-800' : 
-            tool?.includes('Math') ? 'bg-purple-100 text-purple-800' : 
+            tool.includes('IPG') ? 'bg-green-100 text-green-800' : 
+            tool.includes('Math') ? 'bg-purple-100 text-purple-800' : 
+            tool.includes('AAPS') ? 'bg-yellow-100 text-yellow-800' :
             'bg-blue-100 text-blue-800'
           }`}
         >
@@ -252,7 +248,32 @@ const TodaysSessions = ({ searchTerm = '', viewClassroomsSession }: TodaysSessio
       );
     }
     
-    return row[column];
+    if (column === 'observer') {
+      const observers = row[column] as string;
+      const count = row.observerCount as number;
+      return (
+        <div className="text-sm">
+          {observers}
+          {count > 0 ? ` +${count} more` : ''}
+        </div>
+      );
+    }
+    
+    return undefined;
+  };
+
+  const handleEditSession = (session: TableRow) => {
+    setSelectedSession(session);
+    setIsEditModalOpen(true);
+  };
+
+  const handleViewClassrooms = (session: TableRow) => {
+    // Send message to parent component to show classrooms
+    window.postMessage({ type: 'VIEW_CLASSROOMS', session }, '*');
+  };
+
+  const handleSaveSession = () => {
+    setIsEditModalOpen(false);
   };
 
   // Filter data based on session view type
@@ -281,24 +302,30 @@ const TodaysSessions = ({ searchTerm = '', viewClassroomsSession }: TodaysSessio
     }
   };
 
+  const filteredData = getFilteredData();
+
   return (
-    <div>
-      {!viewClassroomsSession ? (
-        <AdminDashboardTable 
-          data={getFilteredData()}
-          columns={sessionsColumns}
-          headerColor="teal-600"
-          rowColor="teal-50"
-          renderCell={renderCell}
-          searchTerm={searchTerm}
-        />
-      ) : (
-        <ViewClass 
-          session={viewClassroomsSession}
-          sessionType={sessionViewType}
-          onBack={() => window.postMessage({ type: 'CLOSE_CLASSROOMS' }, '*')} 
+    <div className="space-y-4">
+      {/* Sessions Table */}
+      <AdminDashboardTable
+        data={filteredData}
+        columns={sessionsColumns}
+        headerColor="teal-600"
+        rowColor="teal-100"
+        renderCell={renderCell}
+        searchTerm={searchTerm}
+      />
+
+      {/* Edit Session Modal */}
+      {isEditModalOpen && selectedSession && (
+        <EditSession
+          session={selectedSession}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleSaveSession}
         />
       )}
+
+      {/* View Classrooms Modal removed - now handled by parent component */}
     </div>
   );
 };

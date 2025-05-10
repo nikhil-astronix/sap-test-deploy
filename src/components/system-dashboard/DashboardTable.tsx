@@ -447,7 +447,7 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
   };
 
   return (
-    <div className="overflow-hidden border border-gray-200 rounded-md w-full max-w-[1200px] mx-auto">
+    <div className="overflow-hidden border border-gray-200 rounded-md w-full mx-auto">
       
       {/* Table */}
       <div className="overflow-x-auto">

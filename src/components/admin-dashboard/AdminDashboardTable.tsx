@@ -318,7 +318,7 @@ const AdminDashboardTable = ({
   };
 
   return (
-    <div className="overflow-hidden border border-gray-200 rounded-md w-full max-w-[1200px] mx-auto">
+    <div className="overflow-hidden border border-gray-200 rounded-md w-full mx-auto">
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
@@ -358,7 +358,7 @@ const AdminDashboardTable = ({
                   {columns
                     .filter(col => visibleColumns.includes(col.key))
                     .map((column, index) => (
-                      <td key={`${row.id}-${column.key}`} className="border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
+                      <td key={`${row.id}-${column.key}`} className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
                         {renderCell(row, column.key)}
                       </td>
                     ))}

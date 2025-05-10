@@ -9,6 +9,7 @@ import PastSessions from "@/components/admin-dashboard/sessions/PastSessions";
 import ObservationTools from "@/components/admin-dashboard/ObservationTools";
 import RecentLogins from "@/components/admin-dashboard/RecentLogins";
 import Schools from "@/components/admin-dashboard/Schools";
+import ViewClass from "@/components/admin-dashboard/sessions/actions/ViewClass";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('Todays Sessions');
@@ -25,6 +26,8 @@ export default function AdminDashboard() {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'VIEW_CLASSROOMS') {
         setViewingClassrooms(event.data.session);
+        // Set active tab to 'Todays Sessions' when viewing classrooms
+        setActiveTab('Todays Sessions');
       } else if (event.data && event.data.type === 'CLOSE_CLASSROOMS') {
         setViewingClassrooms(null);
       }
@@ -35,6 +38,17 @@ export default function AdminDashboard() {
   }, []);
     
     const renderSessionComponent = () => {
+      // If viewing classrooms, show the ViewClass component
+      if (viewingClassrooms && activeTab === 'Todays Sessions') {
+        return (
+          <ViewClass 
+            session={viewingClassrooms} 
+            onBack={() => setViewingClassrooms(null)}
+          />
+        );
+      }
+      
+      // Otherwise show the regular session components
       switch (sessionViewType) {
         case 'today':
           return <TodaysSessions searchTerm={searchTerm} viewClassroomsSession={viewingClassrooms} />;
@@ -62,35 +76,41 @@ export default function AdminDashboard() {
       }
     };
 
+  // Determine if we should show session details or welcome message
+  const showSessionDetails = viewingClassrooms && 
+    (activeTab === 'Todays Sessions' || activeTab.includes('Session'));
+    
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gray-50">
-      {viewingClassrooms ? (
-        <div className="mb-6">
-          <div className="flex items-center mb-4">
-            <button 
-              onClick={() => setViewingClassrooms(null)}
-              className="flex items-center text-gray-600 hover:text-gray-900"
-            >
-              <ChevronLeft size={20} />
-              <span>Back</span>
-            </button>
+    <div className="p-6 w-full pl-16 pr-16 mx-auto bg-gray-50">
+      {showSessionDetails && (
+        <div className="mb-4">
+          <button 
+            onClick={() => setViewingClassrooms(null)}
+            className="flex items-center bg-gray-300 rounded-full p-1 pl-2 pr-4 hover:text-gray-900"
+          >
+            <ChevronLeft size={20} />
+            <span>Back</span>
+          </button>
+        </div>
+      )}
+      
+      {showSessionDetails ? (
+        <div className="mb-6 bg-white p-4 rounded-md shadow-sm border border-gray-200">          
+          <div className="flex items-center mb-2">            
+            <div className="flex items-center">
+              <div className="bg-teal-600 text-white rounded-md h-8 w-8 flex items-center justify-center mr-2">
+                <span className="text-sm font-medium">{viewingClassrooms.date.split(' ')[1]}</span>
+              </div>
+              <h1 className="text-xl font-bold">{viewingClassrooms.school} Observation Session</h1>
+            </div>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-md mb-4 flex justify-between items-center">
-            <div>
-              <div className="flex items-center">
-                <div className="bg-teal-600 text-white rounded-md h-8 w-8 flex items-center justify-center mr-2">
-                  <span className="text-sm font-medium">{viewingClassrooms.date.split(' ')[1]}</span>
-                </div>
-                <h1 className="text-xl font-bold">{viewingClassrooms.school} Observation Session</h1>
-              </div>
-            </div>
+          <div className="flex justify-between items-center">
+            <p className="text-gray-600">Viewing classrooms for observation session on {viewingClassrooms.date}</p>
             <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
               {viewingClassrooms.observationTool}
             </div>
           </div>
-          
-          <h2 className="text-xl font-medium mb-4">Observation Classrooms</h2>
         </div>
       ) : (
         <div className="mb-6 bg-white p-4 rounded-md shadow-sm border border-gray-200">

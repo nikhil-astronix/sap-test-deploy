@@ -11,6 +11,7 @@ import {
 import AdminDashboardTable, { TableRow, Column, StatusType } from '../AdminDashboardTable';
 import { useState } from 'react';
 import ViewClass from './actions/ViewClass';
+import EditSession from './actions/EditSession';
 
 interface PastSessionsProps {
   searchTerm?: string;
@@ -18,6 +19,25 @@ interface PastSessionsProps {
 }
 
 const PastSessions = ({ searchTerm = '', viewClassroomsSession }: PastSessionsProps) => {
+  // State for modals
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewClassroomsOpen, setIsViewClassroomsOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<TableRow | null>(null);
+  
+  // Handler functions
+  const handleEditSession = (session: TableRow) => {
+    setSelectedSession(session);
+    setIsEditModalOpen(true);
+  };
+
+  const handleViewClassrooms = (session: TableRow) => {
+    // Send message to parent component to show classrooms
+    window.postMessage({ type: 'VIEW_CLASSROOMS', session }, '*');
+  };
+
+  const handleSaveSession = () => {
+    setIsEditModalOpen(false);
+  };
   // Sample data for Past Sessions tab
   const sessionsData: TableRow[] = [
     {
@@ -200,7 +220,10 @@ const PastSessions = ({ searchTerm = '', viewClassroomsSession }: PastSessionsPr
     if (column === 'action') {
       return (
         <div className="flex space-x-2">
-          <button className="text-teal-600 hover:text-teal-800 flex items-center">
+          <button
+            onClick={() => handleEditSession(row)}
+            className="text-teal-600 hover:text-teal-800 flex items-center"
+          >
             <span className="mr-1">Edit Session</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -209,9 +232,7 @@ const PastSessions = ({ searchTerm = '', viewClassroomsSession }: PastSessionsPr
           {row.viewClassrooms && (
             <button 
               className="text-blue-600 hover:text-blue-800 flex items-center"
-              onClick={() => {
-                window.postMessage({ type: 'VIEW_CLASSROOMS', session: row }, '*');
-              }}
+              onClick={() => handleViewClassrooms(row)}
             >
               <span className="mr-1">View Classrooms</span>
               <Play size={16} />
@@ -248,23 +269,27 @@ const PastSessions = ({ searchTerm = '', viewClassroomsSession }: PastSessionsPr
   };
 
   return (
-    <div>
-      {!viewClassroomsSession ? (
-        <AdminDashboardTable 
-          data={sessionsData}
-          columns={sessionsColumns}
-          headerColor="teal-600"
-          rowColor="teal-50"
-          renderCell={renderCell}
-          searchTerm={searchTerm}
-        />
-      ) : (
-        <ViewClass 
-          session={viewClassroomsSession}
-          sessionType="past"
-          onBack={() => window.postMessage({ type: 'CLOSE_CLASSROOMS' }, '*')} 
+    <div className="space-y-4">
+      {/* Sessions Table */}
+      <AdminDashboardTable
+        data={sessionsData}
+        columns={sessionsColumns}
+        headerColor="teal-600"
+        rowColor="teal-100"
+        renderCell={renderCell}
+        searchTerm={searchTerm}
+      />
+
+      {/* Edit Session Modal */}
+      {isEditModalOpen && selectedSession && (
+        <EditSession
+          session={selectedSession}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleSaveSession}
         />
       )}
+
+      {/* View Classrooms Modal removed - now handled by parent component */}
     </div>
   );
 };
