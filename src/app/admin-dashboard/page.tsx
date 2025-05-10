@@ -19,23 +19,41 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sessionViewType, setSessionViewType] = useState('today');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  // Single state for the currently viewed classroom session
   const [viewingClassrooms, setViewingClassrooms] = useState<any>(null);
+  
+  // Custom tab change handler to reset views
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    // Reset classroom view when switching tabs
+    if (tab !== 'Todays Sessions') {
+      setViewingClassrooms(null);
+    }
+  };
+  
+  // Custom session type change handler
+  const handleSessionTypeChange = (type: string) => {
+    setSessionViewType(type);
+    // Reset classroom view when switching session types
+    setViewingClassrooms(null);
+  };
   
   // Listen for messages from child components
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'VIEW_CLASSROOMS') {
+        // Store the classroom data
         setViewingClassrooms(event.data.session);
-        // Set active tab to 'Todays Sessions' when viewing classrooms
-        setActiveTab('Todays Sessions');
       } else if (event.data && event.data.type === 'CLOSE_CLASSROOMS') {
+        // Clear the classroom data
         setViewingClassrooms(null);
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, []);  // No dependencies needed
     
     const renderSessionComponent = () => {
       // If viewing classrooms, show the ViewClass component
@@ -51,13 +69,13 @@ export default function AdminDashboard() {
       // Otherwise show the regular session components
       switch (sessionViewType) {
         case 'today':
-          return <TodaysSessions searchTerm={searchTerm} viewClassroomsSession={viewingClassrooms} />;
+          return <TodaysSessions searchTerm={searchTerm} />;
         case 'upcoming':
-          return <UpcomingSessions viewClassroomsSession={viewingClassrooms} />;
+          return <UpcomingSessions />;
         case 'past':
-          return <PastSessions viewClassroomsSession={viewingClassrooms} />;
+          return <PastSessions />;
         default:
-          return <TodaysSessions searchTerm={searchTerm} viewClassroomsSession={viewingClassrooms} />;
+          return <TodaysSessions searchTerm={searchTerm} />;
       }
     };
 
@@ -77,8 +95,7 @@ export default function AdminDashboard() {
     };
 
   // Determine if we should show session details or welcome message
-  const showSessionDetails = viewingClassrooms && 
-    (activeTab === 'Todays Sessions' || activeTab.includes('Session'));
+  const showSessionDetails = viewingClassrooms !== null && activeTab === 'Todays Sessions';
     
   return (
     <div className="p-6 w-full pl-16 pr-16 mx-auto bg-gray-50">
@@ -99,16 +116,16 @@ export default function AdminDashboard() {
           <div className="flex items-center mb-2">            
             <div className="flex items-center">
               <div className="bg-teal-600 text-white rounded-md h-8 w-8 flex items-center justify-center mr-2">
-                <span className="text-sm font-medium">{viewingClassrooms.date.split(' ')[1]}</span>
+                <span className="text-sm font-medium">{viewingClassrooms?.date.split(' ')[1]}</span>
               </div>
-              <h1 className="text-xl font-bold">{viewingClassrooms.school} Observation Session</h1>
+              <h1 className="text-xl font-bold">{viewingClassrooms?.school} Observation Session</h1>
             </div>
           </div>
           
           <div className="flex justify-between items-center">
-            <p className="text-gray-600">Viewing classrooms for observation session on {viewingClassrooms.date}</p>
+            <p className="text-gray-600">Viewing classrooms for observation session on {viewingClassrooms?.date}</p>
             <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
-              {viewingClassrooms.observationTool}
+              {viewingClassrooms?.observationTool}
             </div>
           </div>
         </div>
@@ -124,9 +141,9 @@ export default function AdminDashboard() {
           tabs={tabs} 
           colorClasses={colorClasses}
           activeTab={activeTab} 
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           sessionViewType={sessionViewType}
-          setSessionViewType={setSessionViewType}
+          setSessionViewType={handleSessionTypeChange}
           isDropdownOpen={isDropdownOpen}
           setIsDropdownOpen={setIsDropdownOpen}
         />
