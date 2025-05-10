@@ -36,6 +36,7 @@ const navItems: NavItem[] = [
   { icon: <FaUsers className="w-5 h-5" />, label: 'Users', path: '/users' },
   { icon: <FaChartBar className="w-5 h-5" />, label: 'Observation Tools', path: '/observation-tools' },
   { icon: <FaClipboardList className="w-5 h-5" />, label: 'Observation Sessions', path: '/observation-sessions' },
+  { icon: <FaClipboardList className="w-5 h-5" />, label: 'Observation Form', path: '/observation-form' },
 ];
 
 const Sidebar = () => {
