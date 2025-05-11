@@ -1,145 +1,3 @@
-
-//   // Get session status badge
-//   const getSessionStatusBadge = (status: StatusType) => {
-//     switch (status) {
-//       case 'Active':
-//         return <span className="inline-flex items-center gap-1 bg-green-200 text-green-800 px-2 py-1 rounded-full text-xs"><span className="w-2 h-2 bg-green-600 rounded-full"></span> {status}</span>;
-//       case 'Inactive':
-//         return <span className="inline-flex items-center gap-1 bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full text-xs"><span className="w-2 h-2 bg-yellow-600 rounded-full"></span> {status}</span>;
-//       case 'No Session':
-//         return <span className="inline-flex items-center gap-1 bg-red-200 text-red-800 px-2 py-1 rounded-full text-xs"><span className="w-2 h-2 bg-red-600 rounded-full"></span> {status}</span>;
-//       default:
-//         return status;
-//     }
-//   };
-
-//   // Get setup status badge
-//   const getSetupStatusBadge = (status: SetupStatusType) => {
-//     switch (status) {
-//       case 'Complete':
-//         return <span className="inline-flex items-center gap-1 text-green-600 px-2 py-1 text-xs"><span className="w-2 h-2 bg-green-600 rounded-full"></span> {status}</span>;
-//       case 'Partial':
-//         return <span className="inline-flex items-center gap-1 text-yellow-600 px-2 py-1 text-xs"><span className="w-2 h-2 bg-yellow-600 rounded-full"></span> {status}</span>;
-//       case 'Incomplete':
-//         return <span className="inline-flex items-center gap-1 text-red-600 px-2 py-1 text-xs"><span className="w-2 h-2 bg-red-600 rounded-full"></span> {status}</span>;
-//       default:
-//         return status;
-//     }
-//   };
-
-//   // Render cell content
-//   const renderCell = (row: TableRow, column: keyof TableRow) => {
-//     if (column === 'admins') {
-//       const { names, more } = row.admins;
-//       return (
-//         <div>
-//           {names.join(', ')}
-//           {more ? ` +${more} more` : ''}
-//         </div>
-//       );
-//     } else if (column === 'sessionStatus') {
-//       return getSessionStatusBadge(row.sessionStatus);
-//     } else if (column === 'setupStatus') {
-//       return getSetupStatusBadge(row.setupStatus);
-//     } else {
-//       return row[column];
-//     }
-//   };
-
-//   return (
-//     <div className="overflow-x-auto">
-//       <table className="w-full border-collapse">
-//         <thead>
-//           <tr className="bg-white">
-//             {columns
-//               .filter(col => visibleColumns.includes(col.key))
-//               .map((column) => (
-//                 <th 
-//                   key={column.key}
-//                   className="border-b whitespace-nowrap bg-blue-400 border-gray-200 p-3 text-left font-medium text-white text-sm"
-//                 >
-//                   <button
-//                     className="flex items-center space-x-1 focus:outline-none"
-//                     onClick={() => column.sortable ? requestSort(column.key) : null}
-//                     disabled={!column.sortable}
-//                   >
-//                     <span>{column.icon}</span>
-//                     <span>{column.label}</span>
-//                     {column.sortable && (
-//                       <span className="ml-1">
-//                         {sortConfig.key === column.key ? (
-//                           sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-//                         ) : (
-//                           <ChevronDown size={14} className="text-gray-300" />
-//                         )}
-//                       </span>
-//                     )}
-//                   </button>
-//                 </th>
-//               ))}
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {currentRows.map((row) => (
-//             <tr key={row.id} className="hover:bg-gray-50">
-//               {columns
-//                 .filter(col => visibleColumns.includes(col.key))
-//                 .map((column) => (
-//                   <td key={`${row.id}-${column.key}`} className="border-b border-gray-200 p-3 text-sm">
-//                     {renderCell(row, column.key)}
-//                   </td>
-//                 ))}
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-
-//       {/* Pagination */}
-//       <div className="flex items-center justify-between mt-4 text-sm">
-//         <div>
-//           {indexOfFirstRow + 1}-{Math.min(indexOfLastRow, data.length)} of {data.length}
-//         </div>
-        
-//         <div className="flex items-center space-x-2">
-//           <div>
-//             Rows per page: 
-//             <select 
-//               value={rowsPerPage}
-//               onChange={(e) => setRowsPerPage(Number(e.target.value))}
-//               className="ml-2 border border-gray-300 rounded p-1"
-//             >
-//               <option value={9}>9</option>
-//               <option value={25}>25</option>
-//               <option value={50}>50</option>
-//               <option value={100}>100</option>
-//             </select>
-//           </div>
-          
-//           <div className="flex items-center space-x-1">
-//             <button
-//               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-//               disabled={currentPage === 1}
-//               className="p-1 rounded hover:bg-gray-100 disabled:opacity-50"
-//             >
-//               <ChevronLeft size={16} />
-//             </button>
-//             <span>{currentPage}/{Math.ceil(data.length / rowsPerPage)}</span>
-//             <button
-//               onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(data.length / rowsPerPage)))}
-//               disabled={currentPage >= Math.ceil(data.length / rowsPerPage)}
-//               className="p-1 rounded hover:bg-gray-100 disabled:opacity-50"
-//             >
-//               <ChevronRight size={16} />
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default DashboardTable;
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -177,25 +35,29 @@ export interface Column {
   sortable: boolean;
 }
 
-interface DashboardTableProps {
+interface AdminDashboardTableProps {
   data: TableRow[];
   columns: Column[];
   headerColor: string;
   renderCell?: (row: TableRow, column: string) => any;
   rowColor?: string;
+  searchTerm?: string;
 }
 
-const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: customRenderCell, rowColor }: DashboardTableProps) => {
+const AdminDashboardTable = ({ 
+  data: initialData, 
+  columns, 
+  headerColor, 
+  renderCell: customRenderCell, 
+  rowColor = 'bg-blue-50',
+  searchTerm = ''
+}: AdminDashboardTableProps) => {
   // State for current data, sorting, and pagination
   const [data, setData] = useState<TableRow[]>(initialData);
   const [filteredData, setFilteredData] = useState<TableRow[]>(initialData);
-  const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' | null }>({
-    key: null,
-    direction: null,
-  });
+  const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' | null }>({key: null, direction: null});
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(9);
-  const [searchTerm, setSearchTerm] = useState('');
   const [visibleColumns] = useState<string[]>(columns?.map(col => col.key));
 
   // Effect to update filtered data when initial data changes
@@ -204,22 +66,15 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
     setFilteredData(initialData);
   }, [initialData]);
 
-  // Handle search input change
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-    applyFilters(term);
-  };
-
-  // Apply search filters
-  const applyFilters = (term: string) => {
-    if (!term.trim()) {
-      setFilteredData(data);
+  // Effect to update filtered data when search term changes
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredData(initialData);
       return;
     }
 
-    const lowercasedTerm = term.toLowerCase();
-    const filtered = data.filter(row => {
+    const lowercasedTerm = searchTerm.toLowerCase();
+    const filtered = initialData.filter(row => {
       // Check all fields in the row for matches
       return Object.keys(row).some(key => {
         if (key === 'id') return false; // Skip id field
@@ -241,7 +96,7 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
 
     setFilteredData(filtered);
     setCurrentPage(1); // Reset to first page when filtering
-  };
+  }, [searchTerm, initialData]);
 
   // Sorting handler
   const requestSort = (key: string) => {
@@ -262,7 +117,23 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
       // Reset to original order but keep filters
       const resetData = [...initialData];
       setData(resetData);
-      applyFilters(searchTerm);
+      if (searchTerm) {
+        const lowercasedTerm = searchTerm.toLowerCase();
+        const filtered = resetData.filter(row => {
+          return Object.keys(row).some(key => {
+            if (key === 'id') return false;
+            const value = row[key];
+            if (value === null || value === undefined) return false;
+            if (key === 'admins' && row.admins) {
+              return row.admins.names.some(name => name.toLowerCase().includes(lowercasedTerm));
+            }
+            return String(value).toLowerCase().includes(lowercasedTerm);
+          });
+        });
+        setFilteredData(filtered);
+      } else {
+        setFilteredData(resetData);
+      }
     } else {
       const sortedData = [...filteredData].sort((a, b) => {
         if (key === 'admins') {
@@ -448,7 +319,6 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
 
   return (
     <div className="overflow-hidden border border-gray-200 rounded-md w-full mx-auto">
-      
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
@@ -480,33 +350,6 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
                   </th>
                 ))}
             </tr>
-            {/* <tr>
-              {columns?.filter(col => visibleColumns?.includes(col.key))
-                .map((column, index) => {
-                  const bgColorClass = headerColor === 'blue-600' ? 'bg-blue-200' : 
-                                     headerColor === 'green-800' ? 'bg-green-200' : 'bg-purple-200';
-                  return (                    <th 
-                      key={`subheader-${column.key}`}
-                      className={`${bgColorClass} border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-2 text-left font-medium text-gray-700 text-xs`}
-                    >
-                      {column.key === 'sessionStatus' && (
-                        <div className="flex justify-between items-center">
-                          <span>Completed 0</span>
-                          <span className="mx-1">|</span>
-                          <span>Upcoming 0</span>
-                        </div>
-                      )}
-                      {column.key === 'setupStatus' && (
-                        <div className="flex justify-between items-center">
-                          <span>Schools 0</span>
-                          <span className="mx-1">|</span>
-                          <span>Tools 0</span>
-                        </div>
-                      )}
-                    </th>
-                  );
-                })}
-            </tr> */}
           </thead>
           <tbody>
             {currentRows?.length > 0 ? (
@@ -515,7 +358,7 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
                   {columns
                     .filter(col => visibleColumns.includes(col.key))
                     .map((column, index) => (
-                      <td key={`${row.id}-${column.key}`} className="border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
+                      <td key={`${row.id}-${column.key}`} className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm">
                         {renderCell(row, column.key)}
                       </td>
                     ))}
@@ -543,9 +386,9 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
             Previous
           </button>
           <button
-            onClick={() => setCurrentPage(Math.min(currentPage + 1, Math.ceil(filteredData.length / rowsPerPage)))}
-            disabled={currentPage === Math.ceil(filteredData.length / rowsPerPage)}
-            className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === Math.ceil(filteredData.length / rowsPerPage) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+            onClick={() => setCurrentPage(Math.min(currentPage + 1, Math.ceil(data.length / rowsPerPage)))}
+            disabled={currentPage === Math.ceil(data.length / rowsPerPage)}
+            className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage === Math.ceil(data.length / rowsPerPage) ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
           >
             Next
           </button>
@@ -553,11 +396,11 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{filteredData.length > 0 ? indexOfFirstRow + 1 : 0}</span> to{' '}
+              Showing <span className="font-medium">{data.length > 0 ? indexOfFirstRow + 1 : 0}</span> to{' '}
               <span className="font-medium">
-                {Math.min(indexOfLastRow, filteredData.length)}
+                {Math.min(indexOfLastRow, data.length)}
               </span>{' '}
-              of <span className="font-medium">{filteredData.length}</span> results
+              of <span className="font-medium">{data.length}</span> results
             </p>
           </div>
           <div className="flex items-center">
@@ -596,17 +439,21 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
               </button>
               
               {/* Page numbers */}
-              {Array.from({ length: Math.min(5, Math.ceil(filteredData.length / rowsPerPage)) }, (_, i) => {
+              {Array.from({ length: Math.min(5, Math.ceil(data.length / rowsPerPage)) }, (_, i) => {
                 let pageNum;
-                const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+                const totalPages = Math.ceil(data.length / rowsPerPage);
                 
                 if (totalPages <= 5) {
+                  // If we have 5 or fewer pages, show all page numbers
                   pageNum = i + 1;
                 } else if (currentPage <= 3) {
+                  // If we're near the start, show pages 1-5
                   pageNum = i + 1;
                 } else if (currentPage >= totalPages - 2) {
+                  // If we're near the end, show the last 5 pages
                   pageNum = totalPages - 4 + i;
                 } else {
+                  // Otherwise show 2 pages before and 2 pages after current page
                   pageNum = currentPage - 2 + i;
                 }
                 
@@ -622,17 +469,17 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
               })}
               
               <button
-                onClick={() => setCurrentPage(Math.min(currentPage + 1, Math.ceil(filteredData.length / rowsPerPage)))}
-                disabled={currentPage === Math.ceil(filteredData.length / rowsPerPage)}
-                className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${currentPage === Math.ceil(filteredData.length / rowsPerPage) ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}`}
+                onClick={() => setCurrentPage(Math.min(currentPage + 1, Math.ceil(data.length / rowsPerPage)))}
+                disabled={currentPage === Math.ceil(data.length / rowsPerPage)}
+                className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${currentPage === Math.ceil(data.length / rowsPerPage) ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}`}
               >
                 <span className="sr-only">Next</span>
                 <ChevronRight size={14} />
               </button>
               <button
-                onClick={() => setCurrentPage(Math.ceil(filteredData.length / rowsPerPage))}
-                disabled={currentPage === Math.ceil(filteredData.length / rowsPerPage)}
-                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage === Math.ceil(filteredData.length / rowsPerPage) ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}`}
+                onClick={() => setCurrentPage(Math.ceil(data.length / rowsPerPage))}
+                disabled={currentPage === Math.ceil(data.length / rowsPerPage)}
+                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage === Math.ceil(data.length / rowsPerPage) ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}`}
               >
                 <span className="sr-only">Last</span>
                 <ChevronRight size={14} />
@@ -646,4 +493,4 @@ const DashboardTable = ({ data: initialData, columns, headerColor, renderCell: c
   );
 };
 
-export default DashboardTable;
+export default AdminDashboardTable;

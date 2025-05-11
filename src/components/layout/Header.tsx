@@ -27,7 +27,7 @@ const Header = ({ handleSetupClick } :any) => {
           whileTap={{ y: 0 }}
         >
           <Link 
-            href="/dashboard" 
+            href="/system-dashboard" 
             className="text-gray-600 hover:text-gray-900 font-medium text-sm"
             onClick={handleSetupClick}
           >
@@ -52,7 +52,16 @@ const Header = ({ handleSetupClick } :any) => {
         >
           <div className="mr-3 text-right">
             <div className="text-sm font-medium">John Doe</div>
-            <div className="text-xs text-gray-500">System Admin</div>
+            <Link href="/system-dashboard" className="block">
+              <div className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
+                System Admin
+              </div>
+            </Link>
+            <Link href="/admin-dashboard" className="block">
+              <div className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
+                Admin
+              </div>
+            </Link>
           </div>
           <motion.button 
             className="p-1.5 rounded-full hover:bg-gray-100"

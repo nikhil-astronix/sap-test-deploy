@@ -120,7 +120,6 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
                 : "text-red-600 bg-red-100 hover:bg-red-200"
             }`}
           >
-            {isArchived}
             {isArchived ? "Unarchive" : "Archive"}
           </motion.button>
         </motion.div>

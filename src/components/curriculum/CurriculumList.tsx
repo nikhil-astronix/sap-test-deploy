@@ -10,7 +10,7 @@ import {
   Curriculum,
   CurriculumnUpdatedConfigProps,
   fetchCurriculumsRequestPayload,
-} from "../../models/curriculum";
+} from "@/models/curriculum";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -298,7 +298,7 @@ export default function CurriculumList() {
             onClick={() => router.push("/curriculums/new")}
             className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
           >
-            + New Curriculum
+            + Add
           </motion.button>
         </motion.div>
 

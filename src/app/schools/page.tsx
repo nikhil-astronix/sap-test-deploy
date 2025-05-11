@@ -257,6 +257,7 @@ export default function SchoolsPage() {
         loading={loading}
         staticbg={"#2264AC"}
         dynamicbg={"#F3F8FF"}
+        onCreate={"/schools/new"}
       />
     </div>
   );

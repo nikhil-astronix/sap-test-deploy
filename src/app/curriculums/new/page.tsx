@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createCurriculum } from "../../../services/curriculumsService";
+import { createCurriculum } from "@/services/curriculumsService";
 import { createCurriculumPayload } from "@/models/curriculum";
 
 const NewCurriculumPage = () => {
