@@ -1,25 +1,26 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { 
-  FaBuilding, 
-  FaSchool, 
-  FaCog, 
-  FaBook, 
-  FaGraduationCap, 
-  FaUsers, 
-  FaChartBar, 
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  FaBuilding,
+  FaSchool,
+  FaCog,
+  FaBook,
+  FaGraduationCap,
+  FaUsers,
+  FaChartBar,
   FaClipboardList,
   FaBars,
   FaTimes,
   FaChevronLeft,
-  FaChevronRight
-} from 'react-icons/fa';
-import { AnimatedContainer } from '@/components/ui/animated-container';
-import { motion } from 'framer-motion';
-import MultiSelectDropdown from '../MultiSelectDropdown';
+  FaChevronRight,
+} from "react-icons/fa";
+import { AnimatedContainer } from "@/components/ui/animated-container";
+import { motion } from "framer-motion";
+import MultiSelectDropdown from "../MultiSelectDropdown";
+import { Tag } from "lucide-react";
 
 interface NavItem {
   icon: React.ReactNode;
@@ -28,15 +29,52 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { icon: <FaBuilding className="w-5 h-5" />, label: 'Districts', path: '/districts' },
-  { icon: <FaSchool className="w-5 h-5" />, label: 'Schools', path: '/schools' },
-  { icon: <FaCog className="w-5 h-5" />, label: 'Interventions/PD', path: '/interventions' },
-  { icon: <FaBook className="w-5 h-5" />, label: 'Curricula', path: '/curriculums' },
-  { icon: <FaGraduationCap className="w-5 h-5" />, label: 'Classrooms', path: '/classrooms' },
-  { icon: <FaUsers className="w-5 h-5" />, label: 'Users', path: '/users' },
-  { icon: <FaChartBar className="w-5 h-5" />, label: 'Observation Tools', path: '/observation-tools' },
-  { icon: <FaClipboardList className="w-5 h-5" />, label: 'Observation Sessions', path: '/observation-sessions' },
-  { icon: <FaClipboardList className="w-5 h-5" />, label: 'Observation Form', path: '/observation-form' },
+  // {
+  //   icon: <FaBuilding className="w-5 h-5" />,
+  //   label: "Networks",
+  //   path: "#",
+  // },
+  {
+    icon: <FaBuilding className="w-5 h-5" />,
+    label: "Districts",
+    path: "/districts",
+  },
+  {
+    icon: <Tag className="w-5 h-5" />,
+    label: "Tags & Attributes",
+    path: "/interventions",
+  },
+  {
+    icon: <FaBook className="w-5 h-5" />,
+    label: "Instructional Materials",
+    path: "/curriculums",
+  },
+  {
+    icon: <FaSchool className="w-5 h-5" />,
+    label: "Schools",
+    path: "/schools",
+  },
+  {
+    icon: <FaGraduationCap className="w-5 h-5" />,
+    label: "Classrooms",
+    path: "/classrooms",
+  },
+  { icon: <FaUsers className="w-5 h-5" />, label: "Users", path: "/users" },
+  {
+    icon: <FaChartBar className="w-5 h-5" />,
+    label: "Observation Tools",
+    path: "/observation-tools",
+  },
+  {
+    icon: <FaClipboardList className="w-5 h-5" />,
+    label: "Observation Sessions",
+    path: "/observation-sessions",
+  },
+  {
+    icon: <FaClipboardList className="w-5 h-5" />,
+    label: "Observation Form",
+    path: "/observation-form",
+  },
 ];
 
 const Sidebar = () => {
@@ -55,15 +93,15 @@ const Sidebar = () => {
     };
 
     handleResize(); // Initial check
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Placeholder district options
   const districtOptions = [
-    { id: '1', label: 'District 1', value: '1' },
-    { id: '2', label: 'District 2', value: '2' },
-    { id: '3', label: 'District 3', value: '3' },
+    { id: "1", label: "District 1", value: "1" },
+    { id: "2", label: "District 2", value: "2" },
+    { id: "3", label: "District 3", value: "3" },
   ];
 
   const toggleSidebar = () => {
@@ -81,23 +119,26 @@ const Sidebar = () => {
       className="fixed top-4 left-4 z-50 p-2 rounded-md bg-emerald-600 text-white md:hidden"
       aria-label="Toggle menu"
     >
-      {isMobileOpen ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
+      {isMobileOpen ? (
+        <FaTimes className="w-6 h-6" />
+      ) : (
+        <FaBars className="w-6 h-6" />
+      )}
     </button>
   );
 
   const sidebarContent = (
-    <AnimatedContainer 
-      variant="slide" 
+    <AnimatedContainer
+      variant="slide"
       className={`bg-gray-50 min-h-screen transition-all duration-300 ease-in-out flex-shrink-0
-        ${isExpanded 
-          ? 'w-[280px] 2xl:w-96 xl:w-80 lg:w-72 md:w-64' 
-          : 'w-16 md:w-20'
+        ${
+          isExpanded
+            ? "w-[280px] 2xl:w-96 xl:w-80 lg:w-72 md:w-64"
+            : "w-16 md:w-20"
         } 
-        ${isMobile 
-          ? 'fixed left-0 top-0 bottom-0 z-40' 
-          : 'relative'}`}
+        ${isMobile ? "fixed left-0 top-0 bottom-0 z-40" : "relative"}`}
     >
-       {isMobile && (
+      {isMobile && (
         <div className="relative">
           <button
             onClick={toggleSidebar}
@@ -111,13 +152,15 @@ const Sidebar = () => {
             )}
           </button>
         </div>
-      )} 
+      )}
 
-      <div className={`p-6 ${!isExpanded && !isMobile ? 'px-6' : ''}`}>
+      <div className={`p-6 ${!isExpanded && !isMobile ? "px-6" : ""}`}>
         <AnimatedContainer variant="fade">
-          <h2 className={`text-lg font-semibold mb-5 text-center transition-opacity duration-200 ${
-            !isExpanded && !isMobile ? 'opacity-0' : 'opacity-100'
-          }`}>
+          <h2
+            className={`text-lg font-semibold mb-5 text-center transition-opacity duration-200 ${
+              !isExpanded && !isMobile ? "opacity-0" : "opacity-100"
+            }`}
+          >
             Setup
           </h2>
         </AnimatedContainer>
@@ -150,16 +193,18 @@ const Sidebar = () => {
                 <Link
                   href={item.path}
                   className={`flex items-center p-1.5 mt-2 rounded-md transition-colors text-gray-600 ${
-                    (pathname || '').startsWith(item.path)
-                      ? 'bg-white text-gray-900 shadow-md rounded-lg border'
-                      : 'hover:bg-gray-50'
+                    (pathname || "").startsWith(item.path)
+                      ? "bg-white text-gray-900 shadow-md rounded-lg border"
+                      : "hover:bg-gray-50"
                   }`}
                 >
-                  <span className={`${
-                    (pathname || '').startsWith(item.path)
-                      ? 'text-emerald-800'
-                      : 'text-gray-400'
-                  }`}>
+                  <span
+                    className={`${
+                      (pathname || "").startsWith(item.path)
+                        ? "text-emerald-800"
+                        : "text-gray-400"
+                    }`}
+                  >
                     {item.icon}
                   </span>
                   {(isExpanded || isMobile) && (
@@ -175,14 +220,14 @@ const Sidebar = () => {
   );
 
   // Backdrop for mobile menu
-  const Backdrop = () => (
-    isMobile && isMobileOpen && (
+  const Backdrop = () =>
+    isMobile &&
+    isMobileOpen && (
       <div
         className="fixed inset-0 bg-black bg-opacity-50 z-30"
         onClick={() => setIsMobileOpen(false)}
       />
-    )
-  );
+    );
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -196,4 +241,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

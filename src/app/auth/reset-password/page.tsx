@@ -1,45 +1,45 @@
 'use client';
 
+import React, { useState } from 'react'; 
 import { AnimatedContainer } from '@/components/ui/animated-container';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { completeNewPassword, confirmForgotPassword } from '../utils/auth-functions';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { completeNewPassword } from '../utils/auth-functions';
-
-const resetPasswordSchema = z
-.object({
-  // oldPassword: z.string(),
-  newPassword: z
-    .string()
-    .min(6, 'Password must be at least 6 characters')
-    .regex(
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
-      'Password must include at least 1 uppercase letter, 1 number, and 1 special character'
-    ),
-  confirmNewPassword: z.string(),
-})
-.refine((data) => data.newPassword === data.confirmNewPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmNewPassword'],
-});
-// .refine((data) => data.oldPassword !== data.newPassword, {
-//   message: 'New password must be different from old password',
-//   path: ['newPassword'],
-// });
-
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+import { IconLoader2 } from '@tabler/icons-react';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const flow = searchParams?.get("flow");
+  const flow = searchParams?.get('flow');
+  const email = searchParams?.get('email');
+  const isSetNewPw = (flow === 'SET_NEW_PASSWORD');
 
-  // const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [resetPasswordFlow, setResetPasswordFlow] = useState(flow);
+  const [cognitoError, setCognitoError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(false);
+
+  const resetPasswordSchema = z.object({
+    code: isSetNewPw
+      ? z.string().optional()
+      : z.string().length(6, 'Verification code must be exactly 6 characters'),
+    newPassword: z
+      .string()
+      .min(6, 'Password must be at least 6 characters')
+      .regex(
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
+        'Password must include at least 1 uppercase letter, 1 number, and 1 special character'
+      ),
+    confirmNewPassword: z.string(),
+  })
+  .refine((d) => d.newPassword === d.confirmNewPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmNewPassword'],
+  });
+
+  type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
@@ -47,13 +47,28 @@ export default function ResetPasswordPage() {
   });
 
   const onSubmit = async (data: ResetPasswordFormData) => {
-    if (resetPasswordFlow === "SET_NEW_PASSWORD") {
-      const userId = searchParams?.get("userId");
-      const session = searchParams?.get("session");
-      if(typeof userId === 'string' && typeof session === 'string') {
-        completeNewPassword(userId, data.confirmNewPassword, session)
-          .then(() => router.push('/observations'));
+    try {
+      if (isSetNewPw) {
+        const userId  = searchParams?.get('userId');
+        const session = searchParams?.get('session');
+
+        if (userId && session) {
+          await completeNewPassword(userId, data.confirmNewPassword, session);
+          router.push('/observations');
+        }
+      } else {
+        await confirmForgotPassword(
+          email as string,
+          data.code as string,          
+          data.confirmNewPassword,
+        );
+
+        router.push('/auth/login?reset=success');
       }
+    } catch (err: any) {
+      setCognitoError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,51 +77,42 @@ export default function ResetPasswordPage() {
       <AnimatedContainer variant="stagger" staggerItems={true}>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           {
-            (resetPasswordFlow === "SET_NEW_PASSWORD")
+            (isSetNewPw)
               ? "Set New Password"
               : "Reset Password"
           }
         </h2>
-        <p className="text-gray-600 mb-8 text-center">
-          Enter your new password to reset the password
-        </p>
+
+        {
+          (cognitoError !== null) 
+          ? (
+            <p className="text-red-500 mb-8 text-center">
+              {cognitoError}
+            </p> 
+          ) : (
+            <p className="text-gray-600 mb-8 text-center">
+              Enter your new password to reset the password
+            </p>
+          )
+        }
       </AnimatedContainer>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Old Password
-          </label>
-          <div className="relative">
+        {!isSetNewPw && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Verification Code
+            </label>
             <input
-              {...register('oldPassword')}
-              type={showOldPassword ? 'text' : 'password'}
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors pr-10"
-              placeholder="Enter old password"
+              {...register('code')}
+              className="w-full px-4 py-3 rounded-lg bg-gray-50 border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600"
+              placeholder="Enter the 6-digit code"
             />
-            <button
-              type="button"
-              onClick={() => setShowOldPassword(!showOldPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              {showOldPassword ? (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 10C2.5 10 5 5 10 5C15 5 17.5 10 17.5 10C17.5 10 15 15 10 15C5 15 2.5 10 2.5 10Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M4 4L16 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 10C2.5 10 5 5 10 5C15 5 17.5 10 17.5 10C17.5 10 15 15 10 15C5 15 2.5 10 2.5 10Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z" stroke="currentColor" strokeWidth="1.5"/>
-                </svg>
-              )}
-            </button>
+            {errors.code && (
+              <p className="text-red-500 text-sm mt-1">{errors.code.message}</p>
+            )}
           </div>
-          {errors.oldPassword && (
-            <p className="text-red-500 text-sm mt-1">{errors.oldPassword.message}</p>
-          )}
-        </div> */}
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -160,9 +166,17 @@ export default function ResetPasswordPage() {
 
         <button
           type="submit"
-          className="w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 transition-colors"
+          className={`w-full py-3 rounded-lg transition-colors flex items-center justify-center ${loading ? "bg-emerald-500 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"} text-white`}
+          disabled={loading}
         >
-          Reset Password
+          {loading ? (
+            <>
+              <IconLoader2 className='animate-spin mr-2' />
+              {(isSetNewPw) ? "Submitting..." : "Resetting..."}
+            </>
+          ) : (
+            ((isSetNewPw) ? "Set New Password" : "Reset Password")
+          )}
         </button>
       </form>
     </div>

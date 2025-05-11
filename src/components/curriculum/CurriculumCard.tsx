@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import ViewDescriptionModal from '../intervention/ViewDescriptionModal';
-import EditInterventionModal from '../intervention/EditInterventionModal';
-import ArchiveModal from '../intervention/ArchiveInterventionModal';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import ViewDescriptionModal from "../intervention/ViewDescriptionModal";
+import EditInterventionModal from "../intervention/EditInterventionModal";
+import ArchiveModal from "../intervention/ArchiveInterventionModal";
 
 interface CurriculumCardProps {
   title: string;
   description: string;
-  type: 'Default' | 'Custom';
+  type: "Default" | "Custom";
   isArchived: boolean;
   onEdit: () => void;
   onArchive: () => void;
@@ -34,7 +34,7 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
   };
 
   const handleSaveEdit = (editedIntervention: {
-    type: 'Custom' | 'Default';
+    type: "Custom" | "Default";
     title: string;
     description: string;
     isArchived: boolean;
@@ -51,24 +51,26 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
 
   return (
     <>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         className="bg-white p-4 rounded-lg shadow-md border border-gray-200 h-[250px] flex flex-col"
       >
-        <motion.div 
+        <motion.div
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.3 }}
           className="mb-2"
         >
-          <motion.span 
+          <motion.span
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
             className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
-              type === 'Custom' ? 'bg-purple-100 text-purple-800' : 'bg-emerald-100 text-emerald-700'
+              type === "Custom"
+                ? "bg-purple-100 text-purple-800"
+                : "bg-emerald-100 text-emerald-700"
             }`}
           >
             <motion.div
@@ -76,14 +78,14 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, duration: 0.2 }}
               className={`w-2 h-2 rounded-full mr-1 ${
-                type === 'Custom' ? 'bg-purple-800' : 'bg-emerald-800'
+                type === "Custom" ? "bg-purple-800" : "bg-emerald-800"
               }`}
             />
             {type}
           </motion.span>
         </motion.div>
-        
-        <motion.h3 
+
+        <motion.h3
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.3 }}
@@ -91,8 +93,8 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
         >
           {title}
         </motion.h3>
-        
-        <motion.div 
+
+        <motion.div
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.3 }}
@@ -111,23 +113,23 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
             whileTap={{ scale: 0.98 }}
             onClick={handleArchive}
             className={`px-4 py-1 text-sm font-medium rounded-full ${
-              isArchived 
-                ? 'text-emerald-600 bg-emerald-100 hover:bg-emerald-200'
-                : 'text-red-600 bg-red-100 hover:bg-red-200'
+              isArchived
+                ? "text-emerald-600 bg-emerald-100 hover:bg-emerald-200"
+                : "text-red-600 bg-red-100 hover:bg-red-200"
             }`}
           >
-            {isArchived ? 'Unarchive' : 'Archive'}
+            {isArchived ? "Unarchive" : "Archive"}
           </motion.button>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.3 }}
           className="flex-grow overflow-hidden"
         >
           <div className="relative h-full">
-            <motion.p 
+            <motion.p
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.3 }}
@@ -136,7 +138,7 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
               {description}
             </motion.p>
             {description.length > 150 && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.3 }}
@@ -170,7 +172,7 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         intervention={{
-          id: '0', // Temporary ID since we don't have one in props
+          id: "0", // Temporary ID since we don't have one in props
           type,
           title,
           description,
@@ -183,11 +185,11 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
       <ArchiveModal
         isOpen={isArchiveModalOpen}
         onClose={() => setIsArchiveModalOpen(false)}
-        item={{ type, title, itemType: 'Curriculum', isArchived }}
+        item={{ type, title, itemType: "Curriculum", isArchived }}
         onArchive={handleConfirmArchive}
       />
     </>
   );
 };
 
-export default CurriculumCard; 
+export default CurriculumCard;

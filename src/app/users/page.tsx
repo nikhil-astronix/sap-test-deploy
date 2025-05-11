@@ -2,9 +2,16 @@
 import React, { useState, useEffect } from "react";
 import { School, FileText, BookOpen, Zap } from "lucide-react"; // Using Lucide icons
 import Table, { Column } from "@/components/ui/table";
+import {
+  getUser,
+  editUser,
+  archiveUser,
+  restoreUser,
+} from "@/services/userService";
+import { AxiosError } from "axios";
 
 export default function SchoolsPage() {
-  const [schoolsData, setSchoolsData] = useState<any[]>([]);
+  const [usersData, setUsersData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -15,30 +22,7 @@ export default function SchoolsPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
     null
   );
-
-  const gradeOptions = [
-    "Kindergarten",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-  ];
-
-  const curriculaOptions = [
-    "None",
-    "Illustrative Math",
-    "Eureka Math",
-    "Bridges Math",
-    "EngageNY",
-  ];
+  const [isLoading, setIsLoading] = useState(false);
 
   const interventionOptions = [
     "None",
@@ -49,21 +33,40 @@ export default function SchoolsPage() {
     "John Doe",
   ];
 
+  const userTypes = [
+    "Admin",
+    "District Viewer",
+    "Observer",
+    "State Admin",
+    "Super Admin",
+    "Network Admin",
+  ];
+
+  const roles = [
+    "Central Office / District",
+    "Instructional Coach",
+    "Professional Learning Partner",
+    "School Leader",
+    "State",
+    "Teacher",
+    "Other",
+  ];
+
   const columns: Column[] = [
     {
-      key: "firstname",
+      key: "first_name",
       label: "First Name",
       sortable: true,
       icon: <School size={16} />,
       editable: true,
     },
     {
-      key: "lastname",
+      key: "last_name",
       label: "Last Name",
       sortable: true,
       icon: <FileText size={16} />,
       editable: true,
-      options: gradeOptions,
+      // options: gradeOptions,
     },
     {
       key: "email",
@@ -71,7 +74,7 @@ export default function SchoolsPage() {
       sortable: true,
       icon: <BookOpen size={16} />,
       editable: true,
-      options: curriculaOptions,
+      // options: curriculaOptions,
     },
     {
       key: "network",
@@ -103,15 +106,15 @@ export default function SchoolsPage() {
       sortable: true,
       icon: <Zap size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: roles,
     },
     {
-      key: "usertype",
+      key: "user_type",
       label: "User Type",
       sortable: true,
       icon: <Zap size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: userTypes,
     },
   ];
 
@@ -121,28 +124,74 @@ export default function SchoolsPage() {
   };
 
   // Handle save action
-  const handleSave = (updatedRow: any) => {
-    console.log("Save changes for:", updatedRow);
+  const handleSave = async (updatedRow: any) => {
+    try {
+      let data = {
+        first_name: updatedRow.first_name,
+        last_name: updatedRow.last_name,
+        email: updatedRow.email,
+        // state: "",
+        // district: formData.district,
+        // school: formData.school,
+        state: "661943fd4ccf5f44a9a1a001",
+        district: "661943fd4ccf5f44a9a1a002",
+        school: "661943fd4ccf5f44a9a1a003",
+        network: "661943fd4ccf5f44a9a1a001",
+        user_role: updatedRow.role,
+        user_type: updatedRow.user_type,
+      };
+      const response = await editUser(updatedRow.id, data);
 
-    // Update the data in state
-    const updatedData = schoolsData.map((row) =>
-      row.id === updatedRow.id || row.school === updatedRow.school
-        ? updatedRow
-        : row
-    );
-
-    setSchoolsData(updatedData);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (selectedIds: string[]) => {
+  const handleDelete = async (selectedIds: string[]) => {
     console.log("Delete selected rows:", selectedIds);
 
-    const filteredData = schoolsData.filter(
-      (row) => !selectedIds.includes(row.id || row.school)
-    );
+    try {
+      const response = await archiveUser({ ids: selectedIds });
+      console.log("responseresponseresponse", response);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    setSchoolsData(filteredData);
-    setTotalCount((prev) => prev - selectedIds.length);
+  const handleArchive = async (selectedIds: string[]) => {
+    try {
+      const response = await restoreUser({ ids: selectedIds });
+      console.log("responseresponseresponse", response);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePageChange = (page: number) => {
@@ -170,48 +219,23 @@ export default function SchoolsPage() {
   ) => {
     setLoading(true);
     try {
-      setTimeout(() => {
-        const mockData = [
-          {
-            id: 1,
-            firstname: "Jane",
-            lastname: "Doe",
-            email: "jne@example.com",
-            network: "Charter Network",
-            district: "New York City",
-            school: "Elmwood Elementary School",
-            role: "Central Office / District",
-            usertype: "Network Admin",
-          },
-          {
-            id: 2,
-            firstname: "Jane",
-            lastname: "Doe",
-            email: "jane@example.com",
-            network: "None",
-            district: "Los Angeles Unified",
-            school: "Jefferson Middle School",
-            role: "Instructional Coach",
-            usertype: "Observer",
-          },
-        ];
+      const response = await getUser();
+      let sortedData = [...response.data.users];
+      if (sortBy && sortOrder) {
+        sortedData.sort((a, b) => {
+          if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
+          if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+          return 0;
+        });
+      }
 
-        let sortedData = [...mockData];
-        if (sortBy && sortOrder) {
-          sortedData.sort((a, b) => {
-            if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-            if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
-            return 0;
-          });
-        }
+      const startIndex = (page - 1) * limit;
+      const paginatedData = sortedData.slice(startIndex, startIndex + limit);
 
-        const startIndex = (page - 1) * limit;
-        const paginatedData = sortedData.slice(startIndex, startIndex + limit);
-
-        setSchoolsData(paginatedData);
-        setTotalCount(mockData.length);
-        setLoading(false);
-      }, 500);
+      setUsersData(paginatedData);
+      setTotalCount(response.data.total_users);
+      setLoading(false);
+      // }, 500);
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
@@ -227,7 +251,7 @@ export default function SchoolsPage() {
       <h1 className="text-2xl font-bold mb-6">Users</h1>
       <Table
         columns={columns}
-        data={schoolsData}
+        data={usersData}
         totalCount={totalCount}
         rowsPerPageOptions={[5, 10, 25, 50, 100]}
         initialRowsPerPage={rowsPerPage}
@@ -238,9 +262,11 @@ export default function SchoolsPage() {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange}
+        onArchive={handleArchive}
         loading={loading}
         staticbg={"#6C4996"}
         dynamicbg={"#F9F5FF"}
+        onCreate={"/users/new"}
       />
     </div>
   );

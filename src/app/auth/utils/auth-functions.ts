@@ -3,7 +3,9 @@ import {
     InitiateAuthCommand,
     InitiateAuthCommandInput,
     RespondToAuthChallengeCommand,
-    RespondToAuthChallengeCommandInput
+    RespondToAuthChallengeCommandInput,
+    ForgotPasswordCommand,
+    ConfirmForgotPasswordCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 
 import { cognitoConfig } from "@/lib/configs/aws-cognito";
@@ -147,8 +149,24 @@ export const signIn = async (username: string, password: string) => {
             };
         }
     } catch (error) {
-        console.error("Error signing in: ", error);
-        throw error;
+        if (typeof error === "object" && error !== null) {
+            const err = error as { name?: string; message?: string; __type?: string };
+            const awsErrorCode = err.name || err.__type || 'UnknownError';
+            const awsMessage = err.message || 'Something went wrong.';
+
+            switch (awsErrorCode) {
+                case 'UserNotFoundException':
+                    throw new Error("No account found with that email");
+                case 'NotAuthorizedException':
+                    throw new Error("Incorrect username or password");
+                case 'LimitExceededException':
+                    throw new Error("Too many attempts. Please wait and try again later.");
+                default:
+                    throw new Error(awsMessage);
+            }
+        }
+
+        throw new Error('An unknown error occurred.');
     }
 };
 
@@ -183,9 +201,16 @@ export const completeNewPassword = async (
         } else {
             throw new Error("Failed to complete password challenge.");
         }
-    } catch (err) {
-        console.error("Error completing new password challenge:", err);
-        throw err;
+    } catch (error) {
+        if (typeof error === "object" && error !== null) {
+            const err = error as { name?: string; message?: string; __type?: string };
+            const awsErrorCode = err.name || err.__type || 'UnknownError';
+            const awsMessage = err.message || 'Something went wrong.';
+
+            throw new Error(awsMessage);
+        }
+
+        throw new Error('An unknown error occurred.');
     }
 }
 
@@ -211,4 +236,71 @@ export const getMicrosoftSigninUrl = () => {
         `identity_provider=MicrosoftOIDC`;
 
     return microsoft_signin_url;
+};
+
+export const sendForgotPasswordEmail = async (email: string) => {
+    const cmd = new ForgotPasswordCommand({
+        ClientId: cognitoConfig.clientId,
+        Username: email,
+    });
+
+    try {
+        const res = await cognitoClient.send(cmd);
+        return res;
+    } catch (error) {
+        if (typeof error === "object" && error !== null) {
+            const err = error as { name?: string; message?: string; __type?: string };
+            const awsErrorCode = err.name || err.__type || 'UnknownError';
+            const awsMessage = err.message || 'Something went wrong.';
+
+            switch (awsErrorCode) {
+                case 'UserNotFoundException':
+                    throw new Error("No account found with that email.");
+                case 'InvalidParameterException':
+                    throw new Error("Invalid email address or user not confirmed.");
+                case 'LimitExceededException':
+                    throw new Error("Too many attempts. Please wait and try again later.");
+                default:
+                    throw new Error(awsMessage);
+            }
+        }
+
+        throw new Error('An unknown error occurred.');
+    }
+};
+
+export const confirmForgotPassword = async (
+    email: string,
+    code: string,
+    newPassword: string,
+) => {
+    const cmd = new ConfirmForgotPasswordCommand({
+        ClientId: cognitoConfig.clientId,
+        Username: email,         
+        ConfirmationCode: code,
+        Password: newPassword,
+    });
+
+    try {
+        return await cognitoClient.send(cmd);
+    } catch (error) {
+        if (typeof error === 'object' && error !== null) {
+            const err = error as { name?: string; message?: string; __type?: string };
+            const awsErrorCode = err.name || err.__type || 'UnknownError';
+            const awsMessage = err.message || 'Something went wrong.';
+            
+            switch (awsErrorCode) {
+                case 'CodeMismatchException':
+                    throw new Error("The verification code is incorrect. Please try again.");
+                case 'ExpiredCodeException':
+                    throw new Error("The verification code has expired. Please request a new one.");
+                case 'LimitExceededException':
+                    throw new Error("Too many attempts. Please wait and try again later.");
+                default:
+                    throw new Error(awsMessage);
+            }
+        }
+
+        throw new Error('An unknown error occurred.');
+    }
 };

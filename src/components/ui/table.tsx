@@ -34,6 +34,7 @@ interface TableProps {
   initialRowsPerPage?: number;
   onEdit?: (row: any) => void;
   onSave?: (row: any) => void;
+  onArchive?: (row: any) => void;
   onDelete?: (selectedIds: string[]) => void;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (limit: number) => void;
@@ -42,6 +43,7 @@ interface TableProps {
   currentPage?: number;
   staticbg: string;
   dynamicbg: string;
+  onCreate: string;
 }
 
 export default function Table({
@@ -60,6 +62,8 @@ export default function Table({
   currentPage: controlledCurrentPage,
   staticbg,
   dynamicbg,
+  onCreate,
+  onArchive,
 }: TableProps) {
   // State for sorting
   const [sortConfig, setSortConfig] = useState<{
@@ -79,7 +83,8 @@ export default function Table({
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<any>(null);
   const [showArchived, setShowArchived] = useState(false);
-
+  const [showArchiveButton, setShowArchiveButton] = useState(false);
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
   const currentPage =
     controlledCurrentPage !== undefined
       ? controlledCurrentPage
@@ -129,8 +134,16 @@ export default function Table({
     }
   };
 
-  const toggleSelectionMode = () => {
+  const toggleSelectionModeArchive = () => {
     setSelectionMode(!selectionMode);
+    setShowArchiveButton(!showArchiveButton);
+    if (selectionMode) {
+      setSelectedRows([]);
+    }
+  };
+  const toggleSelectionModeDelete = () => {
+    setSelectionMode(!selectionMode);
+    setShowDeleteButton(!showDeleteButton);
     if (selectionMode) {
       setSelectedRows([]);
     }
@@ -158,6 +171,18 @@ export default function Table({
       onDelete(selectedRows);
       setSelectedRows([]);
       setSelectionMode(false);
+      setShowArchiveButton(false);
+      setShowDeleteButton(false);
+    }
+  };
+
+  const handleArchive = () => {
+    if (onArchive && selectedRows.length > 0) {
+      onArchive(selectedRows);
+      setSelectedRows([]);
+      setSelectionMode(false);
+      setShowArchiveButton(false);
+      setShowDeleteButton(false);
     }
   };
 
@@ -214,13 +239,23 @@ export default function Table({
             </button>
           )}
 
-          {selectionMode && (
+          {/* {selectionMode && showDeleteButton && (
             <button
               onClick={handleDelete}
               className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
             >
               <Trash2 size={16} />
               <span>Delete</span>
+            </button>
+          )} */}
+
+          {selectionMode && showArchiveButton && (
+            <button
+              onClick={handleDelete}
+              className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
+            >
+              <Archive size={16} />
+              <span>Archive</span>
             </button>
           )}
 
@@ -235,20 +270,26 @@ export default function Table({
         </div>
 
         <div className="flex items-center space-x-2">
-          <button onClick={toggleSelectionMode} className="p-2 text-gray-500">
-            <span className="sr-only">Delete</span>
+          <button
+            onClick={toggleSelectionModeArchive}
+            className="p-2 text-gray-500"
+          >
+            <span className="sr-only">Archive</span>
             <Archive size={20} />
           </button>
 
-          <button onClick={toggleSelectionMode} className="p-2 text-gray-500">
+          {/* <button
+            onClick={toggleSelectionModeDelete}
+            className="p-2 text-gray-500"
+          >
             <span className="sr-only">Delete</span>
             <Trash2 size={20} />
-          </button>
+          </button> */}
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => router.push("/curriculums/new")}
+            onClick={() => router.push(onCreate)}
             className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
           >
             + Add
@@ -291,20 +332,20 @@ export default function Table({
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">
-                {selectionMode && (
-                  <th className="px-4 py-3 w-10">
-                    <div className="flex items-center justify-center">
-                      <input
-                        type="checkbox"
-                        checked={
-                          selectedRows.length === data.length && data.length > 0
-                        }
-                        onChange={handleSelectAll}
-                        className="h-4 w-4"
-                      />
-                    </div>
-                  </th>
-                )}
+                {/* {selectionMode && ( */}
+                <th className="px-4 py-3 w-10">
+                  <div className="flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedRows.length === data.length && data.length > 0
+                      }
+                      onChange={handleSelectAll}
+                      className="h-4 w-4"
+                    />
+                  </div>
+                </th>
+                {/* )} */}
                 {columns.map((column) => (
                   <th
                     key={column.key}
@@ -343,7 +384,12 @@ export default function Table({
                     </div>
                   </th>
                 ))}
-                <th className="px-6 py-3 text-center">Action</th>
+                <th
+                  className="px-6 py-3 text-center sticky right-0 z-20 border-l border-gray-200"
+                  style={{ backgroundColor: staticbg }}
+                >
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -373,20 +419,22 @@ export default function Table({
                   return (
                     <tr
                       key={rowId || index}
-                      className={index % 2 === 0 ? dynamicbg : "bg-white"}
+                      style={{
+                        backgroundColor: index % 2 === 1 ? dynamicbg : "#fff",
+                      }}
                     >
-                      {selectionMode && (
-                        <td className="px-4 py-4 w-10">
-                          <div className="flex items-center justify-center">
-                            <input
-                              type="checkbox"
-                              checked={selectedRows.includes(rowId)}
-                              onChange={() => handleSelectRow(rowId)}
-                              className="h-4 w-4"
-                            />
-                          </div>
-                        </td>
-                      )}
+                      {/* {selectionMode && ( */}
+                      <td className="px-4 py-4 w-10">
+                        <div className="flex items-center justify-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedRows.includes(rowId)}
+                            onChange={() => handleSelectRow(rowId)}
+                            className="h-4 w-4"
+                          />
+                        </div>
+                      </td>
+                      {/* )} */}
 
                       {columns.map((column) => (
                         <td
@@ -437,7 +485,13 @@ export default function Table({
                         </td>
                       ))}
 
-                      <td className="px-6 py-4 text-center">
+                      <td
+                        className="px-6 py-4 text-center sticky right-0 z-10 border-l border-gray-200"
+                        style={{
+                          backgroundColor:
+                            index % 2 === 1 ? dynamicbg : "#ffffff",
+                        }}
+                      >
                         <button
                           onClick={() => handleStartEdit(row)}
                           className="text-green-500 hover:text-green-700"
