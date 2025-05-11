@@ -1,16 +1,33 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { createCurriculum } from "../../../services/curriculumsService";
+import { createCurriculumPayload } from "@/models/curriculum";
 
 const NewCurriculumPage = () => {
-  const [title, setTitle] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [type, setType] = React.useState<'Default' | 'Custom'>('Custom');
+  const [title, setTitle] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [type, setType] = React.useState<"Default" | "Custom">("Custom");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ title, description, type });
+    const curriculumPayload: createCurriculumPayload = {
+      title,
+      description,
+      type,
+    };
+    try {
+      const response = await createCurriculum(curriculumPayload);
+      if (response.success) {
+        console.log("Curriculum created!", response.data);
+        window.history.back();
+      } else {
+        console.error("Failed to create curriculum:", response.error);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    }
   };
 
   return (
@@ -31,7 +48,9 @@ const NewCurriculumPage = () => {
         >
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-semibold mb-2">Curricula</h1>
-            <p className="text-md text-gray-600">View, edit, and organize all available curricula in one place.</p>
+            <p className="text-md text-gray-600">
+              View, edit, and organize all available curricula in one place.
+            </p>
           </div>
 
           <div className="px-40 py-0">
@@ -85,13 +104,13 @@ const NewCurriculumPage = () => {
                   Type
                 </label>
                 <div className="flex gap-4 text-sm flex-col">
-                  {(['Default', 'Custom'] as const).map((option, index) => (
+                  {(["Default", "Custom"] as const).map((option, index) => (
                     <motion.label
                       key={option}
                       className="flex items-center gap-2 cursor-pointer"
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 0.6 + (index * 0.1), duration: 0.3 }}
+                      transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -100,12 +119,16 @@ const NewCurriculumPage = () => {
                           type="radio"
                           value={option}
                           checked={type === option}
-                          onChange={(e) => setType(e.target.value as 'Default' | 'Custom')}
+                          onChange={(e) =>
+                            setType(e.target.value as "Default" | "Custom")
+                          }
                           className="sr-only"
                         />
                         <motion.div
                           className={`w-4 h-4 rounded-full border-2 ${
-                            type === option ? 'border-emerald-700' : 'border-gray-300'
+                            type === option
+                              ? "border-emerald-700"
+                              : "border-gray-300"
                           }`}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
@@ -153,4 +176,4 @@ const NewCurriculumPage = () => {
   );
 };
 
-export default NewCurriculumPage; 
+export default NewCurriculumPage;
