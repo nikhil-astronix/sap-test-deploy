@@ -6,7 +6,6 @@ import Sidebar from './Sidebar';
 import { useState } from 'react';
 import { AnimatedContainer } from '@/components/ui/animated-container';
 import { any } from 'zod';
-import Dashboard from '@/app/system-dashboard/page';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,18 +22,18 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <AnimatedContainer variant="fade" className="min-h-screen bg-gray-50 ">
       <Header handleSetupClick={toggleSetup} />
-      {showSetup ?
+      {showSetup ? (
         <div className="flex h-[calc(100vh-64px)] overflow-hidden">
           <Sidebar />
-          <AnimatedContainer variant="slide" className="flex-1 py-6 px-2 pr-6  w-full ">
+          <AnimatedContainer variant="slide" className="flex-1 py-6 px-2 pr-6 w-full">
             {children}
           </AnimatedContainer>
         </div>
-      :
-        <div>
-          <Dashboard />
+      ) : (
+        <div className="py-6 px-6">
+          {children}
         </div>
-      }
+      )}
     </AnimatedContainer>
   );
 };
