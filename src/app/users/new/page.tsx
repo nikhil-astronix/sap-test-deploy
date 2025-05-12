@@ -45,14 +45,19 @@ const schools = [
   { label: "School B", value: "School B" },
 ];
 
+const networks = [
+  { label: "Network A", value: "Network A" },
+  { label: "Network B", value: "Network B" },
+];
+
 export default function CreateUserForm() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    district: [] as string[],
-    school: [] as string[],
+    district: "",
+    school: "",
     role: "",
     userType: "",
     network: "",
@@ -82,15 +87,13 @@ export default function CreateUserForm() {
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
-        // state: "",
         // district: formData.district,
         // school: formData.school,
-        state: "661943fd4ccf5f44a9a1a001",
         district: "661943fd4ccf5f44a9a1a002",
         school: "661943fd4ccf5f44a9a1a003",
         user_role: formData.role,
         user_type: formData.userType,
-        network: "",
+        network: "661943fd4ccf5f44a9a1a001",
       };
 
       const response = await createUser(data);
@@ -109,7 +112,7 @@ export default function CreateUserForm() {
   };
 
   return (
-    <div className="h-[calc(100vh-88px)] overflow-y-auto">
+    <div className="h-[calc(100vh-88px)] overflow-y-auto bg-white">
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-600 text-center">
@@ -164,7 +167,7 @@ export default function CreateUserForm() {
                   onChange={(e) =>
                     handleFormChange("firstName", e.target.value)
                   }
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
                 />
               </div>
               <div className="py-2">
@@ -176,7 +179,7 @@ export default function CreateUserForm() {
                   placeholder="Enter last name"
                   value={formData.lastName}
                   onChange={(e) => handleFormChange("lastName", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
                 />
               </div>
               <div className="py-2">
@@ -188,17 +191,27 @@ export default function CreateUserForm() {
                   placeholder="Enter email address"
                   value={formData.email}
                   onChange={(e) => handleFormChange("email", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
                 />
               </div>
-
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Network
+                </label>
+                <Dropdown
+                  options={networks}
+                  value={formData.network}
+                  onChange={(values) => handleFormChange("network", values)}
+                  placeholder="Select network"
+                />
+              </div>
               <div className="py-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   District
                 </label>
-                <MultiSelect
+                <Dropdown
                   options={districts}
-                  values={formData.district}
+                  value={formData.district}
                   onChange={(values) => handleFormChange("district", values)}
                   placeholder="Assign district"
                 />
@@ -208,9 +221,9 @@ export default function CreateUserForm() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   School
                 </label>
-                <MultiSelect
+                <Dropdown
                   options={schools}
-                  values={formData.school}
+                  value={formData.school}
                   onChange={(values) => handleFormChange("school", values)}
                   placeholder="Assign school"
                 />
@@ -291,7 +304,7 @@ function BasicInfo({
           placeholder="Enter first name"
           value={formData.firstName}
           onChange={(e) => onChange("firstName", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
         />
       </div>
       <div>
@@ -303,7 +316,7 @@ function BasicInfo({
           placeholder="Enter last name"
           value={formData.lastName}
           onChange={(e) => onChange("lastName", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
         />
       </div>
       <div>
@@ -315,7 +328,7 @@ function BasicInfo({
           placeholder="Enter email address"
           value={formData.email}
           onChange={(e) => onChange("email", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
         />
       </div>
       <div className="flex justify-between">
@@ -352,11 +365,22 @@ function SelectDistrict({
     <div className="space-y-6">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
+          Network
+        </label>
+        <Dropdown
+          options={networks}
+          value={formData.network}
+          onChange={(values) => onChange("network", values)}
+          placeholder="Select network"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           District
         </label>
-        <MultiSelect
+        <Dropdown
           options={districts}
-          values={formData.district}
+          value={formData.district}
           onChange={(values) => onChange("district", values)}
           placeholder="Assign district"
         />
@@ -366,9 +390,9 @@ function SelectDistrict({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           School
         </label>
-        <MultiSelect
+        <Dropdown
           options={schools}
-          values={formData.school}
+          value={formData.school}
           onChange={(values) => onChange("school", values)}
           placeholder="Assign school"
         />

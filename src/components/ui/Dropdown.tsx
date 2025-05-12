@@ -83,9 +83,7 @@ export default function Dropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-3 py-2 text-left bg-white rounded-lg border ${
-          error ? "border-red-500" : "border-gray-200"
-        } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors`}
+        className={`w-full px-3 py-2 text-left bg-[#F4F6F8] rounded-lg border-none focus:outline-none focus:ring-0 transition-colors`}
       >
         <div className="flex items-center justify-between">
           <span className="text-gray-500">

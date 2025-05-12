@@ -27,15 +27,6 @@ export default function SchoolsPage() {
   const [isArchived, setIsArchived] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
 
-  const interventionOptions = [
-    "None",
-    "Coaching",
-    "Professional Development",
-    "Tutoring",
-    "Jane Doe",
-    "John Doe",
-  ];
-
   const userTypes = [
     "Admin",
     "District Viewer",
@@ -54,6 +45,11 @@ export default function SchoolsPage() {
     "Teacher",
     "Other",
   ];
+
+  const districts = ["District A", "District B"];
+  const schools = ["School A", "School B"];
+
+  const networks = ["Network A", "Network B"];
 
   const columns: Column[] = [
     {
@@ -85,7 +81,7 @@ export default function SchoolsPage() {
       sortable: true,
       icon: <Zap size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: networks,
     },
     {
       key: "district",
@@ -93,7 +89,7 @@ export default function SchoolsPage() {
       sortable: true,
       icon: <Zap size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: districts,
     },
     {
       key: "school",
@@ -101,7 +97,7 @@ export default function SchoolsPage() {
       sortable: true,
       icon: <Zap size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: schools,
     },
     {
       key: "role",
@@ -136,7 +132,6 @@ export default function SchoolsPage() {
         // state: "",
         // district: formData.district,
         // school: formData.school,
-        state: "661943fd4ccf5f44a9a1a001",
         district: "661943fd4ccf5f44a9a1a002",
         school: "661943fd4ccf5f44a9a1a003",
         network: "661943fd4ccf5f44a9a1a001",

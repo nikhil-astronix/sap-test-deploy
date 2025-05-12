@@ -602,7 +602,8 @@ export default function Table({
                         selectedRows.length === data.length && data.length > 0
                       }
                       onChange={handleSelectAll}
-                      className="h-4 w-4 bg"
+                      className="h-4 w-4 appearance-none border-2 border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                      style={{ accentColor: staticbg }}
                     />
                   </div>
                 </th>
@@ -692,6 +693,7 @@ export default function Table({
                             checked={selectedRows.includes(rowId)}
                             onChange={() => handleSelectRow(rowId)}
                             className="h-4 w-4"
+                            style={{ accentColor: staticbg }}
                           />
                         </div>
                       </td>

@@ -2,7 +2,7 @@ export interface userData {
   first_name: string;
   last_name: string;
   email: string;
-  state: string;
+  network: string;
   district: string;
   school: string;
   user_role: string;
