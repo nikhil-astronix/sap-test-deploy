@@ -44,6 +44,8 @@ interface TableProps {
   staticbg: string;
   dynamicbg: string;
   onCreate: string;
+  onToggleArchived?: (archived: boolean) => void;
+  onSearchChange?: (search: string) => void;
 }
 
 export default function Table({
@@ -64,6 +66,8 @@ export default function Table({
   dynamicbg,
   onCreate,
   onArchive,
+  onToggleArchived,
+  onSearchChange,
 }: TableProps) {
   // State for sorting
   const [sortConfig, setSortConfig] = useState<{
@@ -89,6 +93,7 @@ export default function Table({
     controlledCurrentPage !== undefined
       ? controlledCurrentPage
       : internalCurrentPage;
+  const [search, setSearch] = useState("");
 
   const handleSort = (key: string) => {
     let direction: "asc" | "desc" | null = "asc";
@@ -183,6 +188,7 @@ export default function Table({
       setSelectionMode(false);
       setShowArchiveButton(false);
       setShowDeleteButton(false);
+      setShowArchived(false);
     }
   };
 
@@ -220,6 +226,18 @@ export default function Table({
   return (
     <div className="w-full bg-white rounded-lg shadow">
       <div className="flex items-center justify-between px-6 py-3">
+        <input
+          className="border rounded-lg px-3 py-2 w-1/3 text-sm"
+          placeholder="Search"
+          value={search}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearch(value);
+            if (onSearchChange) {
+              onSearchChange(value);
+            }
+          }}
+        />
         <div className="flex items-center space-x-2">
           {(selectionMode || editingRowId) && (
             <button
@@ -251,7 +269,7 @@ export default function Table({
 
           {selectionMode && showArchiveButton && (
             <button
-              onClick={handleDelete}
+              onClick={showArchived ? handleArchive : handleDelete}
               className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
             >
               <Archive size={16} />
@@ -303,7 +321,13 @@ export default function Table({
             <span>Active</span>
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowArchived(!showArchived)}
+              onClick={() => {
+                const newState = !showArchived;
+                setShowArchived(newState);
+                if (onToggleArchived) {
+                  onToggleArchived(newState);
+                }
+              }}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 showArchived ? "bg-emerald-600" : "bg-emerald-600" //'bg-gray-200'
               }`}

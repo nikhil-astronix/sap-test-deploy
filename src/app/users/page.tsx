@@ -9,6 +9,7 @@ import {
   restoreUser,
 } from "@/services/userService";
 import { AxiosError } from "axios";
+import { fetchUsersRequestPayload } from "@/types/userData";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -18,11 +19,13 @@ export default function SchoolsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isArchived, setIsArchived] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
 
   const interventionOptions = [
     "None",
@@ -196,42 +199,69 @@ export default function SchoolsPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    fetchData(page, rowsPerPage, sortField, sortDirection);
+    fetchData(
+      page,
+      rowsPerPage,
+      sortField,
+      sortDirection,
+      isArchived,
+      searchQuery
+    );
   };
 
   const handleRowsPerPageChange = (limit: number) => {
     setRowsPerPage(limit);
     setCurrentPage(1);
-    fetchData(1, limit, sortField, sortDirection);
+    fetchData(1, limit, sortField, sortDirection, isArchived, searchQuery);
   };
 
-  const handleSortChange = (key: string, direction: "asc" | "desc" | null) => {
+  const handleSortChange = (
+    key: string | null,
+    direction: "asc" | "desc" | null
+  ) => {
     setSortField(key);
     setSortDirection(direction);
-    fetchData(currentPage, rowsPerPage, key, direction);
+    fetchData(
+      currentPage,
+      rowsPerPage,
+      key,
+      direction,
+      isArchived,
+      searchQuery
+    );
   };
 
   const fetchData = async (
     page: number,
     limit: number,
-    sortBy?: string,
-    sortOrder?: "asc" | "desc" | null
+    sortBy: string | null = null,
+    sortOrder: "asc" | "desc" | null = null,
+    isArchived: boolean = false,
+    search: string | null = null
   ) => {
     setLoading(true);
     try {
-      const response = await getUser();
-      let sortedData = [...response.data.users];
-      if (sortBy && sortOrder) {
-        sortedData.sort((a, b) => {
-          if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-          if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
-          return 0;
-        });
-      }
+      const requesPayload: fetchUsersRequestPayload = {
+        is_archived: isArchived,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        curr_page: page,
+        per_page: limit,
+        search: search,
+      };
+      const response = await getUser(requesPayload);
+      // let sortedData = [...response.data.users];
+      // if (sortBy && sortOrder) {
+      //   sortedData.sort((a, b) => {
+      //     if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
+      //     if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+      //     return 0;
+      //   });
+      // }
 
-      const startIndex = (page - 1) * limit;
-      const paginatedData = sortedData.slice(startIndex, startIndex + limit);
-
+      // const startIndex = (page - 1) * limit;
+      // const paginatedData = sortedData.slice(startIndex, startIndex + limit);
+      const paginatedData = [...response.data.users];
       setUsersData(paginatedData);
       setTotalCount(response.data.total_users);
       setLoading(false);
@@ -243,8 +273,15 @@ export default function SchoolsPage() {
   };
 
   useEffect(() => {
-    fetchData(currentPage, rowsPerPage);
-  }, []);
+    fetchData(
+      currentPage,
+      rowsPerPage,
+      sortField,
+      sortDirection,
+      isArchived,
+      searchQuery
+    );
+  }, [searchQuery]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -263,6 +300,18 @@ export default function SchoolsPage() {
         onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange}
         onArchive={handleArchive}
+        onSearchChange={setSearchQuery}
+        onToggleArchived={(archived) => {
+          setIsArchived(archived);
+          fetchData(
+            currentPage,
+            rowsPerPage,
+            sortField,
+            sortDirection,
+            archived,
+            searchQuery
+          );
+        }}
         loading={loading}
         staticbg={"#6C4996"}
         dynamicbg={"#F9F5FF"}

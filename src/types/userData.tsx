@@ -22,3 +22,12 @@ export interface curriculumOptions {
   page?: number;
   limit?: number;
 }
+
+export interface fetchUsersRequestPayload {
+  is_archived: boolean;
+  sort_by: string | null;
+  sort_order: string | null;
+  curr_page: number;
+  per_page: number;
+  search: string | null;
+}

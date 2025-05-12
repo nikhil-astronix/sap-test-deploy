@@ -1,5 +1,5 @@
 import apiClient from "@/api/axiosInterceptor";
-import { userData } from "@/types/userData";
+import { userData, fetchUsersRequestPayload } from "@/types/userData";
 // Replace with actual endpoint
 
 export const createUser = async (data: userData) => {
@@ -12,9 +12,11 @@ export const createUser = async (data: userData) => {
   }
 };
 
-export const getUser = async () => {
+export const getUser = async (requestPayload: fetchUsersRequestPayload) => {
   try {
-    const response = await apiClient.get(`/v1/user`);
+    const response = await apiClient.get(`/v1/user`, {
+      params: requestPayload,
+    });
     return { success: true, data: response.data };
   } catch (error) {
     console.error("user profile service error:", error);
