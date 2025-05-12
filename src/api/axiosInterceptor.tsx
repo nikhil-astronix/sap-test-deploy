@@ -21,7 +21,7 @@ const retryRequest = async (error: AxiosError, retryCount = 0) => {
   // Don't retry on 401, 403, or 404
   if (
     error.response?.status &&
-    [401, 403, 404].includes(error.response.status)
+    [401, 403, 404, 500].includes(error.response.status)
   ) {
     return Promise.reject(error);
   }

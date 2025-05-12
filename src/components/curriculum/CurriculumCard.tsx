@@ -3,15 +3,10 @@ import { motion } from "framer-motion";
 import ViewDescriptionModal from "../intervention/ViewDescriptionModal";
 import EditInterventionModal from "../intervention/EditInterventionModal";
 import ArchiveModal from "../intervention/ArchiveInterventionModal";
-
-interface CurriculumCardProps {
-  title: string;
-  description: string;
-  type: "Default" | "Custom";
-  isArchived: boolean;
-  onEdit: () => void;
-  onArchive: () => void;
-}
+import {
+  CurriculumCardProps,
+  CurriculumnUpdatedConfigProps,
+} from "../../models/curriculum";
 
 const CurriculumCard: React.FC<CurriculumCardProps> = ({
   title,
@@ -40,7 +35,14 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
     isArchived: boolean;
     createdAt: Date;
   }) => {
-    onEdit();
+    const updatedConfig: CurriculumnUpdatedConfigProps = {
+      type: editedIntervention.type,
+      title: editedIntervention.title,
+      description: editedIntervention.description,
+      isArchived: editedIntervention.isArchived,
+    };
+
+    onEdit(updatedConfig);
     setIsEditModalOpen(false);
   };
 

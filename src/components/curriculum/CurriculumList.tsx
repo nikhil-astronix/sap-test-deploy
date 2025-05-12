@@ -6,19 +6,20 @@ import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/react/24/outline";
-import CurriculumCard from "./CurriculumCard";
+import {
+  Curriculum,
+  CurriculumnUpdatedConfigProps,
+  fetchCurriculumsRequestPayload,
+} from "@/models/curriculum";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { editCurriculum, getCurriculums } from "@/services/curriculumService";
-import { fi, is } from "date-fns/locale";
-
-interface Curriculum {
-  id: string;
-  title: string;
-  description: string;
-  type: "Default" | "Custom";
-  isArchived: boolean;
-}
+import {
+  archiveCurriculumById,
+  fetchAllCurriculums,
+  unArchiveCurriculumById,
+  updateCurriculumById,
+} from "../../services/curriculumsService";
+import CurriculumCard from "./CurriculumCard";
 
 const container = {
   hidden: { opacity: 0 },
@@ -40,77 +41,117 @@ export default function CurriculumList() {
   const [showArchived, setShowArchived] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filterType, setFilterType] = useState<"Default" | "Custom" | "Both">(
-    "Default"
+    "Both"
   );
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "az" | "za">(
     "newest"
   );
   const filterRef = useRef<HTMLDivElement>(null);
+
+  //  created seperate statevariable
+  // if we use above directly in api calls , it will make api call immediatly but we need to call when we click on apply button
+  const [finalFilterType, setfinalFilterType] = useState<
+    "Default" | "Custom" | "Both"
+  >("Both");
+  const [finalSortBy, setfinalSortBy] = useState<
+    "newest" | "oldest" | "az" | "za"
+  >("newest");
+
   const router = useRouter();
-  const [curriculums, setCurriculums] = useState<Curriculum[]>([]);
+  const [curriculums, setCurriculums] = useState([] as Curriculum[]);
 
+  //feth curriculums list
   useEffect(() => {
-    const getData = async () => {
-      const obj = { is_archived: showArchived, type: filterType };
-      const response = await getCurriculums(obj);
-      setCurriculums(response.data.curriculums);
-    };
-    getData();
-  }, [showArchived, filterType]);
+    fetchCurriculums();
+  }, [search, showArchived, finalFilterType, finalSortBy]);
 
-  const handleArchive = (curriculumId: string) => {
-    setCurriculums(
-      curriculums.map((curriculum) => {
-        if (curriculum.id === curriculumId) {
-          return {
-            ...curriculum,
-            isArchived: !curriculum.isArchived,
-          };
-        }
-        return curriculum;
-      })
-    );
+  const fetchCurriculums = async () => {
+    try {
+      const requesPayload: fetchCurriculumsRequestPayload = {
+        is_archived: showArchived,
+        type: finalFilterType,
+        sort_by:
+          finalSortBy === "newest" || finalSortBy === "oldest"
+            ? "cretedBy"
+            : "title",
+        sort_order:
+          finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
+        search: search,
+        page: 1,
+        limit: 10,
+      };
+      const data = await fetchAllCurriculums(requesPayload);
+      if (data.success) {
+        setCurriculums(data.data.curriculums);
+      } else {
+        setCurriculums([] as Curriculum[]);
+      }
+    } catch (error) {
+      console.error("Failed to load curriculums:", error);
+    }
   };
 
-  const handleEdit = async (curriculum: Curriculum) => {
-    const response = await editCurriculum(curriculum.id, {
-      type: curriculum.type,
-      description: curriculum.description,
-      title: curriculum.title,
-    });
-    console.log(response.data);
+  const handleArchive = async (curriculumId: string, is_archived: boolean) => {
+    is_archived ? callUnArchive(curriculumId) : callArchive(curriculumId);
   };
 
-  // const filteredCurriculums = curriculums
-  //   .filter((curriculum) => {
-  //     const matchesSearch =
-  //       curriculum.title.toLowerCase().includes(search.toLowerCase()) ||
-  //       curriculum.description.toLowerCase().includes(search.toLowerCase());
-  //     const matchesType =
-  //       filterType === "Both" ? true : curriculum.type === filterType;
-  //     const matchesArchived = curriculum.isArchived === showArchived;
-  //     return matchesSearch && matchesType && matchesArchived;
-  //   })
-  //   .sort((a, b) => {
-  //     switch (sortBy) {
-  //       case "az":
-  //         return a.title.localeCompare(b.title);
-  //       case "za":
-  //         return b.title.localeCompare(a.title);
-  //       case "newest":
-  //         return -1; // Assuming newest first for now
-  //       case "oldest":
-  //         return 1; // Assuming oldest last for now
-  //       default:
-  //         return 0;
-  //     }
-  //   });
+  const callArchive = async (curriculumId: string) => {
+    try {
+      const response = await archiveCurriculumById(curriculumId);
+      if (response.success) {
+        console.log("Curriculum archived successfully!", response.data);
+        fetchCurriculums();
+      } else {
+        console.error("Failed to archive curriculum:", response.error);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    }
+  };
+
+  const callUnArchive = async (curriculumId: string) => {
+    try {
+      const response = await unArchiveCurriculumById(curriculumId);
+      if (response.success) {
+        console.log("Curriculum archived successfully!", response.data);
+        fetchCurriculums();
+      } else {
+        console.error("Failed to archive curriculum:", response.error);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    }
+  };
+
+  const handleApplyFilters = () => {
+    setfinalFilterType(filterType);
+    setfinalSortBy(sortBy);
+    setShowFilters(false);
+  };
 
   const handleFilterReset = () => {
     setSearch("");
     setShowArchived(false);
     setFilterType("Both");
     setSortBy("newest");
+  };
+
+  const handleEditCurriculum = async (
+    id: string,
+    curriculum: CurriculumnUpdatedConfigProps
+  ) => {
+    try {
+      const response = await updateCurriculumById(id, curriculum);
+      if (response.success) {
+        console.log("Curriculum updated successfully!", response.data);
+        window.history.back();
+        fetchCurriculums();
+      } else {
+        console.error("Failed to edit curriculum:", response.error);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    }
   };
 
   return (
@@ -242,7 +283,7 @@ export default function CurriculumList() {
 
                 {/* Apply Button */}
                 <button
-                  onClick={() => setShowFilters(false)}
+                  onClick={() => handleApplyFilters()}
                   className="w-full bg-emerald-700 text-white py-2 rounded-lg hover:bg-emerald-800 transition-colors mt-4"
                 >
                   Apply
@@ -298,18 +339,28 @@ export default function CurriculumList() {
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
           >
-            {curriculums.map((curriculum) => (
-              <motion.div key={curriculum.id} variants={item}>
-                <CurriculumCard
-                  title={curriculum.title}
-                  description={curriculum.description}
-                  type={curriculum.type}
-                  isArchived={curriculum.isArchived}
-                  onEdit={() => handleEdit(curriculum)}
-                  onArchive={() => handleArchive(curriculum.id)}
-                />
-              </motion.div>
-            ))}
+            {curriculums.length > 0 &&
+              curriculums.map((curriculum) => (
+                <motion.div key={curriculum.id} variants={item}>
+                  <CurriculumCard
+                    title={curriculum.title}
+                    description={curriculum.description}
+                    type={curriculum.type}
+                    isArchived={curriculum.is_archived}
+                    onEdit={(
+                      updatedCurriculumConfig: CurriculumnUpdatedConfigProps
+                    ) => {
+                      handleEditCurriculum(
+                        curriculum.id,
+                        updatedCurriculumConfig
+                      );
+                    }}
+                    onArchive={() =>
+                      handleArchive(curriculum.id, curriculum.is_archived)
+                    }
+                  />
+                </motion.div>
+              ))}
           </motion.div>
         </div>
       </div>

@@ -2,18 +2,32 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createCurriculum } from "@/services/curriculumService";
+import { createCurriculum } from "@/services/curriculumsService";
+import { createCurriculumPayload } from "@/models/curriculum";
 
 const NewCurriculumPage = () => {
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [type, setType] = React.useState<"Default" | "Custom">("Default");
+  const [type, setType] = React.useState<"Default" | "Custom">("Custom");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const obj = { title, description, type };
-    const response = await createCurriculum(obj);
-    console.log(response.data);
+    const curriculumPayload: createCurriculumPayload = {
+      title,
+      description,
+      type,
+    };
+    try {
+      const response = await createCurriculum(curriculumPayload);
+      if (response.success) {
+        console.log("Curriculum created!", response.data);
+        window.history.back();
+      } else {
+        console.error("Failed to create curriculum:", response.error);
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    }
   };
 
   return (
