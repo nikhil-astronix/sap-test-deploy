@@ -284,8 +284,14 @@ export default function SchoolsPage() {
   }, [searchQuery]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Users</h1>
+    <div className="container text-center mx-auto px-4 py-8">
+      <h1 className="text-2xl text-center font-bold mb-6">Users</h1>
+      <div>
+        <p className="text-center text-gray-600 mb-6">
+          Browse all users across districts. Add, update, or archive user
+          accounts as needed.
+        </p>
+      </div>
       <Table
         columns={columns}
         data={usersData}

@@ -128,15 +128,12 @@ const Sidebar = () => {
   );
 
   const sidebarContent = (
-    <AnimatedContainer
-      variant="slide"
+    <div
       className={`bg-gray-50 min-h-screen transition-all duration-300 ease-in-out flex-shrink-0
-        ${
-          isExpanded
-            ? "w-[280px] 2xl:w-96 xl:w-80 lg:w-72 md:w-64"
-            : "w-16 md:w-20"
-        } 
-        ${isMobile ? "fixed left-0 top-0 bottom-0 z-40" : "relative"}`}
+    ${
+      isExpanded ? "w-[280px] 2xl:w-96 xl:w-80 lg:w-72 md:w-64" : "w-16 md:w-20"
+    } 
+    ${isMobile ? "fixed left-0 top-0 bottom-0 z-40" : "relative"}`}
     >
       {isMobile && (
         <div className="relative">
@@ -216,7 +213,7 @@ const Sidebar = () => {
           </AnimatedContainer>
         </div>
       </div>
-    </AnimatedContainer>
+    </div>
   );
 
   // Backdrop for mobile menu

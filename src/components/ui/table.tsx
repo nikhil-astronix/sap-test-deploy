@@ -10,6 +10,7 @@ import {
   Check,
   X,
   Save,
+  RotateCcw,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -94,8 +95,11 @@ export default function Table({
       ? controlledCurrentPage
       : internalCurrentPage;
   const [search, setSearch] = useState("");
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
 
   const handleSort = (key: string) => {
+    setShowArchived(false);
     let direction: "asc" | "desc" | null = "asc";
 
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -115,6 +119,7 @@ export default function Table({
   const startIndex = (currentPage - 1) * rowsPerPage;
 
   const handlePageChange = (page: number) => {
+    setShowArchived(false);
     if (controlledCurrentPage === undefined) {
       setInternalCurrentPage(page);
     }
@@ -129,21 +134,32 @@ export default function Table({
   ) => {
     const newRowsPerPage = Number(event.target.value);
     setRowsPerPage(newRowsPerPage);
-
+    setShowArchived(false);
     if (controlledCurrentPage === undefined) {
       setInternalCurrentPage(1);
     }
 
     if (onRowsPerPageChange) {
+      setShowArchived(false);
       onRowsPerPageChange(newRowsPerPage);
     }
   };
 
   const toggleSelectionModeArchive = () => {
-    setSelectionMode(!selectionMode);
-    setShowArchiveButton(!showArchiveButton);
-    if (selectionMode) {
-      setSelectedRows([]);
+    // if (selectionMode) {
+    //   setSelectedRows([]);
+    // }
+    if (showArchived) {
+      setShowRestoreModal(true);
+      setSelectionMode(!selectionMode);
+      setShowArchiveButton(!showArchiveButton);
+
+      //setSelectedRows([]);
+    } else {
+      setShowArchiveModal(true);
+      setSelectionMode(!selectionMode);
+      setShowArchiveButton(!showArchiveButton);
+      //setSelectedRows([]);
     }
   };
   const toggleSelectionModeDelete = () => {
@@ -178,6 +194,8 @@ export default function Table({
       setSelectionMode(false);
       setShowArchiveButton(false);
       setShowDeleteButton(false);
+      setShowArchiveModal(false);
+      setSelectedRows([]);
     }
   };
 
@@ -189,6 +207,7 @@ export default function Table({
       setShowArchiveButton(false);
       setShowDeleteButton(false);
       setShowArchived(false);
+      setShowRestoreModal(false);
     }
   };
 
@@ -225,21 +244,235 @@ export default function Table({
 
   return (
     <div className="w-full bg-white rounded-lg shadow">
-      <div className="flex items-center justify-between px-6 py-3">
-        <input
-          className="border rounded-lg px-3 py-2 w-1/3 text-sm"
-          placeholder="Search"
-          value={search}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSearch(value);
-            if (onSearchChange) {
-              onSearchChange(value);
-            }
-          }}
-        />
-        <div className="flex items-center space-x-2">
-          {(selectionMode || editingRowId) && (
+      {/* Archive Confirmation Modal */}
+      {showArchiveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
+            <div className="flex items-center gap-2 mb-4">
+              <Archive className="text-gray-600" size={24} />
+              <h2 className="text-xl font-semibold">Archive</h2>
+            </div>
+            <p className="text-left text-gray-700 mb-4">
+              Are you sure you want to archive this user?
+            </p>
+
+            {/* Single user selection */}
+            {selectedRows.length === 1 && (
+              <div className="mt-2 rounded-lg bg-gray-50 p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium">
+                      {
+                        data.find((row) => row.id === selectedRows[0])
+                          ?.first_name
+                      }
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {data.find((row) => row.id === selectedRows[0])?.email}
+                    </p>
+                  </div>
+                  <div className="text-sm font-medium">
+                    {data.find((row) => row.id === selectedRows[0])?.role}
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Multiple users selection with scrollable list */}
+            {selectedRows.length > 1 && (
+              <div
+                className={`rounded-lg bg-gray-50 p-4 mb-6 ${
+                  selectedRows.length > 2
+                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400"
+                    : ""
+                }`}
+              >
+                {selectedRows.map((userId) => {
+                  const user = data.find((row) => row.id === userId);
+                  return (
+                    <div
+                      key={userId}
+                      className="flex justify-between items-center border-b border-gray-200 last:border-0 py-1.5"
+                    >
+                      <div className="flex flex-col items-start">
+                        <p className="font-medium">{user?.first_name}</p>
+                        <p className="text-sm text-gray-500">{user?.email}</p>
+                      </div>
+                      <div className="text-sm font-medium text-right ">
+                        {user?.role}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-[#C23E19]"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                </div>
+              </div>
+              <p className="text-left text-sm text-[#C23E19]">
+                Archiving this user will revoke their access and remove them
+                from active dashboards. Their account will remain in the system
+                and can be restored later if needed.
+              </p>
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowArchiveModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-[#B4351C] text-white rounded-lg hover:bg-[#943015] transition-colors"
+              >
+                Archive
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Restore Confirmation Modal */}
+      {showRestoreModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
+            <div className="flex items-center gap-2 mb-4">
+              <RotateCcw className="text-blue-600" size={24} />
+              <h2 className="text-xl font-semibold">Restore</h2>
+            </div>
+            <p className="text-left text-gray-700 mb-4">
+              Are you sure you want to restore this user?
+            </p>
+
+            {/* Single user selection */}
+            {selectedRows.length === 1 && (
+              <div className="mt-2 rounded-lg bg-gray-50 p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-medium">
+                      {
+                        data.find((row) => row.id === selectedRows[0])
+                          ?.first_name
+                      }
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {data.find((row) => row.id === selectedRows[0])?.email}
+                    </p>
+                  </div>
+                  <div className="text-sm font-medium">
+                    {data.find((row) => row.id === selectedRows[0])?.role}
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Multiple users selection with scrollable list */}
+            {selectedRows.length > 1 && (
+              <div
+                className={`rounded-lg bg-gray-50 p-4 mb-6 ${
+                  selectedRows.length > 2
+                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400"
+                    : ""
+                }`}
+              >
+                {selectedRows.map((userId) => {
+                  const user = data.find((row) => row.id === userId);
+                  return (
+                    <div
+                      key={userId}
+                      className="flex justify-between items-center border-b border-gray-200 last:border-0 py-1.5"
+                    >
+                      <div className="flex flex-col items-start">
+                        <p className="font-medium">{user?.first_name}</p>
+                        <p className="text-sm text-gray-500">{user?.email}</p>
+                      </div>
+                      <div className="text-sm font-medium text-right ">
+                        {user?.role}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-blue-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-[#2264AC]"> Note</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-left text-sm text-[#2264AC]">
+                  Restoring this user will return their access and visibility
+                  across the platform. Any roles, assignments, or linked
+                  sessions will become active and reappear in relevant views.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowRestoreModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleArchive}
+                className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
+              >
+                Restore
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="flex items-center justify-between px-6 py-3 w-full">
+        <div className="flex items-center space-x-2 w-2/3">
+          <input
+            className="border rounded-lg px-3 py-2 w-1/3 text-sm"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearch(value);
+              if (onSearchChange) {
+                onSearchChange(value);
+              }
+            }}
+          />
+          {/* <div className="flex items-center space-x-2"> */}
+          {editingRowId && ( //selectionMode ||
             <button
               onClick={() => {
                 if (selectionMode) {
@@ -267,15 +500,19 @@ export default function Table({
             </button>
           )} */}
 
-          {selectionMode && showArchiveButton && (
+          {/* {selectionMode && showArchiveButton && (
             <button
-              onClick={showArchived ? handleArchive : handleDelete}
+              onClick={() =>
+                showArchived
+                  ? setShowRestoreModal(true)
+                  : setShowArchiveModal(true)
+              }
               className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
             >
               <Archive size={16} />
               <span>Archive</span>
             </button>
-          )}
+          )} */}
 
           {!selectionMode && editingRowId && (
             <button
@@ -365,7 +602,7 @@ export default function Table({
                         selectedRows.length === data.length && data.length > 0
                       }
                       onChange={handleSelectAll}
-                      className="h-4 w-4"
+                      className="h-4 w-4 bg"
                     />
                   </div>
                 </th>
@@ -373,7 +610,7 @@ export default function Table({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className="px-6 py-3 text-left whitespace-nowrap font-medium"
+                    className="px-6 py-3 text-left whitespace-nowrap font-medium border-l border-gray-200"
                   >
                     <div
                       className={`flex items-center space-x-1 ${
@@ -448,7 +685,7 @@ export default function Table({
                       }}
                     >
                       {/* {selectionMode && ( */}
-                      <td className="px-4 py-4 w-10">
+                      <td className="px-4 py-4 w-10 border-l border-gray-200">
                         <div className="flex items-center justify-center">
                           <input
                             type="checkbox"
@@ -463,7 +700,7 @@ export default function Table({
                       {columns.map((column) => (
                         <td
                           key={`${rowId || index}-${column.key}`}
-                          className="px-6 py-4 whitespace-nowrap"
+                          className="px-6 py-4 whitespace-nowrap border-l border-[#D4D4D4]"
                         >
                           {isEditing && column.editable ? (
                             column.options ? (
