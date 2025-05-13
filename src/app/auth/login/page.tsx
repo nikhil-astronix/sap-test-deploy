@@ -61,7 +61,16 @@ export default function LoginPage() {
 
       try {
         await setAuthDataFromCode(code);
-        router.push("/users");
+        setTimeout(() => {
+          let role = localStorage.getItem("userRole");
+          if (role === "super-admin") {
+            router.push("/system-dashboard");
+          } else if (role === "admin") {
+            router.push("/admin-dashboard");
+          } else {
+            router.push("/users");
+          }
+        }, 2000);
       } catch (err: any) {
         setCognitoError(err.message);
       } finally {
@@ -82,7 +91,16 @@ export default function LoginPage() {
       const res = await signIn(email, password);
 
       if (res?.status === "LOGIN_SUCCESS") {
-        router.push("/users");
+        setTimeout(() => {
+          let role = localStorage.getItem("userRole");
+          if (role === "super-admin") {
+            router.push("/system-dashboard");
+          } else if (role === "admin") {
+            router.push("/admin-dashboard");
+          } else {
+            router.push("/users");
+          }
+        }, 2000);
       } else if (res?.status === "NEW_PASSWORD_REQUIRED") {
         const { userId, session } = res.params;
 
@@ -103,7 +121,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-96 mx-auto shadow-xl rounded-xl p-6">
+    <div className="w-96 mx-auto p-6">
       <AnimatedContainer variant="stagger" staggerItems={true}>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           Login to Your Account
