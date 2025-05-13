@@ -20,7 +20,8 @@ import {
 import { AnimatedContainer } from "@/components/ui/animated-container";
 import { motion } from "framer-motion";
 import MultiSelectDropdown from "../MultiSelectDropdown";
-import { Tag } from "lucide-react";
+//import { Tag } from "lucide-react";
+import { Network, City, Tag, GraduationCap } from "@phosphor-icons/react";
 
 interface NavItem {
   icon: React.ReactNode;
@@ -29,13 +30,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  // {
-  //   icon: <FaBuilding className="w-5 h-5" />,
-  //   label: "Networks",
-  //   path: "#",
-  // },
   {
-    icon: <FaBuilding className="w-5 h-5" />,
+    icon: <Network className="w-5 h-5" />,
+    label: "Networks",
+    path: "#",
+  },
+  {
+    icon: <City className="w-5 h-5" />,
     label: "Districts",
     path: "/districts",
   },
@@ -50,7 +51,7 @@ const navItems: NavItem[] = [
     path: "/curriculums",
   },
   {
-    icon: <FaSchool className="w-5 h-5" />,
+    icon: <GraduationCap className="w-5 h-5" />,
     label: "Schools",
     path: "/schools",
   },

@@ -10,6 +10,14 @@ import {
 } from "@/services/userService";
 import { AxiosError } from "axios";
 import { fetchUsersRequestPayload } from "@/types/userData";
+import {
+  IdentificationBadge,
+  Envelope,
+  IdentificationCard,
+  GraduationCap,
+  Network,
+  City,
+} from "@phosphor-icons/react";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -56,14 +64,14 @@ export default function SchoolsPage() {
       key: "first_name",
       label: "First Name",
       sortable: true,
-      icon: <School size={16} />,
+      icon: <IdentificationBadge size={16} />,
       editable: true,
     },
     {
       key: "last_name",
       label: "Last Name",
       sortable: true,
-      icon: <FileText size={16} />,
+      icon: <IdentificationBadge size={16} />,
       editable: true,
       // options: gradeOptions,
     },
@@ -71,7 +79,7 @@ export default function SchoolsPage() {
       key: "email",
       label: "Email",
       sortable: true,
-      icon: <BookOpen size={16} />,
+      icon: <Envelope size={18} />,
       editable: true,
       // options: curriculaOptions,
     },
@@ -79,7 +87,7 @@ export default function SchoolsPage() {
       key: "network",
       label: "Network",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <Network size={16} />,
       editable: true,
       options: networks,
     },
@@ -87,7 +95,7 @@ export default function SchoolsPage() {
       key: "district",
       label: "District",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <City size={16} />,
       editable: true,
       options: districts,
     },
@@ -95,7 +103,7 @@ export default function SchoolsPage() {
       key: "school",
       label: "School",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <GraduationCap size={16} />,
       editable: true,
       options: schools,
     },
@@ -103,7 +111,7 @@ export default function SchoolsPage() {
       key: "role",
       label: "Role",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <IdentificationCard size={18} />,
       editable: true,
       options: roles,
     },
@@ -111,7 +119,7 @@ export default function SchoolsPage() {
       key: "user_type",
       label: "User Type",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <IdentificationCard size={18} />,
       editable: true,
       options: userTypes,
     },
@@ -279,10 +287,10 @@ export default function SchoolsPage() {
   }, [searchQuery]);
 
   return (
-    <div className="container text-center mx-auto px-4 py-8">
-      <h1 className="text-2xl text-center font-bold mb-6">Users</h1>
+    <div className="container text-center mx-auto px-4 py-8 bg-white">
+      <h1 className="text-2xl text-center font-bold mb-4">Users</h1>
       <div>
-        <p className="text-center text-gray-600 mb-6">
+        <p className="text-center text-gray-600 mb-4">
           Browse all users across districts. Add, update, or archive user
           accounts as needed.
         </p>

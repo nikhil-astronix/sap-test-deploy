@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { ClockClockwise, Info, MagnifyingGlass } from "@phosphor-icons/react";
+import Image from "next/image";
 
 // Define the column interface
 export interface Column {
@@ -243,7 +245,7 @@ export default function Table({
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow">
+    <div className="w-full bg-white">
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -258,9 +260,9 @@ export default function Table({
 
             {/* Single user selection */}
             {selectedRows.length === 1 && (
-              <div className="mt-2 rounded-lg bg-gray-50 p-4">
-                <div className="flex items-start justify-between">
-                  <div>
+              <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col items-start">
                     <p className="font-medium">
                       {
                         data.find((row) => row.id === selectedRows[0])
@@ -271,7 +273,7 @@ export default function Table({
                       {data.find((row) => row.id === selectedRows[0])?.email}
                     </p>
                   </div>
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-medium items-center">
                     {data.find((row) => row.id === selectedRows[0])?.role}
                   </div>
                 </div>
@@ -280,9 +282,9 @@ export default function Table({
             {/* Multiple users selection with scrollable list */}
             {selectedRows.length > 1 && (
               <div
-                className={`rounded-lg bg-gray-50 p-4 mb-6 ${
+                className={`rounded-lg bg-[#F4F6F8] p-4 mb-6 ${
                   selectedRows.length > 2
-                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400"
+                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
                 }`}
               >
@@ -306,7 +308,7 @@ export default function Table({
               </div>
             )}
 
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 mt-[10px]">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
                   <svg
@@ -355,7 +357,7 @@ export default function Table({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
-              <RotateCcw className="text-blue-600" size={24} />
+              <ClockClockwise className="text-blue-600" size={24} />
               <h2 className="text-xl font-semibold">Restore</h2>
             </div>
             <p className="text-left text-gray-700 mb-4">
@@ -364,9 +366,9 @@ export default function Table({
 
             {/* Single user selection */}
             {selectedRows.length === 1 && (
-              <div className="mt-2 rounded-lg bg-gray-50 p-4">
-                <div className="flex items-start justify-between">
-                  <div>
+              <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col items-start">
                     <p className="font-medium">
                       {
                         data.find((row) => row.id === selectedRows[0])
@@ -388,7 +390,7 @@ export default function Table({
               <div
                 className={`rounded-lg bg-gray-50 p-4 mb-6 ${
                   selectedRows.length > 2
-                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400"
+                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
                 }`}
               >
@@ -412,23 +414,13 @@ export default function Table({
               </div>
             )}
 
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+            <div className="bg-blue-50 border-l-4 border-[#2264AC] p-4 mb-6 mt-[10px]">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <svg
-                    className="h-5 w-5 text-blue-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <Info size={16} color="#2264AC" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#2264AC]"> Note</p>
+                  <p className="text-sm text-[#2264AC] px-1"> Note</p>
                 </div>
               </div>
               <div>
@@ -457,20 +449,27 @@ export default function Table({
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between px-6 py-3 w-full">
+      <div className="flex items-center justify-between px-1 py-3 w-full">
         <div className="flex items-center space-x-2 w-2/3">
-          <input
-            className="border rounded-lg px-3 py-2 w-1/3 text-sm"
-            placeholder="Search"
-            value={search}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSearch(value);
-              if (onSearchChange) {
-                onSearchChange(value);
-              }
-            }}
-          />
+          <div className="relative w-1/3">
+            <MagnifyingGlass
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearch(value);
+                if (onSearchChange) {
+                  onSearchChange(value);
+                }
+              }}
+            />
+          </div>
+
           {/* <div className="flex items-center space-x-2"> */}
           {editingRowId && ( //selectionMode ||
             <button
@@ -552,7 +551,7 @@ export default function Table({
         </div>
       </div>
 
-      <div className="px-6 py-2 ">
+      <div className="px-1 py-2 ">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <span>Active</span>
@@ -587,243 +586,297 @@ export default function Table({
           </div>
         </div>
       </div>
-
-      <div className="px-4 py-2">
-        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-          <table className="w-full">
-            <thead>
-              <tr style={{ backgroundColor: staticbg }} className="text-white">
-                {/* {selectionMode && ( */}
-                <th className="px-4 py-3 w-10">
-                  <div className="flex items-center justify-center">
-                    <input
-                      type="checkbox"
-                      checked={
-                        selectedRows.length === data.length && data.length > 0
-                      }
-                      onChange={handleSelectAll}
-                      className="h-4 w-4 appearance-none border-2 border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
-                      style={{ accentColor: staticbg }}
-                    />
-                  </div>
-                </th>
-                {/* )} */}
-                {columns.map((column) => (
-                  <th
-                    key={column.key}
-                    className="px-6 py-3 text-left whitespace-nowrap font-medium border-l border-gray-200"
-                  >
-                    <div
-                      className={`flex items-center space-x-1 ${
-                        column.sortable ? "cursor-pointer" : ""
-                      }`}
-                      onClick={() => column.sortable && handleSort(column.key)}
-                    >
-                      {column.icon && <span>{column.icon}</span>}
-                      <span>{column.label}</span>
-                      {column.sortable && (
-                        <div className="flex flex-col">
-                          <ChevronUp
-                            size={12}
-                            className={`${
-                              sortConfig.key === column.key &&
-                              sortConfig.direction === "asc"
-                                ? "text-white"
-                                : "text-gray-300"
-                            }`}
-                          />
-                          <ChevronDown
-                            size={12}
-                            className={`${
-                              sortConfig.key === column.key &&
-                              sortConfig.direction === "desc"
-                                ? "text-white"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        </div>
-                      )}
+      <div className="border rounded-lg border-gray-200 shadow-sm">
+        <div>
+          <div className="overflow-x-auto rounded-lg shadow-sm">
+            <table className="w-full">
+              <thead>
+                <tr
+                  style={{ backgroundColor: staticbg }}
+                  className="text-white"
+                >
+                  {/* {selectionMode && ( */}
+                  <th className="px-4 py-3 w-10">
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedRows.length === data.length && data.length > 0
+                        }
+                        onChange={handleSelectAll}
+                        className="h-4 w-4 appearance-none border-2 border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                        style={{ accentColor: staticbg }}
+                      />
                     </div>
                   </th>
-                ))}
-                <th
-                  className="px-6 py-3 text-center sticky right-0 z-20 border-l border-gray-200"
-                  style={{ backgroundColor: staticbg }}
-                >
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={columns.length + (selectionMode ? 2 : 1)}
-                    className="px-6 py-4 text-center"
-                  >
-                    Loading...
-                  </td>
-                </tr>
-              ) : data.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={columns.length + (selectionMode ? 2 : 1)}
-                    className="px-6 py-4 text-center"
-                  >
-                    No data available
-                  </td>
-                </tr>
-              ) : (
-                data.map((row, index) => {
-                  const rowId = row.id || row.school;
-                  const isEditing = editingRowId === rowId;
-
-                  return (
-                    <tr
-                      key={rowId || index}
-                      style={{
-                        backgroundColor: index % 2 === 1 ? dynamicbg : "#fff",
-                      }}
+                  {/* )} */}
+                  {columns.map((column) => (
+                    <th
+                      key={column.key}
+                      className="px-6 py-3 text-left whitespace-nowrap font-medium border-l border-gray-200"
                     >
-                      {/* {selectionMode && ( */}
-                      <td className="px-4 py-4 w-10 border-l border-gray-200">
-                        <div className="flex items-center justify-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedRows.includes(rowId)}
-                            onChange={() => handleSelectRow(rowId)}
-                            className="h-4 w-4"
-                            style={{ accentColor: staticbg }}
-                          />
-                        </div>
-                      </td>
-                      {/* )} */}
+                      <div
+                        className={`flex items-center space-x-1 ${
+                          column.sortable ? "cursor-pointer" : ""
+                        }`}
+                        onClick={() =>
+                          column.sortable && handleSort(column.key)
+                        }
+                      >
+                        {column.icon && <span>{column.icon}</span>}
+                        <span>{column.label}</span>
+                        {column.sortable && (
+                          <div className="flex flex-col">
+                            <ChevronUp
+                              size={12}
+                              className={`${
+                                sortConfig.key === column.key &&
+                                sortConfig.direction === "asc"
+                                  ? "text-white"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                            <ChevronDown
+                              size={12}
+                              className={`${
+                                sortConfig.key === column.key &&
+                                sortConfig.direction === "desc"
+                                  ? "text-white"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </th>
+                  ))}
+                  <th
+                    className="px-6 py-3 text-center sticky right-0 z-20 border-l border-gray-200"
+                    style={{
+                      backgroundColor: staticbg,
+                      boxShadow: "inset 1px 0 0 #E5E7EB",
+                    }}
+                  >
+                    <div className="flex justify-between">
+                      <Image
+                        src="/action.svg"
+                        height={20}
+                        width={20}
+                        alt="Action"
+                        className="inline px-1"
+                      />
+                      Action
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length + (selectionMode ? 2 : 1)}
+                      className="px-6 py-4 text-center"
+                    >
+                      Loading...
+                    </td>
+                  </tr>
+                ) : data.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length + (selectionMode ? 2 : 1)}
+                      className="px-6 py-4 text-center"
+                    >
+                      No data available
+                    </td>
+                  </tr>
+                ) : (
+                  data.map((row, index) => {
+                    const rowId = row.id || row.school;
+                    const isEditing = editingRowId === rowId;
 
-                      {columns.map((column) => (
-                        <td
-                          key={`${rowId || index}-${column.key}`}
-                          className="px-6 py-4 whitespace-nowrap border-l border-[#D4D4D4]"
-                        >
-                          {isEditing && column.editable ? (
-                            column.options ? (
-                              <div className="relative">
-                                <select
+                    return (
+                      <tr
+                        key={rowId || index}
+                        style={{
+                          backgroundColor: index % 2 === 1 ? dynamicbg : "#fff",
+                        }}
+                      >
+                        {/* {selectionMode && ( */}
+                        <td className="px-4 py-4 w-10 border-l border-gray-200">
+                          <div className="flex items-center justify-center">
+                            <input
+                              type="checkbox"
+                              checked={selectedRows.includes(rowId)}
+                              onChange={() => handleSelectRow(rowId)}
+                              className="h-4 w-4"
+                              style={{ accentColor: staticbg }}
+                            />
+                          </div>
+                        </td>
+                        {/* )} */}
+
+                        {columns.map((column) => (
+                          <td
+                            key={`${rowId || index}-${column.key}`}
+                            className="px-6 py-4 whitespace-nowrap border-l border-[#D4D4D4]"
+                          >
+                            {isEditing && column.editable ? (
+                              column.options ? (
+                                <div className="relative">
+                                  <select
+                                    value={editingData[column.key]}
+                                    onChange={(e) =>
+                                      handleEditChange(
+                                        column.key,
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
+                                  >
+                                    {column.options.map((option, i) => (
+                                      <option
+                                        key={i}
+                                        value={option.value || option}
+                                      >
+                                        {option.label || option}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              ) : (
+                                <input
+                                  type="text"
                                   value={editingData[column.key]}
                                   onChange={(e) =>
                                     handleEditChange(column.key, e.target.value)
                                   }
-                                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                  {column.options.map((option, i) => (
-                                    <option
-                                      key={i}
-                                      value={option.value || option}
-                                    >
-                                      {option.label || option}
-                                    </option>
-                                  ))}
-                                </select>
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                  <ChevronDown
-                                    size={16}
-                                    className="text-gray-400"
-                                  />
-                                </div>
-                              </div>
+                                  className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
+                                />
+                              )
+                            ) : column.renderCell ? (
+                              column.renderCell(row)
                             ) : (
-                              <input
-                                type="text"
-                                value={editingData[column.key]}
-                                onChange={(e) =>
-                                  handleEditChange(column.key, e.target.value)
-                                }
-                                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                            )
-                          ) : column.renderCell ? (
-                            column.renderCell(row)
-                          ) : (
-                            row[column.key]
-                          )}
-                        </td>
-                      ))}
+                              // row[column.key]
+                              <span
+                                className={`flex items-center gap-1 px-2 py-1 rounded text-sm ${
+                                  column.key === "user_type"
+                                    ? row[column.key] === "Admin"
+                                      ? "bg-[#E9F3FF] text-[#2264AC]"
+                                      : row[column.key] === "Super Admin"
+                                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                                      : row[column.key] === "Network Admin"
+                                      ? "bg-[#FFFCDD] text-[#F59E0B]"
+                                      : row[column.key] === "Observer"
+                                      ? "bg-[#D6FDFD] text-[#007778]"
+                                      : "bg-gray-100 text-gray-700"
+                                    : "text-black"
+                                }`}
+                              >
+                                {column.key === "user_type" && (
+                                  <span
+                                    className={`h-2 w-2 rounded-full ${
+                                      row[column.key] === "Admin"
+                                        ? "bg-[#2264AC]"
+                                        : row[column.key] === "Super Admin"
+                                        ? "bg-[#6C4996]"
+                                        : row[column.key] === "Network Admin"
+                                        ? "bg-[#F59E0B]"
+                                        : row[column.key] === "Observer"
+                                        ? "bg-[#007778]"
+                                        : "bg-gray-700"
+                                    }`}
+                                  ></span>
+                                )}
+                                {row[column.key]}
+                              </span>
+                            )}
+                          </td>
+                        ))}
 
-                      <td
-                        className="px-6 py-4 text-center sticky right-0 z-10 border-l border-gray-200"
-                        style={{
-                          backgroundColor:
-                            index % 2 === 1 ? dynamicbg : "#ffffff",
-                        }}
-                      >
-                        <button
-                          onClick={() => handleStartEdit(row)}
-                          className="text-green-500 hover:text-green-700"
-                          title="Edit"
+                        <td
+                          className="px-6 py-4 text-center sticky right-0 border-l border-gray-400 shadow-md"
+                          style={{
+                            backgroundColor:
+                              index % 2 === 1 ? dynamicbg : "#ffffff",
+                            boxShadow: "inset 2px 0 0 #D4D4D4",
+                          }}
                         >
-                          <Edit2 size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                          <button
+                            onClick={() => handleStartEdit(row)}
+                            className="text-green-500 hover:text-green-700"
+                            title="Edit"
+                          >
+                            <Image
+                              src="/actionrow.svg"
+                              height={20}
+                              width={20}
+                              alt="Edit"
+                              className="inline"
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between px-6 py-3 border-t">
-        <div>
-          {totalCount > 0 && (
-            <p className="text-sm text-gray-500">
-              {startIndex + 1}-{Math.min(startIndex + rowsPerPage, totalCount)}{" "}
-              of {totalCount}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">Rows per page:</span>
-          <select
-            value={rowsPerPage}
-            onChange={handleRowsPerPageChange}
-            className="text-sm border rounded px-2 py-1"
-            disabled={loading}
-          >
-            {rowsPerPageOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+        <div className="flex items-center border justify-between py-2 px-4">
+          <div>
+            {totalCount > 0 && (
+              <p className="text-sm text-gray-500">
+                {startIndex + 1}-
+                {Math.min(startIndex + rowsPerPage, totalCount)} of {totalCount}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-500">Rows per page:</span>
+            <select
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+              className="text-sm border rounded px-2 py-1"
+              disabled={loading}
+            >
+              {rowsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
 
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || loading}
-              className={`p-1 rounded ${
-                currentPage === 1 || loading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <span className="text-sm text-gray-500">
-              {currentPage}/{totalPages || 1}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={
-                currentPage === totalPages || totalPages === 0 || loading
-              }
-              className={`p-1 rounded ${
-                currentPage === totalPages || totalPages === 0 || loading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <ChevronRight size={18} />
-            </button>
+            <div className="flex items-center space-x-1 ">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
+                className={`p-1 border rounded  ${
+                  currentPage === 1 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <span className="text-sm text-gray-500">
+                {currentPage}/{totalPages || 1}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  currentPage === totalPages || totalPages === 0 || loading
+                }
+                className={`p-1 border rounded ${
+                  currentPage === totalPages || totalPages === 0 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

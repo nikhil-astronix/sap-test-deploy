@@ -9,6 +9,7 @@ import Stepper from "@/components/classroom/Stepper";
 import { motion } from "framer-motion";
 import MultiSelect from "@/components/ui/MultiSelect";
 import Dropdown from "@/components/ui/Dropdown";
+import { z } from "zod";
 
 const steps = [
   { label: "Basic User Info", id: "basic-info" },
@@ -50,6 +51,29 @@ const networks = [
   { label: "Network B", value: "Network B" },
 ];
 
+// Validation schemas per step
+const StepSchemas = [
+  z.object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email"),
+  }),
+  z.object({
+    district: z.string().min(1, "District is required"),
+    school: z.string().min(1, "School is required"),
+    network: z.string().min(1, "Network is required"),
+  }),
+  z.object({
+    role: z.string().min(1, "Role is required"),
+    userType: z.string().min(1, "User type is required"),
+  }),
+];
+
+// Combine all for final submission
+const FinalSchema = StepSchemas.reduce((merged, schema) =>
+  merged.merge(schema)
+);
+
 export default function CreateUserForm() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -64,6 +88,9 @@ export default function CreateUserForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
 
   const getStepStatus = (index: number) => {
     if (index < currentStep) return "completed";
@@ -81,6 +108,8 @@ export default function CreateUserForm() {
   };
 
   const handleSubmit = async () => {
+    const isValid = await validateFinal();
+    if (!isValid) return;
     setIsLoading(true);
     try {
       let data = {
@@ -98,7 +127,11 @@ export default function CreateUserForm() {
 
       const response = await createUser(data);
       if (response.success) {
-        router.push("/users");
+        setApiSuccess("User created successfully!");
+        setApiError("");
+        // setTimeout(() => {
+        //   router.push("/users");
+        // }, 2000);
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -106,8 +139,45 @@ export default function CreateUserForm() {
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
+      setApiError(errorMessage || "Something went wrong");
+      setApiSuccess("");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const validateStep = async (stepIndex: number) => {
+    const schema = StepSchemas[stepIndex];
+    try {
+      await schema.parseAsync(formData);
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const stepErrors: Record<string, string> = {};
+        err.errors.forEach((e) => {
+          if (e.path[0]) stepErrors[e.path[0] as string] = e.message;
+        });
+        setErrors(stepErrors);
+      }
+      return false;
+    }
+  };
+
+  const validateFinal = async () => {
+    try {
+      await FinalSchema.parseAsync(formData);
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const finalErrors: Record<string, string> = {};
+        err.errors.forEach((e) => {
+          if (e.path[0]) finalErrors[e.path[0] as string] = e.message;
+        });
+        setErrors(finalErrors);
+      }
+      return false;
     }
   };
 
@@ -135,7 +205,11 @@ export default function CreateUserForm() {
             <BasicInfo
               formData={formData}
               onChange={handleFormChange}
-              onNext={() => setCurrentStep(1)}
+              onNext={async () => {
+                const valid = await validateStep(0);
+                if (valid) setCurrentStep(1);
+              }}
+              errors={errors}
             />
           )}
           {currentStep === 1 && (
@@ -143,7 +217,11 @@ export default function CreateUserForm() {
               formData={formData} // <- this must be a defined object
               onChange={handleFormChange}
               onBack={() => setCurrentStep(0)}
-              onNext={() => setCurrentStep(2)}
+              onNext={async () => {
+                const valid = await validateStep(1);
+                if (valid) setCurrentStep(2);
+              }}
+              errors={errors}
             />
           )}
           {currentStep === 2 && (
@@ -151,7 +229,11 @@ export default function CreateUserForm() {
               formData={formData}
               onChange={handleFormChange}
               onBack={() => setCurrentStep(1)}
-              onNext={() => setCurrentStep(3)}
+              onNext={async () => {
+                const valid = await validateStep(2);
+                if (valid) setCurrentStep(3);
+              }}
+              errors={errors}
             />
           )}
           {currentStep === 3 && (
@@ -169,6 +251,11 @@ export default function CreateUserForm() {
                   }
                   className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
                 />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.firstName}
+                  </p>
+                )}
               </div>
               <div className="py-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -181,6 +268,9 @@ export default function CreateUserForm() {
                   onChange={(e) => handleFormChange("lastName", e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
                 />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                )}
               </div>
               <div className="py-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -193,6 +283,9 @@ export default function CreateUserForm() {
                   onChange={(e) => handleFormChange("email", e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -204,6 +297,9 @@ export default function CreateUserForm() {
                   onChange={(values) => handleFormChange("network", values)}
                   placeholder="Select network"
                 />
+                {errors.network && (
+                  <p className="text-red-500 text-sm mt-1">{errors.network}</p>
+                )}
               </div>
               <div className="py-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -215,6 +311,9 @@ export default function CreateUserForm() {
                   onChange={(values) => handleFormChange("district", values)}
                   placeholder="Assign district"
                 />
+                {errors.district && (
+                  <p className="text-red-500 text-sm mt-1">{errors.district}</p>
+                )}
               </div>
 
               <div className="py-2">
@@ -227,6 +326,9 @@ export default function CreateUserForm() {
                   onChange={(values) => handleFormChange("school", values)}
                   placeholder="Assign school"
                 />
+                {errors.school && (
+                  <p className="text-red-500 text-sm mt-1">{errors.school}</p>
+                )}
               </div>
 
               <div className="py-2">
@@ -239,6 +341,9 @@ export default function CreateUserForm() {
                   onChange={(value) => handleFormChange("role", value)}
                   placeholder="Select role"
                 />
+                {errors.role && (
+                  <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+                )}
               </div>
 
               <div className="py-2">
@@ -251,6 +356,9 @@ export default function CreateUserForm() {
                   onChange={(value) => handleFormChange("userType", value)}
                   placeholder="Select user type"
                 />
+                {errors.userType && (
+                  <p className="text-red-500 text-sm mt-1">{errors.userType}</p>
+                )}
               </div>
 
               <div className="flex justify-between pt-6">
@@ -277,6 +385,17 @@ export default function CreateUserForm() {
               </div>
             </div>
           )}
+          {apiError && (
+            <div className="bg-red-100 text-red-800 p-3 rounded mb-4 mt-[10px]">
+              {apiError}
+            </div>
+          )}
+
+          {apiSuccess && (
+            <div className="bg-green-100 text-green-800 p-3 rounded mb-4 mt-[10px]">
+              {apiSuccess}
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
@@ -287,10 +406,12 @@ function BasicInfo({
   formData,
   onChange,
   onNext,
+  errors,
 }: {
   formData: any;
   onChange: (field: string, value: any) => void;
   onNext: () => void;
+  errors: Record<string, string>;
 }) {
   const router = useRouter();
   return (
@@ -306,6 +427,9 @@ function BasicInfo({
           onChange={(e) => onChange("firstName", e.target.value)}
           className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
         />
+        {errors.firstName && (
+          <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+        )}
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -318,6 +442,9 @@ function BasicInfo({
           onChange={(e) => onChange("lastName", e.target.value)}
           className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
         />
+        {errors.lastName && (
+          <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+        )}
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -330,6 +457,9 @@ function BasicInfo({
           onChange={(e) => onChange("email", e.target.value)}
           className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] border-none focus:outline-none focus:ring-0 placeholder:text-gray-500"
         />
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        )}
       </div>
       <div className="flex justify-between">
         <button
@@ -354,11 +484,13 @@ function SelectDistrict({
   onChange,
   onBack,
   onNext,
+  errors,
 }: {
   onBack: () => void;
   onNext: () => void;
   formData: any;
   onChange: (field: string, value: any) => void;
+  errors: Record<string, string>;
 }) {
   const router = useRouter();
   return (
@@ -373,6 +505,9 @@ function SelectDistrict({
           onChange={(values) => onChange("network", values)}
           placeholder="Select network"
         />
+        {errors.network && (
+          <p className="text-red-500 text-sm mt-1">{errors.network}</p>
+        )}
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -384,6 +519,9 @@ function SelectDistrict({
           onChange={(values) => onChange("district", values)}
           placeholder="Assign district"
         />
+        {errors.district && (
+          <p className="text-red-500 text-sm mt-1">{errors.district}</p>
+        )}
       </div>
 
       <div>
@@ -396,6 +534,9 @@ function SelectDistrict({
           onChange={(values) => onChange("school", values)}
           placeholder="Assign school"
         />
+        {errors.school && (
+          <p className="text-red-500 text-sm mt-1">{errors.school}</p>
+        )}
       </div>
 
       <div className="flex justify-between pt-6">
@@ -429,11 +570,13 @@ function SelectRole({
   onChange,
   onBack,
   onNext,
+  errors,
 }: {
   onBack: () => void;
   onNext: () => void;
   formData: any;
   onChange: (field: string, value: any) => void;
+  errors: Record<string, string>;
 }) {
   const router = useRouter();
   return (
@@ -448,6 +591,9 @@ function SelectRole({
           onChange={(value) => onChange("role", value)}
           placeholder="Select role"
         />
+        {errors.role && (
+          <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+        )}
       </div>
 
       <div>
@@ -460,6 +606,9 @@ function SelectRole({
           onChange={(value) => onChange("userType", value)}
           placeholder="Select user type"
         />
+        {errors.userType && (
+          <p className="text-red-500 text-sm mt-1">{errors.userType}</p>
+        )}
       </div>
 
       <div className="flex justify-between pt-6">

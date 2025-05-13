@@ -1,33 +1,31 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { Logo } from '@/components/ui/logo';
-import { AnimatedContainer } from '@/components/ui/animated-container';
-import { motion } from 'framer-motion';
+import React from "react";
+import Link from "next/link";
+import { Logo } from "@/components/ui/logo";
+import { AnimatedContainer } from "@/components/ui/animated-container";
+import { motion } from "framer-motion";
 
-const Header = ({ handleSetupClick } :any) => {
+const Header = ({ handleSetupClick }: any) => {
   return (
-    <AnimatedContainer 
-      variant="fade" 
+    <AnimatedContainer
+      variant="fade"
       className="h-16 flex items-center justify-between px-6 border-b bg-gray-50 sticky top-0 z-10"
     >
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Link href="/" className="flex items-center">
           <img src="\logo.png" alt="Logo" />
         </Link>
       </motion.div>
 
-      <AnimatedContainer variant="stagger" staggerItems={true} className="flex items-center space-x-6">
-        <motion.div
-          whileHover={{ y: -2 }}
-          whileTap={{ y: 0 }}
-        >
-          <Link 
-            href="/system-dashboard" 
+      <AnimatedContainer
+        variant="stagger"
+        staggerItems={true}
+        className="flex items-center space-x-6"
+      >
+        <motion.div whileHover={{ y: -2 }} whileTap={{ y: 0 }}>
+          <Link
+            href="/system-dashboard"
             className="text-gray-600 hover:text-gray-900 font-medium text-sm"
             onClick={handleSetupClick}
           >
@@ -35,17 +33,17 @@ const Header = ({ handleSetupClick } :any) => {
           </Link>
         </motion.div>
 
-        <motion.button 
+        <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="px-6 py-1.5 bg-emerald-700 text-white text-sm rounded-md hover:bg-emerald-800 transition-colors"
           onClick={handleSetupClick}
         >
-          Set up
+          Setup
         </motion.button>
 
-        <motion.div 
-          className="flex items-center pl-6 border-l border-gray-200"
+        <motion.div
+          className="flex items-center pl-6 "
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
@@ -63,7 +61,7 @@ const Header = ({ handleSetupClick } :any) => {
               </div>
             </Link>
           </div>
-          <motion.button 
+          <motion.button
             className="p-1.5 rounded-full hover:bg-gray-100"
             whileHover={{ rotate: 180 }}
             transition={{ duration: 0.3 }}
@@ -88,4 +86,4 @@ const Header = ({ handleSetupClick } :any) => {
   );
 };
 
-export default Header; 
+export default Header;
