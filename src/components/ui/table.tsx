@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ClockClockwise, Info, MagnifyingGlass } from "@phosphor-icons/react";
 import Image from "next/image";
+import CustomDropdown from "./CustomDropdown";
 
 // Define the column interface
 export interface Column {
@@ -255,7 +256,9 @@ export default function Table({
               <h2 className="text-xl font-semibold">Archive</h2>
             </div>
             <p className="text-left text-gray-700 mb-4">
-              Are you sure you want to archive this user?
+              {selectedRows.length === 0
+                ? "Please select users to archive."
+                : "Are you sure you want to archive this user?"}
             </p>
 
             {/* Single user selection */}
@@ -328,22 +331,30 @@ export default function Table({
                 </div>
               </div>
               <p className="text-left text-sm text-[#C23E19]">
-                Archiving this user will revoke their access and remove them
-                from active dashboards. Their account will remain in the system
-                and can be restored later if needed.
+                {selectedRows.length === 0
+                  ? "No users selected. Please select at least one user to archive."
+                  : "Archiving this user will revoke their access and remove them from active dashboards. Their account will remain in the system and can be restored later if needed."}
               </p>
             </div>
 
             <div className="flex justify-between">
               <button
-                onClick={() => setShowArchiveModal(false)}
+                onClick={() => {
+                  setShowArchiveModal(false);
+                  setSelectedRows([]);
+                }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-[#B4351C] text-white rounded-lg hover:bg-[#943015] transition-colors"
+                disabled={selectedRows.length === 0}
+                className={`px-4 py-2 ${
+                  selectedRows.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#B4351C] hover:bg-[#943015]"
+                } text-white rounded-lg transition-colors`}
               >
                 Archive
               </button>
@@ -361,7 +372,9 @@ export default function Table({
               <h2 className="text-xl font-semibold">Restore</h2>
             </div>
             <p className="text-left text-gray-700 mb-4">
-              Are you sure you want to restore this user?
+              {selectedRows.length === 0
+                ? "Please select users to restore."
+                : "Are you sure you want to restore this user?"}
             </p>
 
             {/* Single user selection */}
@@ -425,23 +438,31 @@ export default function Table({
               </div>
               <div>
                 <p className="text-left text-sm text-[#2264AC]">
-                  Restoring this user will return their access and visibility
-                  across the platform. Any roles, assignments, or linked
-                  sessions will become active and reappear in relevant views.
+                  {selectedRows.length === 0
+                    ? "No users selected. Please select at least one user to restore."
+                    : "Restoring this user will return their access and visibility across the platform. Any roles, assignments, or linked sessions will become active and reappear in relevant views."}
                 </p>
               </div>
             </div>
 
             <div className="flex justify-between">
               <button
-                onClick={() => setShowRestoreModal(false)}
+                onClick={() => {
+                  setShowRestoreModal(false);
+                  setSelectedRows([]);
+                }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancel
               </button>
               <button
+                disabled={selectedRows.length === 0}
                 onClick={handleArchive}
-                className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
+                className={`px-4 py-2 text-white rounded-lg ${
+                  selectedRows.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-emerald-700 hover:bg-emerald-800"
+                }  transition-colors`}
               >
                 Restore
               </button>
@@ -451,25 +472,26 @@ export default function Table({
       )}
       <div className="flex items-center justify-between px-1 py-3 w-full">
         <div className="flex items-center space-x-2 w-2/3">
-          <div className="relative w-1/3">
-            <MagnifyingGlass
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
-              placeholder="Search"
-              value={search}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSearch(value);
-                if (onSearchChange) {
-                  onSearchChange(value);
-                }
-              }}
-            />
-          </div>
-
+          {!editingRowId && (
+            <div className="relative w-1/3">
+              <MagnifyingGlass
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
+                placeholder="Search"
+                value={search}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearch(value);
+                  if (onSearchChange) {
+                    onSearchChange(value);
+                  }
+                }}
+              />
+            </div>
+          )}
           {/* <div className="flex items-center space-x-2"> */}
           {editingRowId && ( //selectionMode ||
             <button
@@ -481,7 +503,7 @@ export default function Table({
                   handleCancelEdit();
                 }
               }}
-              className={`px-4 py-1 rounded ${
+              className={` py-1 rounded ${
                 selectionMode ? "bg-gray-100 hover:bg-gray-200" : ""
               }`}
             >
@@ -723,7 +745,7 @@ export default function Table({
                             {isEditing && column.editable ? (
                               column.options ? (
                                 <div className="relative">
-                                  <select
+                                  {/* <select
                                     value={editingData[column.key]}
                                     onChange={(e) =>
                                       handleEditChange(
@@ -741,7 +763,14 @@ export default function Table({
                                         {option.label || option}
                                       </option>
                                     ))}
-                                  </select>
+                                  </select> */}
+                                  <CustomDropdown
+                                    value={editingData[column.key]}
+                                    options={column.options}
+                                    onChange={(val) =>
+                                      handleEditChange(column.key, val)
+                                    }
+                                  />
                                 </div>
                               ) : (
                                 <input
@@ -768,6 +797,8 @@ export default function Table({
                                       ? "bg-[#FFFCDD] text-[#F59E0B]"
                                       : row[column.key] === "Observer"
                                       ? "bg-[#D6FDFD] text-[#007778]"
+                                      : row[column.key] === "District Viewer"
+                                      ? "bg-[#FFF4EF] text-[#F25D00]"
                                       : "bg-gray-100 text-gray-700"
                                     : "text-black"
                                 }`}
@@ -783,6 +814,8 @@ export default function Table({
                                         ? "bg-[#F59E0B]"
                                         : row[column.key] === "Observer"
                                         ? "bg-[#007778]"
+                                        : row[column.key] === "District Viewer"
+                                        ? "bg-[#F25D00]"
                                         : "bg-gray-700"
                                     }`}
                                   ></span>

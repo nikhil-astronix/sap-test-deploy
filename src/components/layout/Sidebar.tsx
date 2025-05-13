@@ -21,7 +21,17 @@ import { AnimatedContainer } from "@/components/ui/animated-container";
 import { motion } from "framer-motion";
 import MultiSelectDropdown from "../MultiSelectDropdown";
 //import { Tag } from "lucide-react";
-import { Network, City, Tag, GraduationCap } from "@phosphor-icons/react";
+import {
+  Network,
+  City,
+  Tag,
+  GraduationCap,
+  Book,
+  ChalkboardTeacher,
+  Users,
+  Toolbox,
+  Note,
+} from "@phosphor-icons/react";
 
 interface NavItem {
   icon: React.ReactNode;
@@ -46,7 +56,7 @@ const navItems: NavItem[] = [
     path: "/interventions",
   },
   {
-    icon: <FaBook className="w-5 h-5" />,
+    icon: <Book className="w-5 h-5" />,
     label: "Instructional Materials",
     path: "/curriculums",
   },
@@ -56,18 +66,18 @@ const navItems: NavItem[] = [
     path: "/schools",
   },
   {
-    icon: <FaGraduationCap className="w-5 h-5" />,
+    icon: <ChalkboardTeacher className="w-5 h-5" />,
     label: "Classrooms",
     path: "/classrooms",
   },
-  { icon: <FaUsers className="w-5 h-5" />, label: "Users", path: "/users" },
+  { icon: <Users className="w-5 h-5" />, label: "Users", path: "/users" },
   {
-    icon: <FaChartBar className="w-5 h-5" />,
+    icon: <Toolbox className="w-5 h-5" />,
     label: "Observation Tools",
     path: "/observation-tools",
   },
   {
-    icon: <FaClipboardList className="w-5 h-5" />,
+    icon: <Note className="w-5 h-5" />,
     label: "Observation Sessions",
     path: "/observation-sessions",
   },
