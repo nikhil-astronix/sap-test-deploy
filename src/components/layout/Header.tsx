@@ -47,7 +47,7 @@ const Header = ({ handleSetupClick }: any) => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="px-6 py-1.5 bg-emerald-700 text-white text-sm rounded-md hover:bg-emerald-800 transition-colors"
+          className="px-6 py-1.5  text-emerald-700 text-sm  transition-colors"
           onClick={handleSetupClick}
         >
           Setup
@@ -62,7 +62,7 @@ const Header = ({ handleSetupClick }: any) => {
           <div className="mr-3 text-right">
             <div className="text-sm font-medium">John Doe</div>
             <Link href="/system-dashboard" className="block">
-              <div className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
+              <div className="text-xs text-emerald-700 hover:text-blue-600 cursor-pointer">
                 {role}
               </div>
             </Link>
