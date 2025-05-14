@@ -288,13 +288,14 @@ export default function SchoolsPage() {
 
   return (
     <div className="container text-center mx-auto px-4 py-8 bg-white">
-      <h1 className="text-2xl text-center font-bold mb-4">Users</h1>
+      <h1 className="text-2xl text-center text-black-400 mb-2">Users</h1>
       <div>
-        <p className="text-center text-gray-600 mb-4">
+        <p className="text-center text-gray-400 mb-2">
           Browse all users across districts. Add, update, or archive user
           accounts as needed.
         </p>
       </div>
+
       <Table
         columns={columns}
         data={usersData}

@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ClockClockwise, Info, MagnifyingGlass } from "@phosphor-icons/react";
+import {
+  ClockClockwise,
+  Info,
+  MagnifyingGlass,
+  Plus,
+} from "@phosphor-icons/react";
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
 
@@ -470,7 +475,7 @@ export default function Table({
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between px-1 py-3 w-full">
+      <div className="flex items-center justify-between px-1 py-1 w-full">
         <div className="flex items-center space-x-2 w-2/3">
           {!editingRowId && (
             <div className="relative w-1/3">
@@ -504,7 +509,7 @@ export default function Table({
                 }
               }}
               className={` py-1 rounded ${
-                selectionMode ? "bg-gray-100 hover:bg-gray-200" : ""
+                selectionMode ? " hover:bg-gray-200" : ""
               }`}
             >
               Close
@@ -535,10 +540,10 @@ export default function Table({
             </button>
           )} */}
 
-          {!selectionMode && editingRowId && (
+          {editingRowId && ( //!selectionMode &&
             <button
               onClick={handleSaveEdit}
-              className="px-4 py-1 rounded bg-emerald-700 text-white flex items-center space-x-1 hover:bg-green-700"
+              className=" bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
             >
               <span>Save Changes</span>
             </button>
@@ -548,7 +553,7 @@ export default function Table({
         <div className="flex items-center space-x-2">
           <button
             onClick={toggleSelectionModeArchive}
-            className="p-2 text-gray-500"
+            className="p-2 text-gray-400"
           >
             <span className="sr-only">Archive</span>
             <Archive size={20} />
@@ -566,9 +571,10 @@ export default function Table({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push(onCreate)}
-            className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+            className="flex gap-2 items-center bg-emerald-700 text-white px-6 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
           >
-            + Add
+            <Plus size={16} />
+            Add
           </motion.button>
         </div>
       </div>
@@ -576,7 +582,7 @@ export default function Table({
       <div className="px-1 py-2 ">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <span>Active</span>
+            <span className="text-12px text-[#000]">Active</span>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => {
@@ -604,7 +610,7 @@ export default function Table({
                 className="inline-block h-4 w-4 rounded-full bg-white"
               />
             </motion.button>
-            <span>Archived</span>
+            <span className="text-12px text-[#494B56]">Archived</span>
           </div>
         </div>
       </div>
@@ -635,20 +641,25 @@ export default function Table({
                   {columns.map((column) => (
                     <th
                       key={column.key}
-                      className="px-6 py-3 text-left whitespace-nowrap font-medium border-l border-gray-200"
+                      className="px-4 py-3 text-left whitespace-nowrap font-medium border-l border-gray-200"
                     >
                       <div
-                        className={`flex items-center space-x-1 ${
+                        className={`flex items-center justify-between w-full text-[12px] font-normal text-[#F9F5FF] ${
                           column.sortable ? "cursor-pointer" : ""
                         }`}
                         onClick={() =>
                           column.sortable && handleSort(column.key)
                         }
                       >
-                        {column.icon && <span>{column.icon}</span>}
-                        <span>{column.label}</span>
+                        {/* Left side: icon and label */}
+                        <div className="flex items-center space-x-2">
+                          {column.icon && <span>{column.icon}</span>}
+                          <span>{column.label}</span>
+                        </div>
+
+                        {/* Right side: sorting indicators */}
                         {column.sortable && (
-                          <div className="flex flex-col">
+                          <div className="flex flex-col items-end">
                             <ChevronUp
                               size={12}
                               className={`${
@@ -673,21 +684,20 @@ export default function Table({
                     </th>
                   ))}
                   <th
-                    className="px-6 py-3 text-center sticky right-0 z-20 border-l border-gray-200"
+                    className="px-8 py-3 sticky right-0 z-20 border-l border-gray-200 text-left text-[12px] font-normal text-[#F9F5FF]"
                     style={{
                       backgroundColor: staticbg,
                       boxShadow: "inset 1px 0 0 #E5E7EB",
                     }}
                   >
-                    <div className="flex justify-between">
+                    <div className="flex items-center space-x-3">
                       <Image
                         src="/action.svg"
-                        height={20}
-                        width={20}
+                        height={10}
+                        width={10}
                         alt="Action"
-                        className="inline px-1"
                       />
-                      Action
+                      <span>Action</span>
                     </div>
                   </th>
                 </tr>
@@ -740,7 +750,7 @@ export default function Table({
                         {columns.map((column) => (
                           <td
                             key={`${rowId || index}-${column.key}`}
-                            className="px-6 py-4 whitespace-nowrap border-l border-[#D4D4D4]"
+                            className="px-4 py-4 whitespace-nowrap border-l border-[#D4D4D4]"
                           >
                             {isEditing && column.editable ? (
                               column.options ? (
@@ -787,7 +797,7 @@ export default function Table({
                             ) : (
                               // row[column.key]
                               <span
-                                className={`flex items-center gap-1 px-2 py-1 rounded text-sm ${
+                                className={`flex items-center gap-1 px-2 py-1 rounded text-[12px] font-normal text-[#000] ${
                                   column.key === "user_type"
                                     ? row[column.key] === "Admin"
                                       ? "bg-[#E9F3FF] text-[#2264AC]"

@@ -1,12 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 import { AnimatedContainer } from "@/components/ui/animated-container";
 import { motion } from "framer-motion";
 
 const Header = ({ handleSetupClick }: any) => {
+  const [role, setRole] = useState<string | null>(null);
+  useEffect(() => {
+    let storedRole = localStorage.getItem("userRole");
+    if (storedRole === "super-admin") {
+      storedRole = "Super Admin";
+    } else if (storedRole === "admin") {
+      storedRole = "Admin";
+    }
+    setRole(storedRole);
+  }, []);
+
   return (
     <AnimatedContainer
       variant="fade"
@@ -52,14 +63,14 @@ const Header = ({ handleSetupClick }: any) => {
             <div className="text-sm font-medium">John Doe</div>
             <Link href="/system-dashboard" className="block">
               <div className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
-                System Admin
+                {role}
               </div>
             </Link>
-            <Link href="/admin-dashboard" className="block">
+            {/* <Link href="/admin-dashboard" className="block">
               <div className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
                 Admin
               </div>
-            </Link>
+            </Link> */}
           </div>
           <motion.button
             className="p-1.5 rounded-full hover:bg-gray-100"
