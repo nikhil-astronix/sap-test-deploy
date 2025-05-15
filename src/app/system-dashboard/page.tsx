@@ -28,7 +28,7 @@ export default function Dashboard() {
   const colorClasses = ['blue-700', 'purple-800', 'green-800'];
   
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gray-50">
+    <div className="p-6 w-full pl-16 pr-16 mx-auto bg-gray-50">
       <div className="mb-6 bg-white p-4 rounded-md shadow-sm border border-gray-200">
         <h1 className="text-2xl font-bold mb-1">Welcome, Jane Doe</h1>
         <p className="text-gray-600">You have full access to view districts, users, and observation tools across the system.</p>

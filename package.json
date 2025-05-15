@@ -18,6 +18,7 @@
     "@hookform/resolvers": "^5.0.1",
     "@mantine/core": "^7.17.4",
     "@mantine/hooks": "^7.17.4",
+    "@phosphor-icons/react": "^2.1.7",
     "@radix-ui/react-dialog": "^1.1.11",
     "@radix-ui/react-slot": "^1.2.0",
     "@radix-ui/react-toggle": "^1.1.6",

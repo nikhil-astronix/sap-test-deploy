@@ -1,19 +1,24 @@
-'use client';
+"use client";
 
-import { AnimatedContainer } from '@/components/ui/animated-container';
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { getGoogleSigninUrl, setAuthDataFromCode, signIn } from '../utils/auth-functions';
-import Link from 'next/link';
+import { AnimatedContainer } from "@/components/ui/animated-container";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { IconLoader2 } from "@tabler/icons-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  getGoogleSigninUrl,
+  setAuthDataFromCode,
+  signIn,
+} from "../utils/auth-functions";
+import Link from "next/link";
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  userType: z.enum(['admin', 'observer']),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  userType: z.enum(["admin", "observer"]),
   rememberMe: z.boolean().optional(),
 });
 
@@ -22,55 +27,117 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const code = searchParams?.get("code");
 
-  const [userType, setUserType] = useState<'admin' | 'observer'>('admin');
+  const code = searchParams?.get("code");
+  const reset = searchParams?.get("reset");
+
   const [showPassword, setShowPassword] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+  const [cognitoError, setCognitoError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(false);
+  const [isResetSuccessful, setIsResetSuccessful] = useState(
+    reset === "success"
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: "onBlur",
     defaultValues: {
-      userType: 'admin',
+      userType: "admin",
       rememberMe: false,
     },
   });
 
   useEffect(() => {
     const handleSocialLogin = async () => {
-      if(code) {
+      setCognitoError(null);
+
+      if (!code) return;
+      setLoading(true);
+      setIsResetSuccessful(false);
+
+      try {
         await setAuthDataFromCode(code);
-        router.push('/observations');
+        setTimeout(() => {
+          let role = localStorage.getItem("userRole");
+          if (role === "super-admin") {
+            router.push("/system-dashboard");
+          } else if (role === "admin") {
+            router.push("/admin-dashboard");
+          } else {
+            router.push("/users");
+          }
+        }, 2000);
+      } catch (err: any) {
+        setCognitoError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     handleSocialLogin();
-  }, []);
+  }, [code]);
 
   const onSubmit = async (data: LoginFormData) => {
+    setCognitoError(null);
+    setLoading(true);
+    setIsResetSuccessful(false);
     const { email, password } = data;
-    const res = await signIn(email, password);
-    
-    if (res?.status === "LOGIN_SUCCESS") {
-      router.push('/observations');
-    }
 
-    else if (res?.status === "NEW_PASSWORD_REQUIRED") {
-      const { userId, session } = res.params;
-      const userIdEncoded = encodeURIComponent(userId ?? '');
-      const sessionEncoded = encodeURIComponent(session ?? '');
-      const flowEncoded = encodeURIComponent('SET_NEW_PASSWORD');
+    try {
+      const res = await signIn(email, password);
 
-      const setNewPasswordUrl = `/auth/reset-password?flow=${flowEncoded}&userId=${userIdEncoded}&session=${sessionEncoded}`;
-      router.push(setNewPasswordUrl);
+      if (res?.status === "LOGIN_SUCCESS") {
+        setTimeout(() => {
+          let role = localStorage.getItem("userRole");
+          if (role === "super-admin") {
+            router.push("/system-dashboard");
+          } else if (role === "admin") {
+            router.push("/admin-dashboard");
+          } else {
+            router.push("/users");
+          }
+        }, 2000);
+      } else if (res?.status === "NEW_PASSWORD_REQUIRED") {
+        const { userId, session } = res.params;
+
+        const userIdEncoded = encodeURIComponent(userId ?? "");
+        const sessionEncoded = encodeURIComponent(session ?? "");
+        const flowEncoded = encodeURIComponent("SET_NEW_PASSWORD");
+
+        const setNewPasswordUrl = `/auth/reset-password?flow=${flowEncoded}&userId=${userIdEncoded}&session=${sessionEncoded}`;
+        router.push(setNewPasswordUrl);
+      }
+    } catch (err: any) {
+      setCognitoError(
+        err?.message || "An unexpected error occurred. Try again"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="w-xl mx-auto shadow-xl rounded-xl p-6">
+    <div className="w-96 mx-auto p-6">
       <AnimatedContainer variant="stagger" staggerItems={true}>
-        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">Login to Your Account</h2>
-        <p className="text-gray-600 mb-8 text-center">
-          Enter your email and password to access your account
-        </p>
+        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
+          Login to Your Account
+        </h2>
+
+        {isResetSuccessful ? (
+          <p className="mb-4 text-center text-green-600">
+            Password updated successfully
+          </p>
+        ) : cognitoError !== null ? (
+          <p className="text-red-500 mb-8 text-center">{cognitoError}</p>
+        ) : (
+          <p className="text-gray-600 mb-8 text-center">
+            Enter your email and password
+          </p>
+        )}
       </AnimatedContainer>
 
       {/* <AnimatedContainer variant="scale" className="mb-8">
@@ -137,7 +204,7 @@ export default function LoginPage() {
             Email
           </label>
           <input
-            {...register('email')}
+            {...register("email")}
             type="email"
             className="w-full px-4 py-3 rounded-lg bg-gray-50 border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
             placeholder="Enter your email"
@@ -153,8 +220,8 @@ export default function LoginPage() {
           </label>
           <div className="relative">
             <input
-              {...register('password')}
-              type={showPassword ? 'text' : 'password'}
+              {...register("password")}
+              type={showPassword ? "text" : "password"}
               className="w-full px-4 py-3 rounded-lg bg-gray-50 border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors pr-10"
               placeholder="Enter your password"
             />
@@ -164,21 +231,56 @@ export default function LoginPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
             >
               {showPassword ? (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 10C2.5 10 5 5 10 5C15 5 17.5 10 17.5 10C17.5 10 15 15 10 15C5 15 2.5 10 2.5 10Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M4 4L16 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.5 10C2.5 10 5 5 10 5C15 5 17.5 10 17.5 10C17.5 10 15 15 10 15C5 15 2.5 10 2.5 10Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M4 4L16 16"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
               ) : (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 10C2.5 10 5 5 10 5C15 5 17.5 10 17.5 10C17.5 10 15 15 10 15C5 15 2.5 10 2.5 10Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z" stroke="currentColor" strokeWidth="1.5"/>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.5 10C2.5 10 5 5 10 5C15 5 17.5 10 17.5 10C17.5 10 15 15 10 15C5 15 2.5 10 2.5 10Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
                 </svg>
               )}
             </button>
           </div>
           {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.password.message}
+            </p>
           )}
         </div>
 
@@ -186,42 +288,49 @@ export default function LoginPage() {
           <label className="flex items-center">
             <input
               type="checkbox"
-              {...register('rememberMe')}
+              {...register("rememberMe")}
               className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-600"
             />
             <span className="ml-2 text-sm text-gray-600">Remember Me</span>
           </label>
-          <a
-            href="#"
-            className="text-sm text-gray-600 hover:text-gray-800"
+          <Link
+            href="/auth/forgot-password"
+            className="text-sm hover:text-emerald-800 font-medium"
           >
-            Forgot Password?
-          </a>
+            Forgot Password
+          </Link>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 transition-colors"
+          className={`w-full py-3 rounded-lg transition-colors flex items-center justify-center ${
+            loading
+              ? "bg-emerald-500 cursor-not-allowed"
+              : "bg-emerald-600 hover:bg-emerald-700"
+          } text-white`}
+          disabled={loading}
         >
-          Sign In
+          {loading ? (
+            <>
+              <IconLoader2 className="animate-spin mr-2" />
+              Signing in...
+            </>
+          ) : (
+            "Sign In"
+          )}
         </button>
         <div className="mt-4">
-        <Link href={getGoogleSigninUrl()}>
-          <button
-            type="button"
-            className="w-full border border-gray-200 text-gray-700 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
-          >
-            <Image
-              src="/google.svg"
-              alt="Google"
-              width={20}
-              height={20}
-            />
-            Sign in with Google
-          </button>
-        </Link>
+          <Link href={getGoogleSigninUrl()}>
+            <button
+              type="button"
+              className="w-full border border-gray-200 text-gray-700 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+            >
+              <Image src="/google.svg" alt="Google" width={20} height={20} />
+              Sign in with Google
+            </button>
+          </Link>
         </div>
       </form>
     </div>
   );
-} 
+}

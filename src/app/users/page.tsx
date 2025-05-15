@@ -2,116 +2,126 @@
 import React, { useState, useEffect } from "react";
 import { School, FileText, BookOpen, Zap } from "lucide-react"; // Using Lucide icons
 import Table, { Column } from "@/components/ui/table";
+import {
+  getUser,
+  editUser,
+  archiveUser,
+  restoreUser,
+} from "@/services/userService";
+import { AxiosError } from "axios";
+import { fetchUsersRequestPayload } from "@/types/userData";
+import {
+  IdentificationBadge,
+  Envelope,
+  IdentificationCard,
+  GraduationCap,
+  Network,
+  City,
+} from "@phosphor-icons/react";
 
 export default function SchoolsPage() {
-  const [schoolsData, setSchoolsData] = useState<any[]>([]);
+  const [usersData, setUsersData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [isArchived, setIsArchived] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
 
-  const gradeOptions = [
-    "Kindergarten",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
+  const userTypes = [
+    "Admin",
+    "District Viewer",
+    "Observer",
+    "State Admin",
+    "Super Admin",
+    "Network Admin",
   ];
 
-  const curriculaOptions = [
-    "None",
-    "Illustrative Math",
-    "Eureka Math",
-    "Bridges Math",
-    "EngageNY",
+  const roles = [
+    "Central Office / District",
+    "Instructional Coach",
+    "Professional Learning Partner",
+    "School Leader",
+    "State",
+    "Teacher",
+    "Other",
   ];
 
-  const interventionOptions = [
-    "None",
-    "Coaching",
-    "Professional Development",
-    "Tutoring",
-    "Jane Doe",
-    "John Doe",
-  ];
+  const districts = ["District A", "District B"];
+  const schools = ["School A", "School B"];
+
+  const networks = ["Network A", "Network B"];
 
   const columns: Column[] = [
     {
-      key: "firstname",
+      key: "first_name",
       label: "First Name",
       sortable: true,
-      icon: <School size={16} />,
+      icon: <IdentificationBadge size={16} />,
       editable: true,
     },
     {
-      key: "lastname",
+      key: "last_name",
       label: "Last Name",
       sortable: true,
-      icon: <FileText size={16} />,
+      icon: <IdentificationBadge size={16} />,
       editable: true,
-      options: gradeOptions,
+      // options: gradeOptions,
     },
     {
       key: "email",
       label: "Email",
       sortable: true,
-      icon: <BookOpen size={16} />,
+      icon: <Envelope size={18} />,
       editable: true,
-      options: curriculaOptions,
+      // options: curriculaOptions,
     },
     {
       key: "network",
       label: "Network",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <Network size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: networks,
     },
     {
       key: "district",
       label: "District",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <City size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: districts,
     },
     {
       key: "school",
       label: "School",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <GraduationCap size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: schools,
     },
     {
       key: "role",
       label: "Role",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <IdentificationCard size={18} />,
       editable: true,
-      options: interventionOptions,
+      options: roles,
     },
     {
-      key: "usertype",
+      key: "user_type",
       label: "User Type",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <IdentificationCard size={18} />,
       editable: true,
-      options: interventionOptions,
+      options: userTypes,
     },
   ];
 
@@ -121,97 +131,144 @@ export default function SchoolsPage() {
   };
 
   // Handle save action
-  const handleSave = (updatedRow: any) => {
-    console.log("Save changes for:", updatedRow);
+  const handleSave = async (updatedRow: any) => {
+    try {
+      let data = {
+        first_name: updatedRow.first_name,
+        last_name: updatedRow.last_name,
+        email: updatedRow.email,
+        // state: "",
+        // district: formData.district,
+        // school: formData.school,
+        district: "661943fd4ccf5f44a9a1a002",
+        school: "661943fd4ccf5f44a9a1a003",
+        network: "661943fd4ccf5f44a9a1a001",
+        user_role: updatedRow.role,
+        user_type: updatedRow.user_type,
+      };
+      const response = await editUser(updatedRow.id, data);
 
-    // Update the data in state
-    const updatedData = schoolsData.map((row) =>
-      row.id === updatedRow.id || row.school === updatedRow.school
-        ? updatedRow
-        : row
-    );
-
-    setSchoolsData(updatedData);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (selectedIds: string[]) => {
+  const handleDelete = async (selectedIds: string[]) => {
     console.log("Delete selected rows:", selectedIds);
 
-    const filteredData = schoolsData.filter(
-      (row) => !selectedIds.includes(row.id || row.school)
-    );
+    try {
+      const response = await archiveUser({ ids: selectedIds });
+      console.log("responseresponseresponse", response);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    setSchoolsData(filteredData);
-    setTotalCount((prev) => prev - selectedIds.length);
+  const handleArchive = async (selectedIds: string[]) => {
+    try {
+      const response = await restoreUser({ ids: selectedIds });
+      console.log("responseresponseresponse", response);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    fetchData(page, rowsPerPage, sortField, sortDirection);
+    fetchData(
+      page,
+      rowsPerPage,
+      sortField,
+      sortDirection,
+      isArchived,
+      searchQuery
+    );
   };
 
   const handleRowsPerPageChange = (limit: number) => {
     setRowsPerPage(limit);
     setCurrentPage(1);
-    fetchData(1, limit, sortField, sortDirection);
+    fetchData(1, limit, sortField, sortDirection, isArchived, searchQuery);
   };
 
-  const handleSortChange = (key: string, direction: "asc" | "desc" | null) => {
+  const handleSortChange = (
+    key: string | null,
+    direction: "asc" | "desc" | null
+  ) => {
     setSortField(key);
     setSortDirection(direction);
-    fetchData(currentPage, rowsPerPage, key, direction);
+    fetchData(
+      currentPage,
+      rowsPerPage,
+      key,
+      direction,
+      isArchived,
+      searchQuery
+    );
   };
 
   const fetchData = async (
     page: number,
     limit: number,
-    sortBy?: string,
-    sortOrder?: "asc" | "desc" | null
+    sortBy: string | null = null,
+    sortOrder: "asc" | "desc" | null = null,
+    isArchived: boolean = false,
+    search: string | null = null
   ) => {
     setLoading(true);
     try {
-      setTimeout(() => {
-        const mockData = [
-          {
-            id: 1,
-            firstname: "Jane",
-            lastname: "Doe",
-            email: "jne@example.com",
-            network: "Charter Network",
-            district: "New York City",
-            school: "Elmwood Elementary School",
-            role: "Central Office / District",
-            usertype: "Network Admin",
-          },
-          {
-            id: 2,
-            firstname: "Jane",
-            lastname: "Doe",
-            email: "jane@example.com",
-            network: "None",
-            district: "Los Angeles Unified",
-            school: "Jefferson Middle School",
-            role: "Instructional Coach",
-            usertype: "Observer",
-          },
-        ];
+      const requesPayload: fetchUsersRequestPayload = {
+        is_archived: isArchived,
+        sort_by: sortBy,
+        sort_order: sortOrder,
+        curr_page: page,
+        per_page: limit,
+        search: search,
+      };
+      const response = await getUser(requesPayload);
+      // let sortedData = [...response.data.users];
+      // if (sortBy && sortOrder) {
+      //   sortedData.sort((a, b) => {
+      //     if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
+      //     if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+      //     return 0;
+      //   });
+      // }
 
-        let sortedData = [...mockData];
-        if (sortBy && sortOrder) {
-          sortedData.sort((a, b) => {
-            if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-            if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
-            return 0;
-          });
-        }
-
-        const startIndex = (page - 1) * limit;
-        const paginatedData = sortedData.slice(startIndex, startIndex + limit);
-
-        setSchoolsData(paginatedData);
-        setTotalCount(mockData.length);
-        setLoading(false);
-      }, 500);
+      // const startIndex = (page - 1) * limit;
+      // const paginatedData = sortedData.slice(startIndex, startIndex + limit);
+      const paginatedData = [...response.data.users];
+      setUsersData(paginatedData);
+      setTotalCount(response.data.total_users);
+      setLoading(false);
+      // }, 500);
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
@@ -219,15 +276,29 @@ export default function SchoolsPage() {
   };
 
   useEffect(() => {
-    fetchData(currentPage, rowsPerPage);
-  }, []);
+    fetchData(
+      currentPage,
+      rowsPerPage,
+      sortField,
+      sortDirection,
+      isArchived,
+      searchQuery
+    );
+  }, [searchQuery]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Users</h1>
+    <div className="container text-center mx-auto px-4 py-8 bg-white">
+      <h1 className="text-2xl text-center text-black-400 mb-2">Users</h1>
+      <div>
+        <p className="text-center text-[16px] text-[#454F5B]-400 mb-2">
+          Browse all users across districts. Add, update, or archive user
+          accounts as needed.
+        </p>
+      </div>
+
       <Table
         columns={columns}
-        data={schoolsData}
+        data={usersData}
         totalCount={totalCount}
         rowsPerPageOptions={[5, 10, 25, 50, 100]}
         initialRowsPerPage={rowsPerPage}
@@ -238,9 +309,23 @@ export default function SchoolsPage() {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange}
+        onArchive={handleArchive}
+        onSearchChange={setSearchQuery}
+        onToggleArchived={(archived) => {
+          setIsArchived(archived);
+          fetchData(
+            currentPage,
+            rowsPerPage,
+            sortField,
+            sortDirection,
+            archived,
+            searchQuery
+          );
+        }}
         loading={loading}
         staticbg={"#6C4996"}
         dynamicbg={"#F9F5FF"}
+        onCreate={"/users/new"}
       />
     </div>
   );

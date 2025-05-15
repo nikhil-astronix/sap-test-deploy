@@ -1,64 +1,63 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import Stepper from './Stepper';
-import Dropdown from '../ui/Dropdown';
-import MultiSelect from '../ui/MultiSelect';
-
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import Stepper from "./Stepper";
+import Dropdown from "../ui/Dropdown";
+import MultiSelect from "../ui/MultiSelect";
 
 const steps = [
-  { label: 'Basic Classroom Info', id: 'basic-info' },
-  { label: 'Select Intervention(s)', id: 'interventions' },
-  { label: 'Select Curriculum(s)', id: 'curriculum' },
-  { label: 'Review & Submit', id: 'review' },
+  { label: "Basic Classroom Info", id: "basic-info" },
+  { label: "Select Intervention(s)", id: "interventions" },
+  { label: "Select Curriculum(s)", id: "curriculum" },
+  { label: "Review & Submit", id: "review" },
 ];
 
 const sampleSchools = [
-  { label: 'Sample School A', value: 'school-a' },
-  { label: 'Sample School B', value: 'school-b' },
-  { label: 'Sample School C', value: 'school-c' },
-  { label: 'Sample School D', value: 'school-d' },
+  { label: "Sample School A", value: "school-a" },
+  { label: "Sample School B", value: "school-b" },
+  { label: "Sample School C", value: "school-c" },
+  { label: "Sample School D", value: "school-d" },
 ];
 
 const gradeOptions = [
-  { label: 'Kindergarten', value: 'K' },
-  { label: '1st Grade', value: '1' },
-  { label: '2nd Grade', value: '2' },
-  { label: '3rd Grade', value: '3' },
-  { label: '4th Grade', value: '4' },
-  { label: '5th Grade', value: '5' },
+  { label: "Kindergarten", value: "K" },
+  { label: "1st Grade", value: "1" },
+  { label: "2nd Grade", value: "2" },
+  { label: "3rd Grade", value: "3" },
+  { label: "4th Grade", value: "4" },
+  { label: "5th Grade", value: "5" },
 ];
 
 export default function CreateClassroomForm() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
-    school: '',
-    course: '',
-    teacher: '',
+    school: "",
+    course: "",
+    teacher: "",
     grades: [] as string[],
-    classPeriod: '',
+    classPeriod: "",
   });
 
   const getStepStatus = (index: number) => {
-    if (index < currentStep) return 'completed';
-    if (index === currentStep) return 'current';
-    return 'upcoming';
+    if (index < currentStep) return "completed";
+    if (index === currentStep) return "current";
+    return "upcoming";
   };
 
   const stepperSteps = steps.map((step, index) => ({
     label: step.label,
-    status: getStepStatus(index) as 'completed' | 'current' | 'upcoming',
+    status: getStepStatus(index) as "completed" | "current" | "upcoming",
   }));
 
   const handleFormChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <div>
       <Stepper steps={stepperSteps} />
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -93,7 +92,7 @@ export default function CreateClassroomForm() {
 function BasicInfo({
   formData,
   onChange,
-  onNext
+  onNext,
 }: {
   formData: any;
   onChange: (field: string, value: any) => void;
@@ -102,46 +101,54 @@ function BasicInfo({
   return (
     <div className="space-y-6  h-full px-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">School</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          School
+        </label>
         <Dropdown
           options={sampleSchools}
           value={formData.school}
-          onChange={(value) => onChange('school', value)}
+          onChange={(value) => onChange("school", value)}
           placeholder="Select a school"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Course</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Course
+        </label>
         <input
           type="text"
           placeholder="Enter Course Name"
           value={formData.course}
-          onChange={(e) => onChange('course', e.target.value)}
+          onChange={(e) => onChange("course", e.target.value)}
           className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Teacher</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Teacher
+        </label>
         <input
           type="text"
           placeholder="Enter Teacher Name"
           value={formData.teacher}
-          onChange={(e) => onChange('teacher', e.target.value)}
+          onChange={(e) => onChange("teacher", e.target.value)}
           className="w-full px-3 py-2 rounded-lg  border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Grade(s)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Grade(s)
+        </label>
         <MultiSelect
           options={gradeOptions}
           values={formData.grades}
-          onChange={(values) => onChange('grades', values)}
+          onChange={(values) => onChange("grades", values)}
           placeholder="Select grades"
         />
-      </div>border
+      </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -151,7 +158,7 @@ function BasicInfo({
           type="text"
           placeholder="Enter class period / section"
           value={formData.classPeriod}
-          onChange={(e) => onChange('classPeriod', e.target.value)}
+          onChange={(e) => onChange("classPeriod", e.target.value)}
           className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
@@ -202,8 +209,8 @@ function SelectInterventions({
               <div className="ml-3">
                 <h3 className="font-medium">Coaching</h3>
                 <p className="text-sm text-gray-600">
-                  Amplify Desmos Math promotes a collaborative classroom & guides
-                  teachers as facilitator.
+                  Amplify Desmos Math promotes a collaborative classroom &
+                  guides teachers as facilitator.
                 </p>
               </div>
               <span className="ml-auto text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
@@ -263,9 +270,9 @@ function SelectCurriculum({
               <div className="ml-3">
                 <h3 className="font-medium">Amplify</h3>
                 <p className="text-sm text-gray-600">
-                  McGraw-Hill Education Wonders is a K-6 literacy curriculum designed
-                  with a wealth of research-based print and digital resources for building a
-                  strong literacy foundation.
+                  McGraw-Hill Education Wonders is a K-6 literacy curriculum
+                  designed with a wealth of research-based print and digital
+                  resources for building a strong literacy foundation.
                 </p>
               </div>
               <span className="ml-auto text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
@@ -311,4 +318,4 @@ function ReviewSubmit({ onBack }: { onBack: () => void }) {
       </div>
     </div>
   );
-} 
+}

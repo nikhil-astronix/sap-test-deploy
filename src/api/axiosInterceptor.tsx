@@ -11,8 +11,8 @@ const apiClient = axios.create({
 });
 
 // Retry logic configuration
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000; // 2 seconds
+// const MAX_RETRIES = 3;
+// const RETRY_DELAY = 2000; // 2 seconds
 
 const retryRequest = async (error: AxiosError, retryCount = 0) => {
   const config = error.config as AxiosRequestConfig & { url: string };
@@ -21,24 +21,24 @@ const retryRequest = async (error: AxiosError, retryCount = 0) => {
   // Don't retry on 401, 403, or 404
   if (
     error.response?.status &&
-    [401, 403, 404].includes(error.response.status)
+    [401, 403, 404, 500].includes(error.response.status)
   ) {
     return Promise.reject(error);
   }
 
-  if (
-    retryCount < MAX_RETRIES &&
-    (error.code === "ERR_NETWORK" ||
-      error.code === "ECONNABORTED" ||
-      (error.response?.status ?? 0) >= 500)
-  ) {
-    retryCount++;
-    console.log(`Retry attempt ${retryCount} of ${MAX_RETRIES}`);
-    await new Promise((resolve) =>
-      setTimeout(resolve, RETRY_DELAY * retryCount)
-    );
-    return apiClient({ ...config, timeout: 30000 * (retryCount + 1) });
-  }
+  // if (
+  //   retryCount < MAX_RETRIES &&
+  //   (error.code === "ERR_NETWORK" ||
+  //     error.code === "ECONNABORTED" ||
+  //     (error.response?.status ?? 0) >= 500)
+  // ) {
+  //   retryCount++;
+  //   console.log(`Retry attempt ${retryCount} of ${MAX_RETRIES}`);
+  //   await new Promise((resolve) =>
+  //     setTimeout(resolve, RETRY_DELAY * retryCount)
+  //   );
+  //   return apiClient({ ...config, timeout: 30000 * (retryCount + 1) });
+  // }
   return Promise.reject(error);
 };
 

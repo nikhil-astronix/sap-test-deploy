@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Option {
   label: string;
@@ -21,43 +21,46 @@ export default function MultiSelect({
   options,
   values,
   onChange,
-  placeholder = 'Select options',
-  className = '',
+  placeholder = "Select options",
+  className = "",
   error,
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOptions = options.filter(opt => values.includes(opt.value));
+  const selectedOptions = options.filter((opt) => values.includes(opt.value));
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleOption = (value: string) => {
     const newValues = values.includes(value)
-      ? values.filter(v => v !== value)
+      ? values.filter((v) => v !== value)
       : [...values, value];
     onChange(newValues);
   };
 
   const removeOption = (valueToRemove: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening the dropdown
-    onChange(values.filter(v => v !== valueToRemove));
+    onChange(values.filter((v) => v !== valueToRemove));
   };
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Selected Tags */}
-      <div className="flex flex-wrap gap-2 mb-2">
-        {selectedOptions.map(option => (
+      {/* <div className="flex flex-wrap gap-2 mb-2">
+        {selectedOptions.map((option) => (
           <span
             key={option.value}
             className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-emerald-50 border border-emerald-200 text-emerald-700"
@@ -84,21 +87,25 @@ export default function MultiSelect({
             </button>
           </span>
         ))}
-      </div>
+      </div> */}
 
       {/* Dropdown Button */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-3 py-2 text-left bg-white rounded-lg border ${
-          error ? 'border-red-500' : 'border-gray-200'
+          error ? "border-red-500" : "border-gray-200"
         } focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors`}
       >
         <div className="flex items-center justify-between">
-          <span className="text-gray-500">{placeholder}</span>
+          <span className="text-gray-500">
+            {selectedOptions?.length
+              ? selectedOptions.map((option) => option.label).join(", ")
+              : placeholder}
+          </span>
           <svg
             className={`w-5 h-5 text-gray-400 transition-transform ${
-              isOpen ? 'transform rotate-180' : ''
+              isOpen ? "transform rotate-180" : ""
             }`}
             fill="none"
             stroke="currentColor"
@@ -129,27 +136,27 @@ export default function MultiSelect({
                 key={option.value}
                 onClick={() => toggleOption(option.value)}
                 className={`w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2 ${
-                  values.includes(option.value) ? 'bg-emerald-50' : ''
+                  values.includes(option.value) ? "" : ""
                 }`}
               >
                 <div className="flex-shrink-0 w-4 h-4 border-2 rounded flex items-center justify-center">
                   {values.includes(option.value) && (
-                    <svg
-                      className="w-2 h-2 text-emerald-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <div className="flex-shrink-0 w-4 h-4 border-2 bg-emerald-600 rounded flex items-center justify-center">
+                      <svg
+                        className="w-2 h-2 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
                   )}
                 </div>
-                <span className={values.includes(option.value) ? 'text-emerald-600' : 'text-gray-700'}>
-                  {option.label}
-                </span>
+                <span className={"text-gray-700"}>{option.label}</span>
               </button>
             ))}
           </motion.div>
@@ -159,4 +166,4 @@ export default function MultiSelect({
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>
   );
-} 
+}
