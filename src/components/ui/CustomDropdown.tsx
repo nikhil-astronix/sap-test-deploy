@@ -40,7 +40,7 @@ export default function CustomDropdown({ value, options, onChange }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full px-3 py-2 border-2 rounded bg-white text-left focus:outline-none"
+        className="w-full px-3 py-2 border-2 rounded bg-transparent text-left focus:outline-none"
       >
         {selectedLabel}
       </button>
@@ -63,7 +63,7 @@ export default function CustomDropdown({ value, options, onChange }) {
                   onChange(option.value);
                   setOpen(false);
                 }}
-                className="mr-2"
+                className="mr-2 accent-[#2A7251]"
               />
               {option.label}
             </label>

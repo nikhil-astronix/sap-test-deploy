@@ -161,7 +161,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         tabIndex={disabled ? -1 : 0}
         onKeyDown={handleKeyDown}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`flex items-center justify-between w-full px-4 py-2 bg-[#E6EBF0] rounded-md 
+        className={`flex items-center justify-between w-full px-4 py-3 bg-[#E6EBF0] rounded-md 
           ${
             disabled
               ? "opacity-50 cursor-not-allowed bg-gray-50"

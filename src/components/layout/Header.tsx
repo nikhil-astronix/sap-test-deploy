@@ -54,7 +54,7 @@ const Header = ({ handleSetupClick }: any) => {
         </motion.button>
 
         <motion.div
-          className="flex items-center pl-6 "
+          className="flex items-center"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
@@ -62,7 +62,7 @@ const Header = ({ handleSetupClick }: any) => {
           <div className="mr-3 text-right">
             <div className="text-sm font-medium">John Doe</div>
             <Link href="/system-dashboard" className="block">
-              <div className="text-xs text-emerald-700 hover:text-blue-600 cursor-pointer">
+              <div className="text-xs text-emerald-700  cursor-pointer">
                 {role}
               </div>
             </Link>

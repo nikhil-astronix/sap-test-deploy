@@ -64,13 +64,11 @@ export default function Stepper({ steps }: StepperProps) {
                   />
                 ) : null}
               </div>
-              <div className="absolute -bottom-12 left-/4 -translate-x-1/2 w-max text-center">
-                <p className="text-xs font-medium text-gray-500">
+              <div className="absolute -bottom-12  w-max text-left">
+                <p className="text-[10px] text-[#919EAB]-400">
                   STEP {step.number}
                 </p>
-                <p className="text-sm font-medium text-gray-700">
-                  {step.label}
-                </p>
+                <p className="text-[12px] text-black-400">{step.label}</p>
               </div>
             </motion.div>
 

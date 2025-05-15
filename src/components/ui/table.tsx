@@ -264,9 +264,9 @@ export default function Table({
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-xl font-semibold">Archive</h2>
+              <h2 className="text-[16px] text-black-400">Archive</h2>
             </div>
-            <p className="text-left text-gray-700 mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4">
               {selectedRows.length === 0
                 ? "Please select users to archive."
                 : "Are you sure you want to archive this user?"}
@@ -277,17 +277,17 @@ export default function Table({
               <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col items-start">
-                    <p className="font-medium">
+                    <p className="text-[12px] text-black-400">
                       {
                         data.find((row) => row.id === selectedRows[0])
                           ?.first_name
                       }
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-[12px] text-[#637381]-400">
                       {data.find((row) => row.id === selectedRows[0])?.email}
                     </p>
                   </div>
-                  <div className="text-sm font-medium items-center">
+                  <div className="text-[12px] text-black-400 items-center">
                     {data.find((row) => row.id === selectedRows[0])?.role}
                   </div>
                 </div>
@@ -308,13 +308,17 @@ export default function Table({
                   return (
                     <div
                       key={userId}
-                      className="flex justify-between items-center border-b border-gray-200 last:border-0 py-1.5"
+                      className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="font-medium">{user?.first_name}</p>
-                        <p className="text-sm text-gray-500">{user?.email}</p>
+                        <p className="text-[12px] text-black-400">
+                          {user?.first_name}
+                        </p>
+                        <p className="text-[12px] text-[#637381]-400">
+                          {user?.email}
+                        </p>
                       </div>
-                      <div className="text-sm font-medium text-right ">
+                      <div className="text-[12px] text-black-400 text-right ">
                         {user?.role}
                       </div>
                     </div>
@@ -394,17 +398,17 @@ export default function Table({
               <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col items-start">
-                    <p className="font-medium">
+                    <p className="text-[12px] text-black-400">
                       {
                         data.find((row) => row.id === selectedRows[0])
                           ?.first_name
                       }
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-[12px] text-[#637381]-400">
                       {data.find((row) => row.id === selectedRows[0])?.email}
                     </p>
                   </div>
-                  <div className="text-sm font-medium">
+                  <div className="text-[12px] text-black-400">
                     {data.find((row) => row.id === selectedRows[0])?.role}
                   </div>
                 </div>
@@ -424,13 +428,17 @@ export default function Table({
                   return (
                     <div
                       key={userId}
-                      className="flex justify-between items-center border-b border-gray-200 last:border-0 py-1.5"
+                      className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="font-medium">{user?.first_name}</p>
-                        <p className="text-sm text-gray-500">{user?.email}</p>
+                        <p className="text-[12px] text-black-400">
+                          {user?.first_name}
+                        </p>
+                        <p className="text-[12px] text-[#637381]-400">
+                          {user?.email}
+                        </p>
                       </div>
-                      <div className="text-sm font-medium text-right ">
+                      <div className="text-[12px] text-black-400 text-right ">
                         {user?.role}
                       </div>
                     </div>
@@ -473,7 +481,7 @@ export default function Table({
                 className={`px-4 py-2 text-white rounded-lg ${
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-emerald-700 hover:bg-emerald-800"
+                    : "bg-[#2A7251] hover:bg-[#2A7251]"
                 }  transition-colors`}
               >
                 Restore
@@ -550,7 +558,7 @@ export default function Table({
           {editingRowId && ( //!selectionMode &&
             <button
               onClick={handleSaveEdit}
-              className=" bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+              className=" bg-[#2A7251] text-white px-4 py-2 rounded-lg hover:bg-[#2A7251] transition-colors"
             >
               <span>Save Changes</span>
             </button>
@@ -578,7 +586,7 @@ export default function Table({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push(onCreate)}
-            className="flex gap-2 items-center bg-emerald-700 text-white px-6 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+            className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-lg hover:bg-[#2A7251] transition-colors"
           >
             <Plus size={16} />
             Add
@@ -605,7 +613,7 @@ export default function Table({
               }
             }}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              showArchived ? "bg-emerald-600" : "bg-emerald-600" //'bg-gray-200'
+              showArchived ? "bg-[#2A7251]" : "bg-[#2A7251]" //'bg-gray-200'
             }`}
           >
             <motion.span
@@ -632,7 +640,7 @@ export default function Table({
         </div>
       </div>
       <div className="rounded-lg border border-gray-200 shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-lg">
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">
@@ -654,7 +662,7 @@ export default function Table({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className="px-4 py-3 text-left whitespace-nowrap font-medium border-l border-gray-200"
+                    className="px-4 py-3 text-left whitespace-nowrap font-medium border-l-2 border-gray-200"
                   >
                     <div
                       className={`flex items-center justify-between w-full text-[12px] font-normal text-[#F9F5FF] ${
@@ -695,7 +703,7 @@ export default function Table({
                   </th>
                 ))}
                 <th
-                  className="px-8 py-3 sticky right-0 z-20 border-l border-gray-200 text-left text-[12px] font-normal text-[#F9F5FF]"
+                  className="px-8 py-3 sticky right-0 z-20 border-l-2 border-gray-200 text-left text-[12px] font-normal text-[#F9F5FF]"
                   style={{
                     backgroundColor: staticbg,
                     boxShadow: "inset 1px 0 0 #E5E7EB",
@@ -743,9 +751,13 @@ export default function Table({
                       style={{
                         backgroundColor: index % 2 === 1 ? dynamicbg : "#fff",
                       }}
+                      className={`${
+                        isEditing
+                          ? "shadow-[0_2px_4px_rgba(0,0,0,0.08)] relative z-10"
+                          : ""
+                      }`}
                     >
-                      {/* {selectionMode && ( */}
-                      <td className="px-4 py-4 w-10 border-l border-gray-200">
+                      <td className="px-4 py-4 w-10 border-l-2 border-gray-200">
                         <div className="flex items-center justify-center">
                           <input
                             type="checkbox"
@@ -756,12 +768,11 @@ export default function Table({
                           />
                         </div>
                       </td>
-                      {/* )} */}
 
                       {columns.map((column) => (
                         <td
                           key={`${rowId || index}-${column.key}`}
-                          className="px-4 py-4 whitespace-nowrap border-l border-[#D4D4D4]"
+                          className="px-4 py-4 whitespace-nowrap border-l-2 border-[#D4D4D4]"
                         >
                           {isEditing && column.editable ? (
                             column.options ? (
@@ -848,10 +859,9 @@ export default function Table({
                       ))}
 
                       <td
-                        className="px-6 py-4 text-center sticky right-0 border-l border-gray-400 shadow-md"
+                        className="px-6 py-4 text-center sticky right-0 border-l-2 border-gray-400 shadow-md"
                         style={{
-                          backgroundColor:
-                            index % 2 === 1 ? dynamicbg : "#ffffff",
+                          backgroundColor: "#ffffff",
                           boxShadow: "inset 2px 0 0 #D4D4D4",
                         }}
                       >

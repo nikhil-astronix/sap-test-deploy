@@ -290,7 +290,7 @@ export default function SchoolsPage() {
     <div className="container text-center mx-auto px-4 py-8 bg-white">
       <h1 className="text-2xl text-center text-black-400 mb-2">Users</h1>
       <div>
-        <p className="text-center text-gray-400 mb-2">
+        <p className="text-center text-[16px] text-[#454F5B]-400 mb-2">
           Browse all users across districts. Add, update, or archive user
           accounts as needed.
         </p>
