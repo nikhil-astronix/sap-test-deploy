@@ -109,7 +109,7 @@ export default function Table({
   const [showArchiveModal, setShowArchiveModal] = useState(false);
 
   const handleSort = (key: string) => {
-    setShowArchived(false);
+    // setShowArchived(false);
     let direction: "asc" | "desc" | null = "asc";
 
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -129,7 +129,7 @@ export default function Table({
   const startIndex = (currentPage - 1) * rowsPerPage;
 
   const handlePageChange = (page: number) => {
-    setShowArchived(false);
+    // setShowArchived(false);
     if (controlledCurrentPage === undefined) {
       setInternalCurrentPage(page);
     }
@@ -144,13 +144,13 @@ export default function Table({
   ) => {
     const newRowsPerPage = Number(event.target.value);
     setRowsPerPage(newRowsPerPage);
-    setShowArchived(false);
+    // setShowArchived(false);
     if (controlledCurrentPage === undefined) {
       setInternalCurrentPage(1);
     }
 
     if (onRowsPerPageChange) {
-      setShowArchived(false);
+      // setShowArchived(false);
       onRowsPerPageChange(newRowsPerPage);
     }
   };
@@ -216,7 +216,7 @@ export default function Table({
       setSelectionMode(false);
       setShowArchiveButton(false);
       setShowDeleteButton(false);
-      setShowArchived(false);
+      //setShowArchived(false);
       setShowRestoreModal(false);
     }
   };

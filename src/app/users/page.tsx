@@ -274,17 +274,6 @@ export default function SchoolsPage() {
         search: search,
       };
       const response = await getUser(requesPayload);
-      // let sortedData = [...response.data.users];
-      // if (sortBy && sortOrder) {
-      //   sortedData.sort((a, b) => {
-      //     if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-      //     if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
-      //     return 0;
-      //   });
-      // }
-
-      // const startIndex = (page - 1) * limit;
-      // const paginatedData = sortedData.slice(startIndex, startIndex + limit);
       const paginatedData = [...response.data.users];
       setUsersData(paginatedData);
       setTotalCount(response.data.total_users);
