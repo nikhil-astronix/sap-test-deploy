@@ -51,7 +51,7 @@ const schools = [
 ];
 
 const networks = [
-  { label: "Network A", value: "Network A" },
+  { label: "Network 4", value: "Network 4" },
   { label: "Network B", value: "Network B" },
 ];
 

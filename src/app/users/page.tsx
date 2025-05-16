@@ -55,9 +55,9 @@ export default function SchoolsPage() {
   ];
 
   const districts = ["District A", "District B"];
-  const schools = ["School A", "School B"];
+  const schools = ["ABC School", "School B"];
 
-  const networks = ["Network A", "Network B"];
+  const networks = ["Network 4", "Network 5"];
 
   const columns: Column[] = [
     {
@@ -142,7 +142,7 @@ export default function SchoolsPage() {
         // school: formData.school,
         district: "661943fd4ccf5f44a9a1a002",
         school: "661943fd4ccf5f44a9a1a003",
-        network: "661943fd4ccf5f44a9a1a001",
+        network: "681bdda560ada194e76392cf",
         user_role: updatedRow.role,
         user_type: updatedRow.user_type,
       };
