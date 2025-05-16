@@ -11,6 +11,10 @@ import MultiSelect from "@/components/ui/MultiSelect";
 import Dropdown from "@/components/ui/Dropdown";
 import { number, z } from "zod";
 
+interface ErrorResponse {
+  message: string;
+}
+
 const steps = [
   { label: "Basic User Info", id: "basic-info", number: 1 },
   { label: "District & School Selection", id: "district-selection", number: 2 },
@@ -136,7 +140,7 @@ export default function CreateUserForm() {
       }
     } catch (error: unknown) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as AxiosError<ErrorResponse>)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");

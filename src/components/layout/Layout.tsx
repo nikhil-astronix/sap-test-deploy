@@ -7,7 +7,7 @@ import { useState } from "react";
 import { AnimatedContainer } from "@/components/ui/animated-container";
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children: React.ReactElement<{ sidebarVisible?: boolean }>;
 }
 
 const Layout = ({ children }: LayoutProps) => {

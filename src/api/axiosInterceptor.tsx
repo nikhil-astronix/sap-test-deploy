@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosHeaders } from "axios";
 
 // Create an Axios instance with retry logic
 const apiClient = axios.create({
@@ -48,7 +48,7 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem("userAccessToken");
     console.log("tokentoken", token);
     if (!config.headers) {
-      config.headers = {};
+      config.headers = new AxiosHeaders();
     }
 
     if (token) {
