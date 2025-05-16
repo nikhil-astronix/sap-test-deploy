@@ -50,7 +50,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     };
     const response = await fetchObservationTools(requestPayload);
     if (response.success) {
-      setFilteredData(response.data);
+      setFilteredData(response.data.tools);
       console.log("Observation data fetch successfully");
     } else {
       setFilteredData([]);
@@ -61,31 +61,31 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   // Column definitions for Observation Tools tab
   const observationColumns: Column[] = [
     {
-      key: "observationTool",
+      key: "name",
       label: "Observation Tool",
       icon: <ClipboardList size={16} />,
       sortable: true,
     },
     {
-      key: "totalSessions",
+      key: "usage_count",
       label: "Total Sessions",
       icon: <Hash size={16} />,
       sortable: true,
     },
     {
-      key: "usedInDistricts",
+      key: "district_count",
       label: "Used in Districts",
       icon: <Hash size={16} />,
       sortable: true,
     },
     {
-      key: "usedInSchools",
+      key: "school_count",
       label: "Used in Schools",
       icon: <Hash size={16} />,
       sortable: true,
     },
     {
-      key: "createdBy",
+      key: "creator",
       label: "Created By",
       icon: <User size={16} />,
       sortable: true,
@@ -94,23 +94,25 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
 
   // Custom rendering for columns
   const renderCell = (row: TableRow, column: string) => {
-    if (column === "createdBy" && row.createdBy) {
-      const creator = row.createdBy as { name: string; email: string };
+    if (column === "creator" && row.creator) {
+      const creator = row.creator as {
+        first_name: string;
+        last_name: string;
+        email: string;
+      };
       return (
         <div>
-          <div>{creator.name}</div>
+          <div className="text-xs text-black font-normal">
+            {creator.first_name}
+          </div>
           <div className="text-xs text-gray-500">{creator.email}</div>
         </div>
       );
+    } else {
+      return (
+        <span className="text-xs text-black font-normal">{row[column]}</span>
+      );
     }
-
-    // For other columns, check if the value is an object
-    const value = row[column];
-    if (value !== null && typeof value === "object") {
-      return JSON.stringify(value);
-    }
-
-    return value;
   };
 
   const handleFiltersChange = (newFilters: TableFilters) => {

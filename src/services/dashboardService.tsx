@@ -22,9 +22,12 @@ export const fetchDistricts = async (requestPayload: fetchDistrictsPayload) => {
 
 export const fetchUsers = async (requestPayload: fetchUsersPayload) => {
   try {
-    const response = await apiClient.get("/v1/dashboard/system-admin-users", {
-      params: requestPayload,
-    });
+    const response = await apiClient.get(
+      "/v1/dashboard/system-admin-recent-logins",
+      {
+        params: requestPayload,
+      }
+    );
     return { success: true, data: response.data };
   } catch (error) {
     console.error("Error while fetching users:", error);
@@ -36,9 +39,13 @@ export const fetchObservationTools = async (
   requestPayload: fetchObservationToolsPayload
 ) => {
   try {
-    const response = await apiClient.get("/v1/dashboard/system-admin-tools", {
-      params: requestPayload,
-    });
+    const response = await apiClient.get(
+      "/v1/dashboard/system-admin-observation-tools",
+      {
+        params: requestPayload,
+      }
+    );
+
     return { success: true, data: response.data };
   } catch (error) {
     console.error("Error while fetching Observation tools:", error);
