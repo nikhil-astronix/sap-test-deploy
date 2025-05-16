@@ -197,7 +197,7 @@ export default function CreateUserForm() {
             Enter the details below to add a new user.
           </p>
         </div>
-        <div className="sticky top-0 z-10 py-4 shadow-sm">
+        <div className="sticky top-0 z-10 py-4 shadow-sm bg-white">
           <Stepper steps={stepperSteps} />
         </div>
         <div className="max-w-2xl w-full mx-auto">
