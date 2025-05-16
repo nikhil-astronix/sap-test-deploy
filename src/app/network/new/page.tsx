@@ -1,12 +1,45 @@
 "use client";
 import React, { useState } from "react";
+import { createNetwork } from "@/services/networkService";
+import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
-import CreateClassroomForm from "@/components/classroom/CreateClassroomForm";
-
-export default function NewClassroomPage() {
+export default function NewNetworkPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     network: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      let data = {
+        name: formData.network,
+      };
+
+      const response = await createNetwork(data);
+      if (response.success) {
+        setApiSuccess("Network created successfully!");
+        setApiError("");
+        setTimeout(() => {
+          router.push("/networks");
+        }, 1000);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+      setApiError(errorMessage || "Something went wrong");
+      setApiSuccess("");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="container mx-auto bg-white rounded-lg min-h-screen overflow-y-auto">
@@ -33,14 +66,24 @@ export default function NewClassroomPage() {
           />
           <div className="flex justify-end mt-6 px-2 ">
             <button
-              onClick={() => {}}
+              onClick={() => handleSubmit()}
               className="bg-emerald-700 text-white px-6 py-2 rounded-lg hover:bg-emerald-800 transition-colors flex items-center gap-2 text-sm"
             >
               Add
             </button>
           </div>
         </div>
-        {/* <CreateClassroomForm /> */}
+        {apiError && (
+          <div className="bg-red-100 text-red-800 p-3 rounded mb-4 mt-[10px]">
+            {apiError}
+          </div>
+        )}
+
+        {apiSuccess && (
+          <div className="bg-green-100 text-green-800 p-3 rounded mb-4 mt-[10px]">
+            {apiSuccess}
+          </div>
+        )}
       </div>
     </div>
   );

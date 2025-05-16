@@ -38,7 +38,7 @@ const userTypes = [
   { label: "Admin", value: "Admin" },
   { label: "District Viewer", value: "District Viewer" },
   { label: "Observer", value: "Observer" },
-  { label: "State Admin", value: "State Admin" },
+  { label: "Network Admin", value: "Network Admin" },
   { label: "Super Admin", value: "Super Admin" },
 ];
 const districts = [

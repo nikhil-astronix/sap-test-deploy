@@ -149,7 +149,14 @@ export default function SchoolsPage() {
       const response = await editUser(updatedRow.id, data);
 
       if (response.success) {
-        fetchData(currentPage, rowsPerPage);
+        fetchData(
+          currentPage,
+          rowsPerPage,
+          sortField,
+          sortDirection,
+          isArchived,
+          searchQuery
+        );
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -169,7 +176,14 @@ export default function SchoolsPage() {
       const response = await archiveUser({ ids: selectedIds });
       console.log("responseresponseresponse", response);
       if (response.success) {
-        fetchData(currentPage, rowsPerPage);
+        fetchData(
+          currentPage,
+          rowsPerPage,
+          sortField,
+          sortDirection,
+          isArchived,
+          searchQuery
+        );
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -187,7 +201,14 @@ export default function SchoolsPage() {
       const response = await restoreUser({ ids: selectedIds });
       console.log("responseresponseresponse", response);
       if (response.success) {
-        fetchData(currentPage, rowsPerPage);
+        fetchData(
+          currentPage,
+          rowsPerPage,
+          sortField,
+          sortDirection,
+          isArchived,
+          searchQuery
+        );
       }
     } catch (error: unknown) {
       const errorMessage =

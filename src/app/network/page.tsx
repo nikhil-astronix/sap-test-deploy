@@ -1,173 +1,44 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Plus, MagnifyingGlass } from "@phosphor-icons/react";
+import {
+  Plus,
+  MagnifyingGlass,
+  Bank,
+  Building,
+  User,
+  PencilSimpleLine,
+  CaretCircleDown,
+  CaretCircleUp,
+  City,
+} from "@phosphor-icons/react";
 
 import {
-  ChevronDown,
-  ChevronUp,
-  Edit2,
   Trash2,
   Archive,
-  Building,
-  MapPin,
-  Globe,
-  User,
   ChevronLeft,
   ChevronRight,
   Check,
   RotateCcw,
 } from "lucide-react";
-import Dropdown from "@/components/ui/Dropdown";
-import MultiSelect from "@/components/ui/MultiSelect";
 import { useRouter } from "next/navigation";
+import {
+  archiveNetwork,
+  deleteNetwork,
+  editNetwork,
+  getNetwork,
+  restoreNetwork,
+} from "@/services/networkService";
 
-const mockActiveNetworks = [
-  {
-    id: "1",
-    name: "network1",
-    classrooms: [
-      {
-        id: "1",
-        district: "New York city Department of Education",
-        state: "New York",
-        city: "Los Angeles",
-        created: "jane Doe",
-      },
-      {
-        id: "2",
-        district: "los Angeles unified School District",
-        state: "california",
-        city: "Birmingham",
-        created: "jane Doe",
-      },
-      {
-        id: "3",
-        district: "Chicago Public Schools",
-        state: "lllinois",
-        city: "Bridgeport",
-        created: "jane Doe",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "network2",
-    classrooms: [
-      {
-        id: "1",
-        district: "New York city Department of Education",
-        state: "New York",
-        city: "Los Angeles",
-        created: "jane Doe",
-      },
-      {
-        id: "2",
-        district: "los Angeles unified School District",
-        state: "california",
-        city: "Birmingham",
-        created: "jane Doe",
-      },
-      {
-        id: "3",
-        district: "Chicago Public Schools",
-        state: "lllinois",
-        city: "Bridgeport",
-        created: "jane Doe",
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "network3",
-    classrooms: [
-      {
-        id: "1",
-        district: "New York city Department of Education",
-        state: "New York",
-        city: "Los Angeles",
-        created: "jane Doe",
-      },
-      {
-        id: "2",
-        district: "los Angeles unified School District",
-        state: "california",
-        city: "Birmingham",
-        created: "jane Doe",
-      },
-      {
-        id: "3",
-        district: "Chicago Public Schools",
-        state: "lllinois",
-        city: "Bridgeport",
-        created: "jane Doe",
-      },
-    ],
-  },
-];
-
-const mockArchivedNetworks = [
-  {
-    id: "4",
-    name: "Archived Network 1",
-    classrooms: [
-      {
-        id: "1",
-        district: "Boston Public Schools",
-        state: "Massachusetts",
-        city: "Boston",
-        created: "John Smith",
-      },
-      {
-        id: "2",
-        district: "Seattle Public Schools",
-        state: "Washington",
-        city: "Seattle",
-        created: "John Smith",
-      },
-    ],
-  },
-  {
-    id: "5",
-    name: "Archived Network 2",
-    classrooms: [
-      {
-        id: "1",
-        district: "Miami-Dade County Public Schools",
-        state: "Florida",
-        city: "Miami",
-        created: "Sarah Johnson",
-      },
-    ],
-  },
-];
-
-const stateOptions = [
-  { label: "New York", value: "New York" },
-  { label: "California", value: "California" },
-  { label: "Illinois", value: "Illinois" },
-  { label: "Florida", value: "Florida" },
-];
-const cityOptions = [
-  { label: "Los Angeles", value: "Los Angeles" },
-  { label: "Birmingham", value: "Birmingham" },
-  { label: "Bridgeport", value: "Bridgeport" },
-];
-const creatorOptions = [
-  { label: "Jane Doe", value: "Jane Doe" },
-  { label: "John Smith", value: "John Smith" },
-  { label: "Sarah Johnson", value: "Sarah Johnson" },
-];
+import { AxiosError } from "axios";
 
 export default function NetworksPage() {
+  const [internalCurrentPage, setInternalCurrentPage] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [editing, setEditing] = useState<{
-    networkId: string;
-    districtId: string;
-  } | null>(null);
-  const [search, setSearch] = useState("");
+  const [editing, setEditing] = useState<string | null>(null); // Now tracks only networkId
+  const [search, setSearch] = useState<string | null>(null);
   const [active, setActive] = useState(false);
-  const [editData, setEditData] = useState<any>(null);
+  const [editData, setEditData] = useState<{ name: string }>({ name: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState<{
     networks: Set<string>;
@@ -180,51 +51,61 @@ export default function NetworksPage() {
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const rowsPerPage = 5;
+  const [totalCount, setTotalCount] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const rowsPerPageOptions = [5, 10, 25, 50, 100];
+  const [activeNetworks, setActiveNetworks] = useState<any[]>([]);
+  const [archivedNetworks, setArchivedNetworks] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
 
-  const networks = active ? mockArchivedNetworks : mockActiveNetworks;
-  const paginatedNetworks = networks.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-  const totalPages = Math.ceil(networks.length / rowsPerPage);
+  const networks = active ? archivedNetworks : activeNetworks;
+  const paginatedNetworks = networks;
 
-  // Helper function to check if all districts of a network are selected
-  const areAllDistrictsSelected = (networkId: string, districts: any[]) => {
-    return districts.every((district) =>
-      selectedRows.districts.has(`${networkId}-${district.id}`)
-    );
-  };
-
-  // Helper function to check if any district of a network is selected
-  const isAnyDistrictSelected = (networkId: string, districts: any[]) => {
-    return districts.some((district) =>
-      selectedRows.districts.has(`${networkId}-${district.id}`)
-    );
-  };
+  const startIndex = (currentPage - 1) * rowsPerPage;
 
   const handleExpand = (networkId: string) => {
     setExpanded(expanded === networkId ? null : networkId);
     setEditing(null);
   };
 
-  const handleEdit = (networkId: string, district: any) => {
-    setEditing({ networkId, districtId: district.id });
-    setEditData({ ...district });
+  const handleEdit = (networkId: string) => {
+    const network = networks.find((n) => n.id === networkId);
+    if (network) {
+      setEditing(networkId);
+      setEditData({ name: network.name });
+    }
   };
 
-  const handleEditChange = (field: string, value: any) => {
-    setEditData((prev: any) => ({ ...prev, [field]: value }));
+  const handleEditChange = (value: string) => {
+    setEditData({ name: value });
   };
 
-  const handleSave = () => {
-    setEditing(null);
-    // Save logic here
-  };
+  // Handle save action
+  const handleSave = async (updatedRow: any) => {
+    try {
+      let data = {
+        name: editData.name,
+        state: updatedRow.state,
+      };
+      const response = await editNetwork(updatedRow.id, data);
 
-  const handleCloseEdit = () => {
-    setEditing(null);
+      if (response.success) {
+        setEditing(null);
+        fetchData(currentPage, rowsPerPage, null, null, active, search);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to edit network. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSelectRow = (
@@ -250,13 +131,13 @@ export default function NetworksPage() {
       if (shouldSelect) {
         // Select network and all its districts
         newSelected.networks.add(networkId);
-        network.classrooms.forEach((district) => {
+        network.districts.forEach((district: any) => {
           newSelected.districts.add(`${networkId}-${district.id}`);
         });
       } else {
         // Deselect network and all its districts
         newSelected.networks.delete(networkId);
-        network.classrooms.forEach((district) => {
+        network.districts.forEach((district: any) => {
           newSelected.districts.delete(`${networkId}-${district.id}`);
         });
       }
@@ -267,7 +148,7 @@ export default function NetworksPage() {
       if (shouldSelect) {
         newSelected.districts.add(rowId);
         // Check if all districts are now selected
-        const allDistrictsSelected = network.classrooms.every((district) =>
+        const allDistrictsSelected = network.districts.every((district: any) =>
           newSelected.districts.has(`${networkId}-${district.id}`)
         );
         if (allDistrictsSelected) {
@@ -293,7 +174,7 @@ export default function NetworksPage() {
       // Select all networks and their districts
       networks.forEach((network) => {
         newSelected.networks.add(network.id);
-        network.classrooms.forEach((district) => {
+        network.districts.forEach((district: any) => {
           newSelected.districts.add(`${network.id}-${district.id}`);
         });
       });
@@ -308,8 +189,8 @@ export default function NetworksPage() {
     let selectedDistricts = 0;
 
     networks.forEach((network) => {
-      totalDistricts += network.classrooms.length;
-      selectedDistricts += network.classrooms.filter((district) =>
+      totalDistricts += network.districts.length;
+      selectedDistricts += network.districts.filter((district: any) =>
         selected.districts.has(`${network.id}-${district.id}`)
       ).length;
     });
@@ -336,7 +217,7 @@ export default function NetworksPage() {
     selectedDistricts.forEach((districtId) => {
       const [networkId, distId] = districtId.split("-");
       const network = networks.find((n) => n.id === networkId);
-      const district = network?.classrooms.find((d) => d.id === distId);
+      const district = network?.districts.find((d: any) => d.id === distId);
       if (district && !selectedRows.networks.has(networkId)) {
         items.push(
           `${district.district} - ${district.state}, ${district.city}`
@@ -347,10 +228,10 @@ export default function NetworksPage() {
     return items;
   };
 
-  const handleRestore = () => {
+  const handleRestore1 = () => {
     // Move selected items to active networks
-    const newActiveNetworks = [...mockActiveNetworks];
-    const newArchivedNetworks = [...mockArchivedNetworks];
+    const newActiveNetworks = [...activeNetworks];
+    const newArchivedNetworks = [...archivedNetworks];
     const processedNetworks = new Set<string>();
 
     // First, process any selected networks
@@ -383,7 +264,7 @@ export default function NetworksPage() {
         activeNetwork = {
           id: networkId,
           name: archivedNetwork.name,
-          classrooms: [],
+          districts: [],
         };
         newActiveNetworks.push(activeNetwork);
       }
@@ -395,20 +276,17 @@ export default function NetworksPage() {
 
       // Move selected districts to active network
       selectedDistrictsFromNetwork.forEach((districtId) => {
-        const districtIndex = archivedNetwork.classrooms.findIndex(
-          (d) => d.id === districtId
+        const districtIndex = archivedNetwork.districts.findIndex(
+          (d: any) => d.id === districtId
         );
         if (districtIndex !== -1) {
-          const [district] = archivedNetwork.classrooms.splice(
-            districtIndex,
-            1
-          );
-          activeNetwork.classrooms.push(district);
+          const [district] = archivedNetwork.districts.splice(districtIndex, 1);
+          activeNetwork.districts.push(district);
         }
       });
 
       // Remove archived network if it's empty
-      if (archivedNetwork.classrooms.length === 0) {
+      if (archivedNetwork.districts.length === 0) {
         const index = newArchivedNetworks.findIndex((n) => n.id === networkId);
         if (index !== -1) {
           newArchivedNetworks.splice(index, 1);
@@ -416,27 +294,51 @@ export default function NetworksPage() {
       }
     });
 
-    // Update the mock data
-    mockActiveNetworks.splice(
-      0,
-      mockActiveNetworks.length,
-      ...newActiveNetworks
-    );
-    mockArchivedNetworks.splice(
-      0,
-      mockArchivedNetworks.length,
-      ...newArchivedNetworks
-    );
+    // Update state with new arrays
+    setActiveNetworks(newActiveNetworks);
+    setArchivedNetworks(newArchivedNetworks);
 
     // Clear selections and close modal
     setSelectedRows({ networks: new Set(), districts: new Set() });
     setShowRestoreModal(false);
+
+    // Call API to restore items
+    // restoreNetworks(selectedItems);
   };
 
-  const handleArchive = () => {
-    // Move selected items to archived networks
-    const newActiveNetworks = [...mockActiveNetworks];
-    const newArchivedNetworks = [...mockArchivedNetworks];
+  const handleRestore = async () => {
+    const newActiveNetworks = [...activeNetworks];
+    const newArchivedNetworks = [...archivedNetworks];
+    const selectedNetworkIds = Array.from(selectedRows.networks);
+    const selectedDistrictIds = Array.from(selectedRows.districts).filter(
+      (id) => {
+        const [networkId] = id.split("-");
+        return !selectedRows.networks.has(networkId); // only keep if network not selected
+      }
+    );
+
+    // Prepare final ID list to send to backend
+    const idsToArchive = [
+      ...selectedNetworkIds,
+      ...selectedDistrictIds.map((id) => id.split("-")[1]), // extract districtId only
+    ];
+
+    // Call the API
+
+    const response = await restoreNetwork({ ids: idsToArchive });
+    console.log("archived network respose-----", response);
+    if (response.success) {
+      fetchData(currentPage, rowsPerPage, null, null, active, search);
+    }
+
+    setSelectedRows({ networks: new Set(), districts: new Set() });
+    setShowRestoreModal(false);
+  };
+
+  const handleArchive1 = () => {
+    // Create copies of the current state
+    const newActiveNetworks = [...activeNetworks];
+    const newArchivedNetworks = [...archivedNetworks];
 
     // Handle full network archival
     selectedRows.networks.forEach((networkId) => {
@@ -449,68 +351,273 @@ export default function NetworksPage() {
       }
     });
 
-    // Handle individual district archival
+    // Handle district archival
     selectedRows.districts.forEach((districtId) => {
       const [networkId, distId] = districtId.split("-");
-      if (!selectedRows.networks.has(networkId)) {
-        const activeNetwork = newActiveNetworks.find((n) => n.id === networkId);
-        const archivedNetwork = newArchivedNetworks.find(
-          (n) => n.id === networkId
-        ) || {
-          ...activeNetwork,
-          classrooms: [],
-          id: networkId,
-          name: activeNetwork?.name || "",
-        };
+      if (selectedRows.networks.has(networkId)) return; // Skip if network is already archived
 
-        if (activeNetwork) {
-          const districtIndex = activeNetwork.classrooms.findIndex(
-            (d) => d.id === distId
+      const networkIndex = newActiveNetworks.findIndex(
+        (n) => n.id === networkId
+      );
+      if (networkIndex !== -1) {
+        const network = newActiveNetworks[networkIndex];
+        const districtIndex = network.districts.findIndex(
+          (d: any) => d.id === distId
+        );
+
+        if (districtIndex !== -1) {
+          // Move district to archived network
+          const [district] = network.districts.splice(districtIndex, 1);
+
+          // Find or create the archived network
+          let archivedNetwork = newArchivedNetworks.find(
+            (n) => n.id === networkId
           );
-          if (districtIndex !== -1) {
-            const [district] = activeNetwork.classrooms.splice(
-              districtIndex,
-              1
-            );
+          if (!archivedNetwork) {
+            archivedNetwork = {
+              id: networkId,
+              name: network.name,
+              districts: [],
+            };
+            newArchivedNetworks.push(archivedNetwork);
+          }
 
-            // If archived network doesn't exist, add it
-            if (!newArchivedNetworks.find((n) => n.id === networkId)) {
-              newArchivedNetworks.push(archivedNetwork);
-            }
+          archivedNetwork.districts.push(district);
 
-            // Add district to archived network
-            archivedNetwork.classrooms.push(district);
+          // Remove empty networks
+          if (network.districts.length === 0) {
+            newActiveNetworks.splice(networkIndex, 1);
           }
         }
       }
     });
 
-    // Update the mock data
-    mockActiveNetworks.splice(
-      0,
-      mockActiveNetworks.length,
-      ...newActiveNetworks
-    );
-    mockArchivedNetworks.splice(
-      0,
-      mockArchivedNetworks.length,
-      ...newArchivedNetworks
-    );
+    // Update state with new arrays
+    setActiveNetworks(newActiveNetworks);
+    setArchivedNetworks(newArchivedNetworks);
 
     // Clear selections and close modal
     setSelectedRows({ networks: new Set(), districts: new Set() });
     setShowArchiveModal(false);
+
+    // Call API to update archived status
+    // updateNetworkStatus(selectedNetworks, selectedDistricts, true);
   };
 
-  const handleDelete = () => {
-    // Implementation of delete functionality
-    // Similar structure to handleArchive but removes items completely
-    setShowDeleteModal(false);
+  const handleArchive = async () => {
+    const selectedNetworkIds = Array.from(selectedRows.networks);
+    const selectedDistrictIds = Array.from(selectedRows.districts).filter(
+      (id) => {
+        const [networkId] = id.split("-");
+        return !selectedRows.networks.has(networkId); // only keep if network not selected
+      }
+    );
+
+    // Prepare final ID list to send to backend
+    const idsToArchive = [
+      ...selectedNetworkIds,
+      ...selectedDistrictIds.map((id) => id.split("-")[1]), // extract districtId only
+    ];
+
+    // Call the API
+
+    const response = await archiveNetwork({ ids: idsToArchive });
+    console.log("archived network respose-----", response);
+    if (response.success) {
+      fetchData(currentPage, rowsPerPage, null, null, active, search);
+    }
+
     setSelectedRows({ networks: new Set(), districts: new Set() });
+    setShowArchiveModal(false);
+  };
+
+  // Implement the delete functionality
+  const handleDelete1 = () => {
+    // Implementation of delete functionality using state variables
+    const newActiveNetworks = [...activeNetworks];
+    const newArchivedNetworks = [...archivedNetworks];
+
+    // Handle network deletions
+    selectedRows.networks.forEach((networkId) => {
+      if (active) {
+        const index = newArchivedNetworks.findIndex((n) => n.id === networkId);
+        if (index !== -1) {
+          newArchivedNetworks.splice(index, 1);
+        }
+      } else {
+        const index = newActiveNetworks.findIndex((n) => n.id === networkId);
+        if (index !== -1) {
+          newActiveNetworks.splice(index, 1);
+        }
+      }
+    });
+
+    // Handle individual district deletions
+    selectedRows.districts.forEach((districtId) => {
+      const [networkId, distId] = districtId.split("-");
+      if (selectedRows.networks.has(networkId)) return; // Skip if network is already deleted
+
+      if (active) {
+        const network = newArchivedNetworks.find((n) => n.id === networkId);
+        if (network) {
+          const index = network.districts.findIndex(
+            (d: any) => d.id === distId
+          );
+          if (index !== -1) {
+            network.districts.splice(index, 1);
+            // Remove network if empty
+            if (network.districts.length === 0) {
+              const networkIndex = newArchivedNetworks.findIndex(
+                (n) => n.id === networkId
+              );
+              if (networkIndex !== -1) {
+                newArchivedNetworks.splice(networkIndex, 1);
+              }
+            }
+          }
+        }
+      } else {
+        const network = newActiveNetworks.find((n) => n.id === networkId);
+        if (network) {
+          const index = network.districts.findIndex(
+            (d: any) => d.id === distId
+          );
+          if (index !== -1) {
+            network.districts.splice(index, 1);
+            // Remove network if empty
+            if (network.districts.length === 0) {
+              const networkIndex = newActiveNetworks.findIndex(
+                (n) => n.id === networkId
+              );
+              if (networkIndex !== -1) {
+                newActiveNetworks.splice(networkIndex, 1);
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Update state with new arrays
+    setActiveNetworks(newActiveNetworks);
+    setArchivedNetworks(newArchivedNetworks);
+
+    // Clear selections and close modal
+    setSelectedRows({ networks: new Set(), districts: new Set() });
+    setShowDeleteModal(false);
+
+    // Call API to delete items
+    // deleteNetworks(selectedItems);
+  };
+
+  const handleDelete = async () => {
+    const selectedNetworkIds = Array.from(selectedRows.networks);
+    const selectedDistrictIds = Array.from(selectedRows.districts).filter(
+      (id) => {
+        const [networkId] = id.split("-");
+        return !selectedRows.networks.has(networkId); // only keep if network not selected
+      }
+    );
+
+    // Prepare final ID list to send to backend
+    const idsToArchive = [
+      ...selectedNetworkIds,
+      ...selectedDistrictIds.map((id) => id.split("-")[1]), // extract districtId only
+    ];
+
+    // Call the API
+
+    const response = await deleteNetwork({ ids: idsToArchive });
+
+    if (response.success) {
+      fetchData(currentPage, rowsPerPage, null, null, active, search);
+    }
+
+    setSelectedRows({ networks: new Set(), districts: new Set() });
+    setShowDeleteModal(false);
+  };
+
+  // Improved error handling in fetchData
+  const fetchData = async (
+    page: number,
+    limit: number,
+    sortBy: string | null,
+    sortOrder: "asc" | "desc" | null,
+    isArchived: boolean = false,
+    search: string | null
+  ) => {
+    setLoading(true);
+    try {
+      const requestPayload = {
+        is_archived: isArchived,
+        sort_by: null,
+        sort_order: null,
+        curr_page: page,
+        per_page: limit,
+        search: search, // Don't send empty strings
+      };
+
+      const response = await getNetwork(requestPayload);
+      console.log("response------", response);
+      if (response.success && response.data) {
+        // Transform API data with safe access patterns
+        const transformedNetworks = (response.data.networks || []).map(
+          (network: any, index: any) => ({
+            id: network.id || `api-${index}`,
+            name: network.name || "",
+            districts: Array.isArray(network.districts)
+              ? network.districts.map((district: any, dIndex: string) => ({
+                  id: district.id || `district-${dIndex}`,
+                  district: district.name || "",
+                  state: district.state || network.state || "",
+                  city: district.city || "",
+                  created:
+                    district.created_by_first_name +
+                      " " +
+                      district.created_by_last_name || "",
+                }))
+              : [],
+          })
+        );
+
+        // Update with proper state management
+        if (isArchived) {
+          setArchivedNetworks(transformedNetworks);
+        } else {
+          setActiveNetworks(transformedNetworks);
+        }
+
+        // Update pagination with null checks
+        setTotalCount(response.data.total_networks || 0);
+        setTotalPages(response.data.total_pages || 1);
+        setCurrentPage(response.data.curr_page || 1);
+      } else {
+        console.error("API returned unsuccessful response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(currentPage, rowsPerPage, null, null, active, search);
+  }, [currentPage, rowsPerPage, search, active]);
+
+  const handleRowsPerPageChange = (limit: number) => {
+    setRowsPerPage(limit);
+    setCurrentPage(1);
+    fetchData(1, limit, null, null, active, search);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchData(page, rowsPerPage, null, null, active, search);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md overflow-y-auto">
+    <div className="container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md">
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -548,35 +655,42 @@ export default function NetworksPage() {
 
             {/* Warning Box */}
             <div
-              className="bg-red-50 border-l-4 border-red-400 p-4 mb-6"
+              className="bg-red-50 border-l-4 border-red-400 p-2 mb-6"
               aria-live="polite"
             >
               <div className="flex items-start gap-2">
-                <svg
-                  className="h-7 w-7 text-red-400 mt-0.5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p className="text-sm text-red-600">
-                  {`Archiving ${
-                    getSelectedItemsInfo()?.length === 1
-                      ? "this district"
-                      : "these districts"
-                  } will remove ${
-                    getSelectedItemsInfo()?.length === 1 ? "it" : "them"
-                  } from active views. Associated data will remain stored and become visible again if ${
-                    getSelectedItemsInfo()?.length === 1
-                      ? "the district"
-                      : "the districts"
-                  } is restored. Please confirm before proceeding.`}
-                </p>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-[#C23E19]"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#C23E19]"> Warning</p>
+                  </div>
+                </div>
               </div>
+              <p className="text-sm text-[#C23E19] py-2">
+                {`Archiving ${
+                  getSelectedItemsInfo()?.length === 1
+                    ? "this district"
+                    : "these districts"
+                } will remove ${
+                  getSelectedItemsInfo()?.length === 1 ? "it" : "them"
+                } from active views. Associated data will remain stored and become visible again if ${
+                  getSelectedItemsInfo()?.length === 1
+                    ? "the district"
+                    : "the districts"
+                } is restored. Please confirm before proceeding.`}
+              </p>
             </div>
 
             {/* Buttons */}
@@ -632,7 +746,7 @@ export default function NetworksPage() {
                 >
                   <path
                     fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 000 1v3a1 1 0 001 1h1a 1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                     clipRule="evenodd"
                   />
                 </svg>
@@ -687,24 +801,31 @@ export default function NetworksPage() {
             </div>
 
             {/* Warning Box */}
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="bg-red-50 border-l-4 border-red-500 p-2 mb-6">
               <div className="flex items-start gap-2">
-                <svg
-                  className="h-5 w-5 text-red-500 mt-0.5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p className="text-sm text-red-600">
-                  Deleting this district will remove it from the existing
-                  networks. Please confirm before proceeding.
-                </p>
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-[#C23E19]"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#C23E19]"> Warning</p>
+                  </div>
+                </div>
               </div>
+              <p className="text-sm text-[#C23E19] py-2">
+                Deleting this district will remove it from the existing
+                networks. Please confirm before proceeding.
+              </p>
             </div>
 
             {/* Buttons */}
@@ -726,80 +847,30 @@ export default function NetworksPage() {
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-center mb-2">Networks</h1>
+      <h1 className="text-2xl  text-center mb-2">Networks</h1>
       <p className="text-center text-gray-600 mb-6">
         Manage your network organization and district assignments.
       </p>
 
-      {editing ? (
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            className="text-gray-700 text-sm font-medium"
-            onClick={handleCloseEdit}
-          >
-            Close
-          </button>
-          <button
-            className="bg-emerald-700 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-800 transition-colors"
-            onClick={handleSave}
-          >
-            Save Changes
-          </button>
+      <div className="flex items-center justify-between mb-2">
+        <div className="relative w-[35%] ">
+          <MagnifyingGlass
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearch(value);
+            }}
+          />
         </div>
-      ) : (
-        <div className="flex items-center justify-between mb-2">
-          <div className="relative w-[35%] ">
-            <MagnifyingGlass
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
-              placeholder="Search"
-              value={search}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSearch(value);
-              }}
-            />
-          </div>
 
-          <div className="flex items-center gap-2">
-            {!active ? (
-              <button
-                className={`p-2 ${
-                  hasSelectedItems()
-                    ? "text-gray-500 hover:text-gray-700"
-                    : "text-gray-300 cursor-not-allowed"
-                }`}
-                disabled={!hasSelectedItems()}
-                onClick={() => hasSelectedItems() && setShowArchiveModal(true)}
-                title={
-                  hasSelectedItems()
-                    ? "Archive selected"
-                    : "Select items to archive"
-                }
-              >
-                <Archive size={20} className="text-black" />
-              </button>
-            ) : (
-              <button
-                className={`p-2 ${
-                  hasSelectedItems()
-                    ? "text-gray-500 hover:text-gray-700"
-                    : "text-gray-300 cursor-not-allowed"
-                }`}
-                disabled={!hasSelectedItems()}
-                onClick={() => hasSelectedItems() && setShowRestoreModal(true)}
-                title={
-                  hasSelectedItems()
-                    ? "Restore selected"
-                    : "Select items to restore"
-                }
-              >
-                <RotateCcw size={20} className="text-black" />
-              </button>
-            )}
+        <div className="flex items-center gap-2">
+          {!active ? (
             <button
               className={`p-2 ${
                 hasSelectedItems()
@@ -807,27 +878,58 @@ export default function NetworksPage() {
                   : "text-gray-300 cursor-not-allowed"
               }`}
               disabled={!hasSelectedItems()}
-              onClick={() => hasSelectedItems() && setShowDeleteModal(true)}
+              onClick={() => hasSelectedItems() && setShowArchiveModal(true)}
               title={
                 hasSelectedItems()
-                  ? "Delete selected"
-                  : "Select items to delete"
+                  ? "Archive selected"
+                  : "Select items to archive"
               }
             >
-              <Trash2 size={20} className="text-black" />
+              <Archive size={20} className="text-black" />
             </button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => router.push("/network/new")}
-              className="flex gap-2 items-center bg-emerald-700 text-white px-6 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+          ) : (
+            <button
+              className={`p-2 ${
+                hasSelectedItems()
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-300 cursor-not-allowed"
+              }`}
+              disabled={!hasSelectedItems()}
+              onClick={() => hasSelectedItems() && setShowRestoreModal(true)}
+              title={
+                hasSelectedItems()
+                  ? "Restore selected"
+                  : "Select items to restore"
+              }
             >
-              <Plus size={16} />
-              Add
-            </motion.button>
-          </div>
+              <RotateCcw size={20} className="text-black" />
+            </button>
+          )}
+          <button
+            className={`p-2 ${
+              hasSelectedItems()
+                ? "text-gray-500 hover:text-gray-700"
+                : "text-gray-300 cursor-not-allowed"
+            }`}
+            disabled={!hasSelectedItems()}
+            onClick={() => hasSelectedItems() && setShowDeleteModal(true)}
+            title={
+              hasSelectedItems() ? "Delete selected" : "Select items to delete"
+            }
+          >
+            <Trash2 size={20} className="text-black" />
+          </button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push("/network/new")}
+            className="flex gap-2 items-center bg-emerald-700 text-white px-6 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+          >
+            <Plus size={16} />
+            Add
+          </motion.button>
         </div>
-      )}
+      </div>
 
       <div className="flex items-center gap-2 mb-4 mt-4">
         <div className="flex items-center space-x-2">
@@ -867,35 +969,35 @@ export default function NetworksPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-sm bg-white">
-        <table className="w-full border-collapse text-sm">
+      <div className=" rounded-lg border border-gray-300 shadow-sm bg-white">
+        <table className="w-full border-collapse text-sm rounded-lg">
           <thead>
-            <tr className="bg-[#2264AC] text-white border-b border-gray-300">
-              <th className="w-[5%] px-4 py-3 text-left border-r border-gray-300">
+            <tr className="bg-[#2264AC] text-white border-b border-gray-300 ">
+              <th className="w-[0.1%] px-4 py-3 text-left border-gray-300 rounded-tl-lg">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
-                    className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] focus:ring-[#2264AC] focus:ring-2 bg-white cursor-pointer"
+                    className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
                   />
                 </div>
               </th>
-              <th className="w-[25%] px-4 py-3 text-left font-semibold border-r border-gray-300">
+              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <div className="flex items-center gap-2">
-                  <Building size={16} />
+                  <City size={16} />
                   District
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <Globe size={16} />
+                  <Bank size={16} />
                   State
                 </span>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <MapPin size={16} />
+                  <Building size={16} />
                   City
                 </span>
               </th>
@@ -905,125 +1007,145 @@ export default function NetworksPage() {
                   Created By
                 </span>
               </th>
-              <th className="w-[5%] px-4 py-3"></th>
+              <th className="w-[5%] px-4 py-3 rounded-tr-lg"></th>
             </tr>
           </thead>
           <tbody className="bg-white">
-            {paginatedNetworks.map((network) => (
-              <React.Fragment key={network.id}>
-                <tr
-                  className="bg-[#F3F8FF] hover:bg-[#E5F0FF] cursor-pointer border-y border-gray-300"
-                  onClick={(e) => {
-                    handleSelectRow(network.id, "all", e);
-                  }}
-                >
-                  <td
-                    className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.networks.has(network.id)}
-                        onChange={(e) => handleSelectRow(network.id, "all", e)}
-                        className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] focus:ring-[#2264AC] focus:ring-2 bg-white cursor-pointer"
-                      />
-                    </div>
-                  </td>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-3 border-b border-gray-300"
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="py-8">
+                  <div className="flex justify-center items-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                  </div>
+                </td>
+              </tr>
+            ) : paginatedNetworks.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-8 text-gray-500">
+                  No networks found
+                </td>
+              </tr>
+            ) : (
+              paginatedNetworks.map((network) => (
+                <React.Fragment key={network.id}>
+                  <tr
+                    className="bg-[#F3F8FF] hover:bg-[#E5F0FF] cursor-pointer border-y border-gray-300"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      handleExpand(network.id);
+                      handleSelectRow(network.id, "all", e);
                     }}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm">
-                        {network.name}
-                      </span>
-                      <span>
-                        {expanded === network.id ? (
-                          <ChevronUp className="text-gray-600" />
-                        ) : (
-                          <ChevronDown className="text-gray-600" />
-                        )}
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-                {expanded === network.id &&
-                  network.classrooms.length > 0 &&
-                  network.classrooms.map((district) => (
-                    <tr
-                      key={district.id}
-                      className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
-                      onClick={(e) =>
-                        handleSelectRow(network.id, district.id, e)
-                      }
+                    <td
+                      className="px-4 py-3 border-gray-200 bg-[#F8FAFC]"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <td
-                        className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="flex items-center">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.networks.has(network.id)}
+                          onChange={(e) =>
+                            handleSelectRow(network.id, "all", e)
+                          }
+                          className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                        />
+                      </div>
+                    </td>
+                    <td
+                      colSpan={5}
+                      className="px-4 py-3 border-b border-gray-300"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExpand(network.id);
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        {editing === network.id ? (
                           <input
-                            type="checkbox"
-                            checked={selectedRows.districts.has(
-                              `${network.id}-${district.id}`
-                            )}
-                            onChange={(e) =>
-                              handleSelectRow(network.id, district.id, e)
-                            }
-                            className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] focus:ring-[#2264AC] focus:ring-2 bg-white cursor-pointer"
+                            className="font-semibold text-sm py-1 px-0 bg-transparent border-b-2 border-blue-500 focus:outline-none focus:ring-0 w-full max-w-[250px]"
+                            value={editData.name}
+                            onChange={(e) => handleEditChange(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
                           />
+                        ) : (
+                          <span className="font-semibold text-sm">
+                            {network.name}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2">
+                          {!editing && (
+                            <button
+                              className="text-emerald-700 mr-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(network.id);
+                              }}
+                            >
+                              <PencilSimpleLine size={16} color="#2264AC" />
+                            </button>
+                          )}
+                          {editing === network.id ? (
+                            <>
+                              <button
+                                className="text-emerald-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSave(network);
+                                }}
+                              >
+                                <Check size={18} />
+                              </button>
+                              <button
+                                className="text-gray-500"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditing(null);
+                                }}
+                              >
+                                <RotateCcw size={18} />
+                              </button>
+                            </>
+                          ) : expanded === network.id ? (
+                            <CaretCircleUp
+                              className="text-gray-600"
+                              size={16}
+                            />
+                          ) : (
+                            <CaretCircleDown
+                              className="text-gray-600"
+                              size={16}
+                            />
+                          )}
                         </div>
-                      </td>
-                      {editing &&
-                      editing.networkId === network.id &&
-                      editing.districtId === district.id ? (
-                        <>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <input
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                              value={editData.district}
-                              onChange={(e) =>
-                                handleEditChange("district", e.target.value)
-                              }
-                            />
+                      </div>
+                    </td>
+                  </tr>
+                  {expanded === network.id &&
+                    (network.districts && network.districts.length > 0 ? (
+                      network.districts.map((district: any) => (
+                        <tr
+                          key={`${network.id}-${district.id}`}
+                          className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                          onClick={(e) =>
+                            handleSelectRow(network.id, district.id, e)
+                          }
+                        >
+                          <td
+                            className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedRows.districts.has(
+                                  `${network.id}-${district.id}`
+                                )}
+                                onChange={(e) =>
+                                  handleSelectRow(network.id, district.id, e)
+                                }
+                                className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                              />
+                            </div>
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <Dropdown
-                              options={stateOptions}
-                              value={editData.state}
-                              onChange={(val) => handleEditChange("state", val)}
-                              placeholder="Select state"
-                            />
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <Dropdown
-                              options={cityOptions}
-                              value={editData.city}
-                              onChange={(val) => handleEditChange("city", val)}
-                              placeholder="Select city"
-                            />
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <Dropdown
-                              options={creatorOptions}
-                              value={editData.created}
-                              onChange={(val) =>
-                                handleEditChange("created", val)
-                              }
-                              placeholder="Select creator"
-                            />
-                          </td>
-                          <td className="px-4 py-2 text-center">
-                            {/* No edit icon in edit mode */}
-                          </td>
-                        </>
-                      ) : (
-                        <>
                           <td className="px-4 py-2 border-r border-gray-200">
                             {district.district}
                           </td>
@@ -1037,59 +1159,85 @@ export default function NetworksPage() {
                             {district.created}
                           </td>
                           <td className="px-4 py-2 text-center">
-                            <button
-                              className="text-emerald-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(network.id, district);
-                              }}
-                            >
-                              <Edit2 size={18} />
-                            </button>
+                            {/* District actions removed */}
                           </td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-              </React.Fragment>
-            ))}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="text-center py-4 text-gray-500 italic border-b border-gray-200"
+                        >
+                          No districts available in this network
+                        </td>
+                      </tr>
+                    ))}
+                </React.Fragment>
+              ))
+            )}
           </tbody>
         </table>
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-white text-xs mt-2">
+        <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
           <div>
-            <span className="text-gray-600">
-              {(currentPage - 1) * rowsPerPage + 1}-
-              {Math.min(currentPage * rowsPerPage, networks.length)} of{" "}
-              {networks.length}
-            </span>
+            <p className="text-sm text-gray-500">
+              {networks.length > 0
+                ? `${(currentPage - 1) * rowsPerPage + 1}-${Math.min(
+                    currentPage * rowsPerPage,
+                    totalCount
+                  )} of ${totalCount}`
+                : "0 results"}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-600">Rows per page:</span>
-            <select
-              className="border rounded px-2 py-1 text-xs"
-              value={rowsPerPage}
-              disabled
-            >
-              <option value={5}>5</option>
-            </select>
-            <button
-              className="p-1 rounded disabled:text-gray-300 text-gray-600 hover:bg-gray-100"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <span className="text-gray-600">
-              {currentPage}/{totalPages}
-            </span>
-            <button
-              className="p-1 rounded disabled:text-gray-300 text-gray-600 hover:bg-gray-100"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight size={16} />
-            </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={(e) =>
+                  handleRowsPerPageChange(Number(e.target.value))
+                }
+                className="text-sm border rounded px-2 py-1"
+                disabled={loading}
+              >
+                {rowsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
+                className={`p-1 border rounded ${
+                  currentPage === 1 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <span className="text-sm text-gray-500">
+                {currentPage}/{totalPages || 1}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  currentPage === totalPages || totalPages === 0 || loading
+                }
+                className={`p-1 border rounded ${
+                  currentPage === totalPages || totalPages === 0 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

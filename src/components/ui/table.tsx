@@ -678,7 +678,7 @@ export default function Table({
 
                       {/* Right side: sorting indicators */}
                       {column.sortable && (
-                        <div className="flex flex-col items-end">
+                        <div className="ml-4 flex flex-col items-end">
                           <ChevronUp
                             size={12}
                             className={`${
