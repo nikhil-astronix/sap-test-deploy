@@ -243,6 +243,9 @@ export default function SchoolsPage() {
     key: string | null,
     direction: "asc" | "desc" | null
   ) => {
+    if(key == "email"){
+      key = "email_id"
+      }
     setSortField(key);
     setSortDirection(direction);
     fetchData(
