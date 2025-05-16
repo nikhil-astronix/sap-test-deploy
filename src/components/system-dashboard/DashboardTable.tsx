@@ -154,7 +154,7 @@ export type StatusType = "No Session" | "Inactive" | "Active";
 export type SetupStatusType = "Incomplete" | "Partial" | "Complete";
 
 export interface TableRow {
-  id: number;
+  id: string;
   network?: string;
   district?: string;
   admins?: {
@@ -247,7 +247,10 @@ const DashboardTable = ({
   // Get current page data
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
+  // const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
+  const currentRows = Array.isArray(filteredData)
+    ? filteredData.slice(indexOfFirstRow, indexOfLastRow)
+    : [];
 
   // Get session status badge with tooltip
   const getSessionStatusBadge = (status: StatusType, row?: TableRow) => {

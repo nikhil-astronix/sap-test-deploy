@@ -49,7 +49,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
     };
     const response = await fetchDistricts(requestPayload);
     if (response.success) {
-      setFilteredData(response.data);
+      setFilteredData(response.data.districts);
       console.log("Districts data fetch successfully");
     } else {
       setFilteredData([]);
@@ -66,7 +66,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       sortable: true,
     },
     {
-      key: "district",
+      key: "name",
       label: "District",
       icon: <Building2 size={16} />,
       sortable: true,
@@ -78,25 +78,25 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       sortable: false,
     },
     {
-      key: "users",
+      key: "user_count",
       label: "Number of Users",
       icon: <Hash size={16} />,
       sortable: true,
     },
     {
-      key: "lastSession",
+      key: "last_observation",
       label: "Last Session",
       icon: <Clock size={16} />,
       sortable: true,
     },
     {
-      key: "sessionStatus",
+      key: "session_status",
       label: "Session Status",
       icon: <ActivitySquare size={16} />,
       sortable: true,
     },
     {
-      key: "setupStatus",
+      key: "setup_status",
       label: "Setup Status",
       icon: <Settings size={16} />,
       sortable: true,
@@ -106,7 +106,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
   // Render custom cells with tooltip
   const renderSessionCell = (row: TableRow, column: string) => {
     // Handle admins column specifically
-    if (column === "admins" && row.admins) {
+    if (column === "admins" && row.admins && row.admins.names) {
       const { names, more } = row.admins;
       return (
         <div>
