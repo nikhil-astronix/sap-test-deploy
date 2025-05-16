@@ -10,6 +10,14 @@ import {
 } from "@/services/userService";
 import { AxiosError } from "axios";
 import { fetchUsersRequestPayload } from "@/types/userData";
+import {
+  IdentificationBadge,
+  Envelope,
+  IdentificationCard,
+  GraduationCap,
+  Network,
+  City,
+} from "@phosphor-icons/react";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -47,23 +55,23 @@ export default function SchoolsPage() {
   ];
 
   const districts = ["District A", "District B"];
-  const schools = ["School A", "School B"];
+  const schools = ["ABC School", "School B"];
 
-  const networks = ["Network A", "Network B"];
+  const networks = ["Network 4", "Network 5"];
 
   const columns: Column[] = [
     {
       key: "first_name",
       label: "First Name",
       sortable: true,
-      icon: <School size={16} />,
+      icon: <IdentificationBadge size={16} />,
       editable: true,
     },
     {
       key: "last_name",
       label: "Last Name",
       sortable: true,
-      icon: <FileText size={16} />,
+      icon: <IdentificationBadge size={16} />,
       editable: true,
       // options: gradeOptions,
     },
@@ -71,7 +79,7 @@ export default function SchoolsPage() {
       key: "email",
       label: "Email",
       sortable: true,
-      icon: <BookOpen size={16} />,
+      icon: <Envelope size={18} />,
       editable: true,
       // options: curriculaOptions,
     },
@@ -79,7 +87,7 @@ export default function SchoolsPage() {
       key: "network",
       label: "Network",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <Network size={16} />,
       editable: true,
       options: networks,
     },
@@ -87,7 +95,7 @@ export default function SchoolsPage() {
       key: "district",
       label: "District",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <City size={16} />,
       editable: true,
       options: districts,
     },
@@ -95,7 +103,7 @@ export default function SchoolsPage() {
       key: "school",
       label: "School",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <GraduationCap size={16} />,
       editable: true,
       options: schools,
     },
@@ -103,7 +111,7 @@ export default function SchoolsPage() {
       key: "role",
       label: "Role",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <IdentificationCard size={18} />,
       editable: true,
       options: roles,
     },
@@ -111,7 +119,7 @@ export default function SchoolsPage() {
       key: "user_type",
       label: "User Type",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <IdentificationCard size={18} />,
       editable: true,
       options: userTypes,
     },
@@ -134,14 +142,21 @@ export default function SchoolsPage() {
         // school: formData.school,
         district: "661943fd4ccf5f44a9a1a002",
         school: "661943fd4ccf5f44a9a1a003",
-        network: "661943fd4ccf5f44a9a1a001",
+        network: "681bdda560ada194e76392cf",
         user_role: updatedRow.role,
         user_type: updatedRow.user_type,
       };
       const response = await editUser(updatedRow.id, data);
 
       if (response.success) {
-        fetchData(currentPage, rowsPerPage);
+        fetchData(
+          currentPage,
+          rowsPerPage,
+          sortField,
+          sortDirection,
+          isArchived,
+          searchQuery
+        );
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -161,7 +176,14 @@ export default function SchoolsPage() {
       const response = await archiveUser({ ids: selectedIds });
       console.log("responseresponseresponse", response);
       if (response.success) {
-        fetchData(currentPage, rowsPerPage);
+        fetchData(
+          currentPage,
+          rowsPerPage,
+          sortField,
+          sortDirection,
+          isArchived,
+          searchQuery
+        );
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -179,7 +201,14 @@ export default function SchoolsPage() {
       const response = await restoreUser({ ids: selectedIds });
       console.log("responseresponseresponse", response);
       if (response.success) {
-        fetchData(currentPage, rowsPerPage);
+        fetchData(
+          currentPage,
+          rowsPerPage,
+          sortField,
+          sortDirection,
+          isArchived,
+          searchQuery
+        );
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -214,6 +243,9 @@ export default function SchoolsPage() {
     key: string | null,
     direction: "asc" | "desc" | null
   ) => {
+    if(key == "email"){
+      key = "email_id"
+      }
     setSortField(key);
     setSortDirection(direction);
     fetchData(
@@ -245,17 +277,6 @@ export default function SchoolsPage() {
         search: search,
       };
       const response = await getUser(requesPayload);
-      // let sortedData = [...response.data.users];
-      // if (sortBy && sortOrder) {
-      //   sortedData.sort((a, b) => {
-      //     if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-      //     if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
-      //     return 0;
-      //   });
-      // }
-
-      // const startIndex = (page - 1) * limit;
-      // const paginatedData = sortedData.slice(startIndex, startIndex + limit);
       const paginatedData = [...response.data.users];
       setUsersData(paginatedData);
       setTotalCount(response.data.total_users);
@@ -279,14 +300,15 @@ export default function SchoolsPage() {
   }, [searchQuery]);
 
   return (
-    <div className="container text-center mx-auto px-4 py-8">
-      <h1 className="text-2xl text-center font-bold mb-6">Users</h1>
+    <div className="container text-center mx-auto px-4 py-8 bg-white">
+      <h1 className="text-2xl text-center text-black-400 mb-2">Users</h1>
       <div>
-        <p className="text-center text-gray-600 mb-6">
+        <p className="text-center text-[16px] text-[#454F5B]-400 mb-2">
           Browse all users across districts. Add, update, or archive user
           accounts as needed.
         </p>
       </div>
+
       <Table
         columns={columns}
         data={usersData}

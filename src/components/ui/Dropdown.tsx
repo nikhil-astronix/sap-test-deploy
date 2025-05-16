@@ -86,7 +86,13 @@ export default function Dropdown({
         className={`w-full px-3 py-2 text-left bg-[#F4F6F8] rounded-lg border-none focus:outline-none focus:ring-0 transition-colors`}
       >
         <div className="flex items-center justify-between">
-          <span className="text-gray-500">
+          <span
+            className={
+              selectedOption && selectedOption.label
+                ? "text-black-400"
+                : "text-gray-500"
+            }
+          >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           <svg

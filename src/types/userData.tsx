@@ -31,3 +31,17 @@ export interface fetchUsersRequestPayload {
   per_page: number;
   search: string | null;
 }
+
+export interface fetchNetworkRequestPayload {
+  is_archived: boolean;
+  sort_by: string | null;
+  sort_order: string | null;
+  curr_page: number;
+  per_page: number;
+  search: string | null;
+}
+
+export interface networkData {
+  state: string;
+  name: string;
+}

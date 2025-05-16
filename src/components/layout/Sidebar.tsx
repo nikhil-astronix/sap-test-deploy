@@ -20,7 +20,18 @@ import {
 import { AnimatedContainer } from "@/components/ui/animated-container";
 import { motion } from "framer-motion";
 import MultiSelectDropdown from "../MultiSelectDropdown";
-import { Tag } from "lucide-react";
+//import { Tag } from "lucide-react";
+import {
+  Network,
+  City,
+  Tag,
+  GraduationCap,
+  Book,
+  ChalkboardTeacher,
+  Users,
+  Toolbox,
+  Note,
+} from "@phosphor-icons/react";
 
 interface NavItem {
   icon: React.ReactNode;
@@ -29,13 +40,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  // {
-  //   icon: <FaBuilding className="w-5 h-5" />,
-  //   label: "Networks",
-  //   path: "#",
-  // },
   {
-    icon: <FaBuilding className="w-5 h-5" />,
+    icon: <Network className="w-5 h-5" />,
+    label: "Networks",
+    path: "/network",
+  },
+  {
+    icon: <City className="w-5 h-5" />,
     label: "Districts",
     path: "/districts",
   },
@@ -45,28 +56,28 @@ const navItems: NavItem[] = [
     path: "/interventions",
   },
   {
-    icon: <FaBook className="w-5 h-5" />,
+    icon: <Book className="w-5 h-5" />,
     label: "Instructional Materials",
     path: "/curriculums",
   },
   {
-    icon: <FaSchool className="w-5 h-5" />,
+    icon: <GraduationCap className="w-5 h-5" />,
     label: "Schools",
     path: "/schools",
   },
   {
-    icon: <FaGraduationCap className="w-5 h-5" />,
+    icon: <ChalkboardTeacher className="w-5 h-5" />,
     label: "Classrooms",
     path: "/classrooms",
   },
-  { icon: <FaUsers className="w-5 h-5" />, label: "Users", path: "/users" },
+  { icon: <Users className="w-5 h-5" />, label: "Users", path: "/users" },
   {
-    icon: <FaChartBar className="w-5 h-5" />,
+    icon: <Toolbox className="w-5 h-5" />,
     label: "Observation Tools",
     path: "/observation-tools",
   },
   {
-    icon: <FaClipboardList className="w-5 h-5" />,
+    icon: <Note className="w-5 h-5" />,
     label: "Observation Sessions",
     path: "/observation-sessions",
   },
@@ -180,36 +191,40 @@ const Sidebar = () => {
           )}
 
           <AnimatedContainer variant="stagger" staggerItems={true}>
-            {navItems.map((item) => (
-              <motion.div
-                key={item.path}
-                whileHover={{ scale: 1.02, x: isExpanded ? 4 : 0 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
-                <Link
-                  href={item.path}
-                  className={`flex items-center p-1.5 mt-2 rounded-md transition-colors text-gray-600 ${
-                    (pathname || "").startsWith(item.path)
-                      ? "bg-white text-gray-900 shadow-md rounded-lg border"
-                      : "hover:bg-gray-50"
-                  }`}
+            <div className="flex flex-col gap-y-1">
+              {navItems.map((item) => (
+                <motion.div
+                  key={item.path}
+                  whileHover={{ scale: 1.02, x: isExpanded ? 4 : 0 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  <span
-                    className={`${
+                  <Link
+                    href={item.path}
+                    className={`flex items-center p-1.5 rounded-md transition-colors text-gray-600 ${
                       (pathname || "").startsWith(item.path)
-                        ? "text-emerald-800"
-                        : "text-gray-400"
+                        ? "bg-white text-gray-900 shadow-md rounded-lg border"
+                        : "hover:bg-gray-50"
                     }`}
                   >
-                    {item.icon}
-                  </span>
-                  {(isExpanded || isMobile) && (
-                    <span className="ml-2.5 text-sm">{item.label}</span>
-                  )}
-                </Link>
-              </motion.div>
-            ))}
+                    <div className="flex items-center py-1.5">
+                      <span
+                        className={`${
+                          (pathname || "").startsWith(item.path)
+                            ? "text-emerald-800"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {item.icon}
+                      </span>
+                      {(isExpanded || isMobile) && (
+                        <span className="ml-2.5 text-sm">{item.label}</span>
+                      )}
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
           </AnimatedContainer>
         </div>
       </div>

@@ -14,6 +14,14 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import {
+  ClockClockwise,
+  Info,
+  MagnifyingGlass,
+  Plus,
+} from "@phosphor-icons/react";
+import Image from "next/image";
+import CustomDropdown from "./CustomDropdown";
 
 // Define the column interface
 export interface Column {
@@ -47,6 +55,7 @@ interface TableProps {
   onCreate: string;
   onToggleArchived?: (archived: boolean) => void;
   onSearchChange?: (search: string) => void;
+  sidebarVisible?: boolean; // New prop to track sidebar visibility
 }
 
 export default function Table({
@@ -69,6 +78,7 @@ export default function Table({
   onArchive,
   onToggleArchived,
   onSearchChange,
+  sidebarVisible = false, // Default to false if not provided
 }: TableProps) {
   // State for sorting
   const [sortConfig, setSortConfig] = useState<{
@@ -99,7 +109,7 @@ export default function Table({
   const [showArchiveModal, setShowArchiveModal] = useState(false);
 
   const handleSort = (key: string) => {
-    setShowArchived(false);
+    // setShowArchived(false);
     let direction: "asc" | "desc" | null = "asc";
 
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -119,7 +129,7 @@ export default function Table({
   const startIndex = (currentPage - 1) * rowsPerPage;
 
   const handlePageChange = (page: number) => {
-    setShowArchived(false);
+    // setShowArchived(false);
     if (controlledCurrentPage === undefined) {
       setInternalCurrentPage(page);
     }
@@ -134,13 +144,13 @@ export default function Table({
   ) => {
     const newRowsPerPage = Number(event.target.value);
     setRowsPerPage(newRowsPerPage);
-    setShowArchived(false);
+    // setShowArchived(false);
     if (controlledCurrentPage === undefined) {
       setInternalCurrentPage(1);
     }
 
     if (onRowsPerPageChange) {
-      setShowArchived(false);
+      // setShowArchived(false);
       onRowsPerPageChange(newRowsPerPage);
     }
   };
@@ -206,7 +216,7 @@ export default function Table({
       setSelectionMode(false);
       setShowArchiveButton(false);
       setShowDeleteButton(false);
-      setShowArchived(false);
+      //setShowArchived(false);
       setShowRestoreModal(false);
     }
   };
@@ -243,46 +253,53 @@ export default function Table({
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow">
+    <div
+      className={`w-full bg-white transition-all duration-300 ${
+        sidebarVisible ? "table-with-sidebar" : "table-full-width"
+      }`}
+    >
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-xl font-semibold">Archive</h2>
+              <h2 className="text-[16px] text-black-400">Archive</h2>
             </div>
-            <p className="text-left text-gray-700 mb-4">
-              Are you sure you want to archive this user?
+            <p className="text-left text-black-400 text-[14px] mb-4">
+              {selectedRows.length === 0
+                ? "Please select users to archive."
+                : "Are you sure you want to archive this user?"}
             </p>
 
             {/* Single user selection */}
             {selectedRows.length === 1 && (
-              <div className="mt-2 rounded-lg bg-gray-50 p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-medium">
+              <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col items-start">
+                    <p className="text-[12px] text-black-400">
                       {
                         data.find((row) => row.id === selectedRows[0])
                           ?.first_name
                       }
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-[12px] text-[#637381]-400">
                       {data.find((row) => row.id === selectedRows[0])?.email}
                     </p>
                   </div>
-                  <div className="text-sm font-medium">
+                  <div className="text-[12px] text-black-400 items-center">
                     {data.find((row) => row.id === selectedRows[0])?.role}
                   </div>
                 </div>
               </div>
             )}
+
             {/* Multiple users selection with scrollable list */}
             {selectedRows.length > 1 && (
               <div
-                className={`rounded-lg bg-gray-50 p-4 mb-6 ${
+                className={`rounded-lg bg-[#F4F6F8] p-4 mb-6 ${
                   selectedRows.length > 2
-                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400"
+                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
                 }`}
               >
@@ -291,13 +308,17 @@ export default function Table({
                   return (
                     <div
                       key={userId}
-                      className="flex justify-between items-center border-b border-gray-200 last:border-0 py-1.5"
+                      className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="font-medium">{user?.first_name}</p>
-                        <p className="text-sm text-gray-500">{user?.email}</p>
+                        <p className="text-[12px] text-black-400">
+                          {user?.first_name}
+                        </p>
+                        <p className="text-[12px] text-[#637381]-400">
+                          {user?.email}
+                        </p>
                       </div>
-                      <div className="text-sm font-medium text-right ">
+                      <div className="text-[12px] text-black-400 text-right ">
                         {user?.role}
                       </div>
                     </div>
@@ -306,7 +327,7 @@ export default function Table({
               </div>
             )}
 
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 mt-[10px]">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
                   <svg
@@ -326,22 +347,30 @@ export default function Table({
                 </div>
               </div>
               <p className="text-left text-sm text-[#C23E19]">
-                Archiving this user will revoke their access and remove them
-                from active dashboards. Their account will remain in the system
-                and can be restored later if needed.
+                {selectedRows.length === 0
+                  ? "No users selected. Please select at least one user to archive."
+                  : "Archiving this user will revoke their access and remove them from active dashboards. Their account will remain in the system and can be restored later if needed."}
               </p>
             </div>
 
             <div className="flex justify-between">
               <button
-                onClick={() => setShowArchiveModal(false)}
+                onClick={() => {
+                  setShowArchiveModal(false);
+                  setSelectedRows([]);
+                }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-[#B4351C] text-white rounded-lg hover:bg-[#943015] transition-colors"
+                disabled={selectedRows.length === 0}
+                className={`px-4 py-2 ${
+                  selectedRows.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#B4351C] hover:bg-[#943015]"
+                } text-white rounded-lg transition-colors`}
               >
                 Archive
               </button>
@@ -355,29 +384,31 @@ export default function Table({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
-              <RotateCcw className="text-blue-600" size={24} />
+              <ClockClockwise className="text-blue-600" size={24} />
               <h2 className="text-xl font-semibold">Restore</h2>
             </div>
             <p className="text-left text-gray-700 mb-4">
-              Are you sure you want to restore this user?
+              {selectedRows.length === 0
+                ? "Please select users to restore."
+                : "Are you sure you want to restore this user?"}
             </p>
 
             {/* Single user selection */}
             {selectedRows.length === 1 && (
-              <div className="mt-2 rounded-lg bg-gray-50 p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-medium">
+              <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col items-start">
+                    <p className="text-[12px] text-black-400">
                       {
                         data.find((row) => row.id === selectedRows[0])
                           ?.first_name
                       }
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-[12px] text-[#637381]-400">
                       {data.find((row) => row.id === selectedRows[0])?.email}
                     </p>
                   </div>
-                  <div className="text-sm font-medium">
+                  <div className="text-[12px] text-black-400">
                     {data.find((row) => row.id === selectedRows[0])?.role}
                   </div>
                 </div>
@@ -388,7 +419,7 @@ export default function Table({
               <div
                 className={`rounded-lg bg-gray-50 p-4 mb-6 ${
                   selectedRows.length > 2
-                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400"
+                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
                 }`}
               >
@@ -397,13 +428,17 @@ export default function Table({
                   return (
                     <div
                       key={userId}
-                      className="flex justify-between items-center border-b border-gray-200 last:border-0 py-1.5"
+                      className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="font-medium">{user?.first_name}</p>
-                        <p className="text-sm text-gray-500">{user?.email}</p>
+                        <p className="text-[12px] text-black-400">
+                          {user?.first_name}
+                        </p>
+                        <p className="text-[12px] text-[#637381]-400">
+                          {user?.email}
+                        </p>
                       </div>
-                      <div className="text-sm font-medium text-right ">
+                      <div className="text-[12px] text-black-400 text-right ">
                         {user?.role}
                       </div>
                     </div>
@@ -412,44 +447,42 @@ export default function Table({
               </div>
             )}
 
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+            <div className="bg-blue-50 border-l-4 border-[#2264AC] p-4 mb-6 mt-[10px]">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <svg
-                    className="h-5 w-5 text-blue-400"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <Info size={16} color="#2264AC" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#2264AC]"> Note</p>
+                  <p className="text-sm text-[#2264AC] px-1"> Note</p>
                 </div>
               </div>
               <div>
                 <p className="text-left text-sm text-[#2264AC]">
-                  Restoring this user will return their access and visibility
-                  across the platform. Any roles, assignments, or linked
-                  sessions will become active and reappear in relevant views.
+                  {selectedRows.length === 0
+                    ? "No users selected. Please select at least one user to restore."
+                    : "Restoring this user will return their access and visibility across the platform. Any roles, assignments, or linked sessions will become active and reappear in relevant views."}
                 </p>
               </div>
             </div>
 
             <div className="flex justify-between">
               <button
-                onClick={() => setShowRestoreModal(false)}
+                onClick={() => {
+                  setShowRestoreModal(false);
+                  setSelectedRows([]);
+                }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancel
               </button>
               <button
+                disabled={selectedRows.length === 0}
                 onClick={handleArchive}
-                className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
+                className={`px-4 py-2 text-white rounded-lg ${
+                  selectedRows.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#2A7251] hover:bg-[#2A7251]"
+                }  transition-colors`}
               >
                 Restore
               </button>
@@ -457,20 +490,28 @@ export default function Table({
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between px-6 py-3 w-full">
-        <div className="flex items-center space-x-2 w-2/3">
-          <input
-            className="border rounded-lg px-3 py-2 w-1/3 text-sm"
-            placeholder="Search"
-            value={search}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSearch(value);
-              if (onSearchChange) {
-                onSearchChange(value);
-              }
-            }}
-          />
+      <div className="flex flex-wrap items-center justify-between px-1 py-1 w-full gap-y-2">
+        <div className="flex items-center space-x-2 sm:w-2/3 w-full">
+          {!editingRowId && (
+            <div className="relative w-[50%]">
+              <MagnifyingGlass
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
+                placeholder="Search"
+                value={search}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearch(value);
+                  if (onSearchChange) {
+                    onSearchChange(value);
+                  }
+                }}
+              />
+            </div>
+          )}
           {/* <div className="flex items-center space-x-2"> */}
           {editingRowId && ( //selectionMode ||
             <button
@@ -482,8 +523,8 @@ export default function Table({
                   handleCancelEdit();
                 }
               }}
-              className={`px-4 py-1 rounded ${
-                selectionMode ? "bg-gray-100 hover:bg-gray-200" : ""
+              className={` py-1 rounded ${
+                selectionMode ? " hover:bg-gray-200" : ""
               }`}
             >
               Close
@@ -514,10 +555,10 @@ export default function Table({
             </button>
           )} */}
 
-          {!selectionMode && editingRowId && (
+          {editingRowId && ( //!selectionMode &&
             <button
               onClick={handleSaveEdit}
-              className="px-4 py-1 rounded bg-emerald-700 text-white flex items-center space-x-1 hover:bg-green-700"
+              className=" bg-[#2A7251] text-white px-4 py-2 rounded-lg hover:bg-[#2A7251] transition-colors"
             >
               <span>Save Changes</span>
             </button>
@@ -527,10 +568,10 @@ export default function Table({
         <div className="flex items-center space-x-2">
           <button
             onClick={toggleSelectionModeArchive}
-            className="p-2 text-gray-500"
+            className="p-2 text-gray-400"
           >
             <span className="sr-only">Archive</span>
-            <Archive size={20} />
+            <Archive size={20} className="text-black" />
           </button>
 
           {/* <button
@@ -545,56 +586,66 @@ export default function Table({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push(onCreate)}
-            className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+            className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-lg hover:bg-[#2A7251] transition-colors"
           >
-            + Add
+            <Plus size={16} />
+            Add
           </motion.button>
         </div>
       </div>
 
-      <div className="px-6 py-2 ">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <span>Active</span>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                const newState = !showArchived;
-                setShowArchived(newState);
-                if (onToggleArchived) {
-                  onToggleArchived(newState);
-                }
+      <div className="px-1 py-2 ">
+        <div className="flex items-center space-x-2">
+          <span
+            className={`text-12px ${
+              showArchived ? "text-[#494B56]" : "text-[#000] font-medium"
+            }`}
+          >
+            Active
+          </span>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              const newState = !showArchived;
+              setShowArchived(newState);
+              if (onToggleArchived) {
+                onToggleArchived(newState);
+              }
+            }}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              showArchived ? "bg-[#2A7251]" : "bg-[#2A7251]" //'bg-gray-200'
+            }`}
+          >
+            <motion.span
+              layout
+              initial={false}
+              animate={{
+                x: showArchived ? 24 : 4,
               }}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                showArchived ? "bg-emerald-600" : "bg-emerald-600" //'bg-gray-200'
-              }`}
-            >
-              <motion.span
-                layout
-                initial={false}
-                animate={{
-                  x: showArchived ? 24 : 4,
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 500,
-                  damping: 30,
-                }}
-                className="inline-block h-4 w-4 rounded-full bg-white"
-              />
-            </motion.button>
-            <span>Archived</span>
-          </div>
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 30,
+              }}
+              className="inline-block h-4 w-4 rounded-full bg-white"
+            />
+          </motion.button>
+          <span
+            className={`text-12px ${
+              showArchived ? "text-[#000] font-medium" : "text-[#494B56]"
+            }`}
+          >
+            Archived
+          </span>
         </div>
       </div>
-
-      <div className="px-4 py-2">
-        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+      <div className="rounded-lg border border-gray-200 shadow-sm">
+        <div className="overflow-x-auto rounded-lg">
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">
                 {/* {selectionMode && ( */}
-                <th className="px-4 py-3 w-10">
+                <th className="px-4 py-3 w-10 min-w-[40px]">
                   <div className="flex items-center justify-center">
                     <input
                       type="checkbox"
@@ -611,18 +662,23 @@ export default function Table({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className="px-6 py-3 text-left whitespace-nowrap font-medium border-l border-gray-200"
+                    className="px-4 py-3 text-left whitespace-nowrap font-medium border-l-2 border-gray-200"
                   >
                     <div
-                      className={`flex items-center space-x-1 ${
+                      className={`flex items-center justify-between w-full text-[12px] font-normal text-[#F9F5FF] ${
                         column.sortable ? "cursor-pointer" : ""
                       }`}
                       onClick={() => column.sortable && handleSort(column.key)}
                     >
-                      {column.icon && <span>{column.icon}</span>}
-                      <span>{column.label}</span>
+                      {/* Left side: icon and label */}
+                      <div className="flex items-center space-x-2">
+                        {column.icon && <span>{column.icon}</span>}
+                        <span>{column.label}</span>
+                      </div>
+
+                      {/* Right side: sorting indicators */}
                       {column.sortable && (
-                        <div className="flex flex-col">
+                        <div className="ml-4 flex flex-col items-end">
                           <ChevronUp
                             size={12}
                             className={`${
@@ -647,10 +703,21 @@ export default function Table({
                   </th>
                 ))}
                 <th
-                  className="px-6 py-3 text-center sticky right-0 z-20 border-l border-gray-200"
-                  style={{ backgroundColor: staticbg }}
+                  className="px-8 py-3 sticky right-0 z-20 border-l-2 border-gray-200 text-left text-[12px] font-normal text-[#F9F5FF]"
+                  style={{
+                    backgroundColor: staticbg,
+                    boxShadow: "inset 1px 0 0 #E5E7EB",
+                  }}
                 >
-                  Action
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      src="/action.svg"
+                      height={10}
+                      width={10}
+                      alt="Action"
+                    />
+                    <span>Action</span>
+                  </div>
                 </th>
               </tr>
             </thead>
@@ -658,7 +725,7 @@ export default function Table({
               {loading ? (
                 <tr>
                   <td
-                    colSpan={columns.length + (selectionMode ? 2 : 1)}
+                    colSpan={columns.length + 2}
                     className="px-6 py-4 text-center"
                   >
                     Loading...
@@ -667,7 +734,7 @@ export default function Table({
               ) : data.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={columns.length + (selectionMode ? 2 : 1)}
+                    colSpan={columns.length + 2}
                     className="px-6 py-4 text-center"
                   >
                     No data available
@@ -684,9 +751,13 @@ export default function Table({
                       style={{
                         backgroundColor: index % 2 === 1 ? dynamicbg : "#fff",
                       }}
+                      className={`${
+                        isEditing
+                          ? "shadow-[0_2px_4px_rgba(0,0,0,0.08)] relative z-10"
+                          : ""
+                      }`}
                     >
-                      {/* {selectionMode && ( */}
-                      <td className="px-4 py-4 w-10 border-l border-gray-200">
+                      <td className="px-4 py-4 w-10 border-l-2 border-gray-200">
                         <div className="flex items-center justify-center">
                           <input
                             type="checkbox"
@@ -697,38 +768,41 @@ export default function Table({
                           />
                         </div>
                       </td>
-                      {/* )} */}
 
                       {columns.map((column) => (
                         <td
                           key={`${rowId || index}-${column.key}`}
-                          className="px-6 py-4 whitespace-nowrap border-l border-[#D4D4D4]"
+                          className="px-4 py-4 whitespace-nowrap border-l-2 border-[#D4D4D4]"
                         >
                           {isEditing && column.editable ? (
                             column.options ? (
                               <div className="relative">
-                                <select
+                                {/* <select
+                                    value={editingData[column.key]}
+                                    onChange={(e) =>
+                                      handleEditChange(
+                                        column.key,
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
+                                  >
+                                    {column.options.map((option, i) => (
+                                      <option
+                                        key={i}
+                                        value={option.value || option}
+                                      >
+                                        {option.label || option}
+                                      </option>
+                                    ))}
+                                  </select> */}
+                                <CustomDropdown
                                   value={editingData[column.key]}
-                                  onChange={(e) =>
-                                    handleEditChange(column.key, e.target.value)
+                                  options={column.options}
+                                  onChange={(val) =>
+                                    handleEditChange(column.key, val)
                                   }
-                                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                  {column.options.map((option, i) => (
-                                    <option
-                                      key={i}
-                                      value={option.value || option}
-                                    >
-                                      {option.label || option}
-                                    </option>
-                                  ))}
-                                </select>
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                  <ChevronDown
-                                    size={16}
-                                    className="text-gray-400"
-                                  />
-                                </div>
+                                />
                               </div>
                             ) : (
                               <input
@@ -737,22 +811,58 @@ export default function Table({
                                 onChange={(e) =>
                                   handleEditChange(column.key, e.target.value)
                                 }
-                                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
                               />
                             )
                           ) : column.renderCell ? (
                             column.renderCell(row)
                           ) : (
-                            row[column.key]
+                            // row[column.key]
+                            <span
+                              className={`flex items-center gap-1 px-2 py-1 rounded text-[12px] font-normal text-[#000] ${
+                                column.key === "user_type"
+                                  ? row[column.key] === "Admin"
+                                    ? "bg-[#E9F3FF] text-[#2264AC]"
+                                    : row[column.key] === "Super Admin"
+                                    ? "bg-[#F4EBFF] text-[#6C4996]"
+                                    : row[column.key] === "Network Admin"
+                                    ? "bg-[#FFFCDD] text-[#F59E0B]"
+                                    : row[column.key] === "Observer"
+                                    ? "bg-[#D6FDFD] text-[#007778]"
+                                    : row[column.key] === "District Viewer"
+                                    ? "bg-[#FFF4EF] text-[#F25D00]"
+                                    : "bg-gray-100 text-gray-700"
+                                  : "text-black"
+                              }`}
+                            >
+                              {column.key === "user_type" && (
+                                <span
+                                  className={`h-2 w-2 rounded-full ${
+                                    row[column.key] === "Admin"
+                                      ? "bg-[#2264AC]"
+                                      : row[column.key] === "Super Admin"
+                                      ? "bg-[#6C4996]"
+                                      : row[column.key] === "Network Admin"
+                                      ? "bg-[#F59E0B]"
+                                      : row[column.key] === "Observer"
+                                      ? "bg-[#007778]"
+                                      : row[column.key] === "District Viewer"
+                                      ? "bg-[#F25D00]"
+                                      : "bg-gray-700"
+                                  }`}
+                                ></span>
+                              )}
+                              {row[column.key]}
+                            </span>
                           )}
                         </td>
                       ))}
 
                       <td
-                        className="px-6 py-4 text-center sticky right-0 z-10 border-l border-gray-200"
+                        className="px-6 py-4 text-center sticky right-0 border-l-2 border-gray-400 shadow-md"
                         style={{
-                          backgroundColor:
-                            index % 2 === 1 ? dynamicbg : "#ffffff",
+                          backgroundColor: "#ffffff",
+                          boxShadow: "inset 2px 0 0 #D4D4D4",
                         }}
                       >
                         <button
@@ -760,7 +870,13 @@ export default function Table({
                           className="text-green-500 hover:text-green-700"
                           title="Edit"
                         >
-                          <Edit2 size={18} />
+                          <Image
+                            src="/actionrow.svg"
+                            height={20}
+                            width={20}
+                            alt="Edit"
+                            className="inline"
+                          />
                         </button>
                       </td>
                     </tr>
@@ -770,60 +886,62 @@ export default function Table({
             </tbody>
           </table>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between px-6 py-3 border-t">
-        <div>
-          {totalCount > 0 && (
-            <p className="text-sm text-gray-500">
-              {startIndex + 1}-{Math.min(startIndex + rowsPerPage, totalCount)}{" "}
-              of {totalCount}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">Rows per page:</span>
-          <select
-            value={rowsPerPage}
-            onChange={handleRowsPerPageChange}
-            className="text-sm border rounded px-2 py-1"
-            disabled={loading}
-          >
-            {rowsPerPageOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
+          <div>
+            {totalCount > 0 && (
+              <p className="text-sm text-gray-500">
+                {startIndex + 1}-
+                {Math.min(startIndex + rowsPerPage, totalCount)} of {totalCount}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}
+                className="text-sm border rounded px-2 py-1"
+                disabled={loading}
+              >
+                {rowsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || loading}
-              className={`p-1 rounded ${
-                currentPage === 1 || loading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <span className="text-sm text-gray-500">
-              {currentPage}/{totalPages || 1}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={
-                currentPage === totalPages || totalPages === 0 || loading
-              }
-              className={`p-1 rounded ${
-                currentPage === totalPages || totalPages === 0 || loading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <ChevronRight size={18} />
-            </button>
+            <div className="flex items-center space-x-1 ">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
+                className={`p-1 border rounded  ${
+                  currentPage === 1 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <span className="text-sm text-gray-500">
+                {currentPage}/{totalPages || 1}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  currentPage === totalPages || totalPages === 0 || loading
+                }
+                className={`p-1 border rounded ${
+                  currentPage === totalPages || totalPages === 0 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

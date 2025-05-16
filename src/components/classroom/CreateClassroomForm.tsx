@@ -48,6 +48,7 @@ export default function CreateClassroomForm() {
   const stepperSteps = steps.map((step, index) => ({
     label: step.label,
     status: getStepStatus(index) as "completed" | "current" | "upcoming",
+    number: index + 1,
   }));
 
   const handleFormChange = (field: string, value: any) => {
