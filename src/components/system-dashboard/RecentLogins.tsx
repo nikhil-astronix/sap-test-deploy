@@ -19,6 +19,7 @@ import DashboardTable, {
 } from "./DashboardTable";
 import { fetchUsersPayload } from "@/models/dashboard";
 import { fetchUsers } from "@/services/dashboardService";
+import { format } from "date-fns";
 
 interface RecentLoginsProps {
   searchTerm?: string;
@@ -30,7 +31,7 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
-    sort_by: "userName",
+    sort_by: "first_name",
     sort_order: "asc",
   });
 
@@ -50,18 +51,19 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
     };
     const response = await fetchUsers(requestPayload);
     if (response.success) {
-      setFilteredData(response.data);
-      console.log("Observation data fetch successfully");
+      // const responseInfo = processData(response.data.users);
+      setFilteredData(response.data.users);
+      console.log("RecentLogin data fetch successfully");
     } else {
       setFilteredData([]);
-      console.log("Error while fetching Observtion data");
+      console.log("Error while fetching RecentLogin data");
     }
   };
 
   // Column definitions for Recent Logins tab
   const loginColumns: Column[] = [
     {
-      key: "userName",
+      key: "first_name",
       label: "User",
       icon: <User size={16} />,
       sortable: true,
@@ -70,32 +72,35 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       key: "network",
       label: "Network",
       icon: <Network size={16} />,
-      sortable: true,
+      sortable: false,
     },
     {
-      key: "district",
+      key: "districts",
       label: "District",
       icon: <Building2 size={16} />,
+      sortable: false,
+    },
+    {
+      key: "user_type",
+      label: "Role",
+      icon: <Users size={16} />,
       sortable: true,
     },
-    { key: "role", label: "Role", icon: <Users size={16} />, sortable: true },
     {
-      key: "lastLogin",
+      key: "last_login_at",
       label: "Date",
       icon: <Calendar size={16} />,
       sortable: true,
     },
-    // { key: 'loginCount', label: 'Login Count', icon: <Clock size={16} />, sortable: true },
-    // { key: 'device', label: 'Device', icon: <Laptop size={16} />, sortable: true },
   ];
 
   // Custom rendering for roles with background colors
   const renderRoleCell = (row: TableRow, column: string) => {
-    if (column === "role" && row.role) {
-      const role = row.role as string;
+    if (column === "user_type" && row.user_type) {
+      const user_type = row.user_type as string;
       let bgColor, textColor, dotColor;
 
-      switch (role) {
+      switch (user_type) {
         case "System Admin":
           bgColor = "bg-purple-200";
           textColor = "text-purple-800";
@@ -121,9 +126,43 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
         <span
           className={`inline-flex items-center gap-1 ${bgColor} ${textColor} px-2 py-1 rounded-md text-xs`}
         >
-          <span className={`w-2 h-2 ${dotColor} rounded-md`}></span> {role}
+          <span className={`w-2 h-2 ${dotColor} rounded-md`}></span> {user_type}
         </span>
       );
+    }
+    if (column === "districts") {
+      if (row[column].length) {
+        return (
+          <span className="text-xs text-black font-normal">
+            {row[column][0].name}
+          </span>
+        );
+      } else {
+        return "-";
+      }
+    }
+    if (column === "first_name") {
+      if (row[column]) {
+        return (
+          <span className="flex flex-col">
+            <span className="text-xs text-black font-normal">
+              {row[column]}
+            </span>
+            <span className="text-xs text-[#637381]">{row.email}</span>
+          </span>
+        );
+      }
+    }
+    if (column === "last_login_at") {
+      if (row[column]) {
+        return (
+          <span className="text-xs text-black font-normal">
+            {format(new Date(row[column]), "MMMM d, yyyy h:mm a")}
+          </span>
+        );
+      } else {
+        return "-";
+      }
     }
     return row[column];
   };

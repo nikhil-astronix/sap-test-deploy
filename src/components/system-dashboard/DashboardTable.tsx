@@ -13,7 +13,7 @@ export type StatusType = "No Session" | "Inactive" | "Active";
 export type SetupStatusType = "Incomplete" | "Partial" | "Complete";
 
 export interface TableRow {
-  id: number;
+  id: string;
   network?: string;
   district?: string;
   admins?: {
@@ -106,7 +106,7 @@ const DashboardTable = ({
   // Get current page data
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  
+
   // Ensure filteredData is an array
   const safeFilteredData = Array.isArray(filteredData) ? filteredData : [];
   const currentRows = safeFilteredData.slice(indexOfFirstRow, indexOfLastRow);
