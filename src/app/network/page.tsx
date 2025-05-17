@@ -30,6 +30,8 @@ import {
   restoreNetwork,
 } from "@/services/networkService";
 
+import NetworkHeader from "@/components/network/NetworkHeader";
+
 import { AxiosError } from "axios";
 
 export default function NetworksPage() {
@@ -98,14 +100,26 @@ export default function NetworksPage() {
         fetchData(currentPage, rowsPerPage, null, null, active, search);
       }
     } catch (error: unknown) {
-      const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
-        (error instanceof Error
-          ? error.message
-          : "Failed to edit network. Please try again.");
+      const axiosError = error as AxiosError;
+      let errorMessage = "Failed to edit network. Please try again.";
+      if (
+        axiosError?.response &&
+        axiosError.response.data &&
+        typeof axiosError.response.data === "object" &&
+        "message" in axiosError.response.data
+      ) {
+        errorMessage =
+          (axiosError.response.data as { message?: string }).message ||
+          errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+  const handleCloseEdit = () => {
+    setEditing(null);
   };
 
   const handleSelectRow = (
@@ -184,18 +198,14 @@ export default function NetworksPage() {
     setSelectAll(!selectAll);
   };
 
+  // Replace the current updateSelectAllState function with this:
   const updateSelectAllState = (selected: typeof selectedRows) => {
-    let totalDistricts = 0;
-    let selectedDistricts = 0;
+    // Count total networks and selected networks
+    const totalNetworks = networks.length;
+    const selectedNetworkCount = selected.networks.size;
 
-    networks.forEach((network) => {
-      totalDistricts += network.districts.length;
-      selectedDistricts += network.districts.filter((district: any) =>
-        selected.districts.has(`${network.id}-${district.id}`)
-      ).length;
-    });
-
-    setSelectAll(totalDistricts > 0 && selectedDistricts === totalDistricts);
+    // Set selectAll to true only when all networks are selected
+    setSelectAll(totalNetworks > 0 && selectedNetworkCount === totalNetworks);
   };
 
   const hasSelectedItems = () => {
@@ -617,7 +627,7 @@ export default function NetworksPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md">
+    <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -782,7 +792,7 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Trash2 className="text-gray-700" size={24} />
-              <h2 className="text-xl font-semibold">Delete</h2>
+              <h2 className="text-[16px] font-normal text-black-400">Delete</h2>
             </div>
 
             {/* Prompt */}
@@ -847,133 +857,28 @@ export default function NetworksPage() {
         </div>
       )}
 
-      <h1 className="text-2xl  text-center mb-2">Networks</h1>
-      <p className="text-center text-gray-600 mb-6">
-        Manage your network organization and district assignments.
-      </p>
-
-      <div className="flex items-center justify-between mb-2">
-        <div className="relative w-[35%] ">
-          <MagnifyingGlass
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
-            placeholder="Search"
-            value={search}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSearch(value);
-            }}
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          {!active ? (
-            <button
-              className={`p-2 ${
-                hasSelectedItems()
-                  ? "text-gray-500 hover:text-gray-700"
-                  : "text-gray-300 cursor-not-allowed"
-              }`}
-              disabled={!hasSelectedItems()}
-              onClick={() => hasSelectedItems() && setShowArchiveModal(true)}
-              title={
-                hasSelectedItems()
-                  ? "Archive selected"
-                  : "Select items to archive"
-              }
-            >
-              <Archive size={20} className="text-black" />
-            </button>
-          ) : (
-            <button
-              className={`p-2 ${
-                hasSelectedItems()
-                  ? "text-gray-500 hover:text-gray-700"
-                  : "text-gray-300 cursor-not-allowed"
-              }`}
-              disabled={!hasSelectedItems()}
-              onClick={() => hasSelectedItems() && setShowRestoreModal(true)}
-              title={
-                hasSelectedItems()
-                  ? "Restore selected"
-                  : "Select items to restore"
-              }
-            >
-              <RotateCcw size={20} className="text-black" />
-            </button>
-          )}
-          <button
-            className={`p-2 ${
-              hasSelectedItems()
-                ? "text-gray-500 hover:text-gray-700"
-                : "text-gray-300 cursor-not-allowed"
-            }`}
-            disabled={!hasSelectedItems()}
-            onClick={() => hasSelectedItems() && setShowDeleteModal(true)}
-            title={
-              hasSelectedItems() ? "Delete selected" : "Select items to delete"
-            }
-          >
-            <Trash2 size={20} className="text-black" />
-          </button>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push("/network/new")}
-            className="flex gap-2 items-center bg-emerald-700 text-white px-6 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
-          >
-            <Plus size={16} />
-            Add
-          </motion.button>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 mb-4 mt-4">
-        <div className="flex items-center space-x-2">
-          <span
-            className={`text-12px ${
-              active ? "text-[#494B56]" : "text-[#000] font-medium"
-            }`}
-          >
-            Active
-          </span>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setActive((a) => !a)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-emerald-600`}
-          >
-            <motion.span
-              layout
-              initial={false}
-              animate={{
-                x: active ? 24 : 4,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 500,
-                damping: 30,
-              }}
-              className="inline-block h-4 w-4 rounded-full bg-white"
-            />
-          </motion.button>
-          <span
-            className={`text-12px ${
-              active ? "text-[#000] font-medium" : "text-[#494B56]"
-            }`}
-          >
-            Archived
-          </span>
-        </div>
-      </div>
+      <NetworkHeader
+        title="Networks"
+        description="Manage your network organization and district assignments."
+        search={search ?? ""}
+        setSearch={setSearch}
+        active={active}
+        setActive={setActive}
+        hasSelectedItems={hasSelectedItems}
+        setShowArchiveModal={setShowArchiveModal}
+        setShowRestoreModal={setShowRestoreModal}
+        setShowDeleteModal={setShowDeleteModal}
+        isEditing={false}
+        onSave={handleSave}
+        onClose={handleCloseEdit}
+        isActiveArchived={false}
+      />
 
       <div className=" rounded-lg border border-gray-300 shadow-sm bg-white">
         <table className="w-full border-collapse text-sm rounded-lg">
           <thead>
-            <tr className="bg-[#2264AC] text-[#E9F3FF]  border-b border-gray-300 text-[13px] font-normal">
-              <th className="w-[0.1%] px-4 py-3 text-left border-white rounded-tl-lg">
+            <tr className="bg-[#2264AC] text-white border-b border-gray-300 ">
+              <th className="w-[0.1%] px-4 py-3 text-left border-gray-300 rounded-tl-lg">
                 <div className="flex items-center">
                   <input
                     type="checkbox"

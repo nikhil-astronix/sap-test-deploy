@@ -871,7 +871,7 @@ export default function ClassroomsPage() {
                       handleExpand(school.id);
                     }}
                   >
-                    <div className="flex items-center justify-between mr-3">
+                    <div className="flex items-center justify-between mr-2.5">
                       <span className="font-semibold text-sm">
                         {school.name}
                       </span>

@@ -133,7 +133,7 @@ function BasicInfo({
 					placeholder='Enter Course Name'
 					value={formData.course}
 					onChange={(e) => onChange("course", e.target.value)}
-					className='w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500'
+					className='w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-[#F4F6F8]'
 				/>
 			</div>
 
@@ -146,7 +146,7 @@ function BasicInfo({
 					placeholder='Enter Teacher Name'
 					value={formData.teacher}
 					onChange={(e) => onChange("teacher", e.target.value)}
-					className='w-full px-3 py-2 rounded-lg  border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500'
+					className='w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8]'
 				/>
 			</div>
 
@@ -159,6 +159,7 @@ function BasicInfo({
 					values={formData.grades}
 					onChange={(values) => onChange("grades", values)}
 					placeholder='Select grades'
+					className='bg-[#F4F6F8]'
 				/>
 			</div>
 
@@ -171,7 +172,7 @@ function BasicInfo({
 					placeholder='Enter class period / section'
 					value={formData.classPeriod}
 					onChange={(e) => onChange("classPeriod", e.target.value)}
-					className='w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500'
+					className='w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8]'
 				/>
 			</div>
 
@@ -181,7 +182,7 @@ function BasicInfo({
 				</button>
 				<button
 					onClick={onNext}
-					className='px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700'
+					className='px-8 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700'
 				>
 					Next
 				</button>
@@ -250,7 +251,7 @@ function SelectInterventions({
 	return (
 		<div className='space-y-6'>
 			<div className='mb-6'>
-				<h2 className='mb-3 font-medium'>Instructional Materials</h2>
+				<h2 className='mb-3 font-medium'>Tags & Attributes</h2>
 				<input
 					type='text'
 					placeholder='Search'
@@ -300,7 +301,7 @@ function SelectInterventions({
 				</button>
 				<button
 					onClick={onNext}
-					className='px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700'
+					className='px-8 py-2 bg-emerald-700 text-white rounded-xl hover:bg-emerald-700'
 				>
 					Next
 				</button>
@@ -425,7 +426,7 @@ function SelectCurriculum({
 				</button>
 				<button
 					onClick={onNext}
-					className='px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700'
+					className='px-8 py-2 bg-emerald-700 text-white rounded-xl hover:bg-emerald-700'
 				>
 					Next
 				</button>
@@ -451,7 +452,7 @@ function ReviewSubmit({
 					type='text'
 					value={formData.school || ""}
 					disabled
-					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 cursor-not-allowed'
+					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed'
 				/>
 			</div>
 
@@ -463,7 +464,7 @@ function ReviewSubmit({
 					type='text'
 					value={formData.course || ""}
 					disabled
-					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 cursor-not-allowed'
+					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed'
 				/>
 			</div>
 
@@ -475,7 +476,7 @@ function ReviewSubmit({
 					type='text'
 					value={formData.teacher || ""}
 					disabled
-					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 cursor-not-allowed'
+					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed'
 				/>
 			</div>
 
@@ -513,7 +514,7 @@ function ReviewSubmit({
 					type='text'
 					value={formData.classPeriod || ""}
 					disabled
-					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 cursor-not-allowed'
+					className='w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed'
 				/>
 			</div>
 
