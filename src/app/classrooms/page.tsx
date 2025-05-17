@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -19,8 +19,31 @@ import {
 import Dropdown from "@/components/ui/Dropdown";
 import MultiSelect from "@/components/ui/MultiSelect";
 import { useRouter } from "next/navigation";
+import NetworkHeader from "@/components/network/NetworkHeader";
+import {
+  PencilSimpleLine,
+  CaretCircleDown,
+  CaretCircleUp,
+} from "@phosphor-icons/react";
 
-const mockActiveSchools = [
+// Add type definitions
+interface Classroom {
+  id: string;
+  course: string;
+  teacher: string;
+  grades: string[];
+  instructionalMaterials: string[];
+  tags: string[];
+}
+
+interface School {
+  id: string;
+  name: string;
+  classrooms: Classroom[];
+}
+
+// Rest of your mock data remains unchanged
+const mockActiveSchools: School[] = [
   {
     id: "1",
     name: "Elmwood Elementary School",
@@ -105,7 +128,7 @@ const mockActiveSchools = [
   },
 ];
 
-const mockArchivedSchools = [
+const mockArchivedSchools: School[] = [
   {
     id: "4",
     name: "Washington High School",
@@ -168,8 +191,8 @@ export default function ClassroomsPage() {
     classroomId: string;
   } | null>(null);
   const [search, setSearch] = useState("");
-  const [active, setActive] = useState(true);
-  const [editData, setEditData] = useState<any>(null);
+  const [active, setActive] = useState(false);
+  const [editData, setEditData] = useState<Classroom | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState<{
     schools: Set<string>;
@@ -185,55 +208,101 @@ export default function ClassroomsPage() {
   const rowsPerPage = 5;
   const router = useRouter();
 
-  const schools = active ? mockActiveSchools : mockArchivedSchools;
-  const paginatedSchools = schools.slice(
+  const filterSchoolsBySearch = (
+    schools: School[],
+    searchTerm: string
+  ): School[] => {
+    if (!searchTerm) return schools;
+
+    const lowerSearch = searchTerm.toLowerCase();
+
+    return schools.filter((school) => {
+      // Check if school name matches
+      if (school.name.toLowerCase().includes(lowerSearch)) {
+        return true;
+      }
+
+      // Check if any classroom data matches
+      const hasMatchingClassroom = school.classrooms.some(
+        (classroom) =>
+          classroom.course.toLowerCase().includes(lowerSearch) ||
+          classroom.teacher.toLowerCase().includes(lowerSearch) ||
+          classroom.grades.some((grade) =>
+            grade.toLowerCase().includes(lowerSearch)
+          ) ||
+          classroom.instructionalMaterials.some((material) =>
+            material.toLowerCase().includes(lowerSearch)
+          ) ||
+          classroom.tags.some((tag) => tag.toLowerCase().includes(lowerSearch))
+      );
+
+      return hasMatchingClassroom;
+    });
+  };
+
+  const allSchools = active ? mockArchivedSchools : mockActiveSchools;
+  const filteredSchools = filterSchoolsBySearch(allSchools, search);
+  const totalItems = filteredSchools.length;
+  const totalPages = Math.ceil(totalItems / rowsPerPage);
+  const paginatedSchools = filteredSchools.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  const totalPages = Math.ceil(schools.length / rowsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, active]);
 
   // Helper function to check if all classrooms of a school are selected
-  const areAllClassroomsSelected = (schoolId: string, classrooms: any[]) => {
+  const areAllClassroomsSelected = (
+    schoolId: string,
+    classrooms: Classroom[]
+  ): boolean => {
     return classrooms.every((classroom) =>
       selectedRows.classrooms.has(`${schoolId}-${classroom.id}`)
     );
   };
 
   // Helper function to check if any classroom of a school is selected
-  const isAnyClassroomSelected = (schoolId: string, classrooms: any[]) => {
+  const isAnyClassroomSelected = (
+    schoolId: string,
+    classrooms: Classroom[]
+  ): boolean => {
     return classrooms.some((classroom) =>
       selectedRows.classrooms.has(`${schoolId}-${classroom.id}`)
     );
   };
 
-  const handleExpand = (schoolId: string) => {
+  const handleExpand = (schoolId: string): void => {
     setExpanded(expanded === schoolId ? null : schoolId);
     setEditing(null);
   };
 
-  const handleEdit = (schoolId: string, classroom: any) => {
+  const handleEdit = (schoolId: string, classroom: Classroom): void => {
     setEditing({ schoolId, classroomId: classroom.id });
     setEditData({ ...classroom });
   };
 
-  const handleEditChange = (field: string, value: any) => {
-    setEditData((prev: any) => ({ ...prev, [field]: value }));
+  const handleEditChange = (field: keyof Classroom, value: any): void => {
+    setEditData((prev) => (prev ? { ...prev, [field]: value } : null));
   };
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     setEditing(null);
     // Save logic here
   };
 
-  const handleCloseEdit = () => {
+  const handleCloseEdit = (): void => {
     setEditing(null);
   };
 
   const handleSelectRow = (
     schoolId: string,
     classroomId: string | "all",
-    event?: React.MouseEvent | React.ChangeEvent<HTMLInputElement>
-  ) => {
+    event?:
+      | React.MouseEvent<Element, MouseEvent>
+      | React.ChangeEvent<HTMLInputElement>
+  ): void => {
     if (event) {
       event.stopPropagation();
     }
@@ -243,7 +312,7 @@ export default function ClassroomsPage() {
       classrooms: new Set(selectedRows.classrooms),
     };
 
-    const school = schools.find((s) => s.id === schoolId);
+    const school = filteredSchools.find((s) => s.id === schoolId);
     if (!school) return;
 
     if (classroomId === "all") {
@@ -285,7 +354,7 @@ export default function ClassroomsPage() {
     updateSelectAllState(newSelected);
   };
 
-  const handleSelectAll = () => {
+  const handleSelectAll = (): void => {
     const newSelected = {
       schools: new Set<string>(),
       classrooms: new Set<string>(),
@@ -293,7 +362,7 @@ export default function ClassroomsPage() {
 
     if (!selectAll) {
       // Select all schools and their classrooms
-      schools.forEach((school) => {
+      filteredSchools.forEach((school) => {
         newSelected.schools.add(school.id);
         school.classrooms.forEach((classroom) => {
           newSelected.classrooms.add(`${school.id}-${classroom.id}`);
@@ -305,11 +374,11 @@ export default function ClassroomsPage() {
     setSelectAll(!selectAll);
   };
 
-  const updateSelectAllState = (selected: typeof selectedRows) => {
+  const updateSelectAllState = (selected: typeof selectedRows): void => {
     let totalClassrooms = 0;
     let selectedClassrooms = 0;
 
-    schools.forEach((school) => {
+    filteredSchools.forEach((school) => {
       totalClassrooms += school.classrooms.length;
       selectedClassrooms += school.classrooms.filter((classroom) =>
         selected.classrooms.has(`${school.id}-${classroom.id}`)
@@ -320,18 +389,18 @@ export default function ClassroomsPage() {
   };
 
   // Add this helper function to check if any items are selected
-  const hasSelectedItems = () => {
+  const hasSelectedItems = (): boolean => {
     return selectedRows.schools.size > 0 || selectedRows.classrooms.size > 0;
   };
 
   // Helper function to get selected items info
-  const getSelectedItemsInfo = () => {
+  const getSelectedItemsInfo = (): string[] => {
     const selectedSchools = Array.from(selectedRows.schools);
     const selectedClassrooms = Array.from(selectedRows.classrooms);
     const items: string[] = [];
 
     selectedSchools.forEach((schoolId) => {
-      const school = schools.find((s) => s.id === schoolId);
+      const school = filteredSchools.find((s) => s.id === schoolId);
       if (school) {
         items.push(`${school.name}`);
       }
@@ -339,7 +408,7 @@ export default function ClassroomsPage() {
 
     selectedClassrooms.forEach((classroomId) => {
       const [schoolId, roomId] = classroomId.split("-");
-      const school = schools.find((s) => s.id === schoolId);
+      const school = filteredSchools.find((s) => s.id === schoolId);
       const classroom = school?.classrooms.find((c) => c.id === roomId);
       if (classroom && !selectedRows.schools.has(schoolId)) {
         items.push(
@@ -353,10 +422,10 @@ export default function ClassroomsPage() {
     return items;
   };
 
-  const handleRestore = () => {
+  const handleRestore = (): void => {
     // Move selected items to active schools
-    const newActiveSchools = [...mockActiveSchools];
-    const newArchivedSchools = [...mockArchivedSchools];
+    const newActiveSchools: School[] = [...mockActiveSchools];
+    const newArchivedSchools: School[] = [...mockArchivedSchools];
     const processedSchools = new Set<string>();
 
     // First, process any selected schools
@@ -407,7 +476,7 @@ export default function ClassroomsPage() {
             classroomIndex,
             1
           );
-          activeSchool.classrooms.push(classroom);
+          activeSchool!.classrooms.push(classroom);
         }
       });
 
@@ -433,10 +502,10 @@ export default function ClassroomsPage() {
     setShowRestoreModal(false);
   };
 
-  const handleArchive = () => {
+  const handleArchive = (): void => {
     // Move selected items to archived schools
-    const newActiveSchools = [...mockActiveSchools];
-    const newArchivedSchools = [...mockArchivedSchools];
+    const newActiveSchools: School[] = [...mockActiveSchools];
+    const newArchivedSchools: School[] = [...mockArchivedSchools];
 
     // Handle full school archival
     selectedRows.schools.forEach((schoolId) => {
@@ -452,33 +521,30 @@ export default function ClassroomsPage() {
       const [schoolId, roomId] = classroomId.split("-");
       if (!selectedRows.schools.has(schoolId)) {
         const activeSchool = newActiveSchools.find((s) => s.id === schoolId);
+        if (!activeSchool) return;
+
         const archivedSchool = newArchivedSchools.find(
           (s) => s.id === schoolId
         ) || {
-          ...activeSchool,
-          classrooms: [],
           id: schoolId,
-          name: activeSchool?.name || "",
+          name: activeSchool.name,
+          classrooms: [],
         };
 
-        if (activeSchool) {
-          const classroomIndex = activeSchool.classrooms.findIndex(
-            (c) => c.id === roomId
-          );
-          if (classroomIndex !== -1) {
-            const [classroom] = activeSchool.classrooms.splice(
-              classroomIndex,
-              1
-            );
+        const classroomIndex = activeSchool.classrooms.findIndex(
+          (c) => c.id === roomId
+        );
 
-            // If archived school doesn't exist, add it
-            if (!newArchivedSchools.find((s) => s.id === schoolId)) {
-              newArchivedSchools.push(archivedSchool);
-            }
+        if (classroomIndex !== -1) {
+          const [classroom] = activeSchool.classrooms.splice(classroomIndex, 1);
 
-            // Add classroom to archived school
-            archivedSchool.classrooms.push(classroom);
+          // If archived school doesn't exist, add it
+          if (!newArchivedSchools.find((s) => s.id === schoolId)) {
+            newArchivedSchools.push(archivedSchool);
           }
+
+          // Add classroom to archived school
+          archivedSchool.classrooms.push(classroom);
         }
       }
     });
@@ -496,7 +562,7 @@ export default function ClassroomsPage() {
     setShowArchiveModal(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (): void => {
     // Implementation of delete functionality
     // Similar structure to handleArchive but removes items completely
     setShowDeleteModal(false);
@@ -504,7 +570,7 @@ export default function ClassroomsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md overflow-y-auto">
+    <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -707,125 +773,38 @@ export default function ClassroomsPage() {
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-center mb-2">Classrooms</h1>
-      <p className="text-center text-gray-600 mb-6">
-        Easily access and manage all your classrooms from one place.
-      </p>
+      <NetworkHeader
+        title="Classrooms"
+        description="Easily access and manage all your classrooms from one place."
+        search={search}
+        setSearch={setSearch}
+        active={active}
+        setActive={setActive}
+        hasSelectedItems={hasSelectedItems}
+        setShowArchiveModal={setShowArchiveModal}
+        setShowRestoreModal={setShowRestoreModal}
+        setShowDeleteModal={setShowDeleteModal}
+        addButtonLink="/classrooms/new"
+        addButtonText="Add"
+        isEditing={editing !== null}
+        onSave={handleSave}
+        onClose={handleCloseEdit}
+        activeLabel="Active"
+        archivedLabel="Archived"
+        isActiveArchived={false} // Classrooms page has reversed active/archived logic
+      />
 
-      {editing ? (
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            className="text-gray-700 text-sm font-medium"
-            onClick={handleCloseEdit}
-          >
-            Close
-          </button>
-          <button
-            className="bg-emerald-700 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-800 transition-colors"
-            onClick={handleSave}
-          >
-            Save Changes
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between mb-2">
-          <input
-            className="border rounded-lg px-3 py-2 w-1/3 text-sm"
-            placeholder="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          <div className="flex items-center gap-2">
-            {active ? (
-              <button
-                className={`p-2 ${
-                  hasSelectedItems()
-                    ? "text-gray-500 hover:text-gray-700"
-                    : "text-gray-300 cursor-not-allowed"
-                }`}
-                disabled={!hasSelectedItems()}
-                onClick={() => hasSelectedItems() && setShowRestoreModal(true)}
-                title={
-                  hasSelectedItems()
-                    ? "Archive selected"
-                    : "Select items to archive"
-                }
-              >
-                <RotateCcw size={20} />
-              </button>
-            ) : (
-              <button
-                className={`p-2 ${
-                  hasSelectedItems()
-                    ? "text-gray-500 hover:text-gray-700"
-                    : "text-gray-300 cursor-not-allowed"
-                }`}
-                disabled={!hasSelectedItems()}
-                onClick={() => hasSelectedItems() && setShowArchiveModal(true)}
-                title={
-                  hasSelectedItems()
-                    ? "Restore selected"
-                    : "Select items to restore"
-                }
-              >
-                <Archive size={20} />
-              </button>
-            )}
-            <button
-              className={`p-2 ${
-                hasSelectedItems()
-                  ? "text-gray-500 hover:text-gray-700"
-                  : "text-gray-300 cursor-not-allowed"
-              }`}
-              disabled={!hasSelectedItems()}
-              onClick={() => hasSelectedItems() && setShowDeleteModal(true)}
-              title={
-                hasSelectedItems()
-                  ? "Delete selected"
-                  : "Select items to delete"
-              }
-            >
-              <Trash2 size={20} />
-            </button>
-            <button
-              onClick={() => router.push("/classrooms/new")}
-              className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors flex items-center gap-2 text-sm"
-            >
-              + Add
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="flex items-center gap-2 mb-4 mt-4">
-        <span className="mr-2 text-sm">Active</span>
-        <button
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            active ? "bg-emerald-600" : "bg-gray-200"
-          }`}
-          onClick={() => setActive((a) => !a)}
-        >
-          <span
-            className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
-              active ? "translate-x-6" : "translate-x-1"
-            }`}
-          />
-        </button>
-        <span className="ml-2 text-sm">Archived</span>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-sm bg-white">
+      <div className="overflow-x-auto rounded-lg border border-gray-300  bg-white">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300">
-              <th className="w-[5%] px-4 py-3 text-left border-r border-gray-300">
+              <th className="w-[0.1%] px-4 py-3 text-left border-gray-300">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
-                    className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] focus:ring-[#2264AC] focus:ring-2 bg-white cursor-pointer"
+                    className="h-4 w-4 appearance-none text-[#2264AC] border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
                   />
                 </div>
               </th>
@@ -872,7 +851,7 @@ export default function ClassroomsPage() {
                   }}
                 >
                   <td
-                    className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                    className="px-4 py-3 border-gray-200 bg-[#F8FAFC]"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center">
@@ -880,7 +859,7 @@ export default function ClassroomsPage() {
                         type="checkbox"
                         checked={selectedRows.schools.has(school.id)}
                         onChange={(e) => handleSelectRow(school.id, "all", e)}
-                        className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] focus:ring-[#2264AC] focus:ring-2 bg-white cursor-pointer"
+                        className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
                       />
                     </div>
                   </td>
@@ -892,15 +871,18 @@ export default function ClassroomsPage() {
                       handleExpand(school.id);
                     }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mr-3">
                       <span className="font-semibold text-sm">
                         {school.name}
                       </span>
                       <span>
                         {expanded === school.id ? (
-                          <ChevronUp className="text-gray-600" />
+                          <CaretCircleUp className="text-gray-600" size={16} />
                         ) : (
-                          <ChevronDown className="text-gray-600" />
+                          <CaretCircleDown
+                            className="text-gray-600"
+                            size={16}
+                          />
                         )}
                       </span>
                     </div>
@@ -929,7 +911,7 @@ export default function ClassroomsPage() {
                             onChange={(e) =>
                               handleSelectRow(school.id, classroom.id, e)
                             }
-                            className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] focus:ring-[#2264AC] focus:ring-2 bg-white cursor-pointer"
+                            className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
                           />
                         </div>
                       </td>
@@ -939,8 +921,8 @@ export default function ClassroomsPage() {
                         <>
                           <td className="px-4 py-2 border-r border-gray-200">
                             <input
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                              value={editData.course}
+                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2264AC] text-sm"
+                              value={editData?.course || ""}
                               onChange={(e) =>
                                 handleEditChange("course", e.target.value)
                               }
@@ -949,7 +931,7 @@ export default function ClassroomsPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             <input
                               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                              value={editData.teacher}
+                              value={editData?.teacher || ""}
                               onChange={(e) =>
                                 handleEditChange("teacher", e.target.value)
                               }
@@ -958,7 +940,7 @@ export default function ClassroomsPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             <MultiSelect
                               options={gradeOptions}
-                              values={editData.grades}
+                              values={editData?.grades || []}
                               onChange={(vals) =>
                                 handleEditChange("grades", vals)
                               }
@@ -968,7 +950,7 @@ export default function ClassroomsPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             <MultiSelect
                               options={instructionalOptions}
-                              values={editData.instructionalMaterials}
+                              values={editData?.instructionalMaterials || []}
                               onChange={(vals) =>
                                 handleEditChange("instructionalMaterials", vals)
                               }
@@ -978,7 +960,7 @@ export default function ClassroomsPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             <MultiSelect
                               options={tagOptions}
-                              values={editData.tags}
+                              values={editData?.tags || []}
                               onChange={(vals) =>
                                 handleEditChange("tags", vals)
                               }
@@ -987,6 +969,16 @@ export default function ClassroomsPage() {
                           </td>
                           <td className="px-4 py-2 text-center">
                             {/* No edit icon in edit mode */}
+
+                            <button
+                              className="text-emerald-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(school.id, classroom);
+                              }}
+                            >
+                              <PencilSimpleLine size={16} color="#2264AC" />
+                            </button>
                           </td>
                         </>
                       ) : (
@@ -1021,7 +1013,7 @@ export default function ClassroomsPage() {
                                 handleEdit(school.id, classroom);
                               }}
                             >
-                              <Edit2 size={18} />
+                              <PencilSimpleLine size={16} color="#2264AC" />
                             </button>
                           </td>
                         </>
@@ -1037,8 +1029,8 @@ export default function ClassroomsPage() {
           <div>
             <span className="text-gray-600">
               {(currentPage - 1) * rowsPerPage + 1}-
-              {Math.min(currentPage * rowsPerPage, schools.length)} of{" "}
-              {schools.length}
+              {Math.min(currentPage * rowsPerPage, filteredSchools.length)} of{" "}
+              {filteredSchools.length}
             </span>
           </div>
           <div className="flex items-center gap-2">

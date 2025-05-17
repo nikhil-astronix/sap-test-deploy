@@ -972,14 +972,14 @@ export default function NetworksPage() {
       <div className=" rounded-lg border border-gray-300 shadow-sm bg-white">
         <table className="w-full border-collapse text-sm rounded-lg">
           <thead>
-            <tr className="bg-[#2264AC] text-white border-b border-gray-300 ">
-              <th className="w-[0.1%] px-4 py-3 text-left border-gray-300 rounded-tl-lg">
+            <tr className="bg-[#2264AC] text-[#E9F3FF]  border-b border-gray-300 text-[13px] font-normal">
+              <th className="w-[0.1%] px-4 py-3 text-left border-white rounded-tl-lg">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
-                    className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                    className="h-4 w-4 appearance-none text-[#2264AC] border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
                   />
                 </div>
               </th>
