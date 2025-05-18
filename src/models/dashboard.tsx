@@ -24,3 +24,12 @@ export interface fetchObservationToolsPayload {
   page: number;
   limit: number;
 }
+
+export interface observationSessionPayload {
+  filter_type: string;
+  search: string;
+  sort_by: string | null;
+  sort_order: "asc" | "desc" | null;
+  page: number;
+  limit: number;
+}
