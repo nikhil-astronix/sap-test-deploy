@@ -7,7 +7,7 @@ export default function CustomDropdown({ value, options, onChange }) {
 
   // Normalize options
   const normalizedOptions = options.map((opt) =>
-    typeof opt === "string" ? { label: opt, value: opt } : opt
+    opt ? { label: opt.label, value: opt.id } : opt
   );
 
   // Auto-select first option if no value is provided

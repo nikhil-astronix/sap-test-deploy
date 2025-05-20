@@ -18,6 +18,7 @@ import {
   Network,
   City,
 } from "@phosphor-icons/react";
+import { getNetwork } from "@/services/networkService";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -34,30 +35,43 @@ export default function SchoolsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isArchived, setIsArchived] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
+  const [networks, setNetworks] = useState<any[]>([]);
 
   const userTypes = [
-    "Admin",
-    "District Viewer",
-    "Observer",
-    "State Admin",
-    "Super Admin",
-    "Network Admin",
+    { id: "Admin", label: "Admin" },
+    { id: "District Viewer", label: "District Viewer" },
+    { id: "Observer", label: "Observer" },
+    { id: "State Admin", label: "State Admin" },
+    { id: "Super Admin", label: "Super Admin" },
+    { id: "Network Admin", label: "Network Admin" },
   ];
 
   const roles = [
-    "Central Office / District",
-    "Instructional Coach",
-    "Professional Learning Partner",
-    "School Leader",
-    "State",
-    "Teacher",
-    "Other",
+    { id: "Central Office / District", label: "Central Office / District" },
+    { id: "Instructional Coach", label: "Instructional Coach" },
+    {
+      id: "Professional Learning Partner",
+      label: "Professional Learning Partner",
+    },
+    { id: "School Leader", label: "School Leader" },
+    { id: "State", label: "State" },
+    { id: "Teacher", label: "Teacher" },
+    { id: "Other", label: "Other" },
   ];
 
-  const districts = ["District A", "District B"];
-  const schools = ["ABC School", "School B"];
+  const districts = [
+    { id: "District A", label: "District A" },
+    { id: "District B", label: "District B" },
+  ];
+  const schools = [
+    { id: "ABC School", label: "ABC School" },
+    { id: "School B", label: "School B" },
+  ];
 
-  const networks = ["Network 4", "Network 5"];
+  const networks1 = [
+    { id: "Network 4", label: "Network 4" },
+    { id: "Network 5", label: "Network 5" },
+  ];
 
   const columns: Column[] = [
     {
@@ -243,9 +257,9 @@ export default function SchoolsPage() {
     key: string | null,
     direction: "asc" | "desc" | null
   ) => {
-    if(key == "email"){
-      key = "email_id"
-      }
+    if (key == "email") {
+      key = "email_id";
+    }
     setSortField(key);
     setSortDirection(direction);
     fetchData(
@@ -289,6 +303,7 @@ export default function SchoolsPage() {
   };
 
   useEffect(() => {
+    getNetworks();
     fetchData(
       currentPage,
       rowsPerPage,
@@ -298,6 +313,26 @@ export default function SchoolsPage() {
       searchQuery
     );
   }, [searchQuery]);
+
+  const getNetworks = async () => {
+    const requestPayload = {
+      is_archived: isArchived,
+      sort_by: null,
+      sort_order: null,
+      curr_page: 1,
+      per_page: 100,
+      search: null, // Don't send empty strings
+    };
+
+    const response = await getNetwork(requestPayload);
+    const formattedNetworks = response.data.networks.map((network) => ({
+      id: network.id,
+      label: network.name,
+    }));
+
+    setNetworks(formattedNetworks);
+    console.log("responseresponseresponse", response);
+  };
 
   return (
     <div className="container text-center mx-auto px-4 py-8 bg-white">
