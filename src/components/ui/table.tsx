@@ -662,7 +662,7 @@ export default function Table({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className="px-4 py-3 text-left whitespace-nowrap font-medium border-l-2 border-gray-200"
+                    className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-l-2 border-gray-200"
                   >
                     <div
                       className={`flex items-center justify-between w-full text-[12px] font-normal text-[#F9F5FF] ${

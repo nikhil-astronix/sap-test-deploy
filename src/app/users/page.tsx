@@ -156,7 +156,7 @@ export default function SchoolsPage() {
         // school: formData.school,
         district: "661943fd4ccf5f44a9a1a002",
         school: "661943fd4ccf5f44a9a1a003",
-        network: "681bdda560ada194e76392cf",
+        network: updatedRow.network,
         user_role: updatedRow.role,
         user_type: updatedRow.user_type,
       };
