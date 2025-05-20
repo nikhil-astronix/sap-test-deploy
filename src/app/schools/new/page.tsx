@@ -1,5 +1,5 @@
 import React from "react";
-import CreateClassroomForm from "@/components/classroom/CreateClassroomForm";
+import CreateSchoolForm from "@/components/school/CreateSchoolForm";
 
 export default function NewSchoolPage() {
   return (
@@ -9,7 +9,7 @@ export default function NewSchoolPage() {
         <p className="text-gray-600 mb-8 text-center">
           Fill the details below to add a new classroom.
         </p>
-        <CreateClassroomForm />
+        <CreateSchoolForm />
       </div>
     </div>
   );

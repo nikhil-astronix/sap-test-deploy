@@ -8,15 +8,13 @@ import { motion } from "framer-motion";
 import InterventionCard from "../../components/intervention/InterventionCard";
 import EditInterventionModal from "../../components/intervention/EditInterventionModal";
 import ArchiveInterventionModal from "../../components/intervention/ArchiveInterventionModal";
-
-interface Intervention {
-  id: string;
-  type: "Custom" | "Default";
-  title: string;
-  description: string;
-  isArchived: boolean;
-  createdAt: Date;
-}
+import {
+  archiveIntervention,
+  editInterventions,
+  getInterventions,
+  restoreIntervention,
+} from "@/services/interventionService";
+import { Intervention, InterventionType } from "@/types/interventionData";
 
 const container = {
   hidden: { opacity: 0 },
@@ -46,62 +44,7 @@ export default function InterventionsPage() {
   const filterRef = useRef<HTMLDivElement>(null);
 
   // Initialize with mock data - replace with actual data fetching
-  const [interventions, setInterventions] = useState<Intervention[]>([
-    {
-      id: "1",
-      type: "Custom",
-      title: "Coaching",
-      description:
-        "This teacher receives regular coaching from the school leadership team or an external partner.",
-      isArchived: false,
-      createdAt: new Date("2024-03-15"),
-    },
-    {
-      id: "2",
-      type: "Default",
-      title: "Coaching",
-      description:
-        "This teacher receives regular coaching from the school leadership team or an external partner.",
-      isArchived: true,
-      createdAt: new Date("2024-03-14"),
-    },
-    {
-      id: "3",
-      type: "Custom",
-      title: "Coaching",
-      description:
-        "This teacher receives regular coaching from the school leadership team or an external partner.",
-      isArchived: false,
-      createdAt: new Date("2024-03-13"),
-    },
-    {
-      id: "4",
-      type: "Custom",
-      title: "Coaching",
-      description:
-        "This teacher receives regular coaching from the school leadership team or an external partner. The coaching includes classroom observations, feedback sessions, goal-setting meetings, and collaborative planning time. This structured support helps improve instructional practices and student outcomes through ongoing professional development.",
-      isArchived: false,
-      createdAt: new Date("2024-03-12"),
-    },
-    {
-      id: "5",
-      type: "Custom",
-      title: "Coaching",
-      description:
-        "This teacher receives regular coaching from the school leadership team or an external partner.",
-      isArchived: true,
-      createdAt: new Date("2024-03-11"),
-    },
-    {
-      id: "6",
-      type: "Custom",
-      title: "Coaching",
-      description:
-        "This teacher receives regular coaching from the school leadership team or an external partner.",
-      isArchived: false,
-      createdAt: new Date("2024-03-10"),
-    },
-  ]);
+  const [interventions, setInterventions] = useState<Intervention[]>([]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -127,37 +70,48 @@ export default function InterventionsPage() {
     setArchivingIntervention(intervention);
   };
 
-  const handleArchiveConfirm = () => {
+  useEffect(() => {
+    const getData = async () => {
+      const obj = {
+        is_archived: isActive,
+        type: filterType,
+        search: searchQuery,
+      };
+      const response = await getInterventions(obj);
+
+      setInterventions(response.data.interventions);
+    };
+    getData();
+  }, [isActive, filterType, searchQuery]);
+
+  const handleArchiveConfirm = async () => {
     if (archivingIntervention) {
       // Toggle the archived state
       const updatedIntervention = {
         ...archivingIntervention,
         isArchived: !archivingIntervention.isArchived,
       };
-
-      // Here you would typically make an API call to update the intervention
-      console.log(
-        "Toggling archive state for intervention:",
-        updatedIntervention
-      );
-
-      // Update the interventions list with the new state
-      setInterventions(
-        interventions.map((i) =>
-          i.id === archivingIntervention.id ? updatedIntervention : i
-        )
-      );
-
+      if (updatedIntervention.isArchived) {
+        const response = await archiveIntervention(archivingIntervention.id);
+      } else {
+        const response = await restoreIntervention(archivingIntervention.id);
+      }
+      const obj = { is_archived: isActive, type: filterType };
+      const response = await getInterventions(obj);
+      setInterventions(response.data.interventions);
       setArchivingIntervention(null);
     }
   };
 
-  const handleSave = (updatedIntervention: Omit<Intervention, "id">) => {
+  const handleSave = async (updatedIntervention: Intervention) => {
     // Here you would typically make an API call to update the intervention
-    console.log("Saving intervention:", {
-      ...updatedIntervention,
-      id: editingIntervention?.id,
+    const response = await editInterventions(updatedIntervention.id, {
+      type: updatedIntervention.type,
+      description: updatedIntervention.description,
+      name: updatedIntervention.name,
+      district_id: updatedIntervention.district_id,
     });
+    // editInterventions;
     setEditingIntervention(null);
   };
 
@@ -169,44 +123,13 @@ export default function InterventionsPage() {
   };
 
   // Filter and sort the interventions
-  const filteredInterventions = interventions
-    .filter((intervention) => {
-      const matchesSearch =
-        intervention.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        intervention.description
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
-      const matchesType =
-        filterType === "Both" ? true : intervention.type === filterType;
-      const matchesStatus = isActive === intervention.isArchived;
-      return matchesSearch && matchesType && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "az":
-          return a.title.localeCompare(b.title);
-        case "za":
-          return b.title.localeCompare(a.title);
-        case "newest":
-          return b.createdAt.getTime() - a.createdAt.getTime();
-        case "oldest":
-          return a.createdAt.getTime() - b.createdAt.getTime();
-        default:
-          return 0;
-      }
-    });
 
   // Calculate filter counts based on the current data and archive status
   const filterCounts = {
-    Default: interventions.filter(
-      (i) => i.type === "Default" && i.isArchived === isActive
-    ).length,
-    Custom: interventions.filter(
-      (i) => i.type === "Custom" && i.isArchived === isActive
-    ).length,
-    Both: interventions.filter((i) => i.isArchived === isActive).length,
+    Default: 1,
+    Custom: 1,
+    Both: 1,
   };
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -390,11 +313,11 @@ export default function InterventionsPage() {
               animate="show"
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
             >
-              {filteredInterventions.map((intervention) => (
+              {interventions.map((intervention) => (
                 <InterventionCard
                   key={intervention.id}
                   type={intervention.type}
-                  title={intervention.title}
+                  title={intervention.name}
                   description={intervention.description}
                   isArchived={intervention.isArchived}
                   onEdit={() => handleEdit(intervention)}
@@ -421,7 +344,7 @@ export default function InterventionsPage() {
           onClose={() => setArchivingIntervention(null)}
           item={{
             type: archivingIntervention.type,
-            title: archivingIntervention.title,
+            title: archivingIntervention.name,
             itemType: "Intervention",
             isArchived: archivingIntervention.isArchived,
           }}

@@ -1,24 +1,28 @@
-import React, { useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { motion, AnimatePresence } from "framer-motion";
+import { InterventionType } from "@/types/interventionData";
 
 interface EditInterventionModalProps {
   isOpen: boolean;
   onClose: () => void;
   intervention: {
     id: string;
-    type: 'Default' | 'Custom';
-    title: string;
+    type: InterventionType;
+    name: string;
     description: string;
     isArchived: boolean;
+    district_id: string;
     createdAt: Date;
   };
   onSave: (intervention: {
-    type: 'Default' | 'Custom';
-    title: string;
+    id: string;
+    type: InterventionType;
+    name: string;
     description: string;
     isArchived: boolean;
     createdAt: Date;
+    district_id: string;
   }) => void;
 }
 
@@ -28,8 +32,8 @@ export default function EditInterventionModal({
   intervention,
   onSave,
 }: EditInterventionModalProps) {
-  const [type, setType] = useState<'Default' | 'Custom'>(intervention.type);
-  const [title, setTitle] = useState(intervention.title);
+  const [type, setType] = useState<InterventionType>(intervention.type);
+  const [name, setName] = useState(intervention.name);
   const [description, setDescription] = useState(intervention.description);
   const [isArchived, setIsArchived] = useState(intervention.isArchived);
 
@@ -37,10 +41,12 @@ export default function EditInterventionModal({
     e.preventDefault();
     onSave({
       type,
-      title,
+      name,
+      id: intervention.id,
       description,
       isArchived,
-      createdAt: intervention.createdAt, // Preserve the original creation date
+      createdAt: intervention.createdAt,
+      district_id: intervention.district_id,
     });
     onClose();
   };
@@ -81,14 +87,19 @@ export default function EditInterventionModal({
                     Type
                   </label>
                   <div className="flex gap-2">
-                    {(['Default', 'Custom'] as const).map((typeOption) => (
+                    {(
+                      [
+                        InterventionType.Default,
+                        InterventionType.Custom,
+                      ] as const
+                    ).map((typeOption) => (
                       <button
                         key={typeOption}
                         onClick={() => setType(typeOption)}
                         className={`px-4 py-2 rounded-lg text-sm ${
                           type === typeOption
-                            ? 'bg-emerald-700 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? "bg-emerald-700 text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}
                       >
                         {typeOption}
@@ -103,10 +114,10 @@ export default function EditInterventionModal({
                   </label>
                   <input
                     type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="w-full text-md text-gray-600 bg-gray-50 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
-                    placeholder="Enter title"
+                    placeholder="Enter name"
                   />
                 </div>
 
@@ -134,7 +145,9 @@ export default function EditInterventionModal({
                       />
                       <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-700">Archived</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Archived
+                    </span>
                   </label>
                 </div>
               </div>
@@ -163,4 +176,4 @@ export default function EditInterventionModal({
       )}
     </AnimatePresence>
   );
-} 
+}
