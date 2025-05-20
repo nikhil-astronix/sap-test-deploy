@@ -45,3 +45,22 @@ export interface networkData {
   state: string;
   name: string;
 }
+
+export interface fetchClassroomRequestPayload {
+  is_archived: boolean;
+  sort_by: string | null;
+  sort_order: string | null;
+  curr_page: number;
+  per_page: number;
+  search: string | null;
+}
+
+export interface classroomData {
+  school_name: "string";
+  course: "string";
+  teacher_name: "string";
+  grades: ["string"];
+  class_section: "string";
+  interventions: ["string"];
+  curriculums: ["string"];
+}
