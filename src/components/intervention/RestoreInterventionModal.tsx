@@ -1,31 +1,30 @@
 import React from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
-import { Archive } from "lucide-react";
+import { ClockClockwise, Info } from "@phosphor-icons/react";
 
-interface ArchiveModalProps {
+interface RestoreInterventionModalProps {
   isOpen: boolean;
   onClose: () => void;
   item: {
     type: "Custom" | "Default";
     title: string;
-    itemType: "Curriculum" | "Intervention";
+    itemType: string;
     isArchived: boolean;
   };
-  onArchive: () => void;
+  onRestore: () => void;
 }
 
-export default function ArchiveModal({
+export default function RestoreInterventionModal({
   isOpen,
   onClose,
   item,
-  onArchive,
-}: ArchiveModalProps) {
-  const actionText = item.isArchived ? "unarchive" : "archive";
-  const buttonClass = item.isArchived
-    ? "bg-emerald-600 text-white hover:bg-emerald-700"
-    : "bg-red-600 text-white hover:bg-red-700";
+  onRestore,
+}: RestoreInterventionModalProps) {
+  // Helper function to handle single item as array
+  const getSelectedItemsInfo = () => {
+    return item ? [{ text: item.title, type: item.type }] : [];
+  };
 
   return (
     <AnimatePresence>
@@ -64,8 +63,8 @@ export default function ArchiveModal({
                   transition={{ delay: 0.1 }}
                   className="flex items-center gap-2 mb-6"
                 >
-                  <Archive className="text-gray-600" size={24} />
-                  <span className="text-md capitalize">{actionText}</span>
+                  <ClockClockwise className="text-blue-600" size={24} />
+                  <span className="text-md">Restore</span>
                 </motion.div>
 
                 <motion.p
@@ -74,7 +73,7 @@ export default function ArchiveModal({
                   transition={{ delay: 0.2 }}
                   className="text-black mb-4 text-sm"
                 >
-                  Are you sure you want to {actionText} this {item.itemType}?
+                  Are you sure you want to restore this {item.itemType}?
                 </motion.p>
 
                 <motion.div
@@ -89,44 +88,21 @@ export default function ArchiveModal({
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className={`${
-                    item.isArchived ? "bg-emerald-50" : "bg-red-50"
-                  } rounded-lg overflow-hidden flex`}
+                  className="bg-blue-50 rounded-lg overflow-hidden flex"
                 >
-                  <div
-                    className={`w-1 ${
-                      item.isArchived ? "bg-emerald-600" : "bg-red-600"
-                    }`}
-                  ></div>
+                  <div className="w-1 bg-[#2264AC]"></div>
                   <div className="p-4 flex-1">
                     <div className="flex items-start gap-2">
                       <div>
-                        <h3
-                          className={`${
-                            item.isArchived
-                              ? "text-emerald-600"
-                              : "text-red-600"
-                          } font-medium mb-1 flex items-center gap-2`}
-                        >
-                          <ExclamationTriangleIcon
-                            className={`w-5 h-5 ${
-                              item.isArchived
-                                ? "text-emerald-600"
-                                : "text-red-600"
-                            } flex-shrink-0`}
-                          />
-                          {item.isArchived ? "Note" : "Warning"}
+                        <h3 className="text-[#2264AC] text-[16px] mb-1 flex items-center gap-2">
+                          <Info size={18} color="#2264AC" />
+                          Note
                         </h3>
-                        <p
-                          className={`${
-                            item.isArchived
-                              ? "text-emerald-600"
-                              : "text-red-600"
-                          } text-xs`}
-                        >
-                          {item.isArchived
-                            ? `Unarchiving this ${item.itemType.toLowerCase()} will make it visible in active views and restore all related access.`
-                            : `Archiving this ${item.itemType} will remove it from active views. It will become accessible for adding to classrooms or schools. Please confirm before proceeding.`}
+                        <p className="text-[#2264AC] text-xs">
+                          Restoring this Tags & Attributes will make it active
+                          again. It will become accessible for adding to
+                          classrooms or schools. Please confirm before
+                          proceeding.
                         </p>
                       </div>
                     </div>
@@ -145,10 +121,10 @@ export default function ArchiveModal({
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={onArchive}
-                    className={`px-6 py-1 text-sm rounded-[6px] ${buttonClass}`}
+                    onClick={onRestore}
+                    className="px-6 py-1 text-sm rounded-[6px] bg-emerald-700 text-white hover:bg-emerald-800"
                   >
-                    {item.isArchived ? "Unarchive" : "Archive"}
+                    Restore
                   </motion.button>
                 </div>
               </div>
