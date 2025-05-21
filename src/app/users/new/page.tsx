@@ -1,7 +1,7 @@
 // app/create-user/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/services/userService";
 import { AxiosError } from "axios";
@@ -10,6 +10,8 @@ import { motion } from "framer-motion";
 import MultiSelect from "@/components/ui/MultiSelect";
 import Dropdown from "@/components/ui/Dropdown";
 import { number, z } from "zod";
+import { getNetwork } from "@/services/networkService";
+import { getSchools } from "@/services/schoolService";
 
 interface ErrorResponse {
   message: string;
@@ -45,12 +47,12 @@ const districts = [
   { label: "District A", value: "District A" },
   { label: "District B", value: "District B" },
 ];
-const schools = [
+const schools1 = [
   { label: "School A", value: "School A" },
   { label: "School B", value: "School B" },
 ];
 
-const networks = [
+const networks1 = [
   { label: "Network 4", value: "Network 4" },
   { label: "Network B", value: "Network B" },
 ];
@@ -95,6 +97,52 @@ export default function CreateUserForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [apiError, setApiError] = useState("");
   const [apiSuccess, setApiSuccess] = useState("");
+  const [networks, setNetworks] = useState<any[]>([]);
+  const [schools, setSchools] = useState<any[]>([]);
+
+  useEffect(() => {
+    getNetworks();
+    getSchoolData();
+  }, []);
+
+  const getNetworks = async () => {
+    const requestPayload = {
+      is_archived: null,
+      sort_by: null,
+      sort_order: null,
+      curr_page: 1,
+      per_page: 100,
+      search: null, // Don't send empty strings
+    };
+
+    const response = await getNetwork(requestPayload);
+    const formattedNetworks = response.data.networks.map((network) => ({
+      value: network.id,
+      label: network.name,
+    }));
+
+    setNetworks(formattedNetworks);
+    console.log("responseresponseresponse", response);
+  };
+
+  const getSchoolData = async () => {
+    const requestPayload = {
+      is_archived: null,
+      sort_by: null,
+      sort_order: null,
+      curr_page: 1,
+      per_page: 100,
+      search: null,
+    };
+
+    const response = await getSchools(requestPayload);
+    const formattedSchools = response.data.schools.map((school) => ({
+      value: school.id,
+      label: school.name,
+    }));
+
+    setSchools(formattedSchools);
+  };
 
   const getStepStatus = (index: number) => {
     if (index < currentStep) return "completed";
@@ -228,6 +276,9 @@ export default function CreateUserForm() {
                   if (valid) setCurrentStep(2);
                 }}
                 errors={errors}
+                schools={schools}
+                districts={districts}
+                networks={networks}
               />
             )}
             {currentStep === 2 && (
@@ -500,9 +551,15 @@ function SelectDistrict({
   onBack,
   onNext,
   errors,
+  networks,
+  schools,
+  districts,
 }: {
   onBack: () => void;
   onNext: () => void;
+  networks: string[];
+  schools: string[];
+  districts: string[];
   formData: any;
   onChange: (field: string, value: any) => void;
   errors: Record<string, string>;

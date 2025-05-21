@@ -224,28 +224,6 @@ function SelectInterventions({
 }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Define sample tag options with proper names and descriptions
-  const tagOptions = [
-    {
-      id: "1",
-      name: "Coaching",
-      description:
-        "Amplify Desmos Math promotes a collaborative classroom & guides teachers as facilitator.",
-    },
-    {
-      id: "2",
-      name: "Progress Monitoring",
-      description:
-        "Regular assessment to track student learning and adjust teaching strategies.",
-    },
-    {
-      id: "3",
-      name: "Intervention",
-      description:
-        "Targeted support for students who need additional assistance with specific skills.",
-    },
-  ];
-
   // Filter tags based on search term
   const filteredTags = searchTerm
     ? options.filter(
@@ -256,7 +234,7 @@ function SelectInterventions({
     : options;
 
   const handleToggleTag = (tagId: string) => {
-    const tagToToggle = tagOptions.find((tag) => tag.id === tagId);
+    const tagToToggle = options.find((tag) => tag.id === tagId);
     if (!tagToToggle) return;
 
     if (selectedTags.includes(tagToToggle.name)) {
@@ -355,7 +333,7 @@ function SelectCurriculum({
     : options;
 
   const handleToggleMaterial = (materialId: string) => {
-    const materialToToggle = materialOptions.find(
+    const materialToToggle = options.find(
       (material) => material.id === materialId
     );
     if (!materialToToggle) return;
