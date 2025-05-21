@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 import Dropdown from "../ui/Dropdown";
@@ -8,6 +8,9 @@ import MultiSelect from "../ui/MultiSelect";
 import { Student } from "@phosphor-icons/react";
 import Stepper from "./Stepper";
 import { useRouter } from "next/navigation";
+import { getInterventions } from "@/services/interventionService";
+import { fetchAllCurriculums } from "@/services/curriculumsService";
+import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
 
 const steps = [
   { label: "Basic School Info", id: "basic-info" },
@@ -34,12 +37,62 @@ const gradeOptions = [
 
 export default function CreateSchoolForm() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [curriculums, setCurriculums] = useState<any[]>([]);
+  const [interventions, setInterventions] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     schoolName: "",
     grades: [] as string[],
     tags: [] as string[],
     instructionalMaterials: [] as string[],
   });
+
+  useEffect(() => {
+    fetchCurriculums();
+    fetchInterventions();
+  }, []);
+
+  const fetchCurriculums = async () => {
+    try {
+      const requesPayload: fetchCurriculumsRequestPayload = {
+        is_archived: false,
+        type: ["Default", "Custom"].join(","),
+        sort_by: null,
+        sort_order: null,
+        search: null,
+        page: 1,
+        limit: 100,
+      };
+      const data = await fetchAllCurriculums(requesPayload);
+
+      if (data.success) {
+        const formattedCurriculums = data.data.curriculums;
+        setCurriculums(formattedCurriculums);
+      }
+    } catch (error) {
+      console.error("Failed to load curriculums:", error);
+    }
+  };
+
+  const fetchInterventions = async () => {
+    try {
+      const requesPayload: fetchCurriculumsRequestPayload = {
+        is_archived: null,
+        type: null,
+        sort_by: null,
+        sort_order: null,
+        search: null,
+        page: 1,
+        limit: 100,
+      };
+      const data = await getInterventions(requesPayload);
+      if (data.success) {
+        const formattedInterventions = data.data.interventions;
+        setInterventions(formattedInterventions);
+      }
+    } catch (error) {
+      console.error("Failed to load curriculums:", error);
+    }
+  };
 
   const getStepStatus = (index: number) => {
     if (index < currentStep) return "completed";
@@ -76,6 +129,7 @@ export default function CreateSchoolForm() {
         {currentStep === 1 && (
           <SelectInterventions
             selectedTags={formData.tags}
+            options={interventions}
             onTagsChange={(tags) => handleFormChange("tags", tags)}
             onBack={() => setCurrentStep(0)}
             onNext={() => setCurrentStep(2)}
@@ -84,6 +138,7 @@ export default function CreateSchoolForm() {
         {currentStep === 2 && (
           <SelectCurriculum
             selectedMaterials={formData.instructionalMaterials}
+            options={curriculums}
             onMaterialsChange={(materials) =>
               handleFormChange("instructionalMaterials", materials)
             }
@@ -159,8 +214,10 @@ function SelectInterventions({
   onTagsChange,
   onBack,
   onNext,
+  options,
 }: {
   selectedTags: string[];
+  options: string[];
   onTagsChange: (tags: string[]) => void;
   onBack: () => void;
   onNext: () => void;
@@ -191,12 +248,12 @@ function SelectInterventions({
 
   // Filter tags based on search term
   const filteredTags = searchTerm
-    ? tagOptions.filter(
+    ? options.filter(
         (tag) =>
           tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           tag.description.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : tagOptions;
+    : options;
 
   const handleToggleTag = (tagId: string) => {
     const tagToToggle = tagOptions.find((tag) => tag.id === tagId);
@@ -242,7 +299,7 @@ function SelectInterventions({
                 <p className="text-sm text-gray-600">{tag.description}</p>
               </div>
               <span className="ml-auto text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-                Custom
+                {tag.type}
               </span>
             </div>
           </div>
@@ -278,44 +335,24 @@ function SelectCurriculum({
   onMaterialsChange,
   onBack,
   onNext,
+  options,
 }: {
   selectedMaterials: string[];
+  options: string[];
   onMaterialsChange: (materials: string[]) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Define sample curriculum options
-  const materialOptions = [
-    {
-      id: "1",
-      name: "Amplify",
-      description:
-        "McGraw-Hill Education Wonders is a K-6 literacy curriculum designed with a wealth of research-based print and digital resources for building a strong literacy foundation.",
-    },
-    {
-      id: "2",
-      name: "Eureka Math",
-      description:
-        "A comprehensive curriculum focused on mathematical understanding and reasoning with coherent connections between topics.",
-    },
-    {
-      id: "3",
-      name: "Illustrative Mathematics",
-      description:
-        "Problem-based curriculum designed to address content and practice standards to foster growth mindset in students.",
-    },
-  ];
-
   // Filter materials based on search
   const filteredMaterials = searchTerm
-    ? materialOptions.filter(
+    ? options.filter(
         (material) =>
-          material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           material.description.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : materialOptions;
+    : options;
 
   const handleToggleMaterial = (materialId: string) => {
     const materialToToggle = materialOptions.find(
@@ -323,16 +360,16 @@ function SelectCurriculum({
     );
     if (!materialToToggle) return;
 
-    if (selectedMaterials.includes(materialToToggle.name)) {
+    if (selectedMaterials.includes(materialToToggle.title)) {
       // Remove material if already selected
       onMaterialsChange(
         selectedMaterials.filter(
-          (material) => material !== materialToToggle.name
+          (material) => material !== materialToToggle.title
         )
       );
     } else {
       // Add material if not selected
-      onMaterialsChange([...selectedMaterials, materialToToggle.name]);
+      onMaterialsChange([...selectedMaterials, materialToToggle.title]);
     }
   };
 
@@ -358,16 +395,16 @@ function SelectCurriculum({
             <div className="flex items-start">
               <input
                 type="checkbox"
-                checked={selectedMaterials.includes(material.name)}
+                checked={selectedMaterials.includes(material.title)}
                 onChange={() => handleToggleMaterial(material.id)}
                 className="mt-1 h-4 w-4 text-emerald-600 rounded border-gray-300"
               />
               <div className="ml-3">
-                <h3 className="font-medium">{material.name}</h3>
+                <h3 className="font-medium">{material.title}</h3>
                 <p className="text-sm text-gray-600">{material.description}</p>
               </div>
               <span className="ml-auto text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                Default
+                {material.type}
               </span>
             </div>
           </div>
