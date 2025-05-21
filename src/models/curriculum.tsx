@@ -23,8 +23,8 @@ export interface CurriculumnUpdatedConfigProps {
 }
 
 export interface fetchCurriculumsRequestPayload {
-  is_archived: boolean;
-  type: string | null;
+  is_archived: boolean | null;
+  type: string | string[] | null;
   sort_by: string | null;
   sort_order: string | null;
   page: number;

@@ -14,6 +14,7 @@ import {
   signIn,
 } from "../utils/auth-functions";
 import Link from "next/link";
+import { getCurrentUser } from "@/services/userService";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -91,11 +92,18 @@ export default function LoginPage() {
       const res = await signIn(email, password);
 
       if (res?.status === "LOGIN_SUCCESS") {
+        const response = await getCurrentUser();
+        console.log("response--------", response);
         setTimeout(() => {
-          let role = localStorage.getItem("userRole");
-          if (role === "super-admin") {
+          localStorage.setItem("userrole", response.data.user_type);
+          localStorage.setItem(
+            "name",
+            response.data.first_name + " " + response.data.last_name
+          );
+          let role = response.data.user_type;
+          if (role === "Super Admin") {
             router.push("/system-dashboard");
-          } else if (role === "admin") {
+          } else if (role === "Admin") {
             router.push("/admin-dashboard");
           } else {
             router.push("/users");

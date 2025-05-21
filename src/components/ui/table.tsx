@@ -22,6 +22,7 @@ import {
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
+import MultiSelect from "./MultiSelect";
 
 // Define the column interface
 export interface Column {
@@ -223,7 +224,7 @@ export default function Table({
 
   // Start editing a row
   const handleStartEdit = (row: any) => {
-    setEditingRowId(row.id || row.school);
+    setEditingRowId(row.id);
     setEditingData({ ...row });
   };
 
@@ -244,6 +245,7 @@ export default function Table({
 
   // Handle edit field change
   const handleEditChange = (key: string, value: any) => {
+    console.log("keyeeee", key, "valueeeeeeee", value);
     if (editingData) {
       setEditingData({
         ...editingData,
@@ -277,49 +279,77 @@ export default function Table({
               <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col items-start">
-                    <p className="text-[12px] text-black-400">
-                      {
-                        data.find((row) => row.id === selectedRows[0])
-                          ?.first_name
-                      }
-                    </p>
-                    <p className="text-[12px] text-[#637381]-400">
-                      {data.find((row) => row.id === selectedRows[0])?.email}
-                    </p>
+                    {/* Check if we're dealing with users or schools based on data structure */}
+                    {data.find((row) => row.id === selectedRows[0])
+                      ?.first_name ? (
+                      <>
+                        <p className="text-[12px] text-black-400">
+                          {
+                            data.find((row) => row.id === selectedRows[0])
+                              ?.first_name
+                          }
+                        </p>
+                        <p className="text-[12px] text-[#637381]-400">
+                          {
+                            data.find((row) => row.id === selectedRows[0])
+                              ?.email
+                          }
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-[12px] text-black-400">
+                        {data.find((row) => row.id === selectedRows[0])
+                          ?.school ||
+                          data.find((row) => row.id === selectedRows[0])?.name}
+                      </p>
+                    )}
                   </div>
                   <div className="text-[12px] text-black-400 items-center">
-                    {data.find((row) => row.id === selectedRows[0])?.role}
+                    {data.find((row) => row.id === selectedRows[0])?.role ||
+                      (data.find((row) => row.id === selectedRows[0])?.school
+                        ? "School"
+                        : "school")}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Multiple users selection with scrollable list */}
+            {/* Multiple items selection with scrollable list */}
             {selectedRows.length > 1 && (
               <div
                 className={`rounded-lg bg-[#F4F6F8] p-4 mb-6 ${
                   selectedRows.length > 2
-                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
+                    ? "max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
                 }`}
               >
-                {selectedRows.map((userId) => {
-                  const user = data.find((row) => row.id === userId);
+                {selectedRows.map((itemId) => {
+                  const item = data.find((row) => row.id === itemId);
+                  const isUser = !!item?.first_name;
+
                   return (
                     <div
-                      key={userId}
+                      key={itemId}
                       className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="text-[12px] text-black-400">
-                          {user?.first_name}
-                        </p>
-                        <p className="text-[12px] text-[#637381]-400">
-                          {user?.email}
-                        </p>
+                        {isUser ? (
+                          <>
+                            <p className="text-[12px] text-black-400">
+                              {item?.first_name}
+                            </p>
+                            <p className="text-[12px] text-[#637381]-400">
+                              {item?.email}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-[12px] text-black-400">
+                            {item?.school || item?.name}
+                          </p>
+                        )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right ">
-                        {user?.role}
+                      <div className="text-[12px] text-black-400 text-right">
+                        {isUser ? item?.role : "School"}
                       </div>
                     </div>
                   );
@@ -370,7 +400,7 @@ export default function Table({
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-lg transition-colors`}
+                } text-white rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -398,55 +428,83 @@ export default function Table({
               <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col items-start">
-                    <p className="text-[12px] text-black-400">
-                      {
-                        data.find((row) => row.id === selectedRows[0])
-                          ?.first_name
-                      }
-                    </p>
-                    <p className="text-[12px] text-[#637381]-400">
-                      {data.find((row) => row.id === selectedRows[0])?.email}
-                    </p>
+                    {/* Check if we're dealing with users or schools */}
+                    {data.find((row) => row.id === selectedRows[0])
+                      ?.first_name ? (
+                      <>
+                        <p className="text-[12px] text-black-400">
+                          {
+                            data.find((row) => row.id === selectedRows[0])
+                              ?.first_name
+                          }
+                        </p>
+                        <p className="text-[12px] text-[#637381]-400">
+                          {
+                            data.find((row) => row.id === selectedRows[0])
+                              ?.email
+                          }
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-[12px] text-black-400">
+                        {data.find((row) => row.id === selectedRows[0])
+                          ?.school ||
+                          data.find((row) => row.id === selectedRows[0])?.name}
+                      </p>
+                    )}
                   </div>
-                  <div className="text-[12px] text-black-400">
-                    {data.find((row) => row.id === selectedRows[0])?.role}
+                  <div className="text-[12px] text-black-400 items-center">
+                    {data.find((row) => row.id === selectedRows[0])?.role ||
+                      (data.find((row) => row.id === selectedRows[0])?.school
+                        ? "School"
+                        : "")}
                   </div>
                 </div>
               </div>
             )}
-            {/* Multiple users selection with scrollable list */}
+
+            {/* Multiple items selection with scrollable list */}
             {selectedRows.length > 1 && (
               <div
-                className={`rounded-lg bg-gray-50 p-4 mb-6 ${
+                className={`rounded-lg bg-[#F4F6F8] p-4 mb-6 ${
                   selectedRows.length > 2
-                    ? "max-h-32 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
+                    ? "max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
                 }`}
               >
-                {selectedRows.map((userId) => {
-                  const user = data.find((row) => row.id === userId);
+                {selectedRows.map((itemId) => {
+                  const item = data.find((row) => row.id === itemId);
+                  const isUser = !!item?.first_name;
+
                   return (
                     <div
-                      key={userId}
+                      key={itemId}
                       className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="text-[12px] text-black-400">
-                          {user?.first_name}
-                        </p>
-                        <p className="text-[12px] text-[#637381]-400">
-                          {user?.email}
-                        </p>
+                        {isUser ? (
+                          <>
+                            <p className="text-[12px] text-black-400">
+                              {item?.first_name}
+                            </p>
+                            <p className="text-[12px] text-[#637381]-400">
+                              {item?.email}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-[12px] text-black-400">
+                            {item?.school || item?.name}
+                          </p>
+                        )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right ">
-                        {user?.role}
+                      <div className="text-[12px] text-black-400 text-right">
+                        {isUser ? item?.role : "School"}
                       </div>
                     </div>
                   );
                 })}
               </div>
             )}
-
             <div className="bg-blue-50 border-l-4 border-[#2264AC] p-4 mb-6 mt-[10px]">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
@@ -471,14 +529,14 @@ export default function Table({
                   setShowRestoreModal(false);
                   setSelectedRows([]);
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors rounded-[6px]"
               >
                 Cancel
               </button>
               <button
                 disabled={selectedRows.length === 0}
                 onClick={handleArchive}
-                className={`px-4 py-2 text-white rounded-lg ${
+                className={`px-4 py-2 text-white rounded-[6px] ${
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#2A7251] hover:bg-[#2A7251]"
@@ -645,7 +703,7 @@ export default function Table({
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">
                 {/* {selectionMode && ( */}
-                <th className="px-4 py-3 w-10 min-w-[40px]">
+                <th className="pl-3  py-3 w-8 min-w-[20px]">
                   <div className="flex items-center justify-center">
                     <input
                       type="checkbox"
@@ -662,7 +720,7 @@ export default function Table({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-l-2 border-gray-200"
+                    className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200"
                   >
                     <div
                       className={`flex items-center justify-between w-full text-[12px] font-normal text-[#F9F5FF] ${
@@ -703,20 +761,20 @@ export default function Table({
                   </th>
                 ))}
                 <th
-                  className="px-8 py-3 sticky right-0 z-20 border-l-2 border-gray-200 text-left text-[12px] font-normal text-[#F9F5FF]"
+                  className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
                   style={{
                     backgroundColor: staticbg,
                     boxShadow: "inset 1px 0 0 #E5E7EB",
                   }}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex justify-center items-center space-x-2">
                     <Image
                       src="/action.svg"
-                      height={10}
-                      width={10}
+                      height={13}
+                      width={13}
                       alt="Action"
                     />
-                    <span>Action</span>
+                    <span className="text-[12px]-400 text-white">Action</span>
                   </div>
                 </th>
               </tr>
@@ -757,7 +815,7 @@ export default function Table({
                           : ""
                       }`}
                     >
-                      <td className="px-4 py-4 w-10 border-l-2 border-gray-200">
+                      <td className="pl-3  py-4 w-8 min-w-[32px]">
                         <div className="flex items-center justify-center">
                           <input
                             type="checkbox"
@@ -772,7 +830,7 @@ export default function Table({
                       {columns.map((column) => (
                         <td
                           key={`${rowId || index}-${column.key}`}
-                          className="px-4 py-4 whitespace-nowrap border-l-2 border-[#D4D4D4]"
+                          className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]"
                         >
                           {isEditing && column.editable ? (
                             column.options ? (
@@ -796,13 +854,29 @@ export default function Table({
                                       </option>
                                     ))}
                                   </select> */}
-                                <CustomDropdown
-                                  value={editingData[column.key]}
-                                  options={column.options}
-                                  onChange={(val) =>
-                                    handleEditChange(column.key, val)
-                                  }
-                                />
+
+                                {column.key === "grades" ||
+                                column.key === "curriculums" ||
+                                column.key === "interventions" ? (
+                                  <MultiSelect
+                                    options={column.options}
+                                    values={editingData[column.key] || []}
+                                    // onChange={(vals) =>
+                                    //   handleEditChange("grades", vals)
+                                    // }
+                                    onChange={(vals) =>
+                                      handleEditChange(column.key, vals)
+                                    }
+                                  />
+                                ) : (
+                                  <CustomDropdown
+                                    value={editingData[column.key]}
+                                    options={column.options}
+                                    onChange={(val) =>
+                                      handleEditChange(column.key, val)
+                                    }
+                                  />
+                                )}
                               </div>
                             ) : (
                               <input
@@ -852,32 +926,78 @@ export default function Table({
                                   }`}
                                 ></span>
                               )}
-                              {row[column.key]}
+
+                              {/* ✅ For multiselect keys */}
+                              {[
+                                "grades",
+                                "curriculums",
+                                "interventions",
+                              ].includes(column.key) &&
+                              Array.isArray(row[column.key]) ? (
+                                <>
+                                  {(() => {
+                                    const values: string[] =
+                                      row[column.key] || [];
+
+                                    const validOptions = column.options || [];
+
+                                    const labels = values
+                                      .map((val) => {
+                                        const found = validOptions.find(
+                                          (opt) => opt.value === val
+                                        );
+                                        return found?.label;
+                                      })
+                                      .filter(Boolean); // removes undefined
+
+                                    const firstLabel = labels[0];
+                                    const remainingCount = labels.length - 1;
+
+                                    return (
+                                      <>
+                                        {firstLabel}
+                                        {remainingCount > 0 && (
+                                          <span
+                                            className="text-blue-600 cursor-pointer ml-1 "
+                                            title={labels.join(", ")}
+                                          >
+                                            +{remainingCount} more
+                                          </span>
+                                        )}
+                                      </>
+                                    );
+                                  })()}
+                                </>
+                              ) : (
+                                row[column.key]
+                              )}
                             </span>
                           )}
                         </td>
                       ))}
 
                       <td
-                        className="px-6 py-4 text-center sticky right-0 border-l-2 border-gray-400 shadow-md"
+                        className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
                         style={{
                           backgroundColor: "#ffffff",
                           boxShadow: "inset 2px 0 0 #D4D4D4",
                         }}
                       >
-                        <button
-                          onClick={() => handleStartEdit(row)}
-                          className="text-green-500 hover:text-green-700"
-                          title="Edit"
-                        >
-                          <Image
-                            src="/actionrow.svg"
-                            height={20}
-                            width={20}
-                            alt="Edit"
-                            className="inline"
-                          />
-                        </button>
+                        <div className="flex justify-center items-center">
+                          <button
+                            onClick={() => handleStartEdit(row)}
+                            className="text-green-500 hover:text-green-700"
+                            title="Edit"
+                          >
+                            <Image
+                              src="/actionrow.svg"
+                              height={20}
+                              width={20}
+                              alt="Edit"
+                              className="inline"
+                            />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

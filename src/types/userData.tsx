@@ -59,8 +59,16 @@ export interface classroomData {
   school_name: "string";
   course: "string";
   teacher_name: "string";
-  grades: ["string"];
+  grades: string[];
   class_section: "string";
-  interventions: ["string"];
-  curriculums: ["string"];
+  interventions: string[];
+  curriculums: string[];
+}
+
+export interface schoolData {
+  name: string;
+  district: string;
+  grades: string[];
+  curriculums: string[];
+  interventions: string[];
 }

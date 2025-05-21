@@ -41,10 +41,10 @@ export default function NewInterventionPage() {
           transition={{ delay: 0.2, duration: 0.4 }}
           className="mb-8"
         >
-          <h1 className="text-2xl font-bold mb-2 text-center">
-            Interventions & Professional Development
-          </h1>
-          <p className="text-gray-600 text-center">
+          <div className="text-[24px] mb-2 text-center text-black-400">
+            Tags & Attributes
+          </div>
+          <p className="text-black-400 text-center text-[16px]">
             Helping educators and students succeed together.
           </p>
         </motion.div>
@@ -59,7 +59,7 @@ export default function NewInterventionPage() {
               htmlFor="title"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Title
+              Title *
             </label>
             <motion.input
               whileFocus={{ scale: 1.01 }}
@@ -85,7 +85,7 @@ export default function NewInterventionPage() {
               htmlFor="description"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Description
+              Description *
             </label>
             <motion.textarea
               whileFocus={{ scale: 1.01 }}
@@ -107,7 +107,7 @@ export default function NewInterventionPage() {
             transition={{ delay: 0.5, duration: 0.3 }}
           >
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Type
+              Type *
             </label>
             <div className="flex gap-4 text-sm flex-col">
               {(["Default", "Custom"] as const).map((type, index) => (

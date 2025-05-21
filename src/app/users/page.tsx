@@ -19,6 +19,7 @@ import {
   City,
 } from "@phosphor-icons/react";
 import { getNetwork } from "@/services/networkService";
+import { getSchools } from "@/services/schoolService";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -36,6 +37,7 @@ export default function SchoolsPage() {
   const [isArchived, setIsArchived] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [networks, setNetworks] = useState<any[]>([]);
+  const [schools, setSchools] = useState<any[]>([]);
 
   const userTypes = [
     { id: "Admin", label: "Admin" },
@@ -63,7 +65,7 @@ export default function SchoolsPage() {
     { id: "District A", label: "District A" },
     { id: "District B", label: "District B" },
   ];
-  const schools = [
+  const schools1 = [
     { id: "ABC School", label: "ABC School" },
     { id: "School B", label: "School B" },
   ];
@@ -155,7 +157,7 @@ export default function SchoolsPage() {
         // district: formData.district,
         // school: formData.school,
         district: "661943fd4ccf5f44a9a1a002",
-        school: "661943fd4ccf5f44a9a1a003",
+        school: updatedRow.school,
         network: updatedRow.network,
         user_role: updatedRow.role,
         user_type: updatedRow.user_type,
@@ -184,11 +186,9 @@ export default function SchoolsPage() {
   };
 
   const handleDelete = async (selectedIds: string[]) => {
-    console.log("Delete selected rows:", selectedIds);
-
     try {
       const response = await archiveUser({ ids: selectedIds });
-      console.log("responseresponseresponse", response);
+
       if (response.success) {
         fetchData(
           currentPage,
@@ -304,6 +304,7 @@ export default function SchoolsPage() {
 
   useEffect(() => {
     getNetworks();
+    getSchoolData();
     fetchData(
       currentPage,
       rowsPerPage,
@@ -332,6 +333,25 @@ export default function SchoolsPage() {
 
     setNetworks(formattedNetworks);
     console.log("responseresponseresponse", response);
+  };
+
+  const getSchoolData = async () => {
+    const requestPayload = {
+      is_archived: isArchived,
+      sort_by: null,
+      sort_order: null,
+      curr_page: 1,
+      per_page: 100,
+      search: null,
+    };
+
+    const response = await getSchools(requestPayload);
+    const formattedSchools = response.data.schools.map((school) => ({
+      id: school.id,
+      label: school.name,
+    }));
+
+    setSchools(formattedSchools);
   };
 
   return (

@@ -1,4 +1,5 @@
 import apiClient from "@/api/axiosInterceptor";
+import { schoolData } from "@/types/userData";
 
 export const getSchools = async (obj: any) => {
   try {
@@ -26,6 +27,19 @@ export const restoreSchool = async (data: { ids: string[] }) => {
     return { success: true, data: response.data };
   } catch (error) {
     console.error("user profile service error:", error);
+    return { success: false, error };
+  }
+};
+
+export const editSchool = async (school_id: string, data: schoolData) => {
+  try {
+    const response = await apiClient.put(
+      `/v1/school/schools/${school_id}`,
+      data
+    );
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("school service error:", error);
     return { success: false, error };
   }
 };

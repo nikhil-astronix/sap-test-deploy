@@ -135,19 +135,19 @@ export default function InterventionsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="p-8 w-full bg-white rounded-lg shadow-md h-full overflow-hidden"
+      className="p-8  bg-white rounded-lg shadow-md min-h-full"
     >
-      <div className="flex flex-col h-[calc(100vh-12rem)]">
+      <div className="flex flex-col min-h-[calc(100vh-12rem)]">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.3 }}
           className="flex-none mb-8 items-center justify-center"
         >
-          <h1 className="text-2xl font-bold mb-2 text-center">
-            Interventions & Professional Development
-          </h1>
-          <p className="text-gray-600 text-center">
+          <div className="text-[24px] mb-2 text-center text-black-400">
+            Tags & Attributes
+          </div>
+          <p className="text-black-400 text-center text-[16px]">
             Helping educators and students succeed together.
           </p>
         </motion.div>
@@ -164,16 +164,17 @@ export default function InterventionsPage() {
               transition={{ duration: 0.2 }}
               type="text"
               placeholder="Search"
-              className="w-full px-4 py-2 border rounded-lg pr-20 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full px-4 py-2 border rounded-[6px] pr-20 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent h-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center pr-3">
-              <div className="h-5 w-px bg-gray-300 mr-3"></div>
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`p-1 rounded-lg ${
-                  showFilters ? "bg-emerald-700 text-white" : ""
+                className={`p-2 rounded-r-[6px] h-10 flex items-center justify-center ${
+                  showFilters
+                    ? "bg-emerald-700 text-white"
+                    : "border border-gray-300"
                 }`}
               >
                 <AdjustmentsHorizontalIcon className="h-5 w-5" />
@@ -194,15 +195,15 @@ export default function InterventionsPage() {
                 </div>
 
                 {/* Filter Type Buttons */}
-                <div className="flex gap-2 mb-6 text-sm">
+                <div className="flex  mb-6 text-sm w-full">
                   {(["Default", "Custom", "Both"] as const).map((type) => (
                     <button
                       key={type}
                       onClick={() => setFilterType(type)}
-                      className={`px-4 py-2 rounded-lg ${
+                      className={`flex-1 px-4 py-2 rounded-lg ${
                         filterType === type
                           ? "bg-emerald-700 text-white"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          : "border border-gray-200 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       {type}({filterCounts[type]})
@@ -256,7 +257,7 @@ export default function InterventionsPage() {
                 {/* Apply Button */}
                 <button
                   onClick={() => setShowFilters(false)}
-                  className="w-full bg-emerald-700 text-white py-2 rounded-lg hover:bg-emerald-800 transition-colors mt-4"
+                  className="w-full bg-emerald-700 text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
                 >
                   Apply
                 </button>
@@ -268,7 +269,7 @@ export default function InterventionsPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push("/interventions/new")}
-            className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+            className="bg-emerald-700 text-white px-4 py-2 rounded-xl hover:bg-emerald-800 transition-colors"
           >
             + Add
           </motion.button>
@@ -280,12 +281,18 @@ export default function InterventionsPage() {
           transition={{ delay: 0.3, duration: 0.3 }}
           className="flex-none flex items-center gap-2 mb-6"
         >
-          <span>Active</span>
+          <span
+            className={`text-12px ${
+              isActive ? "text-[#494B56]" : "text-[#000] font-medium"
+            }`}
+          >
+            Active
+          </span>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsActive(!isActive)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isActive ? "bg-emerald-600" : "bg-emerald-600" //'bg-gray-200'
+              isActive ? "bg-[#2A7251]" : "bg-[#2A7251]" //'bg-gray-200'
             }`}
           >
             <motion.span
@@ -302,30 +309,34 @@ export default function InterventionsPage() {
               className="inline-block h-4 w-4 rounded-full bg-white"
             />
           </motion.button>
-          <span>Archived</span>
+          <span
+            className={`text-12px ${
+              isActive ? "text-[#000] font-medium" : "text-[#494B56]"
+            }`}
+          >
+            Archived
+          </span>
         </motion.div>
 
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">
-            <motion.div
-              variants={container}
-              initial="hidden"
-              animate="show"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
-            >
-              {interventions.map((intervention) => (
-                <InterventionCard
-                  key={intervention.id}
-                  type={intervention.type}
-                  title={intervention.name}
-                  description={intervention.description}
-                  isArchived={intervention.isArchived}
-                  onEdit={() => handleEdit(intervention)}
-                  onArchive={() => handleArchive(intervention)}
-                />
-              ))}
-            </motion.div>
-          </div>
+        <div className="flex-1 ">
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
+          >
+            {interventions.map((intervention) => (
+              <InterventionCard
+                key={intervention.id}
+                type={intervention.type}
+                title={intervention.name}
+                description={intervention.description}
+                isArchived={intervention.isArchived}
+                onEdit={() => handleEdit(intervention)}
+                onArchive={() => handleArchive(intervention)}
+              />
+            ))}
+          </motion.div>
         </div>
       </div>
 

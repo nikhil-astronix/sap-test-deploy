@@ -69,7 +69,10 @@ export default function CurriculumList() {
     try {
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: showArchived,
-        type: finalFilterType,
+        type:
+          finalFilterType === "Both"
+            ? ["Default", "Custom"].join(",")
+            : finalFilterType,
         sort_by:
           finalSortBy === "newest" || finalSortBy === "oldest"
             ? "cretedBy"
@@ -159,7 +162,7 @@ export default function CurriculumList() {
       <div className="flex-none space-y-6 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 text-center">
-            Curricula
+            Curriculum
           </h1>
           <p className="mt-1 text-sm text-gray-600 text-center">
             View, edit, and organize all available curricula in one place.
@@ -178,15 +181,15 @@ export default function CurriculumList() {
               transition={{ duration: 0.2 }}
               type="text"
               placeholder="Search"
-              className="w-full px-4 py-2 border rounded-lg pr-20 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full h-10 px-4 py-2 border rounded-[6px] pr-20 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center pr-3">
-              <div className="h-5 w-px bg-gray-300 mr-3"></div>
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex items-center ">
+              <div className="h-10 w-px bg-gray-300"></div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`p-1 rounded-lg ${
+                className={`p-2 rounded-r-[6px] h-10 flex items-center justify-center ${
                   showFilters ? "bg-emerald-700 text-white" : ""
                 }`}
               >
@@ -208,17 +211,18 @@ export default function CurriculumList() {
                 </div>
 
                 {/* Filter Type Buttons */}
-                <div className="flex gap-2 mb-6 text-sm">
+
+                <div className="flex mb-6 text-sm w-full">
                   {(["Default", "Custom", "Both"] as const).map((type) => (
                     <button
                       key={type}
                       onClick={() =>
                         setFilterType(type as "Default" | "Custom" | "Both")
                       }
-                      className={`px-4 py-2 rounded-lg ${
-                        type === filterType
+                      className={`flex-1 px-4 py-2 rounded-lg ${
+                        filterType === type
                           ? "bg-emerald-700 text-white"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          : "border border-gray-200 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       {type}(
@@ -296,7 +300,7 @@ export default function CurriculumList() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push("/curriculums/new")}
-            className="bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors"
+            className="bg-emerald-700 text-white px-4 py-2 rounded-[6px] hover:bg-emerald-800 transition-colors"
           >
             + Add
           </motion.button>
@@ -331,8 +335,8 @@ export default function CurriculumList() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto">
+      <div className="flex-1 ">
+        <div className="min-h-full">
           <motion.div
             variants={container}
             initial="hidden"

@@ -4,10 +4,20 @@ import { School, FileText, BookOpen, Zap } from "lucide-react"; // Using Lucide 
 import Table, { Column } from "@/components/ui/table";
 import {
   archiveSchool,
+  editSchool,
   getSchools,
   restoreSchool,
 } from "@/services/schoolService";
 import { AxiosError } from "axios";
+import {
+  ChalkboardTeacher,
+  ChartBar,
+  Book,
+  ChartLine,
+} from "@phosphor-icons/react";
+import { getInterventions } from "@/services/interventionService";
+import { fetchAllCurriculums } from "@/services/curriculumsService";
+import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
 
 export default function SchoolsPage() {
   const [schoolsData, setSchoolsData] = useState<any[]>([]);
@@ -25,71 +35,62 @@ export default function SchoolsPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
     null
   );
+  const [curriculums, setCurriculums] = useState<any[]>([]);
+  const [interventions, setInterventions] = useState<any[]>([]);
 
   const gradeOptions = [
-    "Kindergarten",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
+    { label: "Kindergarten", value: "Kindergarten" },
+    { label: "1", value: "1" },
+    { label: "2", value: "2" },
+    { label: "3", value: "3" },
+    { label: "4", value: "4" },
+    { label: "5", value: "5" },
+    { label: "6", value: "6" },
+    { label: "7", value: "7" },
+    { label: "8", value: "8" },
+    { label: "9", value: "9" },
+    { label: "10", value: "10" },
+    { label: "11", value: "11" },
+    { label: "12", value: "12" },
   ];
 
-  const curriculaOptions = [
-    "None",
-    "Illustrative Math",
-    "Eureka Math",
-    "Bridges Math",
-    "EngageNY",
-  ];
-
-  const interventionOptions = [
-    "None",
-    "Coaching",
-    "Professional Development",
-    "Tutoring",
-    "Jane Doe",
-    "John Doe",
-  ];
+  useEffect(() => {
+    fetchCurriculums();
+    fetchInterventions();
+    fetchData(currentPage, rowsPerPage);
+  }, []);
 
   const columns: Column[] = [
     {
       key: "name",
       label: "School",
       sortable: true,
-      icon: <School size={16} />,
+      icon: <ChalkboardTeacher size={16} />,
       editable: true,
     },
     {
       key: "grades",
       label: "Grade(s)",
       sortable: true,
-      icon: <FileText size={16} />,
+      icon: <ChartBar size={16} />,
       editable: true,
       options: gradeOptions,
     },
     {
       key: "curriculums",
-      label: "Curricula",
+      label: "Instructional Materials",
       sortable: true,
-      icon: <BookOpen size={16} />,
+      icon: <Book size={16} />,
       editable: true,
-      options: curriculaOptions,
+      options: curriculums,
     },
     {
       key: "interventions",
-      label: "Intervention(s)",
+      label: "Tags & Attributes",
       sortable: true,
-      icon: <Zap size={16} />,
+      icon: <ChartLine size={16} />,
       editable: true,
-      options: interventionOptions,
+      options: interventions,
     },
   ];
 
@@ -99,17 +100,41 @@ export default function SchoolsPage() {
   };
 
   // Handle save action
-  const handleSave = (updatedRow: any) => {
-    console.log("Save changes for:", updatedRow);
 
-    // Update the data in state
-    const updatedData = schoolsData.map((row) =>
-      row.id === updatedRow.id || row.school === updatedRow.school
-        ? updatedRow
-        : row
-    );
+  const handleSave = async (updatedRow: any) => {
+    try {
+      let data = {
+        name: updatedRow.name,
+        district: "661943fd4ccf5f44a9a1a002",
+        grades: updatedRow.grades,
+        curriculums: updatedRow.curriculums?.filter(
+          (c: string) => c !== "None"
+        ),
+        interventions: updatedRow.interventions?.filter(
+          (i: string) => i !== "None"
+        ),
+      };
+      const response = await editSchool(updatedRow.id, data);
 
-    setSchoolsData(updatedData);
+      if (response.success) {
+        fetchData(
+          currentPage,
+          rowsPerPage,
+          sortField,
+          sortDirection,
+          isArchived,
+          searchQuery
+        );
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleArchive = async (selectedIds: string[]) => {
@@ -202,13 +227,67 @@ export default function SchoolsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchData(currentPage, rowsPerPage);
-  }, []);
+  const fetchCurriculums = async () => {
+    try {
+      const requesPayload: fetchCurriculumsRequestPayload = {
+        is_archived: false,
+        type: ["Default", "Custom"].join(","),
+        sort_by: null,
+        sort_order: null,
+        search: null,
+        page: 1,
+        limit: 100,
+      };
+      const data = await fetchAllCurriculums(requesPayload);
+
+      if (data.success) {
+        const formattedCurriculums = data.data.curriculums.map(
+          (curriculum) => ({
+            value: curriculum.id,
+            label: curriculum.title,
+          })
+        );
+
+        setCurriculums(formattedCurriculums);
+      }
+    } catch (error) {
+      console.error("Failed to load curriculums:", error);
+    }
+  };
+
+  const fetchInterventions = async () => {
+    try {
+      const requesPayload: fetchCurriculumsRequestPayload = {
+        is_archived: null,
+        type: null,
+        sort_by: null,
+        sort_order: null,
+        search: null,
+        page: 1,
+        limit: 100,
+      };
+      const data = await getInterventions(requesPayload);
+      if (data.success) {
+        const formattedInterventions = data.data.interventions.map(
+          (intervention) => ({
+            value: intervention.id,
+            label: intervention.name,
+          })
+        );
+        console.log("formattedInterventions", formattedInterventions);
+        setInterventions(formattedInterventions);
+      }
+    } catch (error) {
+      console.error("Failed to load curriculums:", error);
+    }
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Schools</h1>
+    <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl mb-3 text-center ">Schools</h1>
+      <p className="text-center text-gray-600 mb-6">
+        Manage all your Schools in one place.
+      </p>
       <Table
         columns={columns}
         data={schoolsData}

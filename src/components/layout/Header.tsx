@@ -8,14 +8,12 @@ import { motion } from "framer-motion";
 
 const Header = ({ handleSetupClick }: any) => {
   const [role, setRole] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
   useEffect(() => {
-    let storedRole = localStorage.getItem("userRole");
-    if (storedRole === "super-admin") {
-      storedRole = "Super Admin";
-    } else if (storedRole === "admin") {
-      storedRole = "Admin";
-    }
+    let storedRole = localStorage.getItem("userrole");
+    let firstname = localStorage.getItem("name");
     setRole(storedRole);
+    setName(firstname);
   }, []);
 
   return (
@@ -60,7 +58,7 @@ const Header = ({ handleSetupClick }: any) => {
           transition={{ duration: 0.3 }}
         >
           <div className="mr-3 text-right">
-            <div className="text-sm font-medium">John Doe</div>
+            <div className="text-sm font-medium">{name}</div>
             <Link href="/system-dashboard" className="block">
               <div className="text-xs text-emerald-700  cursor-pointer">
                 {role}
