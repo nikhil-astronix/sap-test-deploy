@@ -153,14 +153,15 @@ import {
 export type StatusType = "No Session" | "Inactive" | "Active";
 export type SetupStatusType = "Incomplete" | "Partial" | "Complete";
 
+export interface Admin {
+  first_name: string;
+  last_name: string;
+}
 export interface TableRow {
   id: string;
   network?: string;
   district?: string;
-  admins?: {
-    names: string[];
-    more?: number;
-  };
+  admins?: Admin[];
   users?: number;
   lastSession?: string | null;
   sessionStatus?: StatusType;
@@ -358,15 +359,7 @@ const DashboardTable = ({
       }
     }
 
-    if (column === "admins" && row.admins) {
-      const { names, more } = row.admins;
-      return (
-        <div>
-          {names.join(", ")}
-          {more ? ` +${more} more` : ""}
-        </div>
-      );
-    } else if (column === "sessionStatus" && row.sessionStatus) {
+    if (column === "sessionStatus" && row.sessionStatus) {
       return getSessionStatusBadge(row.sessionStatus);
     } else if (column === "setupStatus" && row.setupStatus) {
       return getSetupStatusBadge(row.setupStatus);
