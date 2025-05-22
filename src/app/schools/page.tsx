@@ -4,6 +4,7 @@ import { School, FileText, BookOpen, Zap } from "lucide-react"; // Using Lucide 
 import Table, { Column } from "@/components/ui/table";
 import {
   archiveSchool,
+  deleteSchool,
   editSchool,
   getSchools,
   restoreSchool,
@@ -171,7 +172,7 @@ export default function SchoolsPage() {
     console.log("Delete selected rows:", selectedIds);
 
     try {
-      const response = await archiveSchool({ ids: selectedIds });
+      const response = await deleteSchool({ ids: selectedIds });
       if (response.success) {
         fetchData(currentPage, rowsPerPage);
       }
@@ -318,6 +319,7 @@ export default function SchoolsPage() {
         staticbg={"#2264AC"}
         dynamicbg={"#F3F8FF"}
         onCreate={"/schools/new"}
+        pageType="schools" // Add this prop to identify the Schools page
       />
     </div>
   );

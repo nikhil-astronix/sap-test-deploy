@@ -43,3 +43,13 @@ export const editSchool = async (school_id: string, data: schoolData) => {
     return { success: false, error };
   }
 };
+
+export const deleteSchool = async (data: { ids: string[] }) => {
+  try {
+    const response = await apiClient.delete(`/v1/school/schools/delete`, data);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("user profile service error:", error);
+    return { success: false, error };
+  }
+};

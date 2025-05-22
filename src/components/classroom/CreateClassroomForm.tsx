@@ -344,6 +344,7 @@ function SelectInterventions({
   onBack: () => void;
   onNext: () => void;
 }) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter tags based on search term
@@ -400,9 +401,7 @@ function SelectInterventions({
                 <h3 className="font-medium">{tag.name}</h3>
                 <p className="text-sm text-gray-600">{tag.description}</p>
               </div>
-              {/* <span className="ml-auto text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-                {tag.type}
-              </span> */}
+
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -448,12 +447,20 @@ function SelectInterventions({
         >
           Back
         </button>
-        <button
-          onClick={onNext}
-          className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
-        >
-          Next
-        </button>
+        <div className="flex justify-between gap-4 pt-6">
+          <button
+            onClick={() => router.push("/classrooms")}
+            className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onNext}
+            className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -472,6 +479,7 @@ function SelectCurriculum({
   onBack: () => void;
   onNext: () => void;
 }) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter materials based on search
@@ -534,9 +542,7 @@ function SelectCurriculum({
                 <h3 className="font-medium">{material.title}</h3>
                 <p className="text-sm text-gray-600">{material.description}</p>
               </div>
-              {/* <span className="ml-auto text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                {material.type}
-              </span> */}
+
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -584,12 +590,20 @@ function SelectCurriculum({
         >
           Back
         </button>
-        <button
-          onClick={onNext}
-          className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
-        >
-          Next
-        </button>
+        <div className="flex justify-between gap-4 pt-6">
+          <button
+            onClick={() => router.push("/classrooms")}
+            className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onNext}
+            className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -818,7 +832,7 @@ function ReviewSubmit({
         <div className="flex justify-between items-center space-x-4">
           <button
             onClick={() => router.push("/classrooms")}
-            className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg hover:text-gray-800"
+            className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg"
           >
             Cancel
           </button>
