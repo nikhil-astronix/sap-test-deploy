@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -12,21 +12,28 @@ import {
   PencilSimpleLine,
 } from "@phosphor-icons/react";
 import { Archive, RotateCcw, User, X } from "lucide-react";
+import {
+  archiveDistricts,
+  fetchAllDistricts,
+  getDistrictsPayload,
+  unArchiveDistricts,
+} from "@/services/districtService";
 
 interface District {
   id: string;
   name: string;
   state: string;
   city: string;
-  network: string;
-  enrollmentRange: string;
+  network_name: string;
+  enrollment_range: string;
+  [key: string]: any;
 }
 
 const DistrictsPage = () => {
   const router = useRouter();
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
-  const [active, setActive] = useState(true);
+  const [active, setActive] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
@@ -34,88 +41,51 @@ const DistrictsPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
 
-  // Active districts
-  const [activeDistricts, setActiveDistricts] = useState<District[]>([
-    {
-      id: "1",
-      name: "Blue Ridge Charter Collaborative",
-      state: "New York",
-      city: "Los Angeles",
-      network: "Northern Collaborative",
-      enrollmentRange: "Greater than 400,000",
-    },
-    {
-      id: "2",
-      name: "Cedar Grove Charter Network",
-      state: "California",
-      city: "Birmingham",
-      network: "Western Alliance",
-      enrollmentRange: "Greater than 400,000",
-    },
-    {
-      id: "3",
-      name: "Metro Charter Network",
-      state: "Illinois",
-      city: "Bridgeport",
-      network: "Midwestern Union",
-      enrollmentRange: "200,000 - 400,000",
-    },
-    {
-      id: "4",
-      name: "Oakwood Public Schools",
-      state: "Texas",
-      city: "Austin",
-      network: "Southern Collective",
-      enrollmentRange: "100,000 - 200,000",
-    },
-    {
-      id: "5",
-      name: "Riverside Unified District",
-      state: "Florida",
-      city: "Miami",
-      network: "East Coast Group",
-      enrollmentRange: "200,000 - 400,000",
-    },
-    {
-      id: "6",
-      name: "Pinecrest School District",
-      state: "Washington",
-      city: "Seattle",
-      network: "Pacific Network",
-      enrollmentRange: "50,000 - 100,000",
-    },
-    {
-      id: "7",
-      name: "Mountainview Charter Schools",
-      state: "Colorado",
-      city: "Denver",
-      network: "Mountain Alliance",
-      enrollmentRange: "100,000 - 200,000",
-    },
-  ]);
+  const [archiveAction, setArchiveAction] = useState<boolean>(true);
 
-  // Archived districts
-  const [archivedDistricts, setArchivedDistricts] = useState<District[]>([
-    {
-      id: "8",
-      name: "Lakeside Community Schools",
-      state: "Michigan",
-      city: "Detroit",
-      network: "Great Lakes Network",
-      enrollmentRange: "50,000 - 100,000",
-    },
-    {
-      id: "9",
-      name: "Valley View Educational District",
-      state: "Arizona",
-      city: "Phoenix",
-      network: "Southwest Coalition",
-      enrollmentRange: "25,000 - 50,000",
-    },
-  ]);
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  const [districts, setDistricts] = useState<District[]>([]);
+
+  useEffect(() => {
+    fetchAllDistrictsInfo();
+  }, [active, rowsPerPage, archiveAction]);
+
+  const fetchAllDistrictsInfo = async () => {
+    const payload: getDistrictsPayload = {
+      is_archived: active,
+      network_id: null,
+      sort_by: "created_at",
+      sort_order: "desc",
+      page: 1,
+      limit: rowsPerPage,
+      search: "",
+    };
+    const response = await fetchAllDistricts(payload);
+    if (response.success) {
+      let processedDistricts: District[] = [];
+      response.data.districts.forEach((d: District) => {
+        processedDistricts.push({
+          ...d,
+          id: d._id,
+        });
+      });
+      setDistricts(processedDistricts);
+      setTotalRecords(response.data.total);
+      setCurrentPage(response.data.page);
+    } else {
+      setDistricts([]);
+    }
+  };
+
+  const indexOfFirstRow = (currentPage - 1) * rowsPerPage + 1;
+  const indexOfLastRow = Math.min(
+    indexOfFirstRow + rowsPerPage - 1,
+    totalRecords
+  );
 
   // Get the appropriate district list based on active state
-  const districts = !active ? activeDistricts : archivedDistricts;
+  // const districts = !active ? activeDistricts : archivedDistricts;
 
   const handleSelectRow = (
     districtId: string,
@@ -164,47 +134,32 @@ const DistrictsPage = () => {
   };
 
   // Handler for archiving districts
-  const handleArchive = () => {
-    const newActiveDistricts = [...activeDistricts];
-    const newArchivedDistricts = [...archivedDistricts];
-
-    Array.from(selectedRows).forEach((districtId) => {
-      const districtIndex = newActiveDistricts.findIndex(
-        (d) => d.id === districtId
-      );
-      if (districtIndex !== -1) {
-        const [district] = newActiveDistricts.splice(districtIndex, 1);
-        newArchivedDistricts.push(district);
-      }
-    });
-
-    setActiveDistricts(newActiveDistricts);
-    setArchivedDistricts(newArchivedDistricts);
-    setSelectedRows(new Set());
-    setSelectAll(false);
-    setShowArchiveModal(false);
+  const handleArchive = async () => {
+    console.log("selected rows are ", selectedRows);
+    const payload = {
+      ids: Array.from(selectedRows),
+    };
+    const response = await archiveDistricts(payload);
+    if (response.success) {
+      setSelectedRows(new Set());
+      setSelectAll(false);
+      setShowArchiveModal(false);
+      setArchiveAction(!archiveAction);
+    }
   };
 
   // Handler for restoring districts
-  const handleRestore = () => {
-    const newActiveDistricts = [...activeDistricts];
-    const newArchivedDistricts = [...archivedDistricts];
-
-    Array.from(selectedRows).forEach((districtId) => {
-      const districtIndex = newArchivedDistricts.findIndex(
-        (d) => d.id === districtId
-      );
-      if (districtIndex !== -1) {
-        const [district] = newArchivedDistricts.splice(districtIndex, 1);
-        newActiveDistricts.push(district);
-      }
-    });
-
-    setActiveDistricts(newActiveDistricts);
-    setArchivedDistricts(newArchivedDistricts);
-    setSelectedRows(new Set());
-    setSelectAll(false);
-    setShowRestoreModal(false);
+  const handleRestore = async () => {
+    const payload = {
+      ids: Array.from(selectedRows),
+    };
+    const response = await unArchiveDistricts(payload);
+    if (response.success) {
+      setSelectedRows(new Set());
+      setSelectAll(false);
+      setShowRestoreModal(false);
+      setArchiveAction(!archiveAction);
+    }
   };
 
   return (
@@ -489,13 +444,13 @@ const DistrictsPage = () => {
                 <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                   <span className="inline-flex items-center gap-2">
                     <User size={16} />
-                    Created by
+                    Network
                   </span>
                 </th>
                 <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                   Enrollment Range
                 </th>
-                <th className="w-[5%] px-4 py-3 rounded-tr-lg"></th>
+                <th className="w-[5%] px-4 py-3 rounded-tr-lg">Action</th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -540,10 +495,10 @@ const DistrictsPage = () => {
                       {district.city}
                     </td>
                     <td className="px-4 py-2 border-r border-gray-200">
-                      {district.network}
+                      {district.network_name}
                     </td>
                     <td className="px-4 py-2 border-r border-gray-200">
-                      {district.enrollmentRange}
+                      {district.enrollment_range}
                     </td>
                     <td className="px-4 py-2 text-center">
                       <button className="text-emerald-700">
@@ -558,10 +513,11 @@ const DistrictsPage = () => {
           <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
             <div>
               <p className="text-sm text-gray-500">
-                {districts.length > 0
-                  ? `1-${Math.min(rowsPerPage, districts.length)} of ${
-                      districts.length
-                    }`
+                {totalRecords > 0
+                  ? `${indexOfFirstRow}-${Math.min(
+                      rowsPerPage,
+                      indexOfLastRow
+                    )} of ${totalRecords}`
                   : "0 results"}
               </p>
             </div>
