@@ -44,6 +44,10 @@ interface AdminDashboardTableProps {
   rowColor?: string;
   searchTerm?: string;
   onFiltersChange: (filters: TableFilters) => void;
+  totalRecords: number;
+  pageNumber: number;
+  totalPages: number;
+  pageSize: number;
 }
 
 const AdminDashboardTable = ({
@@ -54,6 +58,10 @@ const AdminDashboardTable = ({
   rowColor = "bg-blue-50",
   searchTerm = "",
   onFiltersChange,
+  totalRecords,
+  pageNumber,
+  totalPages,
+  pageSize,
 }: AdminDashboardTableProps) => {
   // State for current data, sorting, and pagination
   const [filteredData, setFilteredData] = useState<TableRow[]>(initialData);
@@ -96,9 +104,9 @@ const AdminDashboardTable = ({
   };
 
   // Get current page data
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
+  const indexOfFirstRow = (pageNumber - 1) * pageSize + 1;
+  const indexOfLastRow = Math.min(indexOfFirstRow + pageSize - 1, totalRecords);
+  // const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
 
   // Get session status badge with tooltip
   const getSessionStatusBadge = (status: StatusType, row?: TableRow) => {
@@ -290,8 +298,8 @@ const AdminDashboardTable = ({
             </tr>
           </thead>
           <tbody>
-            {currentRows?.length > 0 ? (
-              currentRows?.map((row, rowIndex) => (
+            {filteredData?.length > 0 ? (
+              filteredData?.map((row, rowIndex) => (
                 <tr
                   key={row.id}
                   className={`hover:bg-gray-50 ${
@@ -362,16 +370,9 @@ const AdminDashboardTable = ({
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Showing{" "}
-              <span className="font-medium">
-                {filteredData.length > 0 ? indexOfFirstRow + 1 : 0}
-              </span>{" "}
-              to{" "}
-              <span className="font-medium">
-                {Math.min(indexOfLastRow, filteredData.length)}
-              </span>{" "}
-              of <span className="font-medium">{filteredData.length}</span>{" "}
-              results
+              Showing <span className="font-medium">{indexOfFirstRow}</span> to{" "}
+              <span className="font-medium">{indexOfLastRow}</span> of{" "}
+              <span className="font-medium">{totalRecords}</span> results
             </p>
           </div>
           <div className="flex items-center">
@@ -423,17 +424,10 @@ const AdminDashboardTable = ({
               {/* Page numbers */}
               {Array.from(
                 {
-                  length: Math.min(
-                    5,
-                    Math.ceil(filteredData.length / rowsPerPage)
-                  ),
+                  length: Math.min(5, totalPages),
                 },
                 (_, i) => {
                   let pageNum;
-                  const totalPages = Math.ceil(
-                    filteredData.length / rowsPerPage
-                  );
-
                   if (totalPages <= 5) {
                     // If we have 5 or fewer pages, show all page numbers
                     pageNum = i + 1;
@@ -466,18 +460,11 @@ const AdminDashboardTable = ({
 
               <button
                 onClick={() =>
-                  setCurrentPage(
-                    Math.min(
-                      currentPage + 1,
-                      Math.ceil(filteredData.length / rowsPerPage)
-                    )
-                  )
+                  setCurrentPage(Math.min(currentPage + 1, totalPages))
                 }
-                disabled={
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
-                }
+                disabled={currentPage === totalPages}
                 className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
+                  currentPage === totalPages
                     ? "text-gray-300 cursor-not-allowed"
                     : "text-gray-500 hover:bg-gray-50"
                 }`}
@@ -486,14 +473,10 @@ const AdminDashboardTable = ({
                 <ChevronRight size={14} />
               </button>
               <button
-                onClick={() =>
-                  setCurrentPage(Math.ceil(filteredData.length / rowsPerPage))
-                }
-                disabled={
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
-                }
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
                 className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
+                  currentPage === totalPages
                     ? "text-gray-300 cursor-not-allowed"
                     : "text-gray-500 hover:bg-gray-50"
                 }`}
