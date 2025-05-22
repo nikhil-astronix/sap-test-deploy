@@ -44,6 +44,10 @@ const PastSessions = ({
   };
 
   const [sessionData, setSessionData] = useState<TableRow[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(0);
 
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
@@ -69,6 +73,10 @@ const PastSessions = ({
     const response = await districtAdminObservationSessions(requestPayload);
     if (response.success) {
       setSessionData(response.data.sessions);
+      setTotalPages(response.data.pages);
+      setTotalRecords(response.data.total);
+      setPageNumber(response.data.page);
+      setPageSize(response.data.limit);
       console.log("sessions data fetch successfully");
     } else {
       setSessionData([]);
@@ -259,6 +267,10 @@ const PastSessions = ({
         renderCell={renderCell}
         searchTerm={searchTerm}
         onFiltersChange={handleFiltersChange}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
       />
 
       {/* Edit Session Modal */}

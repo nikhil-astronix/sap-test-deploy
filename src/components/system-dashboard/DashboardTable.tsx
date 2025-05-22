@@ -591,7 +591,7 @@ const DashboardTable = ({
               {/* Page numbers */}
               {Array.from(
                 {
-                  length: Math.min(5, Math.ceil(totalRecords / pageSize)),
+                  length: Math.min(5, totalPages),
                 },
                 (_, i) => {
                   let pageNum;
@@ -636,14 +636,10 @@ const DashboardTable = ({
                 <ChevronRight size={14} />
               </button>
               <button
-                onClick={() =>
-                  setCurrentPage(Math.ceil(filteredData.length / rowsPerPage))
-                }
-                disabled={
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
-                }
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
                 className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
+                  currentPage === totalPages
                     ? "text-gray-300 cursor-not-allowed"
                     : "text-gray-500 hover:bg-gray-50"
                 }`}

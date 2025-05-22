@@ -22,6 +22,10 @@ interface SchoolsProps {
 const Schools = ({ searchTerm = "" }: SchoolsProps) => {
   // State for filtered data
   const [filteredData, setFilteredData] = useState<TableRow[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(0);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -47,7 +51,10 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
     const response = await fetchSchools(requestPayload);
     if (response.success) {
       setFilteredData(response.data.schools);
-
+      setTotalPages(response.data.pages);
+      setTotalRecords(response.data.total);
+      setPageNumber(response.data.page);
+      setPageSize(response.data.limit);
       console.log("Schools data fetch successfully");
     } else {
       setFilteredData([]);
@@ -198,6 +205,10 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       renderCell={renderCell}
       searchTerm={searchTerm}
       onFiltersChange={handleFiltersChange}
+      totalPages={totalPages}
+      totalRecords={totalRecords}
+      pageNumber={pageNumber}
+      pageSize={pageSize}
     />
   );
 };
