@@ -17,6 +17,10 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   const observationToolsData: TableRow[] = [];
 
   const [filteredData, setFilteredData] = useState<TableRow[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(0);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -40,6 +44,10 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     const response = await fetchObservationTools(requestPayload);
     if (response.success) {
       setFilteredData(response.data.tools);
+      setTotalPages(response.data.pages);
+      setTotalRecords(response.data.total);
+      setPageNumber(response.data.page);
+      setPageSize(response.data.limit);
       console.log("Observation data fetch successfully");
     } else {
       setFilteredData([]);
@@ -154,6 +162,10 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       renderCell={renderCell}
       searchTerm={searchTerm}
       onFiltersChange={handleFiltersChange}
+      totalPages={totalPages}
+      totalRecords={totalRecords}
+      pageNumber={pageNumber}
+      pageSize={pageSize}
     />
   );
 };

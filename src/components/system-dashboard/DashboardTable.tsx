@@ -191,6 +191,10 @@ interface DashboardTableProps {
   renderCell?: (row: TableRow, column: string) => any;
   rowColor?: string;
   onFiltersChange: (filters: TableFilters) => void;
+  totalRecords: number;
+  pageNumber: number;
+  totalPages: number;
+  pageSize: number;
 }
 
 const DashboardTable = ({
@@ -200,6 +204,10 @@ const DashboardTable = ({
   renderCell: customRenderCell,
   rowColor,
   onFiltersChange,
+  totalRecords,
+  pageNumber,
+  totalPages,
+  pageSize,
 }: DashboardTableProps) => {
   // State for current data, sorting, and pagination
   const [filteredData, setFilteredData] = useState<TableRow[]>(initialData);
@@ -245,13 +253,8 @@ const DashboardTable = ({
     setSortConfig({ key, direction });
   };
 
-  // Get current page data
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  // const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
-  const currentRows = Array.isArray(filteredData)
-    ? filteredData.slice(indexOfFirstRow, indexOfLastRow)
-    : [];
+  const indexOfFirstRow = (pageNumber - 1) * pageSize + 1;
+  const indexOfLastRow = Math.min(indexOfFirstRow + pageSize - 1, totalRecords);
 
   // Get session status badge with tooltip
   const getSessionStatusBadge = (status: StatusType, row?: TableRow) => {
@@ -462,8 +465,8 @@ const DashboardTable = ({
             </tr> */}
           </thead>
           <tbody>
-            {currentRows?.length > 0 ? (
-              currentRows?.map((row, rowIndex) => (
+            {filteredData?.length > 0 ? (
+              filteredData?.map((row, rowIndex) => (
                 <tr
                   key={row.id}
                   className={`hover:bg-gray-50 ${
@@ -534,16 +537,9 @@ const DashboardTable = ({
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Showing{" "}
-              <span className="font-medium">
-                {filteredData.length > 0 ? indexOfFirstRow + 1 : 0}
-              </span>{" "}
-              to{" "}
-              <span className="font-medium">
-                {Math.min(indexOfLastRow, filteredData.length)}
-              </span>{" "}
-              of <span className="font-medium">{filteredData.length}</span>{" "}
-              results
+              Showing <span className="font-medium">{indexOfFirstRow}</span> to{" "}
+              <span className="font-medium">{indexOfLastRow}</span> of{" "}
+              <span className="font-medium">{totalRecords}</span> results
             </p>
           </div>
           <div className="flex items-center">
@@ -595,17 +591,10 @@ const DashboardTable = ({
               {/* Page numbers */}
               {Array.from(
                 {
-                  length: Math.min(
-                    5,
-                    Math.ceil(filteredData.length / rowsPerPage)
-                  ),
+                  length: Math.min(5, totalPages),
                 },
                 (_, i) => {
                   let pageNum;
-                  const totalPages = Math.ceil(
-                    filteredData.length / rowsPerPage
-                  );
-
                   if (totalPages <= 5) {
                     pageNum = i + 1;
                   } else if (currentPage <= 3) {
@@ -634,18 +623,11 @@ const DashboardTable = ({
 
               <button
                 onClick={() =>
-                  setCurrentPage(
-                    Math.min(
-                      currentPage + 1,
-                      Math.ceil(filteredData.length / rowsPerPage)
-                    )
-                  )
+                  setCurrentPage(Math.min(currentPage + 1, totalPages))
                 }
-                disabled={
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
-                }
+                disabled={currentPage === totalPages}
                 className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
+                  currentPage === totalPages
                     ? "text-gray-300 cursor-not-allowed"
                     : "text-gray-500 hover:bg-gray-50"
                 }`}
@@ -654,14 +636,10 @@ const DashboardTable = ({
                 <ChevronRight size={14} />
               </button>
               <button
-                onClick={() =>
-                  setCurrentPage(Math.ceil(filteredData.length / rowsPerPage))
-                }
-                disabled={
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
-                }
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
                 className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === Math.ceil(filteredData.length / rowsPerPage)
+                  currentPage === totalPages
                     ? "text-gray-300 cursor-not-allowed"
                     : "text-gray-500 hover:bg-gray-50"
                 }`}
