@@ -28,6 +28,11 @@ interface RecentLoginsProps {
 const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   // State for filtered data
   const [filteredData, setFilteredData] = useState<TableRow[]>([]);
+
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(0);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -51,8 +56,11 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
     };
     const response = await fetchUsers(requestPayload);
     if (response.success) {
-      // const responseInfo = processData(response.data.users);
       setFilteredData(response.data.users);
+      setTotalPages(response.data.pages);
+      setTotalRecords(response.data.total);
+      setPageNumber(response.data.page);
+      setPageSize(response.data.limit);
       console.log("RecentLogin data fetch successfully");
     } else {
       setFilteredData([]);
@@ -180,6 +188,10 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
         renderCell={renderRoleCell}
         rowColor="green-50"
         onFiltersChange={handleFiltersChange}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
       />
     </div>
   );
