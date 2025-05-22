@@ -83,7 +83,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       sortable: true,
     },
     {
-      key: "creator",
+      key: "creator_name",
       label: "Created By",
       icon: <User size={16} />,
       sortable: false,
@@ -110,18 +110,11 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
         </span>
       );
     }
-    if (column === "creator" && row.creator) {
-      const creator = row.creator as {
-        first_name: string;
-        last_name: string;
-        email: string;
-      };
+    if (column === "creator_name" && row.creator_name) {
       return (
         <div>
-          <div className="text-xs text-black font-normal">
-            {creator.first_name}
-          </div>
-          <div className="text-xs text-gray-500">{creator.email}</div>
+          <div className="text-xs text-black font-normal">{row[column]}</div>
+          <div className="text-xs text-gray-500">{row["creator_email"]}</div>
         </div>
       );
     } else {

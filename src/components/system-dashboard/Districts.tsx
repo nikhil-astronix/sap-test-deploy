@@ -17,6 +17,7 @@ import DashboardTable, {
 } from "./DashboardTable";
 import { fetchDistricts } from "@/services/dashboardService";
 import { fetchDistrictsPayload } from "@/models/dashboard";
+import { format } from "date-fns";
 
 interface DistrictsProps {
   searchTerm?: string;
@@ -24,6 +25,7 @@ interface DistrictsProps {
 
 const Districts = ({ searchTerm = "" }: DistrictsProps) => {
   // State for filtered data
+
   const [filteredData, setFilteredData] = useState<TableRow[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
@@ -60,7 +62,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
   // Column definitions for Districts tab
   const districtsColumns: Column[] = [
     {
-      key: "network",
+      key: "network_name",
       label: "Network",
       icon: <Network size={16} />,
       sortable: true,
@@ -106,39 +108,115 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
   // Render custom cells with tooltip
   const renderSessionCell = (row: TableRow, column: string) => {
     // Handle admins column specifically
-    if (column === "admins" && row.admins && row.admins.names) {
-      const { names, more } = row.admins;
+    if (column === "admins" && row.admins) {
+      if (row.admins.length) {
+        const full_name = `${row.admins[0].first_name} ${row.admins[0].last_name}`;
+        const remainingAdmins = row.admins.slice(1);
+
+        if (row.admins.length === 1) {
+          return <span>{full_name}</span>;
+        } else {
+          const total = row.admins.length - 1;
+          return (
+            <div className="relative group inline-block">
+              <span>
+                {full_name}{" "}
+                <span className="text-blue-600 text-[12px]">+{total} more</span>
+              </span>
+              <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1 w-max max-w-xs text-left">
+                {/* Line-by-line names */}
+
+                {remainingAdmins.map((admin, index) => (
+                  <div key={index}>
+                    {admin.first_name} {admin.last_name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+      } else {
+        return "-";
+      }
+    }
+
+    if (column === "network_name" || column === "name") {
+      if (row[column]) {
+        return <span>{row[column]}</span>;
+      } else {
+        return "-";
+      }
+    }
+
+    if (column === "setup_status") {
+      const statusObj = row[column];
+      // const statusData = (row as any).setupStatusData;
+
+      let color = "";
+      let dotColor = "";
+
+      switch (statusObj.status) {
+        case "Incomplete":
+          color = "text-red-800";
+          dotColor = "bg-red-600";
+          break;
+        case "Partial":
+          color = "text-yellow-800";
+          dotColor = "bg-yellow-600";
+          break;
+        case "Complete":
+          color = "text-green-800";
+          dotColor = "bg-green-600";
+          break;
+        default:
+          color = "text-gray-800";
+          dotColor = "bg-gray-600";
+      }
+
       return (
-        <div>
-          {names.join(", ")}
-          {more ? ` +${more} more` : ""}
+        <div className="relative group">
+          <div
+            className={`inline-flex items-center gap-1 ${
+              statusObj.status === "Incomplete"
+                ? "bg-red-200"
+                : statusObj.status === "Partial"
+                ? "bg-yellow-200"
+                : "bg-green-200"
+            } ${color} px-2 py-1 rounded-full text-xs`}
+          >
+            <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
+            {statusObj.status}
+          </div>
+          {statusObj && (
+            <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
+              <div className="flex items-center justify-between whitespace-nowrap">
+                <span>Classroom {statusObj.school_count}</span>
+                <span className="mx-1">|</span>
+                <span>Tools {statusObj.tool_count}</span>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
 
     // Handle session status column
-    if (column === "sessionStatus") {
-      const status = row[column] as string;
+    if (column === "session_status") {
+      const { status, completed_count, upcoming_count } = row[column];
       let bgColor, textColor, completedCount, upcomingCount;
 
       switch (status) {
         case "Active":
           bgColor = "bg-green-200";
           textColor = "text-green-800";
-          completedCount = 15;
-          upcomingCount = 0;
           break;
         case "Inactive":
           bgColor = "bg-yellow-200";
           textColor = "text-yellow-800";
-          completedCount = 15;
-          upcomingCount = 0;
           break;
         case "No Session":
           bgColor = "bg-red-200";
           textColor = "text-red-800";
-          completedCount = 0;
-          upcomingCount = 0;
           break;
         default:
           return status;
@@ -153,13 +231,25 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
           </span>
           <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
             <div className="flex items-center justify-between whitespace-nowrap">
-              <span>Completed {completedCount}</span>
+              <span>Completed {completed_count}</span>
               <span className="mx-1">|</span>
-              <span>Upcoming {upcomingCount}</span>
+              <span>Upcoming {upcoming_count}</span>
             </div>
           </div>
         </div>
       );
+    }
+
+    if (column === "last_observation") {
+      if (row[column] === null || row[column] === undefined) {
+        return "-";
+      } else {
+        return (
+          <span className="text-xs text-black font-normal">
+            {format(new Date(row[column]), "MMMM d, yyyy")}
+          </span>
+        );
+      }
     }
 
     // For other columns, check if the value is an object
