@@ -47,15 +47,6 @@ const districts = [
   { label: "District A", value: "District A" },
   { label: "District B", value: "District B" },
 ];
-const schools1 = [
-  { label: "School A", value: "School A" },
-  { label: "School B", value: "School B" },
-];
-
-const networks1 = [
-  { label: "Network 4", value: "Network 4" },
-  { label: "Network B", value: "Network B" },
-];
 
 // Validation schemas per step
 const StepSchemas = [
@@ -169,13 +160,11 @@ export default function CreateUserForm() {
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
-        // district: formData.district,
-        // school: formData.school,
         district: "661943fd4ccf5f44a9a1a002",
-        school: "661943fd4ccf5f44a9a1a003",
+        school: formData.school,
         user_role: formData.role,
         user_type: formData.userType,
-        network: "661943fd4ccf5f44a9a1a001",
+        network: formData.network,
       };
 
       const response = await createUser(data);

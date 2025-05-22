@@ -29,7 +29,7 @@ export const editClassroom = async (
     return { success: false, error };
   }
 };
-export const createClassroom = async (data: string) => {
+export const createClassroom = async (data: classroomData) => {
   try {
     const response = await apiClient.post(
       "/v1/classrooms/create_classroom",
