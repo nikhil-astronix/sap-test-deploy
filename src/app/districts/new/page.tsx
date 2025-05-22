@@ -1,7 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
+import { createDistrict, districtPayload } from "@/services/districtService";
+import { getNetwork } from "@/services/networkService";
+import { fetchNetworkRequestPayload } from "@/types/userData";
 
 export default function NewDistrictPage() {
   const router = useRouter();
@@ -70,17 +73,6 @@ export default function NewDistrictPage() {
     "Wyoming",
   ];
 
-  const networks = [
-    "Blue Ridge Charter Collaborative",
-    "Cedar Grove Charter Network",
-    "Charter Network",
-    "Equity First School Network",
-    "Foundations Education Collaborative",
-    "Horizon Scholars Network",
-    "Pinnacle Charter Network",
-    "Sagewood School Network",
-  ];
-
   const enrollmentRanges = [
     "Less than 100,000",
     "100,000 - 200,000",
@@ -88,16 +80,55 @@ export default function NewDistrictPage() {
     "Greater than 400,000",
   ];
 
+  const [networks, setNetworks] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchNetworks();
+  }, []);
+
+  const fetchNetworks = async () => {
+    const payload: fetchNetworkRequestPayload = {
+      is_archived: false,
+      sort_by: null,
+      sort_order: null,
+      curr_page: 1,
+      per_page: 100,
+      search: null,
+    };
+    const response = await getNetwork(payload);
+    if (response.success) {
+      let result: any[] = [];
+      response.data.networks.forEach((network: any) => {
+        result.push({
+          id: network.id,
+          name: network.name,
+        });
+      });
+
+      setNetworks(result);
+    }
+  };
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      // TODO: Implement actual API call
-      // const response = await createDistrict(formData);
-      setApiSuccess("District created successfully!");
-      setApiError("");
-      setTimeout(() => {
-        router.push("/districts");
-      }, 1000);
+      const payload: districtPayload = {
+        name: formData.district,
+        network_id: formData.network,
+        state: formData.state,
+        city: formData.city,
+        enrollment_range: formData.enrollmentRange,
+      };
+      const response = await createDistrict(payload);
+      if (response.success) {
+        setApiSuccess("District created successfully!");
+        setApiError("");
+        setTimeout(() => {
+          router.push("/districts");
+        }, 1000);
+      } else {
+        setApiError("Something went wrong");
+        setApiSuccess("");
+      }
     } catch (error: unknown) {
       const errorMessage =
         ((error as AxiosError)?.response?.data as { message?: string })
@@ -186,8 +217,8 @@ export default function NewDistrictPage() {
             >
               <option value="">Select network</option>
               {networks.map((network) => (
-                <option key={network} value={network}>
-                  {network}
+                <option key={network.id} value={network.id}>
+                  {network.name}
                 </option>
               ))}
             </select>
