@@ -94,21 +94,20 @@ export default function LoginPage() {
       if (res?.status === "LOGIN_SUCCESS") {
         const response = await getCurrentUser();
         console.log("response--------", response);
-        setTimeout(() => {
-          localStorage.setItem("userrole", response.data.user_type);
-          localStorage.setItem(
-            "name",
-            response.data.first_name + " " + response.data.last_name
-          );
-          let role = response.data.user_type;
-          if (role === "Super Admin") {
-            router.push("/system-dashboard");
-          } else if (role === "Admin") {
-            router.push("/admin-dashboard");
-          } else {
-            router.push("/users");
-          }
-        }, 2000);
+
+        localStorage.setItem("userrole", response.data.user_type);
+        localStorage.setItem(
+          "name",
+          response.data.first_name + " " + response.data.last_name
+        );
+        let role = response.data.user_type;
+        if (role === "Super Admin") {
+          router.push("/system-dashboard");
+        } else if (role === "Admin") {
+          router.push("/admin-dashboard");
+        } else {
+          router.push("/users");
+        }
       } else if (res?.status === "NEW_PASSWORD_REQUIRED") {
         const { userId, session } = res.params;
 

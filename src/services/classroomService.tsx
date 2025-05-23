@@ -69,11 +69,9 @@ export const restoreClassroom = async (data: { ids: string[] }) => {
 };
 
 export const deleteClassroom = async (data: { ids: string[] }) => {
+  console.log("data----", data);
   try {
-    const response = await apiClient.post(
-      `/v1/classrooms/delete_networks`,
-      data
-    );
+    const response = await apiClient.delete(`/v1/classrooms`, data);
     return { success: true, data: response.data };
   } catch (error) {
     console.error("user profile service error:", error);
