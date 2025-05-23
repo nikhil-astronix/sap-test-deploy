@@ -44,7 +44,7 @@ export const createClassroom = async (data: classroomData) => {
 
 export const archiveClassroom = async (data: { ids: string[] }) => {
   try {
-    const response = await apiClient.post(
+    const response = await apiClient.patch(
       `/v1/classrooms/archive_classroom`,
       data
     );
@@ -57,7 +57,7 @@ export const archiveClassroom = async (data: { ids: string[] }) => {
 
 export const restoreClassroom = async (data: { ids: string[] }) => {
   try {
-    const response = await apiClient.post(
+    const response = await apiClient.patch(
       `/v1/classrooms/restore_classroom`,
       data
     );
