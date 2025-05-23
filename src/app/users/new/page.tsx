@@ -186,7 +186,7 @@ export default function CreateUserForm() {
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
-        district: "661943fd4ccf5f44a9a1a002",
+        district: formData.district,
         school: formData.school,
         user_role: formData.role,
         user_type: formData.userType,
