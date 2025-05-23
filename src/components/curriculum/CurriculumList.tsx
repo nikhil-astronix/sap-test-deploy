@@ -81,7 +81,7 @@ export default function CurriculumList() {
           finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
         search: search,
         page: 1,
-        limit: 10,
+        limit: 100,
       };
       const data = await fetchAllCurriculums(requesPayload);
       if (data.success) {

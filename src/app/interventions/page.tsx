@@ -77,6 +77,7 @@ export default function InterventionsPage() {
       is_archived: isActive,
       type: filterType,
       search: searchQuery,
+      per_page: 100,
     };
     const response = await getInterventions(obj);
 
