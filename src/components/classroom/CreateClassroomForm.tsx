@@ -152,7 +152,7 @@ export default function CreateClassroomForm() {
   const handleSubmit = async () => {
     try {
       let data = {
-        school_name: formData.school,
+        school_id: formData.school,
         course: formData.course,
         teacher_name: formData.teacher,
         grades: formData.grades,
