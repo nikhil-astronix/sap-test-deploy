@@ -47,9 +47,12 @@ const NewCurriculumPage = () => {
 					className='max-w-3xl mx-auto'
 				>
 					<div className='mb-8 text-center'>
-						<h1 className='text-2xl font-semibold mb-2'>Curriculums</h1>
+						<h1 className='text-2xl font-semibold mb-2'>
+							Instructional Materials
+						</h1>
 						<p className='text-md text-gray-600'>
-							View, edit, and organize all available curriculums in one place.
+							View, edit, and organize all available Instructional Materials in
+							one place.
 						</p>
 					</div>
 
@@ -60,8 +63,8 @@ const NewCurriculumPage = () => {
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ delay: 0.3, duration: 0.3 }}
 							>
-								<label className='block text-sm font-medium text-gray-700 mb-1'>
-									Title
+								<label className='block text-sm font-medium  mb-1'>
+									Title <span className='text-emerald-700'>*</span>
 								</label>
 								<motion.input
 									whileFocus={{ scale: 1.01 }}
@@ -80,8 +83,8 @@ const NewCurriculumPage = () => {
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ delay: 0.4, duration: 0.3 }}
 							>
-								<label className='block text-sm font-medium text-gray-700 mb-1'>
-									Description
+								<label className='block text-sm font-medium  mb-1'>
+									Description <span className='text-emerald-700'>*</span>
 								</label>
 								<motion.textarea
 									whileFocus={{ scale: 1.01 }}
@@ -100,8 +103,8 @@ const NewCurriculumPage = () => {
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ delay: 0.5, duration: 0.3 }}
 							>
-								<label className='block text-sm font-medium text-gray-700 mb-1'>
-									Type
+								<label className='block text-sm font-medium  mb-1'>
+									Type <span className='text-emerald-700'>*</span>
 								</label>
 								<div className='flex gap-4 text-sm flex-col'>
 									{(["Default", "Custom"] as const).map((option, index) => (
@@ -138,7 +141,7 @@ const NewCurriculumPage = () => {
 													)}
 												</motion.div>
 											</div>
-											<span className='text-gray-700'>{option}</span>
+											<span>{option}</span>
 										</motion.label>
 									))}
 								</div>
@@ -155,7 +158,7 @@ const NewCurriculumPage = () => {
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
 									onClick={() => window.history.back()}
-									className='px-4 py-2 rounded-[6px] bg-gray-100 hover:bg-gray-50 transition-colors mr-auto'
+									className='px-4 py-2 rounded-[6px]  transition-colors mr-auto'
 								>
 									Cancel
 								</motion.button>
@@ -163,7 +166,7 @@ const NewCurriculumPage = () => {
 									type='submit'
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
-									className='bg-emerald-700 text-white px-4 py-2 rounded-[6px] hover:bg-emerald-800 transition-colors'
+									className='bg-emerald-700 text-white px-8 py-2 rounded-[6px] hover:bg-emerald-800 transition-colors'
 								>
 									Save
 								</motion.button>

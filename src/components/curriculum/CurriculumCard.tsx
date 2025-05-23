@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import ViewDescriptionModal from "../intervention/ViewDescriptionModal";
 import EditInterventionModal from "../intervention/EditInterventionModal";
 import ArchiveModal from "../intervention/ArchiveInterventionModal";
+import RestoreInterventionModal from "../intervention/RestoreInterventionModal";
 import {
   CurriculumCardProps,
   CurriculumnUpdatedConfigProps,
@@ -106,7 +107,7 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleEdit}
-            className="px-4 py-1 text-sm font-medium text-white bg-emerald-700 rounded-full hover:bg-emerald-800"
+            className="px-4 py-1.5 text-sm font-medium text-white bg-[#2A7251] rounded-full hover:bg-emerald-800"
           >
             Edit
           </motion.button>
@@ -114,13 +115,13 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleArchive}
-            className={`px-4 py-1 text-sm font-medium rounded-full ${
+            className={`px-4 py-1.5 text-sm font-medium rounded-full ${
               isArchived
-                ? "text-emerald-600 bg-emerald-100 hover:bg-emerald-200"
-                : "text-red-600 bg-red-100 hover:bg-red-200"
+                ? "text-[#2264AC] bg-[#E9F3FF] hover:bg-[#c6d8f0]"
+                : "text-[#C23E19] bg-[#FFF2EE] hover:bg-red-200"
             }`}
           >
-            {isArchived ? "Unarchive" : "Archive"}
+            {isArchived ? "Restore" : "Archive"}
           </motion.button>
         </motion.div>
 
@@ -180,16 +181,37 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
           description,
           isArchived: false,
           createdAt: new Date(),
+          veiwType: "Curriculum",
         }}
         onSave={handleSaveEdit}
       />
 
-      <ArchiveModal
-        isOpen={isArchiveModalOpen}
-        onClose={() => setIsArchiveModalOpen(false)}
-        item={{ type, title, itemType: "Curriculum", isArchived }}
-        onArchive={handleConfirmArchive}
-      />
+      {isArchiveModalOpen &&
+        (isArchived ? (
+          <RestoreInterventionModal
+            isOpen={isArchiveModalOpen}
+            onClose={() => setIsArchiveModalOpen(false)}
+            item={{
+              type,
+              title,
+              itemType: "Curriculum",
+              isArchived,
+            }}
+            onRestore={handleConfirmArchive}
+          />
+        ) : (
+          <ArchiveModal
+            isOpen={isArchiveModalOpen}
+            onClose={() => setIsArchiveModalOpen(false)}
+            item={{
+              type,
+              title,
+              itemType: "Curriculum",
+              isArchived,
+            }}
+            onArchive={handleConfirmArchive}
+          />
+        ))}
     </>
   );
 };

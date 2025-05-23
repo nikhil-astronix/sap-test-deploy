@@ -161,11 +161,12 @@ export default function CurriculumList() {
     <div className="px-6 py-2 w-full flex flex-col h-full">
       <div className="flex-none space-y-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 text-center">
-            Curriculum
+          <h1 className="text-2xl  text-gray-900 text-center">
+            Instructional Materials
           </h1>
           <p className="mt-1 text-sm text-gray-600 text-center">
-            View, edit, and organize all available curricula in one place.
+            View, edit, and organize all available Instructional Materials in
+            one place.
           </p>
         </div>
 
@@ -288,7 +289,7 @@ export default function CurriculumList() {
                 {/* Apply Button */}
                 <button
                   onClick={() => handleApplyFilters()}
-                  className="w-full bg-emerald-700 text-white py-2 rounded-lg hover:bg-emerald-800 transition-colors mt-4"
+                  className="w-full bg-emerald-700 text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
                 >
                   Apply
                 </button>
@@ -313,7 +314,7 @@ export default function CurriculumList() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowArchived(!showArchived)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                showArchived ? "bg-emerald-600" : "bg-emerald-600" //'bg-gray-200'
+                showArchived ? "bg-[#2A7251]" : "bg-[#2A7251]" //'bg-gray-200'
               }`}
             >
               <motion.span
