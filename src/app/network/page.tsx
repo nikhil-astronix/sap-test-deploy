@@ -11,6 +11,7 @@ import {
   CaretCircleUp,
   City,
   XCircle,
+  ClockClockwise,
 } from "@phosphor-icons/react";
 
 import {
@@ -519,7 +520,7 @@ export default function NetworksPage() {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <RotateCcw className="text-blue-600" size={24} />
+              <ClockClockwise className="text-blue-600" size={24} />
               <h2 className="text-[20px] font-semibold text-black-400">
                 Restore
               </h2>
@@ -567,7 +568,7 @@ export default function NetworksPage() {
                 <div className="flex-shrink-0">
                   <Info size={16} color="#2264AC" />
                 </div>
-                <div className="ml-3">
+                <div className="ml-1">
                   <p className="text-sm">Note</p>
                 </div>
               </div>

@@ -1,23 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
+import { Trash2, Archive, ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  ChevronDown,
-  ChevronUp,
-  Edit2,
-  Trash2,
-  Archive,
-  School,
+  ClockClockwise,
   User,
-  BarChart2,
-  BookOpen,
+  ChalkboardTeacher,
+  Book,
+  ChartBar,
   Tag,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  RotateCcw,
-} from "lucide-react";
-import { ClockClockwise } from "@phosphor-icons/react";
+} from "@phosphor-icons/react";
 import Dropdown from "@/components/ui/Dropdown";
 import MultiSelect from "@/components/ui/MultiSelect";
 import NetworkHeader from "@/components/network/NetworkHeader";
@@ -224,6 +216,7 @@ export default function ClassroomsPage() {
       };
 
       const response = await getClassroom(requestPayload);
+      console.log("API Response:", response);
 
       if (response.success && response.data) {
         // Transform API data with safe access patterns
@@ -540,6 +533,8 @@ export default function ClassroomsPage() {
     try {
       // Call the classroom archive API
       const response = await archiveClassroom({ ids: idsToArchive });
+
+      console.log("Archive API Response:", response);
 
       if (response.success) {
         // Refresh the data
@@ -914,31 +909,31 @@ export default function ClassroomsPage() {
               </th>
               <th className="w-[25%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <div className="flex items-center gap-2">
-                  <School size={16} />
+                  <ChalkboardTeacher size={20} />
                   Course
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <User size={16} />
+                  <User size={20} />
                   Teacher
                 </span>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <BarChart2 size={16} />
+                  <ChartBar size={20} />
                   Grades
                 </span>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <BookOpen size={16} />
+                  <Book size={20} />
                   Instructional Materials
                 </span>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <Tag size={16} />
+                  <Tag size={20} />
                   Tags & Attribute(s)
                 </span>
               </th>

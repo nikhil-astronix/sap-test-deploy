@@ -25,7 +25,7 @@ export default function NewNetworkPage() {
         setApiSuccess("Network created successfully!");
         setApiError("");
         setTimeout(() => {
-          router.push("/networks");
+          router.push("/network");
         }, 1000);
       }
     } catch (error: unknown) {

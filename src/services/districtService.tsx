@@ -9,13 +9,13 @@ export interface districtPayload {
 }
 
 export interface getDistrictsPayload {
-  is_archived: boolean;
+  is_archived: boolean | null;
   network_id: string | null;
-  sort_by: string;
-  sort_order: string;
+  sort_by: string | null;
+  sort_order: string | null;
   page: number;
   limit: number;
-  search: string;
+  search: string | null;
 }
 
 export interface archiveDistrictPayload {

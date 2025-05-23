@@ -20,6 +20,8 @@ import {
 } from "@phosphor-icons/react";
 import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
+import { fetchAllDistricts } from "@/services/districtService";
+import { getDistrictsPayload } from "@/services/districtService";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -38,6 +40,7 @@ export default function SchoolsPage() {
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [networks, setNetworks] = useState<any[]>([]);
   const [schools, setSchools] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
 
   const userTypes = [
     { id: "Admin", label: "Admin" },
@@ -61,7 +64,7 @@ export default function SchoolsPage() {
     { id: "Other", label: "Other" },
   ];
 
-  const districts = [
+  const districts1 = [
     { id: "District A", label: "District A" },
     { id: "District B", label: "District B" },
   ];
@@ -305,6 +308,7 @@ export default function SchoolsPage() {
   useEffect(() => {
     getNetworks();
     getSchoolData();
+    fetchAllDistrictsInfo();
     fetchData(
       currentPage,
       rowsPerPage,
@@ -314,6 +318,28 @@ export default function SchoolsPage() {
       searchQuery
     );
   }, [searchQuery]);
+
+  const fetchAllDistrictsInfo = async () => {
+    const payload: getDistrictsPayload = {
+      is_archived: null,
+      network_id: null,
+      sort_by: null,
+      sort_order: null,
+      page: 1,
+      limit: 100,
+      search: null,
+    };
+    const response = await fetchAllDistricts(payload);
+    if (response.success) {
+      const formattedDistricts = response.data.districts.map((district) => ({
+        id: district._id,
+        label: district.name,
+      }));
+      setDistricts(formattedDistricts);
+    } else {
+      setDistricts([]);
+    }
+  };
 
   const getNetworks = async () => {
     const requestPayload = {

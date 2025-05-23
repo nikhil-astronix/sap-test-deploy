@@ -12,6 +12,8 @@ import Dropdown from "@/components/ui/Dropdown";
 import { number, z } from "zod";
 import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
+import { fetchAllDistricts } from "@/services/districtService";
+import { getDistrictsPayload } from "@/services/districtService";
 
 interface ErrorResponse {
   message: string;
@@ -43,7 +45,7 @@ const userTypes = [
   { label: "Network Admin", value: "Network Admin" },
   { label: "Super Admin", value: "Super Admin" },
 ];
-const districts = [
+const districts1 = [
   { label: "District A", value: "District A" },
   { label: "District B", value: "District B" },
 ];
@@ -90,11 +92,35 @@ export default function CreateUserForm() {
   const [apiSuccess, setApiSuccess] = useState("");
   const [networks, setNetworks] = useState<any[]>([]);
   const [schools, setSchools] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
 
   useEffect(() => {
     getNetworks();
     getSchoolData();
+    fetchAllDistrictsInfo();
   }, []);
+
+  const fetchAllDistrictsInfo = async () => {
+    const payload: getDistrictsPayload = {
+      is_archived: null,
+      network_id: null,
+      sort_by: null,
+      sort_order: null,
+      page: 1,
+      limit: 100,
+      search: null,
+    };
+    const response = await fetchAllDistricts(payload);
+    if (response.success) {
+      const formattedDistricts = response.data.districts.map((district) => ({
+        value: district._id,
+        label: district.name,
+      }));
+      setDistricts(formattedDistricts);
+    } else {
+      setDistricts([]);
+    }
+  };
 
   const getNetworks = async () => {
     const requestPayload = {

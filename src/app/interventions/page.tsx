@@ -72,17 +72,17 @@ export default function InterventionsPage() {
     setArchivingIntervention(intervention);
   };
 
-  useEffect(() => {
-    const getData = async () => {
-      const obj = {
-        is_archived: isActive,
-        type: filterType,
-        search: searchQuery,
-      };
-      const response = await getInterventions(obj);
-
-      setInterventions(response.data.interventions);
+  const getData = async () => {
+    const obj = {
+      is_archived: isActive,
+      type: filterType,
+      search: searchQuery,
     };
+    const response = await getInterventions(obj);
+
+    setInterventions(response.data.interventions);
+  };
+  useEffect(() => {
     getData();
   }, [isActive, filterType, searchQuery]);
 
@@ -105,6 +105,25 @@ export default function InterventionsPage() {
     }
   };
 
+  const handleRestoreConfirm = async () => {
+    if (archivingIntervention) {
+      // Toggle the archived state
+      const updatedIntervention = {
+        ...archivingIntervention,
+        isArchived: !archivingIntervention.isArchived,
+      };
+      // if (updatedIntervention.isArchived) {
+      //   const response = await archiveIntervention(archivingIntervention.id);
+      // } else {
+      const response1 = await restoreIntervention(archivingIntervention.id);
+      //}
+      const obj = { is_archived: isActive, type: filterType };
+      const response = await getInterventions(obj);
+      setInterventions(response.data.interventions);
+      setArchivingIntervention(null);
+    }
+  };
+
   const handleSave = async (updatedIntervention: Intervention) => {
     // Here you would typically make an API call to update the intervention
     const response = await editInterventions(updatedIntervention.id, {
@@ -114,6 +133,7 @@ export default function InterventionsPage() {
       district_id: updatedIntervention.district_id,
     });
     // editInterventions;
+    getData();
     setEditingIntervention(null);
   };
 
@@ -366,7 +386,7 @@ export default function InterventionsPage() {
             itemType: "Tag & Attribute",
             isArchived: archivingIntervention.isArchived,
           }}
-          onRestore={handleArchiveConfirm}
+          onRestore={handleRestoreConfirm}
         />
       ) : archivingIntervention ? (
         <ArchiveInterventionModal
