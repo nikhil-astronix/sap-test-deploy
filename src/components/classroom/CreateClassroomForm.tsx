@@ -42,9 +42,15 @@ const MaterialSchema = z.object({
 });
 
 // Combined schema for the entire form
-const classroomFormSchema = basicInfoSchema.extend({
-	tags: z.array(TagSchema).optional().default([]),
-	instructionalMaterials: z.array(MaterialSchema).optional().default([]),
+const classroomFormSchema = z.object({
+	school_id: z.string().min(1, "Please select a school"),
+	school: z.string().min(1, "School name is required"),
+	course: z.string().min(1, "Course name is required"),
+	teacher: z.string().min(1, "Teacher name is required"),
+	grades: z.array(z.string()).min(1, "Please select at least one grade"),
+	classPeriod: z.string().optional(),
+	tags: z.array(TagSchema).default([]),
+	instructionalMaterials: z.array(MaterialSchema).default([]),
 });
 
 // Infer TypeScript type from the schema
@@ -76,6 +82,17 @@ export default function CreateClassroomForm() {
 	const [apiSuccess, setApiSuccess] = useState("");
 
 	// Initialize React Hook Form with Zod validation
+	const defaultValues: ClassroomFormData = {
+		school: "",
+		school_id: "",
+		course: "",
+		teacher: "",
+		grades: [],
+		classPeriod: "",
+		tags: [],
+		instructionalMaterials: [],
+	};
+
 	const {
 		register,
 		handleSubmit: validateSubmit,
@@ -84,18 +101,9 @@ export default function CreateClassroomForm() {
 		formState: { errors, isValid, isDirty },
 		trigger,
 	} = useForm<ClassroomFormData>({
-		resolver: zodResolver(classroomFormSchema),
+		resolver: zodResolver(classroomFormSchema) as import("react-hook-form").Resolver<ClassroomFormData, any>,
 		mode: "onChange",
-		defaultValues: {
-			school: "",
-			school_id: "",
-			course: "",
-			teacher: "",
-			grades: [],
-			classPeriod: "",
-			tags: [],
-			instructionalMaterials: [],
-		},
+		defaultValues,
 	});
 
 	// Watch form values for current display
@@ -130,7 +138,7 @@ export default function CreateClassroomForm() {
 				search: null,
 			};
 			const response = await getSchools(requesPayload);
-			const formattedschools = response.data.schools.map((school) => ({
+			const formattedschools = response.data.schools.map((school: any) => ({
 				value: school.id,
 				label: school.name,
 			}));
@@ -213,6 +221,7 @@ export default function CreateClassroomForm() {
 			setApiError("");
 			const submitData = {
 				school_id: data.school_id,
+				school_name: data.school,
 				course: data.course,
 				teacher_name: data.teacher,
 				grades: data.grades,
@@ -440,9 +449,9 @@ function SelectInterventions({
 	onNext,
 	options,
 }: {
-	selectedTags: any[];
-	options: any[];
-	onTagsChange: (tags: any[]) => void;
+	selectedTags: typeof TagSchema._type[];
+	options: typeof TagSchema._type[];
+	onTagsChange: (tags: typeof TagSchema._type[]) => void;
 	onBack: () => void;
 	onNext: () => void;
 }) {
@@ -579,9 +588,9 @@ function SelectCurriculum({
 	onNext,
 	options,
 }: {
-	selectedMaterials: any[];
-	options: any[];
-	onMaterialsChange: (materials: any[]) => void;
+	selectedMaterials: typeof MaterialSchema._type[];
+	options: typeof MaterialSchema._type[];
+	onMaterialsChange: (materials: typeof MaterialSchema._type[]) => void;
 	onBack: () => void;
 	onNext: () => void;
 }) {
