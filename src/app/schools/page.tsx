@@ -127,9 +127,9 @@ export default function SchoolsPage() {
           searchQuery
         );
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as any)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
@@ -145,9 +145,9 @@ export default function SchoolsPage() {
       if (response.success) {
         fetchData(currentPage, rowsPerPage);
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as any)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
@@ -162,9 +162,9 @@ export default function SchoolsPage() {
       if (response.success) {
         fetchData(currentPage, rowsPerPage);
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as any)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
@@ -193,9 +193,9 @@ export default function SchoolsPage() {
       if (response.success) {
         fetchData(currentPage, rowsPerPage);
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as any)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
@@ -260,7 +260,7 @@ export default function SchoolsPage() {
 
       if (data.success) {
         const formattedCurriculums = data.data.curriculums.map(
-          (curriculum) => ({
+          (curriculum: any) => ({
             value: curriculum.id,
             label: curriculum.title,
           })
@@ -287,7 +287,7 @@ export default function SchoolsPage() {
       const data = await getInterventions(requesPayload);
       if (data.success) {
         const formattedInterventions = data.data.interventions.map(
-          (intervention) => ({
+          (intervention: any) => ({
             value: intervention.id,
             label: intervention.name,
           })
