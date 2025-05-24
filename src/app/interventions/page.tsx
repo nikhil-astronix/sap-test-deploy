@@ -345,7 +345,7 @@ export default function InterventionsPage() {
           </span>
         </motion.div>
 
-        <div className="flex-1 ">
+        <div className="flex-1 max-h-96 overflow-y-auto ">
           <motion.div
             variants={container}
             initial="hidden"

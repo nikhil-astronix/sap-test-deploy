@@ -26,13 +26,13 @@ export default function SchoolsPage() {
   const [totalCount, setTotalCount] = useState(0);
 
   const [isActive, setIsActive] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [isArchived, setIsArchived] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
     null
   );
@@ -58,8 +58,18 @@ export default function SchoolsPage() {
   useEffect(() => {
     fetchCurriculums();
     fetchInterventions();
-    fetchData(currentPage, rowsPerPage);
   }, []);
+
+  useEffect(() => {
+    fetchData(
+      currentPage,
+      rowsPerPage,
+      sortField,
+      sortDirection,
+      isArchived,
+      searchQuery
+    );
+  }, [currentPage, rowsPerPage, isArchived, searchQuery]);
 
   const columns: Column[] = [
     {
