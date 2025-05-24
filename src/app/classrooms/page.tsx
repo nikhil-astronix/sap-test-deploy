@@ -28,7 +28,7 @@ import {
 } from "@/services/classroomService";
 import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
-import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
+import { fetchCurriculumsRequestPayload, Curriculum } from "@/models/curriculum";
 import { AxiosError } from "axios";
 
 // Add type definitions
@@ -125,7 +125,7 @@ export default function ClassroomsPage() {
 
       if (data.success) {
         const formattedCurriculums = data.data.curriculums.map(
-          (curriculum) => ({
+          (curriculum: Curriculum) => ({
             value: curriculum.id,
             label: curriculum.title,
           })
