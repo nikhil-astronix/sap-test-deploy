@@ -46,7 +46,7 @@ export const editSchool = async (school_id: string, data: schoolData) => {
 
 export const deleteSchool = async (data: { ids: string[] }) => {
   try {
-    const response = await apiClient.delete(`/v1/school/schools/delete`, data);
+    const response = await apiClient.post(`/v1/school/schools/delete`, data);
     return { success: true, data: response.data };
   } catch (error) {
     console.error("user profile service error:", error);
