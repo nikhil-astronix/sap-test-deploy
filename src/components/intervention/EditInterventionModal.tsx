@@ -34,7 +34,7 @@ export default function EditInterventionModal({
 	onSave,
 }: EditInterventionModalProps) {
 	const [type, setType] = useState<InterventionType>(intervention.type);
-	const [name, setName] = useState(intervention.name || intervention.title);
+	const [name, setName] = useState(intervention.name || intervention.title || "");
 	const [description, setDescription] = useState(intervention.description);
 	const [isArchived, setIsArchived] = useState(intervention.isArchived);
 
