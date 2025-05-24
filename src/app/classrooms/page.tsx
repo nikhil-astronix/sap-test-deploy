@@ -253,17 +253,19 @@ export default function ClassroomsPage() {
       console.error("Editing or editData missing");
       return;
     }
+    // Helper to get school name by ID
+    const getSchoolNameById = (schoolId: string): string => {
+      const school = allClassrooms.find((s: any) => s.schoolId === schoolId || s.id === schoolId);
+      return school?.school || school?.name || '';
+    };
     try {
       let data = {
+        school_name: getSchoolNameById(editing.schoolId),
         school_id: editing.schoolId,
         course: editData.course,
         teacher_name: editData.teacher,
         grades: editData.grades,
         class_section: "empty", // editData.classPeriod,
-        // interventions: editData.tags.map((tag: { id: string }) => tag.id),
-        // curriculums: editData.instructionalMaterials.map(
-        //   (material: { id: string }) => material.id
-        // ),
         interventions: Array.isArray(editData.tags) ? editData.tags : [],
         curriculums: Array.isArray(editData.instructionalMaterials)
           ? editData.instructionalMaterials
@@ -327,13 +329,13 @@ export default function ClassroomsPage() {
       if (shouldSelect) {
         // Add just this school and its classrooms
         newSelected.schools.add(schoolId);
-        school.classes.forEach((classroom) => {
+        school.classes.forEach((classroom: Classroom) => {
           newSelected.classes.add(`${schoolId}-${classroom.id}`);
         });
       } else {
         // Remove just this school and its classrooms
         newSelected.schools.delete(schoolId);
-        school.classes.forEach((classroom) => {
+        school.classes.forEach((classroom: Classroom) => {
           newSelected.classes.delete(`${schoolId}-${classroom.id}`);
         });
       }
@@ -347,7 +349,7 @@ export default function ClassroomsPage() {
         newSelected.classes.add(rowId);
 
         // Check if this completes the school selection
-        const allClassroomsSelected = school.classes.every((classroom) =>
+        const allClassroomsSelected = school.classes.every((classroom: Classroom) =>
           newSelected.classes.has(`${schoolId}-${classroom.id}`)
         );
 
@@ -377,7 +379,7 @@ export default function ClassroomsPage() {
       allClassrooms.forEach((school) => {
         // Fixed: Use schoolId consistently (lowercase 's')
         newSelected.schools.add(school.schoolId);
-        school.classes.forEach((classroom) => {
+        school.classes.forEach((classroom: Classroom) => {
           newSelected.classes.add(`${school.schoolId}-${classroom.id}`);
         });
       });
@@ -394,7 +396,7 @@ export default function ClassroomsPage() {
 
     allClassrooms.forEach((school) => {
       totalClassrooms += school.classes.length;
-      selectedClassrooms += school.classes.filter((classroom) =>
+      selectedClassrooms += school.classes.filter((classroom: Classroom) =>
         selected.classes.has(`${school.schoolId}-${classroom.id}`)
       ).length;
     });
@@ -423,7 +425,7 @@ export default function ClassroomsPage() {
     selectedClassrooms.forEach((classroomId) => {
       const [schoolId, roomId] = classroomId.split("-");
       const school = allClassrooms.find((s) => s.schoolId === schoolId);
-      const classroom = school?.classes.find((c) => c.id === roomId);
+      const classroom = school?.classes.find((c: Classroom) => c.id === roomId);
       if (classroom && !selectedRows.schools.has(schoolId)) {
         items.push(
           `${classroom.teacher} - ${
@@ -452,7 +454,7 @@ export default function ClassroomsPage() {
     const classroomsFromSelectedSchools = selectedSchoolIds.flatMap(
       (schoolId) => {
         const school = allClassrooms.find((s) => s.schoolId === schoolId);
-        return school?.classes.map((classroom) => classroom.id) || [];
+        return school?.classes.map((classroom: Classroom) => classroom.id) || [];
       }
     );
 
@@ -505,7 +507,7 @@ export default function ClassroomsPage() {
     const classroomsFromSelectedSchools = selectedSchoolIds.flatMap(
       (schoolId) => {
         const school = allClassrooms.find((s) => s.schoolId === schoolId);
-        return school?.classes.map((classroom) => classroom.id) || [];
+        return school?.classes.map((classroom: Classroom) => classroom.id) || [];
       }
     );
 
@@ -555,7 +557,7 @@ export default function ClassroomsPage() {
     const classroomsFromSelectedSchools = selectedSchoolIds.flatMap(
       (schoolId) => {
         const school = allClassrooms.find((s) => s.schoolId === schoolId);
-        return school?.classes.map((classroom) => classroom.id) || [];
+        return school?.classes.map((classroom: Classroom) => classroom.id) || [];
       }
     );
 
@@ -1015,7 +1017,7 @@ export default function ClassroomsPage() {
                 </tr>
                 {expanded === school.schoolId &&
                   school.classes.length > 0 &&
-                  school.classes.map((classroom) => (
+                  school.classes.map((classroom: Classroom) => (
                     <tr
                       key={classroom.id}
                       className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
@@ -1122,14 +1124,14 @@ export default function ClassroomsPage() {
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
-                              {classroom.curriculums.length > 0 ? (
+                              {classroom.instructionalMaterials.length > 0 ? (
                                 <>
                                   <span className="truncate max-w-[150px]">
-                                    {classroom.curriculums[0]}
+                                    {classroom.instructionalMaterials[0]}
                                   </span>
-                                  {classroom.curriculums.length > 1 && (
+                                  {classroom.instructionalMaterials.length > 1 && (
                                     <span className="text-blue-700 ml-1">
-                                      +{classroom.curriculums.length - 1} more
+                                      +{classroom.instructionalMaterials.length - 1} more
                                     </span>
                                   )}
                                 </>
@@ -1140,16 +1142,16 @@ export default function ClassroomsPage() {
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             <span>
-                              {classroom.interventions.length > 0 ? (
+                              {classroom.tags.length > 0 ? (
                                 <>
                                   <span className="truncate max-w-[150px]">
-                                    {classroom.interventions[0]}
+                                    {classroom.tags[0]}
                                   </span>
-                                  {classroom.interventions.length > 1 && (
+                                  {classroom.tags.length > 1 && (
                                     <>
                                       {" "}
                                       <span className="text-blue-700 ml-1">
-                                        +{classroom.interventions.length - 1}{" "}
+                                        +{classroom.tags.length - 1}{" "}
                                         more
                                       </span>
                                     </>
