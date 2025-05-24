@@ -45,6 +45,7 @@ interface TableProps {
   onEdit?: (row: any) => void;
   onSave?: (row: any) => void;
   onArchive?: (row: any) => void;
+  onRestore?: (row: any) => void;
   onDelete?: (selectedIds: string[]) => void;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (limit: number) => void;
@@ -78,6 +79,7 @@ export default function Table({
   dynamicbg,
   onCreate,
   onArchive,
+  onRestore,
   onToggleArchived,
   onSearchChange,
   sidebarVisible = false,
@@ -208,7 +210,7 @@ TableProps) {
       setSelectionMode(false);
       setShowArchiveButton(false);
       setShowDeleteButton(false);
-      setShowArchiveModal(false);
+      // setShowDeleteModal(false);
       setSelectedRows([]);
     }
   };
@@ -216,6 +218,18 @@ TableProps) {
   const handleArchive = () => {
     if (onArchive && selectedRows.length > 0) {
       onArchive(selectedRows);
+      setSelectedRows([]);
+      setSelectionMode(false);
+      setShowArchiveButton(false);
+      setShowDeleteButton(false);
+      //setShowArchived(false);
+      setShowArchiveModal(false);
+    }
+  };
+
+  const handleRestore = () => {
+    if (onRestore && selectedRows.length > 0) {
+      onRestore(selectedRows);
       setSelectedRows([]);
       setSelectionMode(false);
       setShowArchiveButton(false);
@@ -393,7 +407,7 @@ TableProps) {
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
+                onClick={handleArchive}
                 disabled={selectedRows.length === 0}
                 className={`px-4 py-2 ${
                   selectedRows.length === 0
@@ -557,7 +571,7 @@ TableProps) {
               </button>
               <button
                 disabled={selectedRows.length === 0}
-                onClick={handleArchive}
+                onClick={handleRestore}
                 className={`px-4 py-2 text-white rounded-[6px] ${
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"

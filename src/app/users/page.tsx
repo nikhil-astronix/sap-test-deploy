@@ -185,7 +185,7 @@ export default function SchoolsPage() {
     }
   };
 
-  const handleDelete = async (selectedIds: string[]) => {
+  const handleArchive = async (selectedIds: string[]) => {
     try {
       const response = await archiveUser({ ids: selectedIds });
 
@@ -210,7 +210,7 @@ export default function SchoolsPage() {
     }
   };
 
-  const handleArchive = async (selectedIds: string[]) => {
+  const handleRestore = async (selectedIds: string[]) => {
     try {
       const response = await restoreUser({ ids: selectedIds });
       console.log("responseresponseresponse", response);
@@ -396,11 +396,12 @@ export default function SchoolsPage() {
         currentPage={currentPage}
         onEdit={handleEdit}
         onSave={handleSave}
-        onDelete={handleDelete}
+        //onDelete={handleDelete}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange}
         onArchive={handleArchive}
+        onRestore={handleRestore}
         onSearchChange={setSearchQuery}
         onToggleArchived={(archived) => {
           setIsArchived(archived);

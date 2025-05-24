@@ -140,8 +140,25 @@ export default function SchoolsPage() {
 
   const handleArchive = async (selectedIds: string[]) => {
     try {
-      const response = await restoreSchool({ ids: selectedIds });
+      const response = await archiveSchool({ ids: selectedIds });
       console.log("responseresponseresponse", response);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRestore = async (selectedIds: string[]) => {
+    try {
+      const response = await restoreSchool({ ids: selectedIds });
       if (response.success) {
         fetchData(currentPage, rowsPerPage);
       }
@@ -303,6 +320,7 @@ export default function SchoolsPage() {
         onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange}
         onArchive={handleArchive}
+        onRestore={handleRestore}
         onSearchChange={setSearchQuery}
         onToggleArchived={(archived) => {
           setIsArchived(archived);
