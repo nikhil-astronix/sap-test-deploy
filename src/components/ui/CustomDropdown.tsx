@@ -1,9 +1,16 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 
-export default function CustomDropdown({ value, options, onChange }) {
+type Option = { id: string; label: string };
+interface CustomDropdownProps {
+  value: string;
+  options: Option[];
+  onChange: (value: string) => void;
+}
+
+export default function CustomDropdown({ value, options, onChange }: CustomDropdownProps) {
   const [open, setOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Normalize options
   const normalizedOptions = options.map((opt) =>
@@ -19,8 +26,8 @@ export default function CustomDropdown({ value, options, onChange }) {
 
   // Close dropdown on outside click
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
