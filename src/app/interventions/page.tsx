@@ -18,6 +18,8 @@ import {
 import { Intervention, InterventionType } from "@/types/interventionData";
 import { Plus } from "@phosphor-icons/react";
 
+type InterventionWithCreatedAt = Intervention & { createdAt: Date; title?: string };
+
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -33,7 +35,7 @@ export default function InterventionsPage() {
   const [isActive, setIsActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingIntervention, setEditingIntervention] =
-    useState<Intervention | null>(null);
+    useState<InterventionWithCreatedAt | null>(null);
   const [archivingIntervention, setArchivingIntervention] =
     useState<Intervention | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -65,7 +67,10 @@ export default function InterventionsPage() {
   }, []);
 
   const handleEdit = (intervention: Intervention) => {
-    setEditingIntervention(intervention);
+    setEditingIntervention({
+      ...intervention,
+      createdAt: (intervention as any).createdAt || new Date(),
+    });
   };
 
   const handleArchive = (intervention: Intervention) => {
@@ -384,7 +389,7 @@ export default function InterventionsPage() {
           item={{
             type: archivingIntervention.type,
             title: archivingIntervention.name,
-            itemType: "Tag & Attribute",
+            itemType: "Intervention",
             isArchived: archivingIntervention.isArchived,
           }}
           onRestore={handleRestoreConfirm}
@@ -396,7 +401,7 @@ export default function InterventionsPage() {
           item={{
             type: archivingIntervention.type,
             title: archivingIntervention.name,
-            itemType: "Tag & Attribute",
+            itemType: "Intervention",
             isArchived: archivingIntervention.isArchived,
           }}
           onArchive={handleArchiveConfirm}
