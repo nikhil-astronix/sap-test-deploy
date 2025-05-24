@@ -29,6 +29,7 @@ import {
 import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
 import { fetchCurriculumsRequestPayload, Curriculum } from "@/models/curriculum";
+import { Intervention } from "@/types/interventionData";
 import { AxiosError } from "axios";
 
 // Add type definitions
@@ -152,7 +153,7 @@ export default function ClassroomsPage() {
       const data = await getInterventions(requesPayload);
       if (data.success) {
         const formattedInterventions = data.data.interventions.map(
-          (intervention) => ({
+          (intervention: Intervention) => ({
             value: intervention.id,
             label: intervention.name,
           })
