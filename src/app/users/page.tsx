@@ -176,7 +176,7 @@ export default function SchoolsPage() {
       }
     } catch (error: unknown) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as any)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
@@ -201,7 +201,7 @@ export default function SchoolsPage() {
       }
     } catch (error: unknown) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as any)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
@@ -226,7 +226,7 @@ export default function SchoolsPage() {
       }
     } catch (error: unknown) {
       const errorMessage =
-        (error as AxiosError)?.response?.data?.message ||
+        (error as any)?.response?.data?.message ||
         (error instanceof Error
           ? error.message
           : "Failed to create user. Please try again.");
@@ -328,7 +328,7 @@ export default function SchoolsPage() {
     };
     const response = await fetchAllDistricts(payload);
     if (response.success) {
-      const formattedDistricts = response.data.districts.map((district) => ({
+      const formattedDistricts = response.data.districts.map((district: any) => ({
         id: district._id,
         label: district.name,
       }));
@@ -349,7 +349,7 @@ export default function SchoolsPage() {
     };
 
     const response = await getNetwork(requestPayload);
-    const formattedNetworks = response.data.networks.map((network) => ({
+    const formattedNetworks = response.data.networks.map((network: any) => ({
       id: network.id,
       label: network.name,
     }));
@@ -369,7 +369,7 @@ export default function SchoolsPage() {
     };
 
     const response = await getSchools(requestPayload);
-    const formattedSchools = response.data.schools.map((school) => ({
+    const formattedSchools = response.data.schools.map((school: any) => ({
       id: school.id,
       label: school.name,
     }));
