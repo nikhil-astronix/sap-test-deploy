@@ -47,11 +47,7 @@ export default function NewNetworkPage() {
 		setIsLoading(true);
 
 		try {
-			let data = {
-				name: formData.network,
-			};
-
-			const response = await createNetwork(data);
+			const response = await createNetwork(formData.network);
 			if (response.success) {
 				setApiSuccess("Network created successfully!");
 				setApiError("");
@@ -61,7 +57,7 @@ export default function NewNetworkPage() {
 			}
 		} catch (error: unknown) {
 			const errorMessage =
-				(error as AxiosError)?.response?.data?.message ||
+				((error as any)?.response?.data?.message) ||
 				(error instanceof Error
 					? error.message
 					: "Failed to create user. Please try again.");
