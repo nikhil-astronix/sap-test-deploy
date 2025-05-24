@@ -73,6 +73,8 @@ const FinalSchema = StepSchemas.reduce((merged, schema) =>
 	merged.merge(schema)
 );
 
+type Option = { value: string; label: string };
+
 export default function CreateUserForm() {
 	const router = useRouter();
 	const [formData, setFormData] = useState({
@@ -90,9 +92,9 @@ export default function CreateUserForm() {
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [apiError, setApiError] = useState("");
 	const [apiSuccess, setApiSuccess] = useState("");
-	const [networks, setNetworks] = useState<any[]>([]);
-	const [schools, setSchools] = useState<any[]>([]);
-	const [districts, setDistricts] = useState<any[]>([]);
+	const [networks, setNetworks] = useState<Option[]>([]);
+	const [schools, setSchools] = useState<Option[]>([]);
+	const [districts, setDistricts] = useState<Option[]>([]);
 
 	useEffect(() => {
 		getNetworks();
@@ -112,7 +114,7 @@ export default function CreateUserForm() {
 		};
 		const response = await fetchAllDistricts(payload);
 		if (response.success) {
-			const formattedDistricts = response.data.districts.map((district) => ({
+			const formattedDistricts = response.data.districts.map((district: any) => ({
 				value: district._id,
 				label: district.name,
 			}));
@@ -124,7 +126,7 @@ export default function CreateUserForm() {
 
 	const getNetworks = async () => {
 		const requestPayload = {
-			is_archived: null,
+			is_archived: false,
 			sort_by: null,
 			sort_order: null,
 			curr_page: 1,
@@ -133,7 +135,7 @@ export default function CreateUserForm() {
 		};
 
 		const response = await getNetwork(requestPayload);
-		const formattedNetworks = response.data.networks.map((network) => ({
+		const formattedNetworks = response.data.networks.map((network: any) => ({
 			value: network.id,
 			label: network.name,
 		}));
@@ -153,7 +155,7 @@ export default function CreateUserForm() {
 		};
 
 		const response = await getSchools(requestPayload);
-		const formattedSchools = response.data.schools.map((school) => ({
+		const formattedSchools = response.data.schools.map((school: any) => ({
 			value: school.id,
 			label: school.name,
 		}));
@@ -572,9 +574,9 @@ function SelectDistrict({
 }: {
 	onBack: () => void;
 	onNext: () => void;
-	networks: string[];
-	schools: string[];
-	districts: string[];
+	networks: Option[];
+	schools: Option[];
+	districts: Option[];
 	formData: any;
 	onChange: (field: string, value: any) => void;
 	errors: Record<string, string>;
