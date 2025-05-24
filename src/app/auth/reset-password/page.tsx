@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react'; 
+import React, { useState, Suspense } from 'react'; 
 import { AnimatedContainer } from '@/components/ui/animated-container';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -10,6 +10,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { IconLoader2 } from '@tabler/icons-react';
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPasswordPageContent />
+    </Suspense>
+  );
+}
+
+function ResetPasswordPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -181,4 +189,4 @@ export default function ResetPasswordPage() {
       </form>
     </div>
   );
-};
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatedContainer } from "@/components/ui/animated-container";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,6 +26,14 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
