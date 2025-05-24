@@ -31,7 +31,7 @@ const SelectTrigger = React.forwardRef<
       <SelectPrimitive.Value
         placeholder={
           (label === "Role" || label === "User Type" ? "Select " : "Assign ") +
-          label.toLowerCase()
+          (label ?? "").toLowerCase()
         }
       />
       <SelectPrimitive.Icon asChild>
