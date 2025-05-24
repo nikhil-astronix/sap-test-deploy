@@ -71,7 +71,10 @@ export default function NewInterventionPage() {
 		setIsSubmitting(true);
 
 		try {
-			const response = await createInterventions(formData);
+			const response = await createInterventions({
+				...formData,
+				type: formData.type as InterventionType,
+			});
 			router.push("/interventions");
 		} catch (error) {
 			console.error("Failed to create intervention:", error);
