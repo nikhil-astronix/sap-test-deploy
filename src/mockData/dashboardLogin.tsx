@@ -3,7 +3,7 @@ import { TableRow } from "@/components/system-dashboard/DashboardTable";
 // Sample data for Recent Logins tab
 const loginData: TableRow[] = [
   {
-    id: 1,
+    id: "1",
     userName: "John Smith",
     network: "Blue Ridge Charter Collaborative",
     district: "New York City Department of Education",
@@ -13,7 +13,7 @@ const loginData: TableRow[] = [
     device: "Desktop - Chrome",
   },
   {
-    id: 2,
+    id: "2",
     userName: "Maria Lopez",
     network: "Cedar Grove Charter Network",
     district: "Los Angeles Unified School District",
@@ -23,7 +23,7 @@ const loginData: TableRow[] = [
     device: "Mobile - Safari",
   },
   {
-    id: 3,
+    id: "3",
     userName: "Robert Chen",
     network: "Charter Network",
     district: "Chicago Public Schools",
@@ -33,7 +33,7 @@ const loginData: TableRow[] = [
     device: "Tablet - Chrome",
   },
   {
-    id: 4,
+    id: "4",
     userName: "Sarah Johnson",
     network: "Charter Network",
     district: "Clark County School District",
@@ -43,7 +43,7 @@ const loginData: TableRow[] = [
     device: "Desktop - Firefox",
   },
   {
-    id: 5,
+    id: "5",
     userName: "David Miller",
     network: "None",
     district: "Broward County Public Schools",
@@ -53,7 +53,7 @@ const loginData: TableRow[] = [
     device: "Desktop - Edge",
   },
   {
-    id: 6,
+    id: "6",
     userName: "Jessica Williams",
     network: "None",
     district: "Houston Independent School District",
@@ -63,7 +63,7 @@ const loginData: TableRow[] = [
     device: "Mobile - Chrome",
   },
   {
-    id: 7,
+    id: "7",
     userName: "Michael Davis",
     network: "Foundations Education Collaborative",
     district: "Hawaii Department of Education",
@@ -73,7 +73,7 @@ const loginData: TableRow[] = [
     device: "Desktop - Safari",
   },
   {
-    id: 8,
+    id: "8",
     userName: "Jennifer Lee",
     network: "None",
     district: "Orange County Public Schools",
@@ -83,7 +83,7 @@ const loginData: TableRow[] = [
     device: "Tablet - Safari",
   },
   {
-    id: 9,
+    id: "9",
     userName: "Thomas Brown",
     network: "Pinnacle Charter Network",
     district: "School District of Palm Beach County",
