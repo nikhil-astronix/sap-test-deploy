@@ -1,5 +1,5 @@
 import apiClient from "@/api/axiosInterceptor";
-import { CreateIntervention, Intervention } from "@/types/intervationData";
+import { CreateIntervention, Intervention } from "@/types/interventionData";
 
 export const createInterventions = async (data: CreateIntervention) => {
   try {
