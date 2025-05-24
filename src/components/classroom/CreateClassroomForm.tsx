@@ -13,6 +13,42 @@ import { fetchAllCurriculums } from "@/services/curriculumsService";
 import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
 import { createClassroom } from "@/services/classroomService";
 import { AxiosError } from "axios";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Define Zod schemas for form validation
+const basicInfoSchema = z.object({
+	school_id: z.string().min(1, "Please select a school"),
+	school: z.string().min(1, "School name is required"),
+	course: z.string().min(1, "Course name is required"),
+	teacher: z.string().min(1, "Teacher name is required"),
+	grades: z.array(z.string()).min(1, "Please select at least one grade"),
+	classPeriod: z.string().optional(),
+});
+
+const TagSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	description: z.string(),
+	type: z.string(),
+});
+
+const MaterialSchema = z.object({
+	id: z.string(),
+	title: z.string(),
+	description: z.string(),
+	type: z.string(),
+});
+
+// Combined schema for the entire form
+const classroomFormSchema = basicInfoSchema.extend({
+	tags: z.array(TagSchema).optional().default([]),
+	instructionalMaterials: z.array(MaterialSchema).optional().default([]),
+});
+
+// Infer TypeScript type from the schema
+type ClassroomFormData = z.infer<typeof classroomFormSchema>;
 
 const steps = [
 	{ label: "Basic Classroom Info", id: "basic-info" },
@@ -30,38 +66,40 @@ const gradeOptions = [
 	{ label: "5th Grade", value: "5" },
 ];
 
-type Tag = {
-	id: string;
-	name: string;
-	description: string;
-	type: string;
-};
-
-type Material = {
-	id: string;
-	title: string;
-	description: string;
-	type: string;
-};
-
 export default function CreateClassroomForm() {
 	const router = useRouter();
 	const [currentStep, setCurrentStep] = useState(0);
-	const [formData, setFormData] = useState({
-		school: "",
-		school_id: "",
-		course: "",
-		teacher: "",
-		grades: [] as string[],
-		classPeriod: "",
-		tags: [] as Tag[], // Add tags array to track selected interventions
-		instructionalMaterials: [] as Material[], // Add instructionalMaterials array
-	});
 	const [schoolsData, setSchoolsData] = useState<any[]>([]);
 	const [curriculums, setCurriculums] = useState<any[]>([]);
 	const [interventions, setInterventions] = useState<any[]>([]);
 	const [apiError, setApiError] = useState("");
 	const [apiSuccess, setApiSuccess] = useState("");
+
+	// Initialize React Hook Form with Zod validation
+	const {
+		register,
+		handleSubmit: validateSubmit,
+		setValue,
+		watch,
+		formState: { errors, isValid, isDirty },
+		trigger,
+	} = useForm<ClassroomFormData>({
+		resolver: zodResolver(classroomFormSchema),
+		mode: "onChange",
+		defaultValues: {
+			school: "",
+			school_id: "",
+			course: "",
+			teacher: "",
+			grades: [],
+			classPeriod: "",
+			tags: [],
+			instructionalMaterials: [],
+		},
+	});
+
+	// Watch form values for current display
+	const formData = watch();
 
 	const getStepStatus = (index: number) => {
 		if (index < currentStep) return "completed";
@@ -71,13 +109,9 @@ export default function CreateClassroomForm() {
 
 	const stepperSteps = steps.map((step, index) => ({
 		label: step.label,
-		number: index + 1, // Add the step number (starting from 1)
+		number: index + 1,
 		status: getStepStatus(index) as "completed" | "current" | "upcoming",
 	}));
-
-	const handleFormChange = (field: string, value: any) => {
-		setFormData((prev) => ({ ...prev, [field]: value }));
-	};
 
 	useEffect(() => {
 		fetchSchools();
@@ -96,14 +130,13 @@ export default function CreateClassroomForm() {
 				search: null,
 			};
 			const response = await getSchools(requesPayload);
-			console.log("response", response);
 			const formattedschools = response.data.schools.map((school) => ({
 				value: school.id,
 				label: school.name,
 			}));
 			setSchoolsData(formattedschools);
 		} catch (error) {
-			console.error("Error fetching data:", error);
+			console.error("Error fetching schools:", error);
 		}
 	};
 
@@ -121,8 +154,7 @@ export default function CreateClassroomForm() {
 			const data = await fetchAllCurriculums(requesPayload);
 
 			if (data.success) {
-				const formattedCurriculums = data.data.curriculums;
-				setCurriculums(formattedCurriculums);
+				setCurriculums(data.data.curriculums);
 			}
 		} catch (error) {
 			console.error("Failed to load curriculums:", error);
@@ -142,52 +174,87 @@ export default function CreateClassroomForm() {
 			};
 			const data = await getInterventions(requesPayload);
 			if (data.success) {
-				const formattedInterventions = data.data.interventions;
-				setInterventions(formattedInterventions);
+				setInterventions(data.data.interventions);
 			}
 		} catch (error) {
-			console.error("Failed to load curriculums:", error);
+			console.error("Failed to load interventions:", error);
 		}
 	};
 
-	const handleSubmit = async () => {
+	// Handle form field changes
+	const handleFormChange = (field: keyof ClassroomFormData, value: any) => {
+		setValue(field, value, {
+			shouldValidate: true,
+			shouldDirty: true,
+		});
+	};
+
+	// Validate current step before proceeding to next step
+	const validateStep = async (nextStep: number) => {
+		let fieldsToValidate: Array<keyof ClassroomFormData> = [];
+
+		// Determine which fields to validate based on current step
+		if (currentStep === 0) {
+			fieldsToValidate = ["school_id", "school", "course", "teacher", "grades"];
+		}
+
+		if (fieldsToValidate.length > 0) {
+			const isStepValid = await trigger(fieldsToValidate);
+			if (!isStepValid) return false;
+		}
+
+		setCurrentStep(nextStep);
+		return true;
+	};
+
+	// Handle final form submission
+	const onSubmit = async (data: ClassroomFormData) => {
 		try {
-			let data = {
-				school_id: formData.school_id,
-				course: formData.course,
-				teacher_name: formData.teacher,
-				grades: formData.grades,
-				class_section: formData.classPeriod,
-				interventions: formData.tags.map((tag: { id: string }) => tag.id),
-				curriculums: formData.instructionalMaterials.map(
-					(material: { id: string }) => material.id
-				),
+			setApiError("");
+			const submitData = {
+				school_id: data.school_id,
+				course: data.course,
+				teacher_name: data.teacher,
+				grades: data.grades,
+				class_section: data.classPeriod || "",
+				interventions: data.tags?.map((tag) => tag.id) || [],
+				curriculums:
+					data.instructionalMaterials?.map((material) => material.id) || [],
 			};
-			console.log("datadatadata", data);
-			const response = await createClassroom(data);
+
+			const response = await createClassroom(submitData);
+
 			if (response.success) {
 				setApiSuccess("Classroom created successfully!");
-				setApiError("");
 				setTimeout(() => {
 					router.push("/classrooms");
 				}, 1000);
 			}
 		} catch (error: unknown) {
 			const errorMessage =
-				(error as AxiosError<ErrorResponse>)?.response?.data?.message ||
-				(error instanceof Error
-					? error.message
-					: "Failed to create user. Please try again.");
-			setApiError(errorMessage || "Something went wrong");
-			setApiSuccess("");
-		} finally {
-			console.log("failed to create classroom");
+				(error as AxiosError<{ message: string }>)?.response?.data?.message ||
+				(error instanceof Error ? error.message : "Failed to create classroom");
+
+			setApiError(errorMessage);
 		}
 	};
 
 	return (
 		<div>
 			<Stepper steps={stepperSteps} />
+
+			{apiError && (
+				<div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4 mb-4'>
+					<p>{apiError}</p>
+				</div>
+			)}
+
+			{apiSuccess && (
+				<div className='bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mt-4 mb-4'>
+					<p>{apiSuccess}</p>
+				</div>
+			)}
+
 			<div className='max-w-2xl w-full mx-auto'>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -199,35 +266,39 @@ export default function CreateClassroomForm() {
 						<BasicInfo
 							formData={formData}
 							onChange={handleFormChange}
-							onNext={() => setCurrentStep(1)}
+							onNext={() => validateStep(1)}
 							schoolsData={schoolsData}
+							errors={errors}
 						/>
 					)}
+
 					{currentStep === 1 && (
 						<SelectInterventions
-							selectedTags={formData.tags}
+							selectedTags={formData.tags || []}
 							onTagsChange={(tags) => handleFormChange("tags", tags)}
 							onBack={() => setCurrentStep(0)}
-							onNext={() => setCurrentStep(2)}
+							onNext={() => validateStep(2)}
 							options={interventions}
 						/>
 					)}
+
 					{currentStep === 2 && (
 						<SelectCurriculum
-							selectedMaterials={formData.instructionalMaterials}
+							selectedMaterials={formData.instructionalMaterials || []}
 							onMaterialsChange={(materials) =>
 								handleFormChange("instructionalMaterials", materials)
 							}
 							onBack={() => setCurrentStep(1)}
-							onNext={() => setCurrentStep(3)}
+							onNext={() => validateStep(3)}
 							options={curriculums}
 						/>
 					)}
+
 					{currentStep === 3 && (
 						<ReviewSubmit
 							formData={formData}
 							onBack={() => setCurrentStep(2)}
-							handleSubmit={handleSubmit}
+							handleSubmit={validateSubmit(onSubmit)}
 						/>
 					)}
 				</motion.div>
@@ -241,37 +312,40 @@ function BasicInfo({
 	onChange,
 	onNext,
 	schoolsData,
+	errors,
 }: {
-	formData: any;
-	onChange: (field: string, value: any) => void;
+	formData: ClassroomFormData;
+	onChange: (field: keyof ClassroomFormData, value: any) => void;
 	onNext: () => void;
-	schoolsData: string[];
+	schoolsData: any[];
+	errors: any;
 }) {
 	const router = useRouter();
+
 	return (
-		<div className='space-y-6  h-full px-4'>
+		<div className='space-y-6 h-full px-4'>
 			<div>
 				<label className='block text-sm font-medium text-gray-700 mb-2'>
 					School <span className='text-emerald-700'>*</span>
 				</label>
 				<Dropdown
 					options={schoolsData}
-					value={formData.school_id} // Changed from formData.school to formData.school_id
+					value={formData.school_id}
 					onChange={(value) => {
-						console.log("schoolsData:", schoolsData);
-						console.log("Selected value:", value);
-
-						// Find the selected school object
 						const selectedSchool = schoolsData.find(
 							(school) => school.value === value
 						);
 
-						// Store both the ID (for API) and label (for display)
-						onChange("school_id", value); // Save ID separately for API
-						onChange("school", selectedSchool?.label || value); // Save label for display
+						onChange("school_id", value);
+						onChange("school", selectedSchool?.label || value);
 					}}
 					placeholder='Select a school'
 				/>
+				{errors.school_id && (
+					<p className='text-red-500 text-xs mt-1'>
+						{errors.school_id.message as string}
+					</p>
+				)}
 			</div>
 
 			<div>
@@ -285,6 +359,11 @@ function BasicInfo({
 					onChange={(e) => onChange("course", e.target.value)}
 					className='w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-[#F4F6F8]'
 				/>
+				{errors.course && (
+					<p className='text-red-500 text-xs mt-1'>
+						{errors.course.message as string}
+					</p>
+				)}
 			</div>
 
 			<div>
@@ -298,6 +377,11 @@ function BasicInfo({
 					onChange={(e) => onChange("teacher", e.target.value)}
 					className='w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8]'
 				/>
+				{errors.teacher && (
+					<p className='text-red-500 text-xs mt-1'>
+						{errors.teacher.message as string}
+					</p>
+				)}
 			</div>
 
 			<div>
@@ -311,6 +395,11 @@ function BasicInfo({
 					placeholder='Select grades'
 					className='bg-[#F4F6F8]'
 				/>
+				{errors.grades && (
+					<p className='text-red-500 text-xs mt-1'>
+						{errors.grades.message as string}
+					</p>
+				)}
 			</div>
 
 			<div>
@@ -335,7 +424,7 @@ function BasicInfo({
 				</button>
 				<button
 					onClick={onNext}
-					className='px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]'
+					className='px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-emerald-800 transition-colors'
 				>
 					Next
 				</button>
@@ -351,9 +440,9 @@ function SelectInterventions({
 	onNext,
 	options,
 }: {
-	selectedTags: Tag[];
-	options: Tag[];
-	onTagsChange: (tags: Tag[]) => void;
+	selectedTags: any[];
+	options: any[];
+	onTagsChange: (tags: any[]) => void;
 	onBack: () => void;
 	onNext: () => void;
 }) {
@@ -397,7 +486,7 @@ function SelectInterventions({
 				/>
 			</div>
 
-			<div className='space-y-4'>
+			<div className='space-y-4 max-h-96 overflow-y-auto'>
 				{filteredTags.map((tag) => (
 					<div
 						key={tag.id}
@@ -408,12 +497,16 @@ function SelectInterventions({
 								type='checkbox'
 								checked={selectedTags.some((t) => t.id === tag.id)}
 								onChange={() => handleToggleTag(tag.id)}
-								className='mt-1 h-4 w-4 text-emerald-600 rounded border-gray-300'
+								className='mt-1 h-4 w-4 accent-[#2A7251] rounded border-gray-300 focus:ring-[#2A7251]'
+								id={`tag-${tag.id}`}
 							/>
-							<div className='ml-3'>
+							<label
+								htmlFor={`tag-${tag.id}`}
+								className='ml-3 flex-grow cursor-pointer'
+							>
 								<h3 className='font-medium'>{tag.name}</h3>
 								<p className='text-sm text-gray-600'>{tag.description}</p>
-							</div>
+							</label>
 
 							<motion.div
 								initial={{ x: -20, opacity: 0 }}
@@ -460,16 +553,16 @@ function SelectInterventions({
 				>
 					Back
 				</button>
-				<div className='flex justify-between gap-4 pt-6'>
+				<div className='flex justify-between gap-4'>
 					<button
 						onClick={() => router.push("/classrooms")}
-						className='px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg'
+						className='px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg hover:bg-gray-200 transition-colors'
 					>
 						Cancel
 					</button>
 					<button
 						onClick={onNext}
-						className='px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]'
+						className='px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-emerald-800 transition-colors'
 					>
 						Next
 					</button>
@@ -486,9 +579,9 @@ function SelectCurriculum({
 	onNext,
 	options,
 }: {
-	selectedMaterials: Material[];
-	options: Material[];
-	onMaterialsChange: (materials: Material[]) => void;
+	selectedMaterials: any[];
+	options: any[];
+	onMaterialsChange: (materials: any[]) => void;
 	onBack: () => void;
 	onNext: () => void;
 }) {
@@ -538,7 +631,7 @@ function SelectCurriculum({
 				/>
 			</div>
 
-			<div className='space-y-4'>
+			<div className='space-y-4 max-h-96 overflow-y-auto'>
 				{filteredMaterials?.map((material) => (
 					<div
 						key={material.id}
@@ -547,14 +640,18 @@ function SelectCurriculum({
 						<div className='flex items-start'>
 							<input
 								type='checkbox'
+								id={`material-${material.id}`}
 								checked={selectedMaterials.some((m) => m.id === material.id)}
 								onChange={() => handleToggleMaterial(material.id)}
-								className='mt-1 h-4 w-4 text-emerald-600 rounded border-gray-300'
+								className='mt-1 h-4 w-4 accent-[#2A7251] rounded border-gray-300 focus:ring-[#2A7251]'
 							/>
-							<div className='ml-3'>
+							<label
+								htmlFor={`material-${material.id}`}
+								className='ml-3 flex-grow cursor-pointer'
+							>
 								<h3 className='font-medium'>{material.title}</h3>
 								<p className='text-sm text-gray-600'>{material.description}</p>
-							</div>
+							</label>
 
 							<motion.div
 								initial={{ x: -20, opacity: 0 }}
@@ -603,16 +700,16 @@ function SelectCurriculum({
 				>
 					Back
 				</button>
-				<div className='flex justify-between gap-4 pt-6'>
+				<div className='flex justify-between gap-4'>
 					<button
 						onClick={() => router.push("/classrooms")}
-						className='px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg'
+						className='px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg hover:bg-gray-200 transition-colors'
 					>
 						Cancel
 					</button>
 					<button
 						onClick={onNext}
-						className='px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]'
+						className='px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-emerald-800 transition-colors'
 					>
 						Next
 					</button>
@@ -621,19 +718,20 @@ function SelectCurriculum({
 		</div>
 	);
 }
+
 function ReviewSubmit({
 	formData,
 	onBack,
 	handleSubmit,
 }: {
-	formData: any;
+	formData: ClassroomFormData;
 	onBack: () => void;
 	handleSubmit: () => void;
 }) {
 	const router = useRouter();
+
 	return (
 		<div className='space-y-6 h-full px-4'>
-			{/* Basic Info Section - Matching the exact UI pattern of BasicInfo */}
 			<div>
 				<label className='block text-sm font-medium text-gray-700 mb-2'>
 					School <span className='text-emerald-700'>*</span>
@@ -674,7 +772,7 @@ function ReviewSubmit({
 				<label className='block text-sm font-medium text-gray-700 mb-2'>
 					Grade(s) <span className='text-emerald-700'>*</span>
 				</label>
-				<div className='w-full px-3 py-2 rounded-lg  bg-white min-h-[38px]'>
+				<div className='w-full px-3 py-2 rounded-lg bg-white min-h-[38px]'>
 					{formData.grades && formData.grades.length > 0 ? (
 						<div className='flex flex-wrap gap-1'>
 							{formData.grades.map((grade: string) => (
@@ -683,7 +781,6 @@ function ReviewSubmit({
 									className='bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1'
 								>
 									<Student size={16} />
-
 									{grade === "K"
 										? "Kindergarten"
 										: `${grade}${getNumberSuffix(grade)} Grade`}
@@ -708,7 +805,6 @@ function ReviewSubmit({
 				/>
 			</div>
 
-			{/* Tags & Attributes Section - Matching SelectInterventions UI */}
 			<div>
 				<label className='block text-sm font-medium text-gray-700 mb-2'>
 					Selected Tags & Attributes
@@ -718,22 +814,13 @@ function ReviewSubmit({
 						formData.tags.map((tag: any, i: number) => (
 							<div
 								key={i}
-								className='py-4 border border-gray-200 rounded-lg bg-white '
+								className='py-4 border border-gray-200 rounded-lg bg-white'
 							>
 								<div className='flex items-start'>
 									<div className='ml-3'>
 										<h3 className='font-medium'>{tag.name}</h3>
-										<p className='text-sm text-gray-600'>
-											{/* Use the description if available or a placeholder */}
-											{/* {tag === "Coaching"
-                        ? "Amplify Desmos Math promotes a collaborative classroom & guides teachers as facilitator."
-                        : "Selected tag attribute"} */}
-											{tag.description}
-										</p>
+										<p className='text-sm text-gray-600'>{tag.description}</p>
 									</div>
-									{/* <span className="ml-auto text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-                    Custom
-                  </span> */}
 									<motion.div
 										initial={{ x: -20, opacity: 0 }}
 										animate={{ x: 0, opacity: 1 }}
@@ -774,7 +861,6 @@ function ReviewSubmit({
 				</div>
 			</div>
 
-			{/* Instructional Materials Section - Matching SelectCurriculum UI */}
 			<div>
 				<label className='block text-sm font-medium text-gray-700 mb-2'>
 					Selected Instructional Materials
@@ -785,7 +871,7 @@ function ReviewSubmit({
 						formData.instructionalMaterials.map((material: any, i: number) => (
 							<div
 								key={i}
-								className=' py-4 border border-gray-200 rounded-lg bg-white'
+								className='py-4 border border-gray-200 rounded-lg bg-white'
 							>
 								<div className='flex items-start'>
 									<div className='ml-3'>
@@ -834,7 +920,6 @@ function ReviewSubmit({
 				</div>
 			</div>
 
-			{/* Standard button row */}
 			<div className='flex justify-between pt-6'>
 				<button
 					onClick={onBack}
@@ -845,13 +930,13 @@ function ReviewSubmit({
 				<div className='flex justify-between items-center space-x-4'>
 					<button
 						onClick={() => router.push("/classrooms")}
-						className='px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg'
+						className='px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg hover:bg-gray-200 transition-colors'
 					>
 						Cancel
 					</button>
 					<button
-						onClick={() => handleSubmit()}
-						className='px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-[#2A7251]'
+						onClick={handleSubmit}
+						className='px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-emerald-800 transition-colors'
 					>
 						Create
 					</button>
