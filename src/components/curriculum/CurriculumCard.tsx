@@ -172,6 +172,7 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
 				description={description}
 				type={type}
 				isArchived={isArchived}
+				viewMode={isArchived ? "archived" : "active"}
 				onEdit={handleEdit}
 				onArchive={handleArchive}
 			/>
@@ -181,14 +182,23 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
 				onClose={() => setIsEditModalOpen(false)}
 				intervention={{
 					id: "0", // Temporary ID since we don't have one in props
-					type,
-					title,
+					type: type as any,
+					name: title,
 					description,
 					isArchived: false,
 					createdAt: new Date(),
-					veiwType: "Curriculum",
+					district_id: "",
 				}}
-				onSave={handleSaveEdit}
+				onSave={(intervention) => {
+					const updatedConfig: CurriculumnUpdatedConfigProps = {
+						type: intervention.type,
+						title: intervention.name,
+						description: intervention.description,
+						isArchived: intervention.isArchived,
+					};
+					onEdit(updatedConfig);
+					setIsEditModalOpen(false);
+				}}
 			/>
 
 			{isArchiveModalOpen &&
