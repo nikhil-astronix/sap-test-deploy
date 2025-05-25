@@ -56,11 +56,11 @@ export interface fetchClassroomRequestPayload {
 }
 
 export interface classroomData {
-  school_name: "string";
-  course: "string";
-  teacher_name: "string";
+  school_name: string;
+  course: string;
+  teacher_name: string;
   grades: string[];
-  class_section: "string";
+  class_section: string;
   interventions: string[];
   curriculums: string[];
 }

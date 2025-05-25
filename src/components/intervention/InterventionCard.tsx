@@ -79,10 +79,15 @@ export default function InterventionCard({
 					className='flex gap-4 mb-2'
 				>
 					<motion.button
-						whileHover={{ scale: 1.02 }}
-						whileTap={{ scale: 0.98 }}
-						onClick={onEdit}
-						className='text-white text-sm transition-colors px-4 py-1.5 rounded-full bg-emerald-700 hover:bg-emerald-800'
+						whileHover={viewMode !== "archived" ? { scale: 1.02 } : {}}
+						whileTap={viewMode !== "archived" ? { scale: 0.98 } : {}}
+						onClick={viewMode !== "archived" ? onEdit : undefined}
+						disabled={viewMode === "archived"}
+						className={`text-sm transition-colors px-4 py-1.5 rounded-full ${
+							viewMode === "archived"
+								? "bg-gray-600 text-white cursor-not-allowed opacity-50"
+								: "bg-emerald-700 text-white hover:bg-emerald-800"
+						}`}
 					>
 						Edit
 					</motion.button>

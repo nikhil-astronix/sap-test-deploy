@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, MagnifyingGlass } from "@phosphor-icons/react";
+import { Plus, MagnifyingGlass, ClockClockwise } from "@phosphor-icons/react";
 import { Archive, Trash2, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -133,7 +133,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                       : "Select items to restore"
                   }
                 >
-                  <RotateCcw size={20} className="text-black" />
+                  <ClockClockwise size={20} className="text-black" />
                 </button>
               )}
 
@@ -158,7 +158,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => router.push(addButtonLink)}
-                className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-lg hover:bg-[#2A7251] transition-colors"
+                className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-[6px] hover:bg-[#2A7251] transition-colors"
               >
                 <Plus size={16} />
                 {addButtonText}

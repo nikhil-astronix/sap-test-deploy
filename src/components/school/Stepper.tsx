@@ -16,14 +16,14 @@ interface StepperProps {
 export default function Stepper({ steps }: StepperProps) {
   return (
     <div className="mb-20">
-      <div className="flex items-center justify-between relative">
+      <div className="flex items-center justify-between relative ">
         {steps.map((step, index) => (
           <React.Fragment key={step.label}>
             {/* Step Circle */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="relative z-10"
+              className="relative"
             >
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center relative ${
@@ -64,13 +64,9 @@ export default function Stepper({ steps }: StepperProps) {
                   />
                 ) : null}
               </div>
-              <div className="absolute -bottom-12 left-/4 -translate-x-1/2 w-max text-center">
-                <p className="text-xs font-medium text-gray-500">
-                  STEP {step.number}
-                </p>
-                <p className="text-sm font-medium text-gray-700">
-                  {step.label}
-                </p>
+              <div className="absolute -bottom-12  w-max text-left">
+                <p className="text-[10px] text-ellipsis">STEP {step.number}</p>
+                <p className="text-[12px] text-black-400">{step.label}</p>
               </div>
             </motion.div>
 

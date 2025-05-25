@@ -45,6 +45,7 @@ interface TableProps {
   onEdit?: (row: any) => void;
   onSave?: (row: any) => void;
   onArchive?: (row: any) => void;
+  onRestore?: (row: any) => void;
   onDelete?: (selectedIds: string[]) => void;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (limit: number) => void;
@@ -57,6 +58,7 @@ interface TableProps {
   onToggleArchived?: (archived: boolean) => void;
   onSearchChange?: (search: string) => void;
   sidebarVisible?: boolean; // New prop to track sidebar visibility
+  pageType?: "schools" | "users"; // New prop to differentiate between pages
 }
 
 export default function Table({
@@ -77,10 +79,13 @@ export default function Table({
   dynamicbg,
   onCreate,
   onArchive,
+  onRestore,
   onToggleArchived,
   onSearchChange,
-  sidebarVisible = false, // Default to false if not provided
-}: TableProps) {
+  sidebarVisible = false,
+  pageType,
+}: // Default to false if not provided
+TableProps) {
   // State for sorting
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -157,20 +162,20 @@ export default function Table({
   };
 
   const toggleSelectionModeArchive = () => {
-    // if (selectionMode) {
-    //   setSelectedRows([]);
-    // }
     if (showArchived) {
       setShowRestoreModal(true);
       setSelectionMode(!selectionMode);
       setShowArchiveButton(!showArchiveButton);
-
-      //setSelectedRows([]);
     } else {
       setShowArchiveModal(true);
       setSelectionMode(!selectionMode);
       setShowArchiveButton(!showArchiveButton);
-      //setSelectedRows([]);
+    }
+
+    // For schools page, update the button text based on archive state
+    if (pageType === "schools" && showArchived) {
+      // Change button text or icon to indicate restore action
+      // This is handled in the render part
     }
   };
   const toggleSelectionModeDelete = () => {
@@ -205,7 +210,7 @@ export default function Table({
       setSelectionMode(false);
       setShowArchiveButton(false);
       setShowDeleteButton(false);
-      setShowArchiveModal(false);
+      // setShowDeleteModal(false);
       setSelectedRows([]);
     }
   };
@@ -213,6 +218,18 @@ export default function Table({
   const handleArchive = () => {
     if (onArchive && selectedRows.length > 0) {
       onArchive(selectedRows);
+      setSelectedRows([]);
+      setSelectionMode(false);
+      setShowArchiveButton(false);
+      setShowDeleteButton(false);
+      //setShowArchived(false);
+      setShowArchiveModal(false);
+    }
+  };
+
+  const handleRestore = () => {
+    if (onRestore && selectedRows.length > 0) {
+      onRestore(selectedRows);
       setSelectedRows([]);
       setSelectionMode(false);
       setShowArchiveButton(false);
@@ -270,45 +287,35 @@ export default function Table({
             </div>
             <p className="text-left text-black-400 text-[14px] mb-4">
               {selectedRows.length === 0
-                ? "Please select users to archive."
-                : "Are you sure you want to archive this user?"}
+                ? `Please select ${
+                    pageType === "schools" ? "schools" : "users"
+                  } to archive.`
+                : `Are you sure you want to archive ${
+                    selectedRows.length === 1 ? "this" : "these"
+                  } ${
+                    pageType === "schools"
+                      ? selectedRows.length === 1
+                        ? "school"
+                        : "schools"
+                      : selectedRows.length === 1
+                      ? "user"
+                      : "users"
+                  }?`}
             </p>
 
             {/* Single user selection */}
             {selectedRows.length === 1 && (
-              <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md">
+              <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md font-normal">
                 <div className="flex items-center justify-between">
-                  <div className="flex flex-col items-start">
-                    {/* Check if we're dealing with users or schools based on data structure */}
-                    {data.find((row) => row.id === selectedRows[0])
-                      ?.first_name ? (
-                      <>
-                        <p className="text-[12px] text-black-400">
-                          {
-                            data.find((row) => row.id === selectedRows[0])
-                              ?.first_name
-                          }
-                        </p>
-                        <p className="text-[12px] text-[#637381]-400">
-                          {
-                            data.find((row) => row.id === selectedRows[0])
-                              ?.email
-                          }
-                        </p>
-                      </>
-                    ) : (
+                  <div className="flex flex-col items-start w-full">
+                    <div className="flex justify-between w-full">
                       <p className="text-[12px] text-black-400">
                         {data.find((row) => row.id === selectedRows[0])
                           ?.school ||
                           data.find((row) => row.id === selectedRows[0])?.name}
                       </p>
-                    )}
-                  </div>
-                  <div className="text-[12px] text-black-400 items-center">
-                    {data.find((row) => row.id === selectedRows[0])?.role ||
-                      (data.find((row) => row.id === selectedRows[0])?.school
-                        ? "School"
-                        : "school")}
+                      <p className="text-[12px] text-gray-500">School</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -357,7 +364,7 @@ export default function Table({
               </div>
             )}
 
-            <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 mt-[10px]">
+            <div className="bg-red-50 border-l-4 border-[#C23E19] p-4 mb-6 mt-[10px]">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
                   <svg
@@ -378,7 +385,13 @@ export default function Table({
               </div>
               <p className="text-left text-sm text-[#C23E19]">
                 {selectedRows.length === 0
-                  ? "No users selected. Please select at least one user to archive."
+                  ? `No ${
+                      pageType === "schools" ? "schools" : "users"
+                    } selected. Please select at least one ${
+                      pageType === "schools" ? "school" : "user"
+                    } to archive.`
+                  : pageType === "schools"
+                  ? "Archiving this school will remove it from active views. Associated data will remain stored and become visible again if the school is restored. Please confirm before proceeding."
                   : "Archiving this user will revoke their access and remove them from active dashboards. Their account will remain in the system and can be restored later if needed."}
               </p>
             </div>
@@ -394,7 +407,7 @@ export default function Table({
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
+                onClick={handleArchive}
                 disabled={selectedRows.length === 0}
                 className={`px-4 py-2 ${
                   selectedRows.length === 0
@@ -415,12 +428,24 @@ export default function Table({
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-xl font-semibold">Restore</h2>
+              <h2 className="text-xl font-normal">Restore</h2>
             </div>
             <p className="text-left text-gray-700 mb-4">
               {selectedRows.length === 0
-                ? "Please select users to restore."
-                : "Are you sure you want to restore this user?"}
+                ? `Please select ${
+                    pageType === "schools" ? "schools" : "users"
+                  } to restore.`
+                : `Are you sure you want to restore ${
+                    selectedRows.length === 1 ? "this" : "these"
+                  } ${
+                    pageType === "schools"
+                      ? selectedRows.length === 1
+                        ? "school"
+                        : "schools"
+                      : selectedRows.length === 1
+                      ? "user"
+                      : "users"
+                  }?`}
             </p>
 
             {/* Single user selection */}
@@ -446,18 +471,23 @@ export default function Table({
                         </p>
                       </>
                     ) : (
-                      <p className="text-[12px] text-black-400">
-                        {data.find((row) => row.id === selectedRows[0])
-                          ?.school ||
-                          data.find((row) => row.id === selectedRows[0])?.name}
-                      </p>
+                      <div className="flex flex-col items-start w-full">
+                        <div className="flex justify-between w-full">
+                          <p className="text-[12px] text-black-400">
+                            {data.find((row) => row.id === selectedRows[0])
+                              ?.school ||
+                              data.find((row) => row.id === selectedRows[0])
+                                ?.name}
+                          </p>
+                        </div>
+                      </div>
                     )}
                   </div>
                   <div className="text-[12px] text-black-400 items-center">
                     {data.find((row) => row.id === selectedRows[0])?.role ||
                       (data.find((row) => row.id === selectedRows[0])?.school
-                        ? "School"
-                        : "")}
+                        ? ""
+                        : "School")}
                   </div>
                 </div>
               </div>
@@ -517,7 +547,13 @@ export default function Table({
               <div>
                 <p className="text-left text-sm text-[#2264AC]">
                   {selectedRows.length === 0
-                    ? "No users selected. Please select at least one user to restore."
+                    ? `No ${
+                        pageType === "schools" ? "schools" : "users"
+                      } selected. Please select at least one ${
+                        pageType === "schools" ? "school" : "user"
+                      } to restore.`
+                    : pageType === "schools"
+                    ? "Restoring this school will make it active again. Please confirm before proceeding."
                     : "Restoring this user will return their access and visibility across the platform. Any roles, assignments, or linked sessions will become active and reappear in relevant views."}
                 </p>
               </div>
@@ -535,7 +571,7 @@ export default function Table({
               </button>
               <button
                 disabled={selectedRows.length === 0}
-                onClick={handleArchive}
+                onClick={handleRestore}
                 className={`px-4 py-2 text-white rounded-[6px] ${
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
@@ -543,6 +579,106 @@ export default function Table({
                 }  transition-colors`}
               >
                 Restore
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal - Only for Schools page */}
+      {pageType === "schools" && showDeleteButton && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
+            <div className="flex items-center gap-2 mb-4">
+              <Trash2 size={24} />
+              <h2 className="text-[16px] text-black-400">Delete</h2>
+            </div>
+            <p className="text-left text-black-400 text-[14px] mb-4">
+              {selectedRows.length === 0
+                ? "Please select schools to delete."
+                : `Are you sure you want to delete ${
+                    selectedRows.length === 1 ? "this" : "these"
+                  } school${selectedRows.length > 1 ? "s" : ""}?`}
+            </p>
+
+            {/* Display selected schools */}
+            {selectedRows.length > 0 && (
+              <div
+                className={`rounded-lg bg-[#F4F6F8] p-4  shadow-md font-normal ${
+                  selectedRows.length > 2
+                    ? "max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
+                    : ""
+                }`}
+              >
+                {selectedRows.map((itemId) => {
+                  const item = data.find(
+                    (row) => row.id === itemId || row.school === itemId
+                  );
+                  return (
+                    <div
+                      key={itemId}
+                      className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
+                    >
+                      <div className="flex flex-col items-start">
+                        <p className="text-[12px] text-black-400">
+                          {item?.name || item?.school}
+                        </p>
+                      </div>
+
+                      <p className="text-[12px] text-black-400">School</p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Warning message */}
+            <div className="bg-red-50 border-l-4 border-red-600 p-4 mb-6 mt-[10px]">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-red-600"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-600">Warning</p>
+                </div>
+              </div>
+              <p className="text-left text-sm text-red-600 mt-2">
+                {selectedRows.length === 0
+                  ? "No schools selected. Please select at least one school to delete."
+                  : "Deleting this school will remove it from the scheduled observation sessions. Please confirm before proceeding"}
+              </p>
+            </div>
+
+            <div className="flex justify-between">
+              <button
+                onClick={() => {
+                  setShowDeleteButton(false);
+                  setSelectionMode(false);
+                  setSelectedRows([]);
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={selectedRows.length === 0}
+                className={`px-4 py-2 ${
+                  selectedRows.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700"
+                } text-white rounded-[6px] transition-colors`}
+              >
+                Delete
               </button>
             </div>
           </div>
@@ -557,7 +693,7 @@ export default function Table({
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
               <input
-                className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm"
+                className="w-full border rounded-[6px] pl-10 pr-3 py-2 text-sm"
                 placeholder="Search"
                 value={search}
                 onChange={(e) => {
@@ -627,24 +763,36 @@ export default function Table({
           <button
             onClick={toggleSelectionModeArchive}
             className="p-2 text-gray-400"
+            title={
+              pageType === "schools" && showArchived ? "Restore" : "Archive"
+            }
           >
-            <span className="sr-only">Archive</span>
-            <Archive size={20} className="text-black" />
+            <span className="sr-only">
+              {pageType === "schools" && showArchived ? "Restore" : "Archive"}
+            </span>
+            {pageType === "schools" && showArchived ? (
+              <ClockClockwise size={20} className="text-black" />
+            ) : (
+              <Archive size={20} className="text-black" />
+            )}
           </button>
 
-          {/* <button
-            onClick={toggleSelectionModeDelete}
-            className="p-2 text-gray-500"
-          >
-            <span className="sr-only">Delete</span>
-            <Trash2 size={20} />
-          </button> */}
+          {/* Show delete button only on Schools page */}
+          {pageType === "schools" && (
+            <button
+              onClick={toggleSelectionModeDelete}
+              className="p-2 text-gray-500"
+            >
+              <span className="sr-only">Delete</span>
+              <Trash2 size={20} className="text-black" />
+            </button>
+          )}
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push(onCreate)}
-            className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-lg hover:bg-[#2A7251] transition-colors"
+            className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-[6px] hover:bg-[#2A7251] transition-colors"
           >
             <Plus size={16} />
             Add
@@ -697,8 +845,8 @@ export default function Table({
           </span>
         </div>
       </div>
-      <div className="rounded-lg border border-gray-200 shadow-sm">
-        <div className="overflow-x-auto rounded-lg">
+      <div className="rounded-[6px] border border-gray-200 shadow-sm">
+        <div className="overflow-x-auto rounded-[6px]">
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">

@@ -1,23 +1,72 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createCurriculum } from "@/services/curriculumsService";
 import { createCurriculumPayload } from "@/models/curriculum";
+import { z } from "zod";
+
+// Define schema for curriculum validation
+const curriculumSchema = z.object({
+	title: z
+		.string()
+		.min(1, "Title is required")
+		.max(100, "Title cannot exceed 100 characters")
+		.trim(),
+	description: z
+		.string()
+		.min(1, "Description is required")
+		.max(1000, "Description cannot exceed 1000 characters")
+		.trim(),
+	type: z.enum(["Default", "Custom"], {
+		errorMap: () => ({ message: "Please select a valid type" }),
+	}),
+});
+
+// Type inference from the schema
+type CurriculumFormData = z.infer<typeof curriculumSchema>;
 
 const NewCurriculumPage = () => {
-	const [title, setTitle] = React.useState("");
-	const [description, setDescription] = React.useState("");
-	const [type, setType] = React.useState<"Default" | "Custom">("Custom");
+	const [formData, setFormData] = useState<CurriculumFormData>({
+		title: "",
+		description: "",
+		type: "Custom",
+	});
+	const [validationErrors, setValidationErrors] = useState<{
+		title?: string;
+		description?: string;
+		type?: string;
+	}>({});
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const curriculumPayload: createCurriculumPayload = {
-			title,
-			description,
-			type,
-		};
+
+		// Validate with Zod before submission
+		const result = curriculumSchema.safeParse(formData);
+
+		if (!result.success) {
+			// Format and set validation errors
+			const formattedErrors = result.error.format();
+			setValidationErrors({
+				title: formattedErrors.title?._errors[0],
+				description: formattedErrors.description?._errors[0],
+				type: formattedErrors.type?._errors[0],
+			});
+			return;
+		}
+
+		// Clear validation errors if validation passes
+		setValidationErrors({});
+		setIsSubmitting(true);
+
 		try {
+			const curriculumPayload: createCurriculumPayload = {
+				title: formData.title,
+				description: formData.description,
+				type: formData.type,
+			};
+
 			const response = await createCurriculum(curriculumPayload);
 			if (response.success) {
 				console.log("Curriculum created!", response.data);
@@ -27,6 +76,8 @@ const NewCurriculumPage = () => {
 			}
 		} catch (error) {
 			console.error("Unexpected error:", error);
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
@@ -47,9 +98,12 @@ const NewCurriculumPage = () => {
 					className='max-w-3xl mx-auto'
 				>
 					<div className='mb-8 text-center'>
-						<h1 className='text-2xl font-semibold mb-2'>Curriculums</h1>
+						<h1 className='text-2xl font-semibold mb-2'>
+							Instructional Materials
+						</h1>
 						<p className='text-md text-gray-600'>
-							View, edit, and organize all available curriculums in one place.
+							View, edit, and organize all available Instructional Materials in
+							one place.
 						</p>
 					</div>
 
@@ -60,19 +114,29 @@ const NewCurriculumPage = () => {
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ delay: 0.3, duration: 0.3 }}
 							>
-								<label className='block text-sm font-medium text-gray-700 mb-1'>
-									Title
+								<label className='block text-sm font-medium mb-1'>
+									Title <span className='text-emerald-700'>*</span>
 								</label>
 								<motion.input
 									whileFocus={{ scale: 1.01 }}
 									transition={{ duration: 0.2 }}
-									required
 									type='text'
 									placeholder='Title'
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
-									className='w-full text-sm px-4 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500'
+									value={formData.title}
+									onChange={(e) =>
+										setFormData({ ...formData, title: e.target.value })
+									}
+									className={`w-full text-sm px-4 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-1 ${
+										validationErrors.title
+											? "border border-red-500 focus:ring-red-500"
+											: "focus:ring-emerald-500"
+									}`}
 								/>
+								{validationErrors.title && (
+									<p className='mt-1 text-sm text-red-600'>
+										{validationErrors.title}
+									</p>
+								)}
 							</motion.div>
 
 							<motion.div
@@ -80,19 +144,29 @@ const NewCurriculumPage = () => {
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ delay: 0.4, duration: 0.3 }}
 							>
-								<label className='block text-sm font-medium text-gray-700 mb-1'>
-									Description
+								<label className='block text-sm font-medium mb-1'>
+									Description <span className='text-emerald-700'>*</span>
 								</label>
 								<motion.textarea
 									whileFocus={{ scale: 1.01 }}
 									transition={{ duration: 0.2 }}
-									required
 									placeholder='Add your description here'
 									rows={4}
-									value={description}
-									onChange={(e) => setDescription(e.target.value)}
-									className='w-full text-sm px-4 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 min-h-[90px]'
+									value={formData.description}
+									onChange={(e) =>
+										setFormData({ ...formData, description: e.target.value })
+									}
+									className={`w-full text-sm px-4 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-1 min-h-[90px] ${
+										validationErrors.description
+											? "border border-red-500 focus:ring-red-500"
+											: "focus:ring-emerald-500"
+									}`}
 								/>
+								{validationErrors.description && (
+									<p className='mt-1 text-sm text-red-600'>
+										{validationErrors.description}
+									</p>
+								)}
 							</motion.div>
 
 							<motion.div
@@ -100,8 +174,8 @@ const NewCurriculumPage = () => {
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ delay: 0.5, duration: 0.3 }}
 							>
-								<label className='block text-sm font-medium text-gray-700 mb-1'>
-									Type
+								<label className='block text-sm font-medium mb-1'>
+									Type <span className='text-emerald-700'>*</span>
 								</label>
 								<div className='flex gap-4 text-sm flex-col'>
 									{(["Default", "Custom"] as const).map((option, index) => (
@@ -118,30 +192,38 @@ const NewCurriculumPage = () => {
 												<input
 													type='radio'
 													value={option}
-													checked={type === option}
+													checked={formData.type === option}
 													onChange={(e) =>
-														setType(e.target.value as "Default" | "Custom")
+														setFormData({
+															...formData,
+															type: e.target.value as "Default" | "Custom",
+														})
 													}
 													className='sr-only'
 												/>
 												<motion.div
 													className={`w-4 h-4 rounded-full border-2 ${
-														type === option
+														formData.type === option
 															? "border-emerald-700"
 															: "border-gray-300"
 													}`}
 													whileHover={{ scale: 1.1 }}
 													whileTap={{ scale: 0.9 }}
 												>
-													{type === option && (
+													{formData.type === option && (
 														<div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-700 rounded-full' />
 													)}
 												</motion.div>
 											</div>
-											<span className='text-gray-700'>{option}</span>
+											<span>{option}</span>
 										</motion.label>
 									))}
 								</div>
+								{validationErrors.type && (
+									<p className='mt-1 text-sm text-red-600'>
+										{validationErrors.type}
+									</p>
+								)}
 							</motion.div>
 
 							<motion.div
@@ -155,7 +237,7 @@ const NewCurriculumPage = () => {
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
 									onClick={() => window.history.back()}
-									className='px-4 py-2 rounded-[6px] bg-gray-100 hover:bg-gray-50 transition-colors mr-auto'
+									className='px-4 py-2 rounded-[6px] transition-colors mr-auto'
 								>
 									Cancel
 								</motion.button>
@@ -163,9 +245,10 @@ const NewCurriculumPage = () => {
 									type='submit'
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.98 }}
-									className='bg-emerald-700 text-white px-4 py-2 rounded-[6px] hover:bg-emerald-800 transition-colors'
+									disabled={isSubmitting}
+									className='bg-emerald-700 text-white px-8 py-2 rounded-[6px] hover:bg-emerald-800 transition-colors disabled:opacity-50'
 								>
-									Save
+									{isSubmitting ? "Saving..." : "Save"}
 								</motion.button>
 							</motion.div>
 						</form>

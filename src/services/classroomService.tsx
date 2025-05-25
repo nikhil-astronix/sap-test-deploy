@@ -29,7 +29,7 @@ export const editClassroom = async (
     return { success: false, error };
   }
 };
-export const createClassroom = async (data: string) => {
+export const createClassroom = async (data: classroomData) => {
   try {
     const response = await apiClient.post(
       "/v1/classrooms/create_classroom",
@@ -44,7 +44,7 @@ export const createClassroom = async (data: string) => {
 
 export const archiveClassroom = async (data: { ids: string[] }) => {
   try {
-    const response = await apiClient.post(
+    const response = await apiClient.patch(
       `/v1/classrooms/archive_classroom`,
       data
     );
@@ -57,7 +57,7 @@ export const archiveClassroom = async (data: { ids: string[] }) => {
 
 export const restoreClassroom = async (data: { ids: string[] }) => {
   try {
-    const response = await apiClient.post(
+    const response = await apiClient.patch(
       `/v1/classrooms/restore_classroom`,
       data
     );
@@ -70,10 +70,7 @@ export const restoreClassroom = async (data: { ids: string[] }) => {
 
 export const deleteClassroom = async (data: { ids: string[] }) => {
   try {
-    const response = await apiClient.post(
-      `/v1/classrooms/delete_networks`,
-      data
-    );
+    const response = await apiClient.post(`/v1/classrooms/delete`, data);
     return { success: true, data: response.data };
   } catch (error) {
     console.error("user profile service error:", error);

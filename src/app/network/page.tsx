@@ -11,6 +11,7 @@ import {
   CaretCircleUp,
   City,
   XCircle,
+  ClockClockwise,
 } from "@phosphor-icons/react";
 
 import {
@@ -242,84 +243,6 @@ export default function NetworksPage() {
     return items;
   };
 
-  const handleRestore1 = () => {
-    // Move selected items to active networks
-    const newActiveNetworks = [...activeNetworks];
-    const newArchivedNetworks = [...archivedNetworks];
-    const processedNetworks = new Set<string>();
-
-    // First, process any selected networks
-    selectedRows.networks.forEach((networkId) => {
-      const networkIndex = newArchivedNetworks.findIndex(
-        (n) => n.id === networkId
-      );
-      if (networkIndex !== -1) {
-        const [network] = newArchivedNetworks.splice(networkIndex, 1);
-        newActiveNetworks.push(network);
-        processedNetworks.add(networkId);
-      }
-    });
-
-    // Then process selected districts and their parent networks if needed
-    selectedRows.districts.forEach((districtId) => {
-      const [networkId, distId] = districtId.split("-");
-
-      // Skip if we already processed this network
-      if (processedNetworks.has(networkId)) return;
-
-      const archivedNetwork = newArchivedNetworks.find(
-        (n) => n.id === networkId
-      );
-      if (!archivedNetwork) return;
-
-      // Find or create the active network
-      let activeNetwork = newActiveNetworks.find((n) => n.id === networkId);
-      if (!activeNetwork) {
-        activeNetwork = {
-          id: networkId,
-          name: archivedNetwork.name,
-          districts: [],
-        };
-        newActiveNetworks.push(activeNetwork);
-      }
-
-      // Find all selected districts from this network
-      const selectedDistrictsFromNetwork = Array.from(selectedRows.districts)
-        .filter((id) => id.startsWith(networkId))
-        .map((id) => id.split("-")[1]);
-
-      // Move selected districts to active network
-      selectedDistrictsFromNetwork.forEach((districtId) => {
-        const districtIndex = archivedNetwork.districts.findIndex(
-          (d: any) => d.id === districtId
-        );
-        if (districtIndex !== -1) {
-          const [district] = archivedNetwork.districts.splice(districtIndex, 1);
-          activeNetwork.districts.push(district);
-        }
-      });
-
-      // Remove archived network if it's empty
-      if (archivedNetwork.districts.length === 0) {
-        const index = newArchivedNetworks.findIndex((n) => n.id === networkId);
-        if (index !== -1) {
-          newArchivedNetworks.splice(index, 1);
-        }
-      }
-    });
-
-    // Update state with new arrays
-    setActiveNetworks(newActiveNetworks);
-    setArchivedNetworks(newArchivedNetworks);
-
-    // Clear selections and close modal
-    setSelectedRows({ networks: new Set(), districts: new Set() });
-    setShowRestoreModal(false);
-
-    // Call API to restore items
-    // restoreNetworks(selectedItems);
-  };
-
   const handleRestore = async () => {
     const newActiveNetworks = [...activeNetworks];
     const newArchivedNetworks = [...archivedNetworks];
@@ -349,75 +272,6 @@ export default function NetworksPage() {
     setShowRestoreModal(false);
   };
 
-  const handleArchive1 = () => {
-    // Create copies of the current state
-    const newActiveNetworks = [...activeNetworks];
-    const newArchivedNetworks = [...archivedNetworks];
-
-    // Handle full network archival
-    selectedRows.networks.forEach((networkId) => {
-      const networkIndex = newActiveNetworks.findIndex(
-        (n) => n.id === networkId
-      );
-      if (networkIndex !== -1) {
-        const [network] = newActiveNetworks.splice(networkIndex, 1);
-        newArchivedNetworks.push(network);
-      }
-    });
-
-    // Handle district archival
-    selectedRows.districts.forEach((districtId) => {
-      const [networkId, distId] = districtId.split("-");
-      if (selectedRows.networks.has(networkId)) return; // Skip if network is already archived
-
-      const networkIndex = newActiveNetworks.findIndex(
-        (n) => n.id === networkId
-      );
-      if (networkIndex !== -1) {
-        const network = newActiveNetworks[networkIndex];
-        const districtIndex = network.districts.findIndex(
-          (d: any) => d.id === distId
-        );
-
-        if (districtIndex !== -1) {
-          // Move district to archived network
-          const [district] = network.districts.splice(districtIndex, 1);
-
-          // Find or create the archived network
-          let archivedNetwork = newArchivedNetworks.find(
-            (n) => n.id === networkId
-          );
-          if (!archivedNetwork) {
-            archivedNetwork = {
-              id: networkId,
-              name: network.name,
-              districts: [],
-            };
-            newArchivedNetworks.push(archivedNetwork);
-          }
-
-          archivedNetwork.districts.push(district);
-
-          // Remove empty networks
-          if (network.districts.length === 0) {
-            newActiveNetworks.splice(networkIndex, 1);
-          }
-        }
-      }
-    });
-
-    // Update state with new arrays
-    setActiveNetworks(newActiveNetworks);
-    setArchivedNetworks(newArchivedNetworks);
-
-    // Clear selections and close modal
-    setSelectedRows({ networks: new Set(), districts: new Set() });
-    setShowArchiveModal(false);
-
-    // Call API to update archived status
-    // updateNetworkStatus(selectedNetworks, selectedDistricts, true);
-  };
-
   const handleArchive = async () => {
     const selectedNetworkIds = Array.from(selectedRows.networks);
     const selectedDistrictIds = Array.from(selectedRows.districts).filter(
@@ -443,85 +297,6 @@ export default function NetworksPage() {
 
     setSelectedRows({ networks: new Set(), districts: new Set() });
     setShowArchiveModal(false);
-  };
-
-  // Implement the delete functionality
-  const handleDelete1 = () => {
-    // Implementation of delete functionality using state variables
-    const newActiveNetworks = [...activeNetworks];
-    const newArchivedNetworks = [...archivedNetworks];
-
-    // Handle network deletions
-    selectedRows.networks.forEach((networkId) => {
-      if (active) {
-        const index = newArchivedNetworks.findIndex((n) => n.id === networkId);
-        if (index !== -1) {
-          newArchivedNetworks.splice(index, 1);
-        }
-      } else {
-        const index = newActiveNetworks.findIndex((n) => n.id === networkId);
-        if (index !== -1) {
-          newActiveNetworks.splice(index, 1);
-        }
-      }
-    });
-
-    // Handle individual district deletions
-    selectedRows.districts.forEach((districtId) => {
-      const [networkId, distId] = districtId.split("-");
-      if (selectedRows.networks.has(networkId)) return; // Skip if network is already deleted
-
-      if (active) {
-        const network = newArchivedNetworks.find((n) => n.id === networkId);
-        if (network) {
-          const index = network.districts.findIndex(
-            (d: any) => d.id === distId
-          );
-          if (index !== -1) {
-            network.districts.splice(index, 1);
-            // Remove network if empty
-            if (network.districts.length === 0) {
-              const networkIndex = newArchivedNetworks.findIndex(
-                (n) => n.id === networkId
-              );
-              if (networkIndex !== -1) {
-                newArchivedNetworks.splice(networkIndex, 1);
-              }
-            }
-          }
-        }
-      } else {
-        const network = newActiveNetworks.find((n) => n.id === networkId);
-        if (network) {
-          const index = network.districts.findIndex(
-            (d: any) => d.id === distId
-          );
-          if (index !== -1) {
-            network.districts.splice(index, 1);
-            // Remove network if empty
-            if (network.districts.length === 0) {
-              const networkIndex = newActiveNetworks.findIndex(
-                (n) => n.id === networkId
-              );
-              if (networkIndex !== -1) {
-                newActiveNetworks.splice(networkIndex, 1);
-              }
-            }
-          }
-        }
-      }
-    });
-
-    // Update state with new arrays
-    setActiveNetworks(newActiveNetworks);
-    setArchivedNetworks(newArchivedNetworks);
-
-    // Clear selections and close modal
-    setSelectedRows({ networks: new Set(), districts: new Set() });
-    setShowDeleteModal(false);
-
-    // Call API to delete items
-    // deleteNetworks(selectedItems);
   };
 
   const handleDelete = async () => {
@@ -745,7 +520,7 @@ export default function NetworksPage() {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <RotateCcw className="text-blue-600" size={24} />
+              <ClockClockwise className="text-blue-600" size={24} />
               <h2 className="text-[20px] font-semibold text-black-400">
                 Restore
               </h2>
@@ -793,7 +568,7 @@ export default function NetworksPage() {
                 <div className="flex-shrink-0">
                   <Info size={16} color="#2264AC" />
                 </div>
-                <div className="ml-3">
+                <div className="ml-1">
                   <p className="text-sm">Note</p>
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-
+import { z } from "zod"; // Import zod
 import Dropdown from "../ui/Dropdown";
 import MultiSelect from "../ui/MultiSelect";
 import { Student } from "@phosphor-icons/react";
@@ -11,19 +11,39 @@ import { useRouter } from "next/navigation";
 import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
 import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
+import { createSchool } from "@/services/schoolService";
+
+// Define Zod schemas
+const tagSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  type: z.string(),
+});
+
+const materialSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  type: z.string(),
+});
+
+// Schema for the whole form
+const schoolFormSchema = z.object({
+  schoolName: z.string().min(1, "School name is required"),
+  grades: z.array(z.string()).min(1, "At least one grade must be selected"),
+  tags: z.array(tagSchema), // Tags are optional
+  instructionalMaterials: z.array(materialSchema), // Materials are optional
+});
+
+// Type for form data derived from schema
+type SchoolFormData = z.infer<typeof schoolFormSchema>;
 
 const steps = [
   { label: "Basic School Info", id: "basic-info" },
   { label: "Select Tags & Attributes", id: "interventions" },
   { label: "Select Instructional Materials", id: "curriculum" },
   { label: "Review & Submit", id: "review" },
-];
-
-const sampleSchools = [
-  { label: "Sample School A", value: "school-a" },
-  { label: "Sample School B", value: "school-b" },
-  { label: "Sample School C", value: "school-c" },
-  { label: "Sample School D", value: "school-d" },
 ];
 
 const gradeOptions = [
@@ -35,16 +55,36 @@ const gradeOptions = [
   { label: "5th Grade", value: "5" },
 ];
 
+type Tag = {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+};
+
+type Material = {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+};
+
 export default function CreateSchoolForm() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SchoolFormData>({
     schoolName: "",
     grades: [] as string[],
-    tags: [] as string[],
-    instructionalMaterials: [] as string[],
+    tags: [] as Tag[],
+    instructionalMaterials: [] as Material[],
   });
+  const [validationErrors, setValidationErrors] = useState<{
+    schoolName?: string;
+    grades?: string;
+  }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchCurriculums();
@@ -90,7 +130,7 @@ export default function CreateSchoolForm() {
         setInterventions(formattedInterventions);
       }
     } catch (error) {
-      console.error("Failed to load curriculums:", error);
+      console.error("Failed to load interventions:", error);
     }
   };
 
@@ -102,54 +142,135 @@ export default function CreateSchoolForm() {
 
   const stepperSteps = steps.map((step, index) => ({
     label: step.label,
+    number: index + 1,
     status: getStepStatus(index) as "completed" | "current" | "upcoming",
   }));
 
   const handleFormChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear validation errors when field is updated
+    if (validationErrors[field as keyof typeof validationErrors]) {
+      setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  // Validate step and move to next if valid
+  const handleNextStep = (step: number) => {
+    if (step === 0) {
+      // Validate basic info
+      const basicInfoSchema = z.object({
+        schoolName: z.string().min(1, "School name is required"),
+        grades: z
+          .array(z.string())
+          .min(1, "At least one grade must be selected"),
+      });
+
+      const result = basicInfoSchema.safeParse({
+        schoolName: formData.schoolName,
+        grades: formData.grades,
+      });
+
+      if (!result.success) {
+        const formattedErrors = result.error.format();
+        setValidationErrors({
+          schoolName: formattedErrors.schoolName?._errors[0],
+          grades: formattedErrors.grades?._errors[0],
+        });
+        return;
+      }
+
+      // If validation passes, clear errors and proceed
+      setValidationErrors({});
+    }
+
+    setCurrentStep(step + 1);
+  };
+
+  // Final form submission
+  const handleSubmit = async () => {
+    // Validate entire form
+    const result = schoolFormSchema.safeParse(formData);
+
+    if (!result.success) {
+      console.error("Validation failed:", result.error);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Submit form data to API (placeholder for actual implementation)
+      console.log("Submitting school data:", formData);
+
+      const payload = {
+        name: formData.schoolName,
+        district: "661943fd4ccf5f44a9a1a002",
+        grades: formData.grades || [],
+        curriculums:
+          formData.instructionalMaterials?.map((item: any) => item.id) || [],
+        interventions: formData.tags?.map((item: any) => item.id) || [],
+      };
+      const response = await createSchool(payload);
+
+      if (response.success) {
+        router.push("/schools");
+      }
+    } catch (error) {
+      console.error("Failed to create school:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div>
       <Stepper steps={stepperSteps} />
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="mt-12"
-      >
-        {currentStep === 0 && (
-          <BasicInfo
-            formData={formData}
-            onChange={handleFormChange}
-            onNext={() => setCurrentStep(1)}
-          />
-        )}
-        {currentStep === 1 && (
-          <SelectInterventions
-            selectedTags={formData.tags}
-            options={interventions}
-            onTagsChange={(tags) => handleFormChange("tags", tags)}
-            onBack={() => setCurrentStep(0)}
-            onNext={() => setCurrentStep(2)}
-          />
-        )}
-        {currentStep === 2 && (
-          <SelectCurriculum
-            selectedMaterials={formData.instructionalMaterials}
-            options={curriculums}
-            onMaterialsChange={(materials) =>
-              handleFormChange("instructionalMaterials", materials)
-            }
-            onBack={() => setCurrentStep(1)}
-            onNext={() => setCurrentStep(3)}
-          />
-        )}
-        {currentStep === 3 && (
-          <ReviewSubmit formData={formData} onBack={() => setCurrentStep(2)} />
-        )}
-      </motion.div>
+      <div className="max-w-2xl w-full mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mt-12"
+        >
+          {currentStep === 0 && (
+            <BasicInfo
+              formData={formData}
+              onChange={handleFormChange}
+              onNext={() => handleNextStep(0)}
+              validationErrors={validationErrors}
+            />
+          )}
+          {currentStep === 1 && (
+            <SelectInterventions
+              selectedTags={formData.tags}
+              options={interventions}
+              onTagsChange={(tags) => handleFormChange("tags", tags)}
+              onBack={() => setCurrentStep(0)}
+              onNext={() => setCurrentStep(2)}
+            />
+          )}
+          {currentStep === 2 && (
+            <SelectCurriculum
+              selectedMaterials={formData.instructionalMaterials}
+              options={curriculums}
+              onMaterialsChange={(materials) =>
+                handleFormChange("instructionalMaterials", materials)
+              }
+              onBack={() => setCurrentStep(1)}
+              onNext={() => setCurrentStep(3)}
+            />
+          )}
+          {currentStep === 3 && (
+            <ReviewSubmit
+              formData={formData}
+              onBack={() => setCurrentStep(2)}
+              isSubmitting={isSubmitting}
+              onSubmit={handleSubmit}
+            />
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -158,30 +279,42 @@ function BasicInfo({
   formData,
   onChange,
   onNext,
+  validationErrors,
 }: {
-  formData: any;
+  formData: SchoolFormData;
   onChange: (field: string, value: any) => void;
   onNext: () => void;
+  validationErrors: { schoolName?: string; grades?: string };
 }) {
   const router = useRouter();
+
   return (
-    <div className="space-y-6  h-full px-4">
+    <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          School Name
+          School Name <span className="text-emerald-700">*</span>
         </label>
         <input
           type="text"
           placeholder="Enter School Name"
           value={formData.schoolName}
           onChange={(e) => onChange("schoolName", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className={`w-full px-3 py-2 rounded-lg border ${
+            validationErrors.schoolName
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-200 focus:ring-emerald-500"
+          } focus:outline-none focus:ring-1`}
         />
+        {validationErrors.schoolName && (
+          <p className="mt-1 text-sm text-red-600">
+            {validationErrors.schoolName}
+          </p>
+        )}
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Grade(s)
+          Grade(s) <span className="text-emerald-700">*</span>
         </label>
         <MultiSelect
           options={gradeOptions}
@@ -189,6 +322,9 @@ function BasicInfo({
           onChange={(values) => onChange("grades", values)}
           placeholder="Select grades"
         />
+        {validationErrors.grades && (
+          <p className="mt-1 text-sm text-red-600">{validationErrors.grades}</p>
+        )}
       </div>
 
       <div className="flex justify-between pt-6">
@@ -200,7 +336,7 @@ function BasicInfo({
         </button>
         <button
           onClick={onNext}
-          className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-[#2A7251]"
         >
           Next
         </button>
@@ -216,12 +352,13 @@ function SelectInterventions({
   onNext,
   options,
 }: {
-  selectedTags: string[];
-  options: string[];
-  onTagsChange: (tags: string[]) => void;
+  selectedTags: Tag[];
+  options: Tag[];
+  onTagsChange: (tags: Tag[]) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter tags based on search term
@@ -237,12 +374,14 @@ function SelectInterventions({
     const tagToToggle = options.find((tag) => tag.id === tagId);
     if (!tagToToggle) return;
 
-    if (selectedTags.includes(tagToToggle.name)) {
-      // Remove tag if already selected
-      onTagsChange(selectedTags.filter((tag) => tag !== tagToToggle.name));
+    const isAlreadySelected = selectedTags.some(
+      (tag) => tag.id === tagToToggle.id
+    );
+
+    if (isAlreadySelected) {
+      onTagsChange(selectedTags.filter((tag) => tag.id !== tagToToggle.id));
     } else {
-      // Add tag if not selected
-      onTagsChange([...selectedTags, tagToToggle.name]);
+      onTagsChange([...selectedTags, tagToToggle]);
     }
   };
 
@@ -259,7 +398,7 @@ function SelectInterventions({
         />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-96 overflow-y-auto">
         {filteredTags.map((tag) => (
           <div
             key={tag.id}
@@ -268,17 +407,41 @@ function SelectInterventions({
             <div className="flex items-start">
               <input
                 type="checkbox"
-                checked={selectedTags.includes(tag.name)}
+                checked={selectedTags.some((t) => t.id === tag.id)}
                 onChange={() => handleToggleTag(tag.id)}
-                className="mt-1 h-4 w-4 text-emerald-600 rounded border-gray-300"
+                className="mt-1 h-4 w-4 accent-[#2A7251] rounded border-gray-300"
               />
               <div className="ml-3">
                 <h3 className="font-medium">{tag.name}</h3>
                 <p className="text-sm text-gray-600">{tag.description}</p>
               </div>
-              <span className="ml-auto text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-                {tag.type}
-              </span>
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
+                className="mb-2 ml-auto"
+              >
+                <motion.span
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                  className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
+                    tag.type === "Custom"
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-emerald-100 text-emerald-700"
+                  }`}
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, duration: 0.2 }}
+                    className={`w-2 h-2 rounded-full mr-1 ${
+                      tag.type === "Custom" ? "bg-purple-800" : "bg-emerald-800"
+                    }`}
+                  />
+                  {tag.type}
+                </motion.span>
+              </motion.div>
             </div>
           </div>
         ))}
@@ -297,12 +460,20 @@ function SelectInterventions({
         >
           Back
         </button>
-        <button
-          onClick={onNext}
-          className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
-        >
-          Next
-        </button>
+        <div className="flex justify-between gap-4 pt-6">
+          <button
+            onClick={() => router.push("/schools")}
+            className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onNext}
+            className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -315,12 +486,13 @@ function SelectCurriculum({
   onNext,
   options,
 }: {
-  selectedMaterials: string[];
-  options: string[];
-  onMaterialsChange: (materials: string[]) => void;
+  selectedMaterials: Material[];
+  options: Material[];
+  onMaterialsChange: (materials: Material[]) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filter materials based on search
@@ -338,21 +510,23 @@ function SelectCurriculum({
     );
     if (!materialToToggle) return;
 
-    if (selectedMaterials.includes(materialToToggle.title)) {
-      // Remove material if already selected
+    const isAlreadySelected = selectedMaterials.some(
+      (material) => material.id === materialToToggle.id
+    );
+
+    if (isAlreadySelected) {
       onMaterialsChange(
         selectedMaterials.filter(
-          (material) => material !== materialToToggle.title
+          (material) => material.id !== materialToToggle.id
         )
       );
     } else {
-      // Add material if not selected
-      onMaterialsChange([...selectedMaterials, materialToToggle.title]);
+      onMaterialsChange([...selectedMaterials, materialToToggle]);
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-h-96 overflow-y-auto">
       <div className="mb-6">
         <h2 className="mb-3 font-medium">Instructional Materials</h2>
         <input
@@ -373,17 +547,43 @@ function SelectCurriculum({
             <div className="flex items-start">
               <input
                 type="checkbox"
-                checked={selectedMaterials.includes(material.title)}
+                checked={selectedMaterials.some((m) => m.id === material.id)}
                 onChange={() => handleToggleMaterial(material.id)}
-                className="mt-1 h-4 w-4 text-emerald-600 rounded border-gray-300"
+                className="mt-1 h-4 w-4 accent-[#2A7251] rounded border-gray-300"
               />
               <div className="ml-3">
                 <h3 className="font-medium">{material.title}</h3>
                 <p className="text-sm text-gray-600">{material.description}</p>
               </div>
-              <span className="ml-auto text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                {material.type}
-              </span>
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
+                className="mb-2 ml-auto"
+              >
+                <motion.span
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                  className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
+                    material.type === "Custom"
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-emerald-100 text-emerald-700"
+                  }`}
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, duration: 0.2 }}
+                    className={`w-2 h-2 rounded-full mr-1 ${
+                      material.type === "Custom"
+                        ? "bg-purple-800"
+                        : "bg-emerald-800"
+                    }`}
+                  />
+                  {material.type}
+                </motion.span>
+              </motion.div>
             </div>
           </div>
         ))}
@@ -402,23 +602,38 @@ function SelectCurriculum({
         >
           Back
         </button>
-        <button
-          onClick={onNext}
-          className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
-        >
-          Next
-        </button>
+        <div className="flex justify-between gap-4 pt-6">
+          <button
+            onClick={() => router.push("/schools")}
+            className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onNext}
+            className="px-8 py-2 bg-[#2A7251] text-white rounded-xl hover:bg-[#2A7251]"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
 function ReviewSubmit({
   formData,
   onBack,
+  isSubmitting,
+  onSubmit,
 }: {
-  formData: any;
+  formData: SchoolFormData;
   onBack: () => void;
+  isSubmitting: boolean;
+  onSubmit: () => void;
 }) {
+  const router = useRouter();
+
   return (
     <div className="space-y-6 h-full px-4">
       <div>
@@ -437,7 +652,7 @@ function ReviewSubmit({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Grade(s) <span className="text-emerald-700">*</span>
         </label>
-        <div className="w-full px-3 py-2 rounded-lg  bg-white min-h-[38px]">
+        <div className="w-full px-3 py-2 rounded-lg bg-white min-h-[38px]">
           {formData.grades && formData.grades.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {formData.grades.map((grade: string) => (
@@ -446,7 +661,6 @@ function ReviewSubmit({
                   className="bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1"
                 >
                   <Student size={16} />
-
                   {grade === "K"
                     ? "Kindergarten"
                     : `${grade}${getNumberSuffix(grade)} Grade`}
@@ -459,31 +673,52 @@ function ReviewSubmit({
         </div>
       </div>
 
-      {/* Tags & Attributes Section - Matching SelectInterventions UI */}
+      {/* Tags & Attributes Section */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Selected Tags & Attributes
         </label>
         <div className="space-y-4">
           {formData.tags && formData.tags.length > 0 ? (
-            formData.tags.map((tag: string, i: number) => (
+            formData.tags.map((tag: any, i: number) => (
               <div
                 key={i}
-                className="p-4 border border-gray-200 rounded-lg bg-white "
+                className="py-4 border border-gray-200 rounded-lg bg-white"
               >
                 <div className="flex items-start">
                   <div className="ml-3">
-                    <h3 className="font-medium">{tag}</h3>
-                    <p className="text-sm text-gray-600">
-                      {/* Use the description if available or a placeholder */}
-                      {tag === "Coaching"
-                        ? "Amplify Desmos Math promotes a collaborative classroom & guides teachers as facilitator."
-                        : "Selected tag attribute"}
-                    </p>
+                    <h3 className="font-medium">{tag.name}</h3>
+                    <p className="text-sm text-gray-600">{tag.description}</p>
                   </div>
-                  <span className="ml-auto text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
-                    Custom
-                  </span>
+                  <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                    className="mb-2 ml-auto px-2"
+                  >
+                    <motion.span
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2, duration: 0.3 }}
+                      className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
+                        tag.type === "Custom"
+                          ? "bg-purple-100 text-purple-800"
+                          : "bg-emerald-100 text-emerald-700"
+                      }`}
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.3, duration: 0.2 }}
+                        className={`w-2 h-2 rounded-full mr-1 ${
+                          tag.type === "Custom"
+                            ? "bg-purple-800"
+                            : "bg-emerald-800"
+                        }`}
+                      />
+                      {tag.type}
+                    </motion.span>
+                  </motion.div>
                 </div>
               </div>
             ))
@@ -495,7 +730,7 @@ function ReviewSubmit({
         </div>
       </div>
 
-      {/* Instructional Materials Section - Matching SelectCurriculum UI */}
+      {/* Instructional Materials Section */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Selected Instructional Materials
@@ -503,28 +738,50 @@ function ReviewSubmit({
         <div className="space-y-4">
           {formData.instructionalMaterials &&
           formData.instructionalMaterials.length > 0 ? (
-            formData.instructionalMaterials.map(
-              (material: string, i: number) => (
-                <div
-                  key={i}
-                  className="p-4 border border-gray-200 rounded-lg bg-white "
-                >
-                  <div className="flex items-start">
-                    <div className="ml-3">
-                      <h3 className="font-medium">{material}</h3>
-                      <p className="text-sm text-gray-600">
-                        {material === "Amplify"
-                          ? "McGraw-Hill Education Wonders is a K-6 literacy curriculum designed with a wealth of research-based print and digital resources for building a strong literacy foundation."
-                          : "Selected instructional material"}
-                      </p>
-                    </div>
-                    <span className="ml-auto text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
-                      Default
-                    </span>
+            formData.instructionalMaterials.map((material: any, i: number) => (
+              <div
+                key={i}
+                className="py-4 border border-gray-200 rounded-lg bg-white"
+              >
+                <div className="flex items-start">
+                  <div className="ml-3">
+                    <h3 className="font-medium">{material.title}</h3>
+                    <p className="text-sm text-gray-600">
+                      {material.description}
+                    </p>
                   </div>
+                  <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
+                    className="mb-2 ml-auto px-2"
+                  >
+                    <motion.span
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2, duration: 0.3 }}
+                      className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
+                        material.type === "Custom"
+                          ? "bg-purple-100 text-purple-800"
+                          : "bg-emerald-100 text-emerald-700"
+                      }`}
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.3, duration: 0.2 }}
+                        className={`w-2 h-2 rounded-full mr-1 ${
+                          material.type === "Custom"
+                            ? "bg-purple-800"
+                            : "bg-emerald-800"
+                        }`}
+                      />
+                      {material.type}
+                    </motion.span>
+                  </motion.div>
                 </div>
-              )
-            )
+              </div>
+            ))
           ) : (
             <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-gray-500">
               No instructional materials selected
@@ -533,7 +790,7 @@ function ReviewSubmit({
         </div>
       </div>
 
-      {/* Standard button row */}
+      {/* Button row */}
       <div className="flex justify-between pt-6">
         <button
           onClick={onBack}
@@ -541,9 +798,28 @@ function ReviewSubmit({
         >
           Back
         </button>
-        <button className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-[#2A7251]">
-          Create
-        </button>
+        <div className="flex justify-between gap-4 pt-6">
+          <button
+            onClick={() => router.push("/schools")}
+            className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-[#2A7251] disabled:opacity-50 flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                Creating...
+              </>
+            ) : (
+              "Create"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

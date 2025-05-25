@@ -4,6 +4,7 @@ import { School, FileText, BookOpen, Zap } from "lucide-react"; // Using Lucide 
 import Table, { Column } from "@/components/ui/table";
 import {
   archiveSchool,
+  deleteSchool,
   editSchool,
   getSchools,
   restoreSchool,
@@ -25,13 +26,13 @@ export default function SchoolsPage() {
   const [totalCount, setTotalCount] = useState(0);
 
   const [isActive, setIsActive] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [isArchived, setIsArchived] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [sortField, setSortField] = useState("");
+  const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
     null
   );
@@ -57,8 +58,18 @@ export default function SchoolsPage() {
   useEffect(() => {
     fetchCurriculums();
     fetchInterventions();
-    fetchData(currentPage, rowsPerPage);
   }, []);
+
+  useEffect(() => {
+    fetchData(
+      currentPage,
+      rowsPerPage,
+      sortField,
+      sortDirection,
+      isArchived,
+      searchQuery
+    );
+  }, [currentPage, rowsPerPage, isArchived, searchQuery]);
 
   const columns: Column[] = [
     {
@@ -139,8 +150,25 @@ export default function SchoolsPage() {
 
   const handleArchive = async (selectedIds: string[]) => {
     try {
-      const response = await restoreSchool({ ids: selectedIds });
+      const response = await archiveSchool({ ids: selectedIds });
       console.log("responseresponseresponse", response);
+      if (response.success) {
+        fetchData(currentPage, rowsPerPage);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as AxiosError)?.response?.data?.message ||
+        (error instanceof Error
+          ? error.message
+          : "Failed to create user. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRestore = async (selectedIds: string[]) => {
+    try {
+      const response = await restoreSchool({ ids: selectedIds });
       if (response.success) {
         fetchData(currentPage, rowsPerPage);
       }
@@ -171,7 +199,7 @@ export default function SchoolsPage() {
     console.log("Delete selected rows:", selectedIds);
 
     try {
-      const response = await archiveSchool({ ids: selectedIds });
+      const response = await deleteSchool({ ids: selectedIds });
       if (response.success) {
         fetchData(currentPage, rowsPerPage);
       }
@@ -302,6 +330,7 @@ export default function SchoolsPage() {
         onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange}
         onArchive={handleArchive}
+        onRestore={handleRestore}
         onSearchChange={setSearchQuery}
         onToggleArchived={(archived) => {
           setIsArchived(archived);
@@ -318,6 +347,7 @@ export default function SchoolsPage() {
         staticbg={"#2264AC"}
         dynamicbg={"#F3F8FF"}
         onCreate={"/schools/new"}
+        pageType="schools" // Add this prop to identify the Schools page
       />
     </div>
   );
