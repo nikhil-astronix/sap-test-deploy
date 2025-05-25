@@ -6,13 +6,14 @@ export interface districtPayload {
   state: string;
   city: string;
   enrollment_range: string;
+  admins?: string[];
 }
 
 export interface getDistrictsPayload {
   is_archived: boolean;
   network_id: string | null;
   sort_by: string;
-  sort_order: string;
+  sort_order: string | null;
   page: number;
   limit: number;
   search: string;
@@ -60,6 +61,16 @@ export const unArchiveDistricts = async (payload: archiveDistrictPayload) => {
     return { success: true, data: response.data };
   } catch (error) {
     console.error("Error while un-archiving districts:", error);
+    return { success: false, error };
+  }
+};
+
+export const updateDistrict = async (payload: districtPayload, id: string) => {
+  try {
+    const response = await apiClient.put("/v1/district/" + id, payload);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error while creating districts:", error);
     return { success: false, error };
   }
 };
