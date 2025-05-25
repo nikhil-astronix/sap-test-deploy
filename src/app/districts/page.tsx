@@ -184,9 +184,15 @@ const DistrictsPage = () => {
     if (response.success) {
       let processedDistricts: District[] = [];
       response.data.districts.forEach((d: District) => {
+        const stateObj = states.filter((s) => s.label === d.state);
+        const enrollmentRange = enrollmentRanges.filter(
+          (e) => e.label === d.enrollment_range
+        );
         processedDistricts.push({
           ...d,
           id: d._id,
+          state: stateObj[0].id,
+          enrollment_range: enrollmentRange[0].id,
         });
       });
       setDistricts(processedDistricts);
@@ -419,6 +425,21 @@ const DistrictsPage = () => {
         [key]: value,
       });
     }
+  };
+
+  const renderCell = (d: District, key: string) => {
+    if (key === "state") {
+      const statObj: { id: string; label: string }[] = states.filter(
+        (s) => s.id === d[key]
+      );
+      return statObj.length ? statObj[0].label : "";
+    }
+    if (key === "enrollment_range") {
+      const enrollmentRangeObj: { id: string; label: string }[] =
+        enrollmentRanges.filter((e) => e.id === d[key]);
+      return enrollmentRangeObj.length ? enrollmentRangeObj[0].label : "";
+    }
+    return d[key];
   };
 
   return (
@@ -829,25 +850,10 @@ const DistrictsPage = () => {
                                 />
                               )
                             ) : (
-                              district[column.key]
+                              renderCell(district, column.key)
                             )}
                           </td>
                         ))}
-                        {/* <td className="px-4 py-2 border-r border-gray-200">
-                          {district.name}
-                        </td>
-                        <td className="px-4 py-2 border-r border-gray-200">
-                          {district.state}
-                        </td>
-                        <td className="px-4 py-2 border-r border-gray-200">
-                          {district.city}
-                        </td>
-                        <td className="px-4 py-2 border-r border-gray-200">
-                          {district.network_name}
-                        </td>
-                        <td className="px-4 py-2 border-r border-gray-200">
-                          {district.enrollment_range}
-                        </td> */}
                         <td
                           className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
                           style={{
