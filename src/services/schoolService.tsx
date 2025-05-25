@@ -53,3 +53,13 @@ export const deleteSchool = async (data: { ids: string[] }) => {
     return { success: false, error };
   }
 };
+
+export const createSchool = async (data: schoolData) => {
+  try {
+    const response = await apiClient.post(`/v1/school/schools/create`, data);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("school service error:", error);
+    return { success: false, error };
+  }
+};

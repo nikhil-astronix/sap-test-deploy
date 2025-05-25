@@ -28,7 +28,10 @@ import {
 } from "@/services/classroomService";
 import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
-import { fetchCurriculumsRequestPayload, Curriculum } from "@/models/curriculum";
+import {
+  fetchCurriculumsRequestPayload,
+  Curriculum,
+} from "@/models/curriculum";
 import { Intervention } from "@/types/interventionData";
 import { AxiosError } from "axios";
 
@@ -38,8 +41,8 @@ interface Classroom {
   course: string;
   teacher: string;
   grades: string[];
-  instructionalMaterials: string[];
-  tags: string[];
+  curriculums: string[];
+  interventions: string[];
 }
 
 interface School {
@@ -255,8 +258,10 @@ export default function ClassroomsPage() {
     }
     // Helper to get school name by ID
     const getSchoolNameById = (schoolId: string): string => {
-      const school = allClassrooms.find((s: any) => s.schoolId === schoolId || s.id === schoolId);
-      return school?.school || school?.name || '';
+      const school = allClassrooms.find(
+        (s: any) => s.schoolId === schoolId || s.id === schoolId
+      );
+      return school?.school || school?.name || "";
     };
     try {
       let data = {
@@ -266,9 +271,11 @@ export default function ClassroomsPage() {
         teacher_name: editData.teacher,
         grades: editData.grades,
         class_section: "empty", // editData.classPeriod,
-        interventions: Array.isArray(editData.tags) ? editData.tags : [],
-        curriculums: Array.isArray(editData.instructionalMaterials)
-          ? editData.instructionalMaterials
+        interventions: Array.isArray(editData.interventions)
+          ? editData.interventions
+          : [],
+        curriculums: Array.isArray(editData.curriculums)
+          ? editData.curriculums
           : [],
       };
 
@@ -349,8 +356,9 @@ export default function ClassroomsPage() {
         newSelected.classes.add(rowId);
 
         // Check if this completes the school selection
-        const allClassroomsSelected = school.classes.every((classroom: Classroom) =>
-          newSelected.classes.has(`${schoolId}-${classroom.id}`)
+        const allClassroomsSelected = school.classes.every(
+          (classroom: Classroom) =>
+            newSelected.classes.has(`${schoolId}-${classroom.id}`)
         );
 
         if (allClassroomsSelected) {
@@ -454,7 +462,9 @@ export default function ClassroomsPage() {
     const classroomsFromSelectedSchools = selectedSchoolIds.flatMap(
       (schoolId) => {
         const school = allClassrooms.find((s) => s.schoolId === schoolId);
-        return school?.classes.map((classroom: Classroom) => classroom.id) || [];
+        return (
+          school?.classes.map((classroom: Classroom) => classroom.id) || []
+        );
       }
     );
 
@@ -507,7 +517,9 @@ export default function ClassroomsPage() {
     const classroomsFromSelectedSchools = selectedSchoolIds.flatMap(
       (schoolId) => {
         const school = allClassrooms.find((s) => s.schoolId === schoolId);
-        return school?.classes.map((classroom: Classroom) => classroom.id) || [];
+        return (
+          school?.classes.map((classroom: Classroom) => classroom.id) || []
+        );
       }
     );
 
@@ -557,7 +569,9 @@ export default function ClassroomsPage() {
     const classroomsFromSelectedSchools = selectedSchoolIds.flatMap(
       (schoolId) => {
         const school = allClassrooms.find((s) => s.schoolId === schoolId);
-        return school?.classes.map((classroom: Classroom) => classroom.id) || [];
+        return (
+          school?.classes.map((classroom: Classroom) => classroom.id) || []
+        );
       }
     );
 
@@ -1080,9 +1094,9 @@ export default function ClassroomsPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             <MultiSelect
                               options={curriculums}
-                              values={editData?.instructionalMaterials || []}
+                              values={editData?.curriculums || []}
                               onChange={(vals) =>
-                                handleEditChange("instructionalMaterials", vals)
+                                handleEditChange("curriculums", vals)
                               }
                               placeholder="Select materials"
                             />
@@ -1090,9 +1104,9 @@ export default function ClassroomsPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             <MultiSelect
                               options={interventions}
-                              values={editData?.tags || []}
+                              values={editData?.interventions || []}
                               onChange={(vals) =>
-                                handleEditChange("tags", vals)
+                                handleEditChange("interventions", vals)
                               }
                               placeholder="Select tags"
                             />
@@ -1124,14 +1138,14 @@ export default function ClassroomsPage() {
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
-                              {classroom.instructionalMaterials.length > 0 ? (
+                              {classroom?.curriculums?.length > 0 ? (
                                 <>
                                   <span className="truncate max-w-[150px]">
-                                    {classroom.instructionalMaterials[0]}
+                                    {classroom?.curriculums[0]}
                                   </span>
-                                  {classroom.instructionalMaterials.length > 1 && (
+                                  {classroom.curriculums.length > 1 && (
                                     <span className="text-blue-700 ml-1">
-                                      +{classroom.instructionalMaterials.length - 1} more
+                                      +{classroom?.curriculums?.length - 1} more
                                     </span>
                                   )}
                                 </>
@@ -1142,16 +1156,16 @@ export default function ClassroomsPage() {
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             <span>
-                              {classroom.tags.length > 0 ? (
+                              {classroom?.interventions?.length > 0 ? (
                                 <>
                                   <span className="truncate max-w-[150px]">
-                                    {classroom.tags[0]}
+                                    {classroom.interventions[0]}
                                   </span>
-                                  {classroom.tags.length > 1 && (
+                                  {classroom?.interventions?.length > 1 && (
                                     <>
                                       {" "}
                                       <span className="text-blue-700 ml-1">
-                                        +{classroom.tags.length - 1}{" "}
+                                        +{classroom?.interventions?.length - 1}{" "}
                                         more
                                       </span>
                                     </>
