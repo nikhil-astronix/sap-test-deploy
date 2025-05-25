@@ -191,8 +191,8 @@ const DistrictsPage = () => {
         processedDistricts.push({
           ...d,
           id: d._id,
-          state: stateObj[0].id,
-          enrollment_range: enrollmentRange[0].id,
+          state: stateObj.length ? stateObj[0].id : "",
+          enrollment_range: enrollmentRange ? enrollmentRange[0].id : "",
         });
       });
       setDistricts(processedDistricts);
