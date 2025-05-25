@@ -64,6 +64,8 @@ const setAuthDataFromTokens = (
     localStorage.setItem("userIdToken", idToken || "");
     localStorage.setItem("userAccessToken", accessToken || "", );
     localStorage.setItem("userRefreshToken", refreshToken || "", );
+// In your login handler (client-side):
+document.cookie = `token=${accessToken}; path=/; secure; sameSite=strict`;
 
     const decodedUserIdToken = parseJwt(idToken || "");
     const userId = decodedUserIdToken["cognito:username"];
