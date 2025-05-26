@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosHeaders } from "axios";
 
 // Create an Axios instance with retry logic
 const apiClient = axios.create({
-  baseURL: "http://35.172.199.63",
+  baseURL: "https://sap-ab.duckdns.org",
   headers: {
     "Content-Type": "application/json",
   },
