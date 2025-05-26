@@ -310,6 +310,9 @@ export default function CreateClassroomForm() {
               formData={formData}
               onBack={() => setCurrentStep(2)}
               handleSubmit={validateSubmit(onSubmit)}
+              //isSubmitting={isSubmitting}
+              apiError={apiError}
+              apiSuccess={apiSuccess}
             />
           )}
         </motion.div>
@@ -739,14 +742,14 @@ function ReviewSubmit({
   formData,
   onBack,
   handleSubmit,
-  isSubmitting,
+  //isSubmitting,
   apiError,
   apiSuccess,
 }: {
   formData: ClassroomFormData;
   onBack: () => void;
   handleSubmit: () => void;
-  isSubmitting: boolean;
+  // isSubmitting: boolean;
   apiError: string;
   apiSuccess: string;
 }) {
@@ -960,14 +963,14 @@ function ReviewSubmit({
             onClick={handleSubmit}
             className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-emerald-800 transition-colors"
           >
-            {isSubmitting ? (
+            {/*{isSubmitting ? (
               <>
                 <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
                 Creating...
               </>
-            ) : (
-              "Create"
-            )}
+            ) : (*/}
+            "Create"
+            {/*)}*/}
           </button>
         </div>
       </div>
