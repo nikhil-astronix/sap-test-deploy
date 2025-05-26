@@ -18,7 +18,10 @@ import {
 import { Intervention, InterventionType } from "@/types/interventionData";
 import { Plus } from "@phosphor-icons/react";
 
-type InterventionWithCreatedAt = Intervention & { createdAt: Date; title?: string };
+type InterventionWithCreatedAt = Intervention & {
+  createdAt: Date;
+  title?: string;
+};
 
 const container = {
   hidden: { opacity: 0 },
@@ -80,9 +83,12 @@ export default function InterventionsPage() {
   const getData = async () => {
     const obj = {
       is_archived: isActive,
-      type: filterType,
+      filter: filterType,
       search: searchQuery,
       per_page: 100,
+      sort_order: sortBy === "az" ? "asc" : sortBy === "za" ? "desc" : sortBy,
+      sort_by:
+        sortBy === "newest" || sortBy === "oldest" ? "cretedBy" : "title",
     };
     const response = await getInterventions(obj);
 
@@ -90,7 +96,7 @@ export default function InterventionsPage() {
   };
   useEffect(() => {
     getData();
-  }, [isActive, filterType, searchQuery]);
+  }, [isActive, filterType, searchQuery, sortBy]);
 
   const handleArchiveConfirm = async () => {
     if (archivingIntervention) {
@@ -350,7 +356,7 @@ export default function InterventionsPage() {
           </span>
         </motion.div>
 
-        <div className="flex-1 ">
+        <div className="flex-1 max-h-96 overflow-y-auto ">
           <motion.div
             variants={container}
             initial="hidden"

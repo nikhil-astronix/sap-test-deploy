@@ -63,7 +63,7 @@ export default function CurriculumList() {
   //feth curriculums list
   useEffect(() => {
     fetchCurriculums();
-  }, [search, showArchived, finalFilterType, finalSortBy]);
+  }, [search, showArchived, finalFilterType, sortBy]);
 
   const fetchCurriculums = async () => {
     try {
@@ -78,7 +78,12 @@ export default function CurriculumList() {
             ? "cretedBy"
             : "title",
         sort_order:
-          finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
+          finalSortBy === "az"
+            ? "asc"
+            : finalSortBy === "za"
+            ? "desc"
+            : finalSortBy,
+        //  finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
         search: search,
         page: 1,
         limit: 100,
@@ -147,7 +152,8 @@ export default function CurriculumList() {
       const response = await updateCurriculumById(id, curriculum);
       if (response.success) {
         console.log("Curriculum updated successfully!", response.data);
-        window.history.back();
+        //window.history.back();
+        //router.push
         fetchCurriculums();
       } else {
         console.error("Failed to edit curriculum:", response.error);
@@ -337,7 +343,7 @@ export default function CurriculumList() {
       </div>
 
       <div className="flex-1 ">
-        <div className="min-h-full">
+        <div className="max-h-96 overflow-y-auto ">
           <motion.div
             variants={container}
             initial="hidden"
