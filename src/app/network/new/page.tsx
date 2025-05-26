@@ -47,8 +47,7 @@ export default function NewNetworkPage() {
     setIsLoading(true);
 
     try {
-      const payload = { name: formData.network };
-      const response = await createNetwork(payload);
+      const response = await createNetwork(formData.network);
       if (response.success) {
         setApiSuccess("Network created successfully!");
         setApiError("");
