@@ -30,3 +30,7 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
 } 
+
+html {
+  font-family: theme('fontFamily.sans');
+}
