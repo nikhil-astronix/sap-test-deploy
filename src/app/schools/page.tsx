@@ -287,7 +287,7 @@ export default function SchoolsPage() {
     try {
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: null,
-        type: null,
+        type: ["Default", "Custom"].join(","),
         sort_by: null,
         sort_order: null,
         search: null,
