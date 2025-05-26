@@ -8,7 +8,11 @@ interface CustomDropdownProps {
   onChange: (value: string) => void;
 }
 
-export default function CustomDropdown({ value, options, onChange }: CustomDropdownProps) {
+export default function CustomDropdown({
+  value,
+  options,
+  onChange,
+}: CustomDropdownProps) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +31,10 @@ export default function CustomDropdown({ value, options, onChange }: CustomDropd
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     }
