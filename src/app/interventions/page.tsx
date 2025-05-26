@@ -75,9 +75,10 @@ export default function InterventionsPage() {
   const getData = async () => {
     const obj = {
       is_archived: isActive,
-      type: filterType,
+      filter: filterType,
       search: searchQuery,
       per_page: 100,
+      sort_order: sortBy,
     };
     const response = await getInterventions(obj);
 
@@ -85,7 +86,7 @@ export default function InterventionsPage() {
   };
   useEffect(() => {
     getData();
-  }, [isActive, filterType, searchQuery]);
+  }, [isActive, filterType, searchQuery, sortBy]);
 
   const handleArchiveConfirm = async () => {
     if (archivingIntervention) {
