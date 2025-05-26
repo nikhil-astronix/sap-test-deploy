@@ -63,7 +63,7 @@ export default function CurriculumList() {
   //feth curriculums list
   useEffect(() => {
     fetchCurriculums();
-  }, [search, showArchived, finalFilterType, finalSortBy]);
+  }, [search, showArchived, finalFilterType, sortBy]);
 
   const fetchCurriculums = async () => {
     try {
@@ -78,7 +78,12 @@ export default function CurriculumList() {
             ? "cretedBy"
             : "title",
         sort_order:
-          finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
+          finalSortBy === "az"
+            ? "asc"
+            : finalSortBy === "za"
+            ? "desc"
+            : finalSortBy,
+        //  finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
         search: search,
         page: 1,
         limit: 100,

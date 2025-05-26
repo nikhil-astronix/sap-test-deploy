@@ -78,7 +78,9 @@ export default function InterventionsPage() {
       filter: filterType,
       search: searchQuery,
       per_page: 100,
-      sort_order: sortBy,
+      sort_order: sortBy === "az" ? "asc" : sortBy === "za" ? "desc" : sortBy,
+      sort_by:
+        sortBy === "newest" || sortBy === "oldest" ? "cretedBy" : "title",
     };
     const response = await getInterventions(obj);
 
