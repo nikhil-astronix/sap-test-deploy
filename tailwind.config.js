@@ -5,6 +5,7 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: ["bg-blue-700", "bg-purple-800", "bg-green-800"],
   theme: {
     extend: {
       colors: {
@@ -20,9 +21,6 @@ module.exports = {
           800: "#065f46",
           900: "#064e3b",
         },
-      },
-      fontFamily: {
-        sans: ["var(--font-montserrat)", "sans-serif"],
       },
     },
   },
