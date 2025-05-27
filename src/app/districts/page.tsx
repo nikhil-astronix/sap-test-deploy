@@ -9,7 +9,11 @@ import {
   City,
   Bank,
   Building,
+  Network,
+  Ruler,
   PencilSimpleLine,
+  ClockClockwise,
+  Info,
 } from "@phosphor-icons/react";
 import {
   ChevronUp,
@@ -52,6 +56,9 @@ interface District {
 
 const DistrictsPage = () => {
   const router = useRouter();
+  // Add these new state variables
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editData, setEditData] = useState<District | null>(null);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [active, setActive] = useState(false);
@@ -153,6 +160,7 @@ const DistrictsPage = () => {
       search: null,
     };
     const response = await getNetwork(payload);
+    console.log("response from network is ", response);
     if (response.success) {
       let result: any[] = [];
       response.data.networks.forEach((network: any) => {
@@ -274,14 +282,14 @@ const DistrictsPage = () => {
       key: "name",
       label: "District",
       sortable: true,
-      icon: <City size={16} />,
+      icon: <City size={20} />,
       editable: true,
     },
     {
       key: "state",
       label: "State",
       sortable: true,
-      icon: <Bank size={16} />,
+      icon: <Bank size={20} />,
       editable: true,
       options: states,
     },
@@ -289,7 +297,7 @@ const DistrictsPage = () => {
       key: "city",
       label: "City",
       sortable: true,
-      icon: <Building size={16} />,
+      icon: <Building size={20} />,
       editable: true,
       // options: ,
     },
@@ -297,7 +305,7 @@ const DistrictsPage = () => {
       key: "network",
       label: "Network",
       sortable: true,
-      icon: <User size={16} />,
+      icon: <Network size={20} />,
       editable: true,
       options: networks,
     },
@@ -305,7 +313,7 @@ const DistrictsPage = () => {
       key: "enrollment_range",
       label: "Enrollment Range",
       sortable: true,
-      icon: <City size={16} />,
+      icon: <Ruler size={20} />,
       editable: true,
       options: enrollmentRanges,
     },
@@ -439,6 +447,7 @@ const DistrictsPage = () => {
         enrollmentRanges.filter((e) => e.id === d[key]);
       return enrollmentRangeObj.length ? enrollmentRangeObj[0].label : "";
     }
+    console.log("rendering cell for key: ", key, " with value: ", d[key]);
     return d[key];
   };
 
@@ -446,60 +455,98 @@ const DistrictsPage = () => {
     <>
       {showArchiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <Archive className="text-blue-600" size={24} />
-              <h2 className="text-xl font-semibold">Archive</h2>
+              <Archive className="text-gray-600" size={24} />
+              <h2 className="text-[16px] text-black-400">Archive</h2>
             </div>
 
             {/* Description */}
-            <p className="text-gray-800 mb-4">
-              Are you sure you want to archive the selected district(s)?
+            <p className="text-left text-black-400 text-[14px] mb-4 ">
+              {getSelectedItemsInfo().length === 0
+                ? "Please select districts to archive."
+                : `Are you sure you want to archive ${
+                    getSelectedItemsInfo().length === 1
+                      ? "this District?"
+                      : "these Districts?"
+                  }`}
             </p>
 
-            {/* Selected District Display */}
-            <div className="bg-gray-50 border rounded-md p-4 mb-4 shadow-sm flex justify-between items-center text-sm font-medium text-gray-700">
-              <span>
-                {getSelectedItemsInfo().map((item, idx) => (
-                  <div key={idx}>{item}</div>
+            {/* Selected Districts Display */}
+            {getSelectedItemsInfo().length > 0 && (
+              <div
+                className={`rounded-[6px] bg-[#F4F6F8] py-2 px-4 mb-4 shadow-md ${
+                  getSelectedItemsInfo().length > 2
+                    ? "max-h-[160px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
+                    : ""
+                }`}
+              >
+                {getSelectedItemsInfo().map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
+                  >
+                    <div className="flex flex-col items-start">
+                      <p className="text-[12px] text-black-400">{item}</p>
+                    </div>
+                    <div className="text-[12px] text-right">District</div>
+                  </div>
                 ))}
-              </span>
-              <span className="text-gray-500">District</span>
-            </div>
-
-            {/* Note Box */}
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-              <div className="flex items-start gap-2">
-                <svg
-                  className="h-5 w-5 text-blue-500 mt-0.5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 000 1v3a1 1 0 001 1h1a 1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p className="text-sm text-blue-600">
-                  Archived districts will be moved to the archive section. You
-                  can restore them later if needed.
-                </p>
               </div>
+            )}
+
+            {/* Warning Box */}
+            <div className="bg-red-50 border-l-4 border-[#C23E19] p-4 mb-6 mt-[10px]">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-[#C23E19]"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-[#C23E19]">Warning</p>
+                </div>
+              </div>
+              <p className="text-left text-sm text-[#C23E19] mt-2">
+                {getSelectedItemsInfo().length === 0
+                  ? "No districts selected. Please select at least one district to archive."
+                  : `Archiving ${
+                      getSelectedItemsInfo().length === 1
+                        ? "this district"
+                        : "these districts"
+                    } will remove ${
+                      getSelectedItemsInfo().length === 1 ? "it" : "them"
+                    } from active views and disable associated access. Any users, tools, or sessions linked to  ${
+                      getSelectedItemsInfo().length === 1 ? "this " : "these"
+                    } district will be hidden until it is restored. Please confirm before proceeding.`}
+              </p>
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-700 hover:text-black transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleArchive}
-                className="px-4 py-2 bg-[#B4351C] text-white rounded-lg hover:bg-[#943015] transition-colors"
+                disabled={getSelectedItemsInfo().length === 0}
+                className={`px-4 py-2 ${
+                  getSelectedItemsInfo().length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#B4351C] hover:bg-[#943015]"
+                } text-white rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -510,60 +557,89 @@ const DistrictsPage = () => {
 
       {showRestoreModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <RotateCcw className="text-blue-600" size={24} />
-              <h2 className="text-xl font-semibold">Restore</h2>
+              <ClockClockwise className="text-blue-600" size={24} />
+              <h2 className="text-[20px] font-normal text-black-400">
+                Restore
+              </h2>
             </div>
 
             {/* Description */}
-            <p className="text-gray-800 mb-4">
-              Are you sure you want to restore the selected district(s)?
+            <p className="text-left text-black-400 text-[14px] mb-4">
+              {getSelectedItemsInfo().length === 0
+                ? "Please select districts to restore."
+                : `Are you sure you want to restore ${
+                    getSelectedItemsInfo().length === 1
+                      ? "this District?"
+                      : "these Districts?"
+                  }`}
             </p>
 
-            {/* Selected District Display */}
-            <div className="bg-gray-50 border rounded-md p-4 mb-4 shadow-sm flex justify-between items-center text-sm font-medium text-gray-700">
-              <span>
-                {getSelectedItemsInfo().map((item, idx) => (
-                  <div key={idx}>{item}</div>
+            {/* Selected Districts Display */}
+            {getSelectedItemsInfo().length > 0 && (
+              <div
+                className={`rounded-[6px] shadow-md bg-[#F4F6F8] py-2 px-4 mb-4 ${
+                  getSelectedItemsInfo().length > 2
+                    ? "max-h-[160px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
+                    : ""
+                }`}
+              >
+                {getSelectedItemsInfo().map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
+                  >
+                    <div className="flex flex-col items-start">
+                      <p className="text-[12px] text-black-400">{item}</p>
+                    </div>
+                    <div className="text-[12px] text-right">District</div>
+                  </div>
                 ))}
-              </span>
-              <span className="text-gray-500">District</span>
-            </div>
+              </div>
+            )}
 
             {/* Note Box */}
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-              <div className="flex items-start gap-2">
-                <svg
-                  className="h-5 w-5 text-blue-500 mt-0.5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 000 1v3a1 1 0 001 1h1a 1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p className="text-sm text-blue-600">
-                  Restoring these districts will make them active again. Please
-                  confirm before proceeding.
-                </p>
+            <div className="bg-blue-50 border-l-4 border-[#2264AC] p-4 mb-6 mt-[10px] text-[#2264AC]">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <Info className="h-5 w-5 text-[#2264AC]" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm">Note</p>
+                </div>
               </div>
+              <p className="text-left text-sm mt-2">
+                {getSelectedItemsInfo().length === 0
+                  ? "No districts selected. Please select at least one district to restore."
+                  : `Restoring ${
+                      getSelectedItemsInfo().length === 1
+                        ? "this district"
+                        : "these districts"
+                    } 
+									   add its visibility and access across the platform. All users, tools, and sessions linked to  ${
+                       getSelectedItemsInfo().length === 1 ? "this" : "these"
+                     } district will become active and reappear in relevant views.`}
+              </p>
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-700 hover:text-black transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRestore}
-                className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
+                disabled={getSelectedItemsInfo().length === 0}
+                className={`px-4 py-2 ${
+                  getSelectedItemsInfo().length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-emerald-700 hover:bg-emerald-800"
+                } text-white rounded-[6px] transition-colors`}
               >
                 Restore
               </button>
@@ -651,7 +727,7 @@ const DistrictsPage = () => {
                     : "Select items to restore"
                 }
               >
-                <RotateCcw size={20} className="text-black" />
+                <ClockClockwise size={20} className="text-black" />
               </button>
             )}
             <motion.button
@@ -678,7 +754,7 @@ const DistrictsPage = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setActive((a) => !a)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-emerald-600`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-emerald-700`}
             >
               <motion.span
                 layout
@@ -709,10 +785,10 @@ const DistrictsPage = () => {
             <table className="w-full">
               <thead>
                 <tr
-                  style={{ backgroundColor: "#6C4996" }}
+                  style={{ backgroundColor: "#2264AC" }}
                   className="text-white"
                 >
-                  <th className="pl-3  py-3 w-8 min-w-[20px]">
+                  <th className="pl-6  py-3 w-8 min-w-[20px]">
                     <div className="flex items-center justify-center">
                       <input
                         type="checkbox"
@@ -721,7 +797,7 @@ const DistrictsPage = () => {
                           districts.length > 0
                         }
                         onChange={handleSelectAll}
-                        className="h-4 w-4 appearance-none border-2 border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                        className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
                         style={{ accentColor: "#6C4996" }}
                       />
                     </div>
@@ -775,7 +851,7 @@ const DistrictsPage = () => {
                   <th
                     className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
                     style={{
-                      backgroundColor: "#6C4996",
+                      backgroundColor: "#2264AC",
                       boxShadow: "inset 1px 0 0 #E5E7EB",
                     }}
                   >
@@ -808,27 +884,30 @@ const DistrictsPage = () => {
                     return (
                       <tr
                         key={district.id}
+                        style={{
+                          backgroundColor: index % 2 === 1 ? "#E9F3FF" : "#fff",
+                        }}
                         className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
                         onClick={(e) => handleSelectRow(district.id, e)}
                       >
-                        <td className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]">
+                        <td className="pl-6  py-3 w-8 min-w-[20px]">
                           <div className="flex items-center">
                             <input
                               type="checkbox"
                               checked={selectedRows.has(district.id)}
                               onChange={(e) => handleSelectRow(district.id, e)}
-                              className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                              className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer "
                             />
                           </div>
                         </td>
                         {columns.map((column) => (
                           <td
                             key={`${rowId || index}-${column.key}`}
-                            className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]"
+                            className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4] text-left"
                           >
                             {isEditing && column.editable ? (
                               column.options ? (
-                                <div className="relative">
+                                <div className="relative text-left">
                                   {
                                     <CustomDropdown
                                       value={editingData[column.key]}
@@ -846,11 +925,13 @@ const DistrictsPage = () => {
                                   onChange={(e) =>
                                     handleEditChange(column.key, e.target.value)
                                   }
-                                  className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
+                                  className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-left"
                                 />
                               )
                             ) : (
-                              renderCell(district, column.key)
+                              <div className="text-left">
+                                {renderCell(district, column.key)}
+                              </div>
                             )}
                           </td>
                         ))}
@@ -918,7 +999,7 @@ const DistrictsPage = () => {
                   <ChevronLeft size={18} />
                 </button>
                 <span className="text-sm text-gray-500">
-                  {currentPage}/{totalRecords || 1}
+                  {currentPage}/{totalPages || 1}
                 </span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
