@@ -87,7 +87,7 @@ export default function InterventionsPage() {
 	};
 	useEffect(() => {
 		getData();
-	}, [isActive, filterType, searchQuery, sortBy]);
+	}, [isActive, searchQuery, showFilters]);
 
 	const handleArchiveConfirm = async () => {
 		if (archivingIntervention) {

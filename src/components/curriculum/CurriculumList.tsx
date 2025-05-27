@@ -40,6 +40,7 @@ export default function CurriculumList() {
 	const [search, setSearch] = useState("");
 	const [showArchived, setShowArchived] = useState(false);
 	const [showFilters, setShowFilters] = useState(false);
+
 	const [filterType, setFilterType] = useState<"Default" | "Custom" | "Both">(
 		"Both"
 	);
@@ -63,7 +64,7 @@ export default function CurriculumList() {
 	//feth curriculums list
 	useEffect(() => {
 		fetchCurriculums();
-	}, [search, showArchived, finalFilterType, sortBy]);
+	}, [search, showArchived, showFilters]);
 
 	const fetchCurriculums = async () => {
 		try {
@@ -73,7 +74,7 @@ export default function CurriculumList() {
 					finalFilterType === "Both"
 						? ["Default", "Custom"].join(",")
 						: finalFilterType,
-				sort_by: finalSortBy === "oldest" ? "createdAt" : "title",
+				sort_by: finalSortBy === "oldest" ? "title" : "created_at",
 				sort_order:
 					finalSortBy === "az"
 						? "asc"

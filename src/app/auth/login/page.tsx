@@ -110,7 +110,10 @@ export default function LoginPage() {
         }
       } else if (res?.status === "NEW_PASSWORD_REQUIRED") {
         const { userId, session } = res.params;
-
+        // Save cookies with proper options
+        document.cookie = `loginStatus=NEW_PASSWORD_REQUIRED; path=/; secure; samesite=lax`;
+        document.cookie = `userId=${userId}; path=/; secure; samesite=lax`;
+        document.cookie = `session=${session}; path=/; secure; samesite=lax`;
         const userIdEncoded = encodeURIComponent(userId ?? "");
         const sessionEncoded = encodeURIComponent(session ?? "");
         const flowEncoded = encodeURIComponent("SET_NEW_PASSWORD");
