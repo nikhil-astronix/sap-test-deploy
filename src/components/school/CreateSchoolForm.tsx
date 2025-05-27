@@ -191,7 +191,7 @@ export default function CreateSchoolForm() {
   const handleSubmit = async () => {
     // Validate entire form
     const result = schoolFormSchema.safeParse(formData);
-
+    const districtValue = localStorage.getItem("districtValue");
     if (!result.success) {
       console.error("Validation failed:", result.error);
       return;
@@ -205,7 +205,7 @@ export default function CreateSchoolForm() {
 
       const payload = {
         name: formData.schoolName,
-        district: "661943fd4ccf5f44a9a1a002",
+        district: districtValue,
         grades: formData.grades || [],
         curriculums:
           formData.instructionalMaterials?.map((item: any) => item.id) || [],

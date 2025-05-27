@@ -5,16 +5,23 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { useState } from "react";
 import { AnimatedContainer } from "@/components/ui/animated-container";
+import { useRouter } from "next/navigation";
 
 interface LayoutProps {
   children: React.ReactElement<{ sidebarVisible?: boolean }>;
 }
 
 const Layout = ({ children }: LayoutProps) => {
+  const router = useRouter();
   const [showSetup, setShowSetup] = useState(false);
 
   const toggleSetup = () => {
-    setShowSetup((prevState) => !prevState);
+    setShowSetup(true);
+  };
+
+  const handleDashboardClick = () => {
+    setShowSetup(false); // hide sidebar
+    router.push("/system-dashboard");
   };
 
   // Create a function to modify child elements to pass the sidebar state
@@ -29,7 +36,10 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <AnimatedContainer variant="fade" className="min-h-screen bg-gray-50">
-      <Header handleSetupClick={toggleSetup} />
+      <Header
+        handleSetupClick={toggleSetup}
+        handleDashboardClick={handleDashboardClick}
+      />
       {showSetup ? (
         <div className="flex h-[calc(100vh-64px)] overflow-hidden">
           <Sidebar />

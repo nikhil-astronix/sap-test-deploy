@@ -383,6 +383,16 @@ const DistrictsPage = () => {
         setEditingRowId(null);
         setEditingData(null);
         setSelectedRows(new Set());
+        const payload: getDistrictsPayload = {
+          is_archived: active,
+          network_id: null,
+          sort_by: sortConfig.key,
+          sort_order: sortConfig.direction,
+          page: 1,
+          limit: rowsPerPage,
+          search: search,
+        };
+        fetchAllDistrictsInfo(payload);
       } else {
         console.log("something went wrong");
       }
