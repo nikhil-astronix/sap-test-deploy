@@ -46,7 +46,13 @@ const retryRequest = async (error: AxiosError, retryCount = 0) => {
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("userAccessToken");
-    console.log("tokentoken", token);
+    const isLoginPage = window.location.pathname.startsWith("/auth/login");
+
+    if (!token && !isLoginPage) {
+      window.location.href = "/auth/login";
+      return Promise.reject(new Error("No token, redirecting to login"));
+    }
+
     if (!config.headers) {
       config.headers = new AxiosHeaders();
     }
