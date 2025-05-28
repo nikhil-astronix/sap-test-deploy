@@ -163,14 +163,14 @@ export default function CreateClassroomForm() {
 
   const fetchInterventions = async () => {
     try {
-      const requesPayload: fetchCurriculumsRequestPayload = {
-        is_archived: null,
-        type: null,
+      const requesPayload = {
+        is_archived: false,
+        filter: null,
         sort_by: null,
         sort_order: null,
         search: null,
-        page: 1,
-        limit: 100,
+        curr_page: 1,
+        per_page: 100,
       };
       const data = await getInterventions(requesPayload);
       if (data.success) {
