@@ -210,7 +210,7 @@ const Sidebar = () => {
               <MultiSelectDropdown
                 label="District"
                 options={districts}
-                selectedValues={[]}
+                selectedValues={selectedDistricts}
                 onChange={(values) => setSelectedDistricts(values)}
                 placeholder="Select district"
                 className="text-xs"
