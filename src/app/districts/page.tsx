@@ -167,6 +167,7 @@ const DistrictsPage = () => {
         result.push({
           id: network.id,
           label: network.name,
+          value: network.id,
         });
       });
 
@@ -363,14 +364,16 @@ const DistrictsPage = () => {
 
   // Save edited row
   const handleSaveEdit = async () => {
+    console.log("editingDataeditingData", editingData);
     if (editingData) {
       const selectedStateObj = states.filter((s) => s.id === editingData.state);
       const selectedEnrollmentRange = enrollmentRanges.filter(
         (e) => e.id === editingData.enrollment_range
       );
+
       const requestPayload: districtPayload = {
         name: editingData.name,
-        network_id: editingData.network_id,
+        network_id: editingData.network,
         state: selectedStateObj[0].label,
         city: editingData.city,
         enrollment_range: selectedEnrollmentRange[0].label,
@@ -898,7 +901,7 @@ const DistrictsPage = () => {
                           backgroundColor: index % 2 === 1 ? "#E9F3FF" : "#fff",
                         }}
                         className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
-                        onClick={(e) => handleSelectRow(district.id, e)}
+                        //onClick={(e) => handleSelectRow(district.id, e)}
                       >
                         <td className="pl-6  py-3 w-8 min-w-[20px]">
                           <div className="flex items-center">
@@ -913,7 +916,7 @@ const DistrictsPage = () => {
                         {columns.map((column) => (
                           <td
                             key={`${rowId || index}-${column.key}`}
-                            className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4] text-left"
+                            className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4] text-left bg-transparent"
                           >
                             {isEditing && column.editable ? (
                               column.options ? (

@@ -16,6 +16,7 @@ interface MultiSelectProps {
 	className?: string;
 	error?: string;
 	showSelectedTags?: boolean;
+	showSlectedOptions?: boolean; // Fixed typo
 }
 
 export default function MultiSelect({
@@ -26,6 +27,7 @@ export default function MultiSelect({
 	className = "",
 	error,
 	showSelectedTags = false,
+	showSlectedOptions = true, // Fixed typo
 }: MultiSelectProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [internalValues, setInternalValues] = useState<string[]>(values || []);
@@ -93,7 +95,7 @@ export default function MultiSelect({
 					{selectedOptions.map((option) => (
 						<span
 							key={option.value}
-							className='inline-flex items-center px-3 py-1 rounded-full text-sm bg-emerald-50 border border-emerald-200 text-emerald-700'
+							className='inline-flex items-center px-4 py-1.5 rounded-full text-sm bg-emerald-50 border border-emerald-200 text-emerald-700'
 						>
 							{option.label}
 							<button
@@ -136,12 +138,12 @@ export default function MultiSelect({
 							hasSelectedOptions ? "text-gray-700" : "text-gray-500"
 						}`}
 					>
-						{hasSelectedOptions
+						{showSlectedOptions && hasSelectedOptions
 							? selectedOptions.map((option) => option.label).join(", ")
 							: placeholder}
 					</span>
 					<div className='flex items-center'>
-						{hasSelectedOptions && (
+						{hasSelectedOptions && showSlectedOptions && (
 							<button
 								type='button'
 								onClick={clearAllOptions}
@@ -206,9 +208,8 @@ export default function MultiSelect({
 								return (
 									<label
 										key={option.value}
-										className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-50 space-x-2 cursor-pointer ${
-											isSelected ? "bg-emerald-50" : ""
-										}`}
+										className={`flex items-center w-full px-4 py-2 text-left hover:
+											 space-x-2 cursor-pointer ${isSelected ? "bg-emerald-50" : ""}`}
 										role='option'
 										aria-selected={isSelected}
 									>
