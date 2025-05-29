@@ -143,11 +143,13 @@ const Sidebar = () => {
     const response = await fetchAllDistricts(payload);
 
     if (response.success) {
-      const formattedDistricts = response.data.districts.map((district) => ({
-        id: district._id,
-        label: district.name,
-        value: district._id,
-      }));
+      const formattedDistricts = response.data.districts.map(
+        (district: any) => ({
+          id: district._id,
+          label: district.name,
+          value: district._id,
+        })
+      );
       setDistricts(formattedDistricts);
     } else {
       setDistricts([]);

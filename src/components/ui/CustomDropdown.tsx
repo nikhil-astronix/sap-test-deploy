@@ -139,7 +139,7 @@ export default function CustomDropdown({
                 return (
                   <div
                     key={index}
-                    onClick={() => handleOptionClick(optionValue)}
+                    onClick={() => handleOptionClick(optionValue as string)}
                     className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${
                       value === option.label
                         ? "bg-[#F2FAF6] text-[#2A7251]"

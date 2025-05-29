@@ -707,7 +707,9 @@ export default function NetworksPage() {
         setShowRestoreModal={setShowRestoreModal}
         setShowDeleteModal={setShowDeleteModal}
         isEditing={false}
-        onSave={handleSave}
+        onSave={() =>
+          handleSave(editing && networks.find((n) => n.id === editing))
+        }
         onClose={handleCloseEdit}
         isActiveArchived={false}
       />
