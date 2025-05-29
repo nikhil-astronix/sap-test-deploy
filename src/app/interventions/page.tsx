@@ -400,7 +400,7 @@ export default function InterventionsPage() {
           item={{
             type: archivingIntervention.type,
             title: archivingIntervention.name,
-            itemType: "Tag & Attribute",
+            itemType: "Intervention",
             isArchived: archivingIntervention.isArchived,
           }}
           onRestore={handleRestoreConfirm}
@@ -412,7 +412,7 @@ export default function InterventionsPage() {
           item={{
             type: archivingIntervention.type,
             title: archivingIntervention.name,
-            itemType: "Tag & Attribute",
+            itemType: "Intervention",
             isArchived: archivingIntervention.isArchived,
           }}
           onArchive={handleArchiveConfirm}
