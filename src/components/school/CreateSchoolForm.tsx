@@ -47,12 +47,19 @@ const steps = [
 ];
 
 const gradeOptions = [
-  { label: "Kindergarten", value: "K" },
-  { label: "1st Grade", value: "1" },
-  { label: "2nd Grade", value: "2" },
-  { label: "3rd Grade", value: "3" },
-  { label: "4th Grade", value: "4" },
-  { label: "5th Grade", value: "5" },
+  { label: "Kindergarten", value: "Kindergarten" },
+  { label: "1", value: "1" },
+  { label: "2", value: "2" },
+  { label: "3", value: "3" },
+  { label: "4", value: "4" },
+  { label: "5", value: "5" },
+  { label: "6", value: "6" },
+  { label: "7", value: "7" },
+  { label: "8", value: "8" },
+  { label: "9", value: "9" },
+  { label: "10", value: "10" },
+  { label: "11", value: "11" },
+  { label: "12", value: "12" },
 ];
 
 type Tag = {
@@ -115,14 +122,14 @@ export default function CreateSchoolForm() {
 
   const fetchInterventions = async () => {
     try {
-      const requesPayload: fetchCurriculumsRequestPayload = {
-        is_archived: null,
-        type: null,
+      const requesPayload = {
+        is_archived: false,
+        filter: null,
         sort_by: null,
         sort_order: null,
         search: null,
-        page: 1,
-        limit: 100,
+        curr_page: 1,
+        per_page: 100,
       };
       const data = await getInterventions(requesPayload);
       if (data.success) {
@@ -191,7 +198,7 @@ export default function CreateSchoolForm() {
   const handleSubmit = async () => {
     // Validate entire form
     const result = schoolFormSchema.safeParse(formData);
-
+    const districtValue = localStorage.getItem("districtValue");
     if (!result.success) {
       console.error("Validation failed:", result.error);
       return;
@@ -205,7 +212,7 @@ export default function CreateSchoolForm() {
 
       const payload = {
         name: formData.schoolName,
-        district: "661943fd4ccf5f44a9a1a002",
+        district: districtValue,
         grades: formData.grades || [],
         curriculums:
           formData.instructionalMaterials?.map((item: any) => item.id) || [],

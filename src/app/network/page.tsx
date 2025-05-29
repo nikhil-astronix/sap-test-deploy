@@ -540,7 +540,7 @@ export default function NetworksPage() {
             {/* Selected Districts Display */}
             {getSelectedItemsInfo().length > 0 && (
               <div
-                className={`rounded-lg bg-[#F4F6F8] p-4 mb-6 ${
+                className={`rounded-lg bg-[#F4F6F8] p-2 mb-6 shadow-md ${
                   getSelectedItemsInfo().length > 2
                     ? "max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
@@ -626,7 +626,7 @@ export default function NetworksPage() {
             {/* District Info Card */}
             {getSelectedItemsInfo().length > 0 && (
               <div
-                className={`rounded-lg bg-[#F4F6F8] p-4 mb-4 ${
+                className={`rounded-lg bg-[#F4F6F8] p-2 mb-4 shadow-md ${
                   getSelectedItemsInfo().length > 2
                     ? "max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
                     : ""
@@ -640,7 +640,7 @@ export default function NetworksPage() {
                     <div className="flex flex-col items-start">
                       <p className="text-[12px] text-black-400">{item.text}</p>
                     </div>
-                    <div className="text-[12px] text-gray-500 text-right">
+                    <div className="text-[12px] text-black-400 text-right">
                       {item.type}
                     </div>
                   </div>
@@ -649,7 +649,7 @@ export default function NetworksPage() {
             )}
 
             {/* Warning Box */}
-            <div className="bg-red-50 border-l-4 border-red-500 p-2 mb-6">
+            <div className="bg-red-50 border-l-4 border-[#C23E19] p-2 mb-6">
               <div className="flex items-start gap-2">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
@@ -707,7 +707,7 @@ export default function NetworksPage() {
         setShowRestoreModal={setShowRestoreModal}
         setShowDeleteModal={setShowDeleteModal}
         isEditing={false}
-        onSave={() => handleSave(editing && networks.find(n => n.id === editing))}
+        onSave={handleSave}
         onClose={handleCloseEdit}
         isActiveArchived={false}
       />

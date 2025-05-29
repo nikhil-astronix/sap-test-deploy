@@ -328,10 +328,12 @@ export default function SchoolsPage() {
     };
     const response = await fetchAllDistricts(payload);
     if (response.success) {
-      const formattedDistricts = response.data.districts.map((district: any) => ({
-        id: district._id,
-        label: district.name,
-      }));
+      const formattedDistricts = response.data.districts.map(
+        (district: any) => ({
+          id: district._id,
+          label: district.name,
+        })
+      );
       setDistricts(formattedDistricts);
     } else {
       setDistricts([]);
@@ -418,6 +420,7 @@ export default function SchoolsPage() {
         staticbg={"#6C4996"}
         dynamicbg={"#F9F5FF"}
         onCreate={"/users/new"}
+        pageType="users"
       />
     </div>
   );

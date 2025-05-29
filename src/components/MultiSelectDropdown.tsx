@@ -62,6 +62,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   const handleOptionClick = (value: string) => {
     if (disabled) return;
 
+    const selectedOption = options.find((opt) => opt.value === value);
+
+    if (selectedOption) {
+      // Save the label and value to localStorage
+      localStorage.setItem("districtLabel", selectedOption.label);
+      localStorage.setItem("districtValue", selectedOption.value);
+    }
+
     if (isMulti) {
       const newSelectedValues = selectedValues.includes(value)
         ? selectedValues.filter((v) => v !== value)

@@ -11,6 +11,7 @@ import {
   X,
   Save,
   RotateCcw,
+  User,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -308,14 +309,41 @@ TableProps) {
               <div className="mt-2 rounded-lg bg-gray-50 p-4 shadow-md font-normal">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col items-start w-full">
-                    <div className="flex justify-between w-full">
-                      <p className="text-[12px] text-black-400">
-                        {data.find((row) => row.id === selectedRows[0])
-                          ?.school ||
-                          data.find((row) => row.id === selectedRows[0])?.name}
-                      </p>
-                      <p className="text-[12px] text-gray-500">School</p>
-                    </div>
+                    {data.find((row) => row.id === selectedRows[0])
+                      ?.first_name ? (
+                      // User view - show name and email
+                      <div className="flex justify-between w-full">
+                        <div>
+                          <p className="text-[12px] text-black-400 text-start">
+                            {
+                              data.find((row) => row.id === selectedRows[0])
+                                ?.first_name
+                            }
+                          </p>
+                          <p className="text-[12px] text-[#637381]-400">
+                            {
+                              data.find((row) => row.id === selectedRows[0])
+                                ?.email
+                            }
+                          </p>
+                        </div>
+                        <p className="text-[12px] text-gray-500">
+                          {data.find((row) => row.id === selectedRows[0])
+                            ?.role || "User"}
+                        </p>
+                      </div>
+                    ) : (
+                      // School view - show school name
+                      <div className="flex justify-between w-full">
+                        <p className="text-[12px] text-black-400">
+                          {data.find((row) => row.id === selectedRows[0])
+                            ?.school ||
+                            data.find((row) => row.id === selectedRows[0])
+                              ?.name}
+                        </p>
+                        <p className="text-[12px] text-gray-500">School</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -859,7 +887,7 @@ TableProps) {
                         selectedRows.length === data.length && data.length > 0
                       }
                       onChange={handleSelectAll}
-                      className="h-4 w-4 appearance-none border-2 border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                      className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
                       style={{ accentColor: staticbg }}
                     />
                   </div>

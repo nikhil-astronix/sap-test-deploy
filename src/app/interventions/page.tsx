@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { MagnifyingGlassIcon as SearchIcon } from "@heroicons/react/24/outline";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
@@ -87,16 +87,17 @@ export default function InterventionsPage() {
       search: searchQuery,
       per_page: 100,
       sort_order: sortBy === "az" ? "asc" : sortBy === "za" ? "desc" : sortBy,
-      sort_by:
-        sortBy === "newest" || sortBy === "oldest" ? "cretedBy" : "title",
+      sort_by: sortBy === "oldest" ? "title" : "created_at",
     };
+
+    console.log("sortBy:", obj.sort_order);
     const response = await getInterventions(obj);
 
     setInterventions(response.data.interventions);
   };
   useEffect(() => {
     getData();
-  }, [isActive, filterType, searchQuery, sortBy]);
+  }, [isActive, searchQuery, showFilters]);
 
   const handleArchiveConfirm = async () => {
     if (archivingIntervention) {
@@ -159,11 +160,15 @@ export default function InterventionsPage() {
   // Filter and sort the interventions
 
   // Calculate filter counts based on the current data and archive status
-  const filterCounts = {
-    Default: 1,
-    Custom: 1,
-    Both: 1,
-  };
+  // Replace the hardcoded filter counts with a useMemo hook
+  const filterCounts = useMemo(() => {
+    return {
+      Default: interventions.filter((item) => item.type === "Default").length,
+      Custom: interventions.filter((item) => item.type === "Custom").length,
+      Both: interventions.length,
+    };
+  }, [interventions]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -395,7 +400,7 @@ export default function InterventionsPage() {
           item={{
             type: archivingIntervention.type,
             title: archivingIntervention.name,
-            itemType: "Intervention",
+            itemType: "Tag & Attribute",
             isArchived: archivingIntervention.isArchived,
           }}
           onRestore={handleRestoreConfirm}
@@ -407,7 +412,7 @@ export default function InterventionsPage() {
           item={{
             type: archivingIntervention.type,
             title: archivingIntervention.name,
-            itemType: "Intervention",
+            itemType: "Tag & Attribute",
             isArchived: archivingIntervention.isArchived,
           }}
           onArchive={handleArchiveConfirm}

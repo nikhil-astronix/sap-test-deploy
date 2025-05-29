@@ -32,6 +32,8 @@ import {
   Toolbox,
   Note,
 } from "@phosphor-icons/react";
+import { fetchAllDistricts } from "@/services/districtService";
+import { getDistrictsPayload } from "@/services/districtService";
 
 interface NavItem {
   icon: React.ReactNode;
@@ -93,6 +95,8 @@ const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [districts, setDistricts] = useState([]);
+  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
 
   // Handle window resize
   useEffect(() => {
@@ -108,18 +112,45 @@ const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Placeholder district options
-  const districtOptions = [
-    { id: "1", label: "District 1", value: "1" },
-    { id: "2", label: "District 2", value: "2" },
-    { id: "3", label: "District 3", value: "3" },
-  ];
-
+  useEffect(() => {
+    const storedDistrictValue = localStorage.getItem("districtValue");
+    if (storedDistrictValue) {
+      setSelectedDistricts([storedDistrictValue]);
+    }
+  }, []);
   const toggleSidebar = () => {
     if (isMobile) {
       setIsMobileOpen(!isMobileOpen);
     } else {
       setIsExpanded(!isExpanded);
+    }
+  };
+
+  useEffect(() => {
+    const payload: getDistrictsPayload = {
+      is_archived: null,
+      network_id: null,
+      sort_by: null,
+      sort_order: null,
+      page: 1,
+      limit: 100,
+      search: null,
+    };
+    fetchAllDistrictsInfo(payload);
+  }, []);
+
+  const fetchAllDistrictsInfo = async (payload: getDistrictsPayload) => {
+    const response = await fetchAllDistricts(payload);
+
+    if (response.success) {
+      const formattedDistricts = response.data.districts.map((district) => ({
+        id: district._id,
+        label: district.name,
+        value: district._id,
+      }));
+      setDistricts(formattedDistricts);
+    } else {
+      setDistricts([]);
     }
   };
 
@@ -178,9 +209,9 @@ const Sidebar = () => {
             <AnimatedContainer variant="fade" className="mb-3">
               <MultiSelectDropdown
                 label="District"
-                options={districtOptions}
-                selectedValues={[]}
-                onChange={() => {}}
+                options={districts}
+                selectedValues={selectedDistricts}
+                onChange={(values) => setSelectedDistricts(values)}
                 placeholder="Select district"
                 className="text-xs"
                 required

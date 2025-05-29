@@ -8,17 +8,29 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { SignOut, UserCircle } from "@phosphor-icons/react";
 
-const Header = ({ handleSetupClick }: any) => {
+const Header = ({
+  handleSetupClick,
+  handleDashboardClick,
+}: {
+  handleSetupClick: () => void;
+  handleDashboardClick: () => void;
+}) => {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [name, setName] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "setup" | null>(
+    "dashboard"
+  );
+
   const dropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     let storedRole = localStorage.getItem("userrole");
     let firstname = localStorage.getItem("name");
     setRole(storedRole);
     setName(firstname);
+
     const handleClickOutside = (e: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -34,11 +46,21 @@ const Header = ({ handleSetupClick }: any) => {
 
   const handleLogout = () => {
     localStorage.clear();
-    router.push("/auth/login"); // adjust based on your auth flow
+    router.push("/auth/login");
   };
 
   const handleProfile = () => {
-    router.push("/profile"); // update to actual route
+    router.push("/profile");
+  };
+
+  const handleDashboardClickInternal = () => {
+    handleDashboardClick(); // sets sidebar to false & navigates to Networks
+  };
+
+  const handleSetupClickInternal = () => {
+    setActiveTab("setup");
+    router.push("/network");
+    handleSetupClick(); // trigger passed-in callback
   };
 
   return (
@@ -58,20 +80,27 @@ const Header = ({ handleSetupClick }: any) => {
         className="flex items-center space-x-6"
       >
         <motion.div whileHover={{ y: -2 }} whileTap={{ y: 0 }}>
-          <Link
-            href="/system-dashboard"
-            className="text-gray-600 hover:text-gray-900 font-medium text-sm"
-            onClick={handleSetupClick}
+          <button
+            className={`text-sm font-medium ${
+              activeTab === "dashboard"
+                ? "text-[#2A7251] text-[14px]-400"
+                : "text-black text-[14px]-400"
+            }`}
+            onClick={handleDashboardClickInternal}
           >
             Dashboard
-          </Link>
+          </button>
         </motion.div>
 
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="px-6 py-1.5  text-emerald-700 text-sm  transition-colors"
-          onClick={handleSetupClick}
+          className={`px-6 py-1.5 text-sm transition-colors ${
+            activeTab === "setup"
+              ? "text-[#2A7251] text-[14px]-400"
+              : "text-black text-[14px]-400"
+          }`}
+          onClick={handleSetupClickInternal}
         >
           Setup
         </motion.button>
@@ -85,17 +114,12 @@ const Header = ({ handleSetupClick }: any) => {
           <div className="mr-3 text-right">
             <div className="text-sm font-medium">{name}</div>
             <Link href="/system-dashboard" className="block">
-              <div className="text-xs text-emerald-700  cursor-pointer">
+              <div className="text-xs text-emerald-700 cursor-pointer">
                 {role}
               </div>
             </Link>
-            {/* <Link href="/admin-dashboard" className="block">
-              <div className="text-xs text-gray-500 hover:text-blue-600 cursor-pointer">
-                Admin
-              </div>
-            </Link> */}
           </div>
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <motion.button
               className="p-1.5 rounded-full hover:bg-gray-100"
               whileHover={{ rotate: 180 }}
@@ -118,12 +142,12 @@ const Header = ({ handleSetupClick }: any) => {
             </motion.button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg z-50 py-1 border ">
+              <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg z-50 py-1 border">
                 <div className="flex flex-col items-center justify-center gap-2 p-2">
                   {role === "Observer" ? (
                     <button
                       onClick={handleProfile}
-                      className=" flex items-center gap-2 px-6 py-2 text-white bg-[#2A7251] text-sm rounded-md hover:bg-[#2A7251]"
+                      className="flex items-center gap-2 px-6 py-2 text-white bg-[#2A7251] text-sm rounded-md hover:bg-[#2A7251]"
                     >
                       <UserCircle className="text-white-400" size={18} />
                       Profile
