@@ -24,6 +24,7 @@ import {
 } from "react-icons/md";
 import apiClient from "@/api/axiosInterceptor";
 import { createObservationTool } from "@/services/observationToolService";
+import { useRouter } from "next/navigation";
 
 interface ExistingTool {
   id: string;
@@ -1387,6 +1388,8 @@ export default function NewObservationToolPage() {
     );
   };
 
+  const router = useRouter();
+
   const handleSaveTool = async () => {
     const payload = {
       observation_tool: {
@@ -1433,6 +1436,7 @@ export default function NewObservationToolPage() {
     try {
       const response = await createObservationTool(payload);
       alert("Tool saved successfully!");
+      router.push("/observation-tools");
     } catch (error) {
       alert("Failed to save tool");
       console.error(error);
