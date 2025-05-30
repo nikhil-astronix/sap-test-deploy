@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { z } from "zod"; // Import zod
 import Dropdown from "../ui/Dropdown";
 import MultiSelect from "../ui/MultiSelect";
-import { Student } from "@phosphor-icons/react";
+import { Student, MagnifyingGlass } from "@phosphor-icons/react";
 import Stepper from "./Stepper";
 import { useRouter } from "next/navigation";
 import { getInterventions } from "@/services/interventionService";
@@ -298,7 +298,7 @@ function BasicInfo({
   return (
     <div className="space-y-6 h-full px-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           School Name <span className="text-emerald-700">*</span>
         </label>
         <input
@@ -306,7 +306,7 @@ function BasicInfo({
           placeholder="Enter School Name"
           value={formData.schoolName}
           onChange={(e) => onChange("schoolName", e.target.value)}
-          className={`w-full px-3 py-2 rounded-lg border ${
+          className={`w-full px-3 py-2 text-[12px] bg-[#F4F6F8] rounded-lg border ${
             validationErrors.schoolName
               ? "border-red-500 focus:ring-red-500"
               : "border-gray-200 focus:ring-emerald-500"
@@ -320,10 +320,11 @@ function BasicInfo({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Grade(s) <span className="text-emerald-700">*</span>
         </label>
         <MultiSelect
+          className="bg-[#F4F6F8] text-[12px]"
           options={gradeOptions}
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
@@ -395,14 +396,20 @@ function SelectInterventions({
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="mb-3 font-medium">Tags & Attributes</h2>
-        <input
-          type="text"
-          placeholder="Search"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
+        <h2 className="mb-3 text-[16px] text-black-400">Tags & Attributes</h2>
+        <div className="relative">
+          <MagnifyingGlass
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-8 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
       </div>
 
       <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -419,8 +426,8 @@ function SelectInterventions({
                 className="mt-1 h-4 w-4 accent-[#2A7251] rounded border-gray-300"
               />
               <div className="ml-3">
-                <h3 className="font-medium">{tag.name}</h3>
-                <p className="text-sm text-gray-600">{tag.description}</p>
+                <h3 className="text-[14px] text-black-400">{tag.name}</h3>
+                <p className="text-[12px] text-[#637381]">{tag.description}</p>
               </div>
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
@@ -535,14 +542,22 @@ function SelectCurriculum({
   return (
     <div className="space-y-6 max-h-96 overflow-y-auto">
       <div className="mb-6">
-        <h2 className="mb-3 font-medium">Instructional Materials</h2>
-        <input
-          type="text"
-          placeholder="Search"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
+        <h2 className="mb-3 text-[16px] text-black-400">
+          Instructional Materials
+        </h2>
+        <div className="relative">
+          <MagnifyingGlass
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-8 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -559,8 +574,10 @@ function SelectCurriculum({
                 className="mt-1 h-4 w-4 accent-[#2A7251] rounded border-gray-300"
               />
               <div className="ml-3">
-                <h3 className="font-medium">{material.title}</h3>
-                <p className="text-sm text-gray-600">{material.description}</p>
+                <h3 className="text-[14px] text-black-400">{material.title}</h3>
+                <p className="text-[12px] text-[#637381]">
+                  {material.description}
+                </p>
               </div>
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
@@ -644,19 +661,19 @@ function ReviewSubmit({
   return (
     <div className="space-y-6 h-full px-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           School Name <span className="text-emerald-700">*</span>
         </label>
         <input
           type="text"
           value={formData.schoolName || ""}
           disabled
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed text-[12px]"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Grade(s) <span className="text-emerald-700">*</span>
         </label>
         <div className="w-full px-3 py-2 rounded-lg bg-white min-h-[38px]">
@@ -682,7 +699,7 @@ function ReviewSubmit({
 
       {/* Tags & Attributes Section */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Selected Tags & Attributes
         </label>
         <div className="space-y-4">
@@ -694,8 +711,10 @@ function ReviewSubmit({
               >
                 <div className="flex items-start">
                   <div className="ml-3">
-                    <h3 className="font-medium">{tag.name}</h3>
-                    <p className="text-sm text-gray-600">{tag.description}</p>
+                    <h3 className="text-[14px] text-black-400">{tag.name}</h3>
+                    <p className="text-[12px] text-[#637381]">
+                      {tag.description}
+                    </p>
                   </div>
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
@@ -739,7 +758,7 @@ function ReviewSubmit({
 
       {/* Instructional Materials Section */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Selected Instructional Materials
         </label>
         <div className="space-y-4">
@@ -752,8 +771,10 @@ function ReviewSubmit({
               >
                 <div className="flex items-start">
                   <div className="ml-3">
-                    <h3 className="font-medium">{material.title}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-[14px] text-black-400">
+                      {material.title}
+                    </h3>
+                    <p className="text-[12px] text-[#637381]">
                       {material.description}
                     </p>
                   </div>
@@ -823,7 +844,9 @@ function ReviewSubmit({
                 Creating...
               </>
             ) : (
-              "Create"
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full">
+                Create
+              </div>
             )}
           </button>
         </div>

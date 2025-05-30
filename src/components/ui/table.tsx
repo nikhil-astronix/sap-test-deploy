@@ -24,6 +24,7 @@ import {
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
 import MultiSelect from "./MultiSelect";
+import Tooltip from "../Tooltip";
 
 // Define the column interface
 export interface Column {
@@ -896,10 +897,10 @@ TableProps) {
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200"
+                    className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200"
                   >
                     <div
-                      className={`flex items-center justify-between w-full text-[12px] font-normal text-[#F9F5FF] ${
+                      className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
                         column.sortable ? "cursor-pointer" : ""
                       }`}
                       onClick={() => column.sortable && handleSort(column.key)}
@@ -950,7 +951,9 @@ TableProps) {
                       width={13}
                       alt="Action"
                     />
-                    <span className="text-[12px]-400 text-white">Action</span>
+                    <span className="text-[12px]-400 text-white font-semibold">
+                      Action
+                    </span>
                   </div>
                 </th>
               </tr>
@@ -1133,12 +1136,19 @@ TableProps) {
                                       <>
                                         {firstLabel}
                                         {remainingCount > 0 && (
-                                          <span
-                                            className="text-blue-600 cursor-pointer ml-1 "
-                                            title={labels.join(", ")}
+                                          <Tooltip
+                                            content={
+                                              <div className="flex flex-col space-y-1">
+                                                {labels.map((label, idx) => (
+                                                  <div key={idx}>{label}</div>
+                                                ))}
+                                              </div>
+                                            }
                                           >
-                                            +{remainingCount} more
-                                          </span>
+                                            <span className="text-blue-600 cursor-pointer ml-1">
+                                              +{remainingCount} more
+                                            </span>
+                                          </Tooltip>
                                         )}
                                       </>
                                     );

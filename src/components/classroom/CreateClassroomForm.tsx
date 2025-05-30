@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Stepper from "./Stepper";
 import Dropdown from "../ui/Dropdown";
 import MultiSelect from "../ui/MultiSelect";
-import { Student } from "@phosphor-icons/react";
+import { Student, MagnifyingGlass } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { getSchools } from "@/services/schoolService";
 import { getInterventions } from "@/services/interventionService";
@@ -64,12 +64,18 @@ const steps = [
 ];
 
 const gradeOptions = [
-  { label: "Kindergarten", value: "K" },
-  { label: "1st Grade", value: "1" },
-  { label: "2nd Grade", value: "2" },
-  { label: "3rd Grade", value: "3" },
-  { label: "4th Grade", value: "4" },
-  { label: "5th Grade", value: "5" },
+  { label: "Kindergarten", value: "Kindergarten" },
+  { label: "1", value: "1" },
+  { label: "2", value: "2" },
+  { label: "3", value: "3" },
+  { label: "4", value: "4" },
+  { label: "5", value: "5" },
+  { label: "6", value: "6" },
+  { label: "7", value: "7" },
+  { label: "8", value: "8" },
+  { label: "9", value: "9" },
+  { label: "10", value: "10" },
+  { label: "11", value: "11" },
 ];
 
 export default function CreateClassroomForm() {
@@ -339,7 +345,7 @@ function BasicInfo({
   return (
     <div className="space-y-6 h-full px-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           School <span className="text-emerald-700">*</span>
         </label>
         <Dropdown
@@ -364,7 +370,7 @@ function BasicInfo({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Course <span className="text-emerald-700">*</span>
         </label>
         <input
@@ -376,7 +382,7 @@ function BasicInfo({
             errors.course
               ? "border-red-500 focus:ring-red-500"
               : "border-gray-200 focus:ring-emerald-500"
-          } focus:outline-none focus:ring-1 bg-[#F4F6F8]`}
+          } focus:outline-none focus:ring-1 bg-[#F4F6F8] text-[12px]`}
         />
         {errors.course && (
           <p className="text-red-500 text-xs mt-1">
@@ -386,7 +392,7 @@ function BasicInfo({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Teacher <span className="text-emerald-700">*</span>
         </label>
         <input
@@ -394,7 +400,7 @@ function BasicInfo({
           placeholder="Enter Teacher Name"
           value={formData.teacher}
           onChange={(e) => onChange("teacher", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] text-[12px]"
         />
         {errors.teacher && (
           <p className="text-red-500 text-xs mt-1">
@@ -404,7 +410,7 @@ function BasicInfo({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Grade(s) <span className="text-emerald-700">*</span>
         </label>
         <MultiSelect
@@ -422,7 +428,7 @@ function BasicInfo({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Class Period / Section
         </label>
         <input
@@ -430,7 +436,7 @@ function BasicInfo({
           placeholder="Enter class period / section"
           value={formData.classPeriod}
           onChange={(e) => onChange("classPeriod", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] text-[12px]"
         />
       </div>
 
@@ -495,14 +501,20 @@ function SelectInterventions({
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="mb-3 font-medium">Tags & Attributes</h2>
-        <input
-          type="text"
-          placeholder="Search"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
+        <h2 className="mb-3 text-[16px] text-black-400">Tags & Attributes</h2>
+        <div className="relative">
+          <MagnifyingGlass
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-8 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
       </div>
 
       <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -523,8 +535,8 @@ function SelectInterventions({
                 htmlFor={`tag-${tag.id}`}
                 className="ml-3 flex-grow cursor-pointer"
               >
-                <h3 className="font-medium">{tag.name}</h3>
-                <p className="text-sm text-gray-600">{tag.description}</p>
+                <h3 className="text-[14px] text-black-400">{tag.name}</h3>
+                <p className="text-[12px] text-[#637381]">{tag.description}</p>
               </label>
 
               <motion.div
@@ -640,14 +652,22 @@ function SelectCurriculum({
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <h2 className="mb-3 font-medium">Instructional Materials</h2>
-        <input
-          type="text"
-          placeholder="Search"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
+        <h2 className="mb-3 text-[16px] text-black-400">
+          Instructional Materials
+        </h2>
+        <div className="relative">
+          <MagnifyingGlass
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-8 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
       </div>
 
       <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -668,8 +688,10 @@ function SelectCurriculum({
                 htmlFor={`material-${material.id}`}
                 className="ml-3 flex-grow cursor-pointer"
               >
-                <h3 className="font-medium">{material.title}</h3>
-                <p className="text-sm text-gray-600">{material.description}</p>
+                <h3 className="text-[14px] text-black-400">{material.title}</h3>
+                <p className="text-[12px] text-[#637381]">
+                  {material.description}
+                </p>
               </label>
 
               <motion.div
@@ -758,43 +780,43 @@ function ReviewSubmit({
   return (
     <div className="space-y-6 h-full px-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           School <span className="text-emerald-700">*</span>
         </label>
         <input
           type="text"
           value={formData.school || ""}
           disabled
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed text-[12px]"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Course <span className="text-emerald-700">*</span>
         </label>
         <input
           type="text"
           value={formData.course || ""}
           disabled
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed text-[12px]"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Teacher <span className="text-emerald-700">*</span>
         </label>
         <input
           type="text"
           value={formData.teacher || ""}
           disabled
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed text-[12px]"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Grade(s) <span className="text-emerald-700">*</span>
         </label>
         <div className="w-full px-3 py-2 rounded-lg bg-white min-h-[38px]">
@@ -803,7 +825,7 @@ function ReviewSubmit({
               {formData.grades.map((grade: string) => (
                 <span
                   key={grade}
-                  className="bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1"
+                  className="bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1 text-[12px]"
                 >
                   <Student size={16} />
                   {grade === "K"
@@ -819,7 +841,7 @@ function ReviewSubmit({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Class Period / Section
         </label>
         <input
@@ -831,7 +853,7 @@ function ReviewSubmit({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Selected Tags & Attributes
         </label>
         <div className="space-y-4">
@@ -843,8 +865,10 @@ function ReviewSubmit({
               >
                 <div className="flex items-start">
                   <div className="ml-3">
-                    <h3 className="font-medium">{tag.name}</h3>
-                    <p className="text-sm text-gray-600">{tag.description}</p>
+                    <h3 className="text-[14px] text-black-400">{tag.name}</h3>
+                    <p className="text-[12px] text-[#637381]">
+                      {tag.description}
+                    </p>
                   </div>
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
@@ -887,7 +911,7 @@ function ReviewSubmit({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-[16px] text-black-400 mb-2">
           Selected Instructional Materials
         </label>
         <div className="space-y-4">
@@ -900,8 +924,10 @@ function ReviewSubmit({
               >
                 <div className="flex items-start">
                   <div className="ml-3">
-                    <h3 className="font-medium">{material.title}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-[14px] text-black-400  ">
+                      {material.title}
+                    </h3>
+                    <p className="text-[12px] text-[#637381]">
                       {material.description}
                     </p>
                   </div>
@@ -969,7 +995,7 @@ function ReviewSubmit({
                 Creating...
               </>
             ) : (*/}
-            "Create"
+            Create
             {/*)}*/}
           </button>
         </div>

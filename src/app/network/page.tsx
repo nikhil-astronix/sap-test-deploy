@@ -476,17 +476,17 @@ export default function NetworksPage() {
               </div>
               <p className="text-left text-sm text-[#C23E19] mt-2">
                 {getSelectedItemsInfo().length === 0
-                  ? "No districts selected. Please select at least one district to archive."
+                  ? "No networks selected. Please select at least one network to archive."
                   : `Archiving ${
                       getSelectedItemsInfo().length === 1
-                        ? "this district"
-                        : "these districts"
+                        ? "this network"
+                        : "these networks"
                     } will remove ${
                       getSelectedItemsInfo().length === 1 ? "it" : "them"
                     } from active views. Associated data will remain stored and become visible again if ${
                       getSelectedItemsInfo().length === 1
-                        ? "the district"
-                        : "the districts"
+                        ? "the network"
+                        : "the networks"
                     } is restored. Please confirm before proceeding.`}
               </p>
             </div>
@@ -529,11 +529,11 @@ export default function NetworksPage() {
             {/* Description */}
             <p className="text-left text-black-400 text-[14px] mb-4">
               {getSelectedItemsInfo().length === 0
-                ? "Please select districts to restore."
+                ? "Please select networks to restore."
                 : `Are you sure you want to restore ${
                     getSelectedItemsInfo().length === 1
-                      ? "this District?"
-                      : "these Districts?"
+                      ? "this network?"
+                      : "these networks?"
                   }`}
             </p>
 
@@ -574,11 +574,11 @@ export default function NetworksPage() {
               </div>
               <p className="text-left text-sm mt-2">
                 {getSelectedItemsInfo().length === 0
-                  ? "No districts selected. Please select at least one district to restore."
+                  ? "No networks selected. Please select at least one network to restore."
                   : `Restoring ${
                       getSelectedItemsInfo().length === 1
-                        ? "this district"
-                        : "these districts"
+                        ? "this network"
+                        : "these networks"
                     } will make ${
                       getSelectedItemsInfo().length === 1 ? "it" : "them"
                     } active again. Please confirm before proceeding.`}
@@ -620,7 +620,7 @@ export default function NetworksPage() {
 
             {/* Prompt */}
             <p className="text-gray-800 mb-4">
-              Are you sure you want to delete this District?
+              Are you sure you want to delete this Network?
             </p>
 
             {/* District Info Card */}
@@ -671,8 +671,8 @@ export default function NetworksPage() {
                 </div>
               </div>
               <p className="text-sm text-[#C23E19] py-2">
-                Deleting this district will remove it from the existing
-                networks. Please confirm before proceeding.
+                Deleting this network will remove it from the existing networks.
+                Please confirm before proceeding.
               </p>
             </div>
 
