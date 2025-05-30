@@ -34,6 +34,7 @@ import {
 } from "@/models/curriculum";
 import { Intervention } from "@/types/interventionData";
 import { AxiosError } from "axios";
+import Tooltip from "@/components/Tooltip";
 
 // Add type definitions
 interface Classroom {
@@ -52,10 +53,18 @@ interface School {
 }
 
 const gradeOptions = [
+  { label: "Kindergarten", value: "Kindergarten" },
   { label: "1", value: "1" },
   { label: "2", value: "2" },
   { label: "3", value: "3" },
   { label: "4", value: "4" },
+  { label: "5", value: "5" },
+  { label: "6", value: "6" },
+  { label: "7", value: "7" },
+  { label: "8", value: "8" },
+  { label: "9", value: "9" },
+  { label: "10", value: "10" },
+  { label: "11", value: "11" },
 ];
 
 const instructionalOptions = [
@@ -940,31 +949,31 @@ export default function ClassroomsPage() {
               </th>
               <th className="w-[25%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <div className="flex items-center gap-2">
-                  <ChalkboardTeacher size={20} />
+                  <ChalkboardTeacher size={16} />
                   Course
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <User size={20} />
+                  <User size={16} />
                   Teacher
                 </span>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <ChartBar size={20} />
+                  <ChartBar size={16} />
                   Grades
                 </span>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <Book size={20} />
+                  <Book size={16} />
                   Instructional Materials
                 </span>
               </th>
-              <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
+              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
-                  <Tag size={20} />
+                  <Tag size={16} />
                   Tags & Attribute(s)
                 </span>
               </th>
@@ -1133,48 +1142,87 @@ export default function ClassroomsPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             {classroom.teacher}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            {classroom.grades.join(", ")}
+                          <td className="px-4 py-2 border-r border-gray-200 relative group">
+                            {classroom.grades.length > 0 ? (
+                              <Tooltip
+                                content={
+                                  <div className="flex flex-col space-y-1">
+                                    {classroom.grades.map((grade, idx) => (
+                                      <div key={idx}>{grade}</div>
+                                    ))}
+                                  </div>
+                                }
+                              >
+                                <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
+                                  <span className="truncate max-w-[150px]">
+                                    {classroom.grades[0]}
+                                  </span>
+                                  {classroom.grades.length > 1 && (
+                                    <span className="text-blue-700 ml-1 cursor-pointer">
+                                      +{classroom.grades.length - 1} more
+                                    </span>
+                                  )}
+                                </div>
+                              </Tooltip>
+                            ) : (
+                              "None"
+                            )}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis">
-                              {classroom?.curriculums?.length > 0 ? (
-                                <>
+                          <td className="px-4 py-2 border-r border-gray-200 relative group">
+                            {classroom.curriculums.length > 0 ? (
+                              <Tooltip
+                                content={
+                                  <div className="flex flex-col space-y-1">
+                                    {classroom.curriculums.map(
+                                      (curriculum, idx) => (
+                                        <div key={idx}>{curriculum}</div>
+                                      )
+                                    )}
+                                  </div>
+                                }
+                              >
+                                <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
                                   <span className="truncate max-w-[150px]">
                                     {classroom?.curriculums[0]}
                                   </span>
                                   {classroom.curriculums.length > 1 && (
-                                    <span className="text-blue-700 ml-1">
+                                    <span className="text-blue-700 ml-1 cursor-pointer">
                                       +{classroom?.curriculums?.length - 1} more
                                     </span>
                                   )}
-                                </>
-                              ) : (
-                                "None"
-                              )}
-                            </div>
+                                </div>
+                              </Tooltip>
+                            ) : (
+                              "None"
+                            )}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <span>
-                              {classroom?.interventions?.length > 0 ? (
-                                <>
-                                  <span className="truncate max-w-[150px]">
+                          <td className="px-4 py-2 border-r border-gray-200 relative group">
+                            {classroom.interventions.length > 0 ? (
+                              <Tooltip
+                                content={
+                                  <div className="flex flex-col space-y-1">
+                                    {classroom.interventions.map(
+                                      (intv, idx) => (
+                                        <div key={idx}>{intv}</div>
+                                      )
+                                    )}
+                                  </div>
+                                }
+                              >
+                                <div className="flex flex-col w-full truncate max-w-[150px]">
+                                  <span className="truncate">
                                     {classroom.interventions[0]}
                                   </span>
                                   {classroom?.interventions?.length > 1 && (
-                                    <>
-                                      {" "}
-                                      <span className="text-blue-700 ml-1">
-                                        +{classroom?.interventions?.length - 1}{" "}
-                                        more
-                                      </span>
-                                    </>
+                                    <span className="text-blue-700 cursor-pointer">
+                                      +{classroom.interventions.length - 1} more
+                                    </span>
                                   )}
-                                </>
-                              ) : (
-                                "None"
-                              )}
-                            </span>
+                                </div>
+                              </Tooltip>
+                            ) : (
+                              "None"
+                            )}
                           </td>
                           <td className="px-4 py-2 text-center">
                             <button

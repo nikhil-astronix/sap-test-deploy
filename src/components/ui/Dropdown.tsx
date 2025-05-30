@@ -50,7 +50,7 @@ export default function Dropdown({
   };
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`text-[12px] relative ${className}`} ref={dropdownRef}>
       {/* Selected Tag */}
       {/* {selectedOption && (
         <div className="flex flex-wrap gap-2 mb-2">
@@ -139,7 +139,9 @@ export default function Dropdown({
                     <div className="w-2 h-2 bg-emerald-600 rounded-full" />
                   )}
                 </div>
-                <span className={"text-gray-700"}>{option.label}</span>
+                <span className={"text-gray-700 text-[12px]"}>
+                  {option.label}
+                </span>
               </button>
             ))}
           </motion.div>

@@ -819,10 +819,10 @@ const DistrictsPage = () => {
                   {columns.map((column) => (
                     <th
                       key={column.key}
-                      className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200"
+                      className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200"
                     >
                       <div
-                        className={`flex items-center justify-between w-full text-[12px] font-normal text-[#F9F5FF] ${
+                        className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
                           column.sortable ? "cursor-pointer" : ""
                         }`}
                         onClick={() =>
@@ -875,7 +875,9 @@ const DistrictsPage = () => {
                         width={13}
                         alt="Action"
                       />
-                      <span className="text-[12px]-400 text-white">Action</span>
+                      <span className="text-[12px]-400 text-white font-semibold">
+                        Action
+                      </span>
                     </div>
                   </th>
                 </tr>
