@@ -836,18 +836,18 @@ function ReviewSubmit({
           <button
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-[#2A7251] disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-emerald-800 transition-colors"
           >
-            {isSubmitting ? (
+            {/* {isSubmitting ? (
               <>
                 <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
                 Creating...
               </>
-            ) : (
-              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full">
-                Create
-              </div>
-            )}
+            ) : ( */}
+            {/* <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"> */}
+            Create
+            {/* </div> */}
+            {/* )} */}
           </button>
         </div>
       </div>

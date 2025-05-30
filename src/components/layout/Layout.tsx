@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-import { useState } from "react";
 import { AnimatedContainer } from "@/components/ui/animated-container";
 import { useRouter } from "next/navigation";
 
@@ -15,20 +14,29 @@ const Layout = ({ children }: LayoutProps) => {
   const router = useRouter();
   const [showSetup, setShowSetup] = useState(false);
 
+  // On initial load, check localStorage for the previous selection
+  useEffect(() => {
+    const storedTab = localStorage.getItem("activeTab");
+    if (storedTab === "setup") {
+      setShowSetup(true);
+    } else {
+      setShowSetup(false);
+    }
+  }, []);
+
   const toggleSetup = () => {
     setShowSetup(true);
+    localStorage.setItem("activeTab", "setup");
   };
 
   const handleDashboardClick = () => {
-    setShowSetup(false); // hide sidebar
+    setShowSetup(false);
+    localStorage.setItem("activeTab", "dashboard");
     router.push("/system-dashboard");
   };
 
-  // Create a function to modify child elements to pass the sidebar state
   const childrenWithProps = React.Children.map(children, (child) => {
-    // Check if the child is a valid element
     if (React.isValidElement(child)) {
-      // Clone the child with additional props
       return React.cloneElement(child, { sidebarVisible: showSetup });
     }
     return child;
@@ -51,7 +59,7 @@ const Layout = ({ children }: LayoutProps) => {
           </AnimatedContainer>
         </div>
       ) : (
-        <div className="py-6 px-6  h-[calc(100vh-64px)]">
+        <div className="py-6 px-6 h-[calc(100vh-64px)]">
           {childrenWithProps}
         </div>
       )}

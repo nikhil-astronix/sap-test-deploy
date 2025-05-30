@@ -99,7 +99,7 @@ export default function NewInterventionPage() {
           transition={{ delay: 0.2, duration: 0.4 }}
           className="mb-8"
         >
-          <div className="text-[24px] mb-2 text-center text-black-400">
+          <div className="text-[24px] mb-2 text-center text-black font-medium">
             Tags & Attributes
           </div>
           <p className="text-black-400 text-center text-[16px]">
