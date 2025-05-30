@@ -194,9 +194,7 @@ export default function NewDistrictPage() {
   return (
     <div className="container mx-auto bg-white rounded-lg min-h-screen overflow-y-auto">
       <div className="max-w-3xl mx-auto h-auto">
-        <h1 className="text-2xl font-semibold mb-6 text-center">
-          Create District
-        </h1>
+        <h1 className="text-2xl mb-6 text-center">Create District</h1>
         <p className="text-gray-600 mb-8 text-center">
           Enter the details below to add a new district.
         </p>

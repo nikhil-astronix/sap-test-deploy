@@ -26,7 +26,7 @@ export const editNetwork = async (network_id: string, data: networkData) => {
 	return { success: false, error };
   }
 };
-export const createNetwork = async (data: string) => {
+export const createNetwork = async (data:any) => {
   try {
 	const response = await apiClient.post("/v1/network/create_network", data);
 	return { success: true, data: response.data };
