@@ -875,7 +875,7 @@ const DistrictsPage = () => {
                         width={13}
                         alt="Action"
                       />
-                      <span className="text-[12px]-400 text-white font-semibold">
+                      <span className="text-[14px] text-white font-semibold">
                         Action
                       </span>
                     </div>
