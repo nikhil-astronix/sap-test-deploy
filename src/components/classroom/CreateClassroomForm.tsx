@@ -418,7 +418,9 @@ function BasicInfo({
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
           placeholder="Select grades"
-          className={`bg-[#F4F6F8] ${errors.grades ? "border-red-500" : ""}`}
+          className={`bg-[#F4F6F8] text-[#919EAB] text-[12px] ${
+            errors.grades ? "border-red-500" : ""
+          }`}
         />
         {errors.grades && (
           <p className="text-red-500 text-xs mt-1">

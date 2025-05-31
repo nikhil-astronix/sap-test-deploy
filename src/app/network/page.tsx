@@ -743,7 +743,7 @@ export default function NetworksPage() {
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
                   <Building size={16} />
-                  City
+                  City/Town
                 </span>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">

@@ -7,6 +7,7 @@ import { AnimatedContainer } from "@/components/ui/animated-container";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { SignOut, UserCircle } from "@phosphor-icons/react";
+import { usePathname } from "next/navigation";
 
 const Header = ({
   handleSetupClick,
@@ -20,8 +21,9 @@ const Header = ({
   const [name, setName] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "setup" | null>(
-    "dashboard"
+    null
   );
+  const pathname = usePathname();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +32,14 @@ const Header = ({
     let firstname = localStorage.getItem("name");
     setRole(storedRole);
     setName(firstname);
+
+    if (pathname === "/" || pathname === "/system-dashboard") {
+      setActiveTab("dashboard");
+    } else if (pathname === "/network") {
+      setActiveTab("setup");
+    } else {
+      setActiveTab(null);
+    }
 
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -42,7 +52,7 @@ const Header = ({
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -85,7 +95,7 @@ const Header = ({
               activeTab === "dashboard"
                 ? "text-[#2A7251] text-[14px]-400"
                 : "text-black text-[14px]-400"
-            }`}
+            } hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
             onClick={handleDashboardClickInternal}
           >
             Dashboard
@@ -99,7 +109,7 @@ const Header = ({
             activeTab === "setup"
               ? "text-[#2A7251] text-[14px]-400"
               : "text-black text-[14px]-400"
-          }`}
+          }  hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
           onClick={handleSetupClickInternal}
         >
           Setup

@@ -312,9 +312,9 @@ export default function SchoolsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl mb-3 text-center ">Schools</h1>
+      <h1 className="text-2xl mb-3 text-center font-medium ">Schools</h1>
       <p className="text-center text-gray-600 mb-6">
-        Manage all your Schools in one place.
+        Manage all your schools in one place.
       </p>
       <Table
         columns={columns}

@@ -24,6 +24,7 @@ import {
 } from "react-icons/md";
 import apiClient from "@/api/axiosInterceptor";
 import { createObservationTool } from "@/services/observationToolService";
+import { useRouter } from "next/navigation";
 
 interface ExistingTool {
   id: string;
@@ -57,7 +58,7 @@ type Question = {
   conditionalLogic: boolean;
   // For future extensibility, not used in this UI yet
   conditionalLogicOptions?: ConditionalLogicOption[];
-  subsections?: Subsection[]; // <-- add this
+  subsections?: Subsection[];
 };
 
 // Sortable Question Card (move outside main component)
@@ -385,12 +386,12 @@ function SortableQuestion({
           {question.subsections && question.subsections.length > 0 && (
             <div className="mt-6 border border-gray-200 rounded-lg p-4">
               <div className="flex gap-2 ml-auto flex-row justify-end">
-                <button
+                {/* <button
                   className="px-4 py-2 rounded bg-green-700 text-white"
                   style={{ background: "#2E7D32" }}
                 >
                   Save Subsection
-                </button>
+                </button> */}
                 <button
                   className="px-4 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100"
                   onClick={() => handleRemoveSubsection(activeSubsection)}
@@ -1328,22 +1329,26 @@ function CheckboxSubQuestionCard({
 }
 
 export default function NewObservationToolPage() {
+  const [sections, setSections] = useState([
+    {
+      name: "",
+      description: "",
+      questions: [
+        {
+          id: "q1",
+          title: "",
+          subText: "",
+          options: ["", ""],
+          isMandatory: true,
+          conditionalLogic: false,
+        },
+      ],
+    },
+  ]);
+  const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
   const [toolName, setToolName] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
-  const [sectionName, setSectionName] = useState("");
-  const [sectionDescription, setSectionDescription] = useState("");
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: "q1",
-      title: "",
-      subText: "",
-      options: ["", ""],
-      isMandatory: true,
-      conditionalLogic: false,
-    },
-  ]);
-  const [showQuestionUI, setShowQuestionUI] = useState(true);
   const [showQuestionTypeModal, setShowQuestionTypeModal] = useState(false);
   const [modalParentIdx, setModalParentIdx] = useState<number | null>(null);
   const [modalSubsectionIdx, setModalSubsectionIdx] = useState<number | null>(
@@ -1375,57 +1380,67 @@ export default function NewObservationToolPage() {
     { id: "3", name: "Sample Observation Tool1" },
   ];
 
+  // Helper to get/set current section
+  const currentSection = sections[currentSectionIdx];
+  const setCurrentSection = (section: any) => {
+    setSections((prev) =>
+      prev.map((s, idx) => (idx === currentSectionIdx ? section : s))
+    );
+  };
+
+  const router = useRouter();
+
   const handleSaveTool = async () => {
-    // Construct the payload
     const payload = {
       observation_tool: {
         name: toolName,
-        sections: [
-          {
-            id: "section-1", // You can generate or use a real ID
-            name: sectionName,
-            description: sectionDescription,
-            questions: questions.map((q, qIdx) => ({
-              id: q.id,
-              text: q.title,
-              sub_text: q.subText,
-              is_mandatory: q.isMandatory,
-              is_conditional: q.conditionalLogic,
-              options: q.options.map((opt, optIdx) => {
-                return {
-                  id: `opt${qIdx}_${optIdx}`,
-                  text: opt,
-                  jump_to: "",
-                };
-              }),
-              sub_sections:
-                q.subsections?.map((sub, subIdx) => ({
-                  id: `subsec${qIdx}_${subIdx}`,
-                  name: sub.name,
-                  description: sub.description,
-                  questions: sub.questions.map((subQ, subQIdx) => ({
+        sections: sections.map((section, sIdx) => ({
+          id: `section-${sIdx + 1}`,
+          name: section.name,
+          description: section.description,
+          questions: section.questions.map((q, qIdx) => ({
+            id: q.id,
+            text: q.title,
+            sub_text: q.subText,
+            is_mandatory: q.isMandatory,
+            is_conditional: q.conditionalLogic,
+            options: q.options.map((opt, optIdx) => {
+              return {
+                id: `opt${qIdx}_${optIdx}`,
+                text: opt,
+                jump_to: "",
+              };
+            }),
+            sub_sections: ((q as Question).subsections ?? []).map(
+              (sub: Subsection, subIdx: number) => ({
+                id: `subsec${qIdx}_${subIdx}`,
+                name: sub.name,
+                description: sub.description,
+                questions: sub.questions.map(
+                  (subQ: Question, subQIdx: number) => ({
                     id: subQ.id,
                     text: subQ.title,
                     sub_text: subQ.subText,
                     is_mandatory: subQ.isMandatory,
-                    options: subQ.options.map((opt, optIdx) => ({
-                      id: `subqopt${subQIdx}_${optIdx}`,
-                      text: opt,
-                    })),
-                    sub_questions: [], // Add if you support nested sub-questions
-                  })),
-                })) || [],
-              sub_questions: [], // Add if you support direct sub-questions
-            })),
-          },
-        ],
+                    options: subQ.options.map(
+                      (opt: string, optIdx: number) => ({
+                        id: `subqopt${subQIdx}_${optIdx}`,
+                        text: opt,
+                      })
+                    ),
+                    sub_questions: [],
+                  })
+                ),
+              })
+            ),
+            sub_questions: [],
+          })),
+        })),
       },
     };
-
     try {
-      // Replace with your actual API endpoint
       const response = await createObservationTool(payload);
-      alert("Tool saved successfully!");
+      router.push("/observation-tools");
     } catch (error) {
       alert("Failed to save tool");
       console.error(error);
@@ -1434,13 +1449,64 @@ export default function NewObservationToolPage() {
 
   const handleSaveSection = () => {};
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    if (sections.length === 1) {
+      // Prevent deleting the last section: reset to blank
+      setSections([
+        {
+          name: "",
+          description: "",
+          questions: [
+            {
+              id: "q1",
+              title: "",
+              subText: "",
+              options: ["", ""],
+              isMandatory: true,
+              conditionalLogic: false,
+            },
+          ],
+        },
+      ]);
+      setCurrentSectionIdx(0);
+      return;
+    }
+    const newSections = sections.filter((_, idx) => idx !== currentSectionIdx);
+    let newIdx = currentSectionIdx;
+    if (currentSectionIdx >= newSections.length) {
+      newIdx = newSections.length - 1;
+    }
+    setSections(newSections);
+    setCurrentSectionIdx(newIdx);
+  };
 
-  // Add Question Handler
+  // Add Section Handler
+  const handleAddSection = () => {
+    setSections((prev) => [
+      ...prev,
+      {
+        name: "",
+        description: "",
+        questions: [
+          {
+            id: "q1",
+            title: "",
+            subText: "",
+            options: ["", ""],
+            isMandatory: true,
+            conditionalLogic: false,
+          },
+        ],
+      },
+    ]);
+    setCurrentSectionIdx(sections.length); // Switch to new section
+  };
+
+  // Add Question Handler (for current section)
   const handleAddQuestion = () => {
-    const newId = `q${questions.length + 1}`;
+    const newId = `q${currentSection.questions.length + 1}`;
     const updatedQuestions = [
-      ...questions,
+      ...currentSection.questions,
       {
         id: newId,
         title: "",
@@ -1450,21 +1516,29 @@ export default function NewObservationToolPage() {
         conditionalLogic: false,
       },
     ];
-    setQuestions(updatedQuestions);
+    setCurrentSection({ ...currentSection, questions: updatedQuestions });
   };
 
-  // Drag and Drop Handlers
+  // Drag and Drop Handlers (for current section)
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (active.id !== over.id) {
-      const oldIndex = questions.findIndex((q) => q.id === active.id);
-      const newIndex = questions.findIndex((q) => q.id === over.id);
-      const updatedQuestions = arrayMove(questions, oldIndex, newIndex);
-      setQuestions(updatedQuestions);
+      const oldIndex = currentSection.questions.findIndex(
+        (q) => q.id === active.id
+      );
+      const newIndex = currentSection.questions.findIndex(
+        (q) => q.id === over.id
+      );
+      const updatedQuestions = arrayMove(
+        currentSection.questions,
+        oldIndex,
+        newIndex
+      );
+      setCurrentSection({ ...currentSection, questions: updatedQuestions });
     }
   };
 
-  // Handler to open modal for parent question
+  // Handler to open modal for parent question (for current section)
   const handleOpenQuestionTypeModal = (
     parentIdx: number,
     subsectionIdx: number | null = null
@@ -1474,7 +1548,7 @@ export default function NewObservationToolPage() {
     setShowQuestionTypeModal(true);
   };
 
-  // Handler to add sub-question of selected type
+  // Handler to add sub-question of selected type (for current section)
   const handleSelectQuestionType = (type: string) => {
     if (modalParentIdx === null) return;
     if (type === "multiple_choice") {
@@ -1516,49 +1590,49 @@ export default function NewObservationToolPage() {
       setShowQuestionTypeModal(false);
       return;
     }
-    setQuestions((prevQs) => {
-      return prevQs.map((q, idx) => {
-        if (idx !== modalParentIdx) return q;
-        // If subsectionIdx is null, add to main question's subsections
-        if (modalSubsectionIdx === null) {
-          // If no subsections, create one
-          let subsections = q.subsections ? [...q.subsections] : [];
-          if (subsections.length === 0) {
-            subsections.push({
-              name: "",
-              description: "",
-              questions: [],
+    setCurrentSection((prevSection: any) => {
+      return {
+        ...prevSection,
+        questions: prevSection.questions.map((q: any, idx: number) => {
+          if (idx !== modalParentIdx) return q;
+          // If subsectionIdx is null, add to main question's subsections
+          if (modalSubsectionIdx === null) {
+            let subsections = q.subsections ? [...q.subsections] : [];
+            if (subsections.length === 0) {
+              subsections.push({
+                name: "",
+                description: "",
+                questions: [],
+              });
+            }
+            const subQType =
+              type === "open_ended" ? { options: [""] } : { options: ["", ""] };
+            subsections[0].questions.push({
+              id: `q${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+              title: "",
+              subText: "",
+              ...subQType,
+              isMandatory: false,
+              conditionalLogic: false,
             });
+            return { ...q, subsections };
+          } else {
+            const subsections = q.subsections ? [...q.subsections] : [];
+            if (!subsections[modalSubsectionIdx]) return q;
+            const subQType =
+              type === "open_ended" ? { options: [""] } : { options: ["", ""] };
+            subsections[modalSubsectionIdx].questions.push({
+              id: `q${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+              title: "",
+              subText: "",
+              ...subQType,
+              isMandatory: false,
+              conditionalLogic: false,
+            });
+            return { ...q, subsections };
           }
-          // Add sub-question to first subsection
-          const subQType =
-            type === "open_ended" ? { options: [""] } : { options: ["", ""] };
-          subsections[0].questions.push({
-            id: `q${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-            title: "",
-            subText: "",
-            ...subQType,
-            isMandatory: false,
-            conditionalLogic: false,
-          });
-          return { ...q, subsections };
-        } else {
-          // Add to specific subsection
-          const subsections = q.subsections ? [...q.subsections] : [];
-          if (!subsections[modalSubsectionIdx]) return q;
-          const subQType =
-            type === "open_ended" ? { options: [""] } : { options: ["", ""] };
-          subsections[modalSubsectionIdx].questions.push({
-            id: `q${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-            title: "",
-            subText: "",
-            ...subQType,
-            isMandatory: false,
-            conditionalLogic: false,
-          });
-          return { ...q, subsections };
-        }
-      });
+        }),
+      };
     });
     setShowQuestionTypeModal(false);
   };
@@ -1586,8 +1660,7 @@ export default function NewObservationToolPage() {
             Save Tool
           </button>
         </div>
-
-        <div className="flex justify-between items-start gap-8 mb-12">
+        <div className="flex justify-between items-start gap-8 mb-6 pb-4 border-b border-gray-200">
           <div className="flex-1">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-32">
@@ -1603,7 +1676,6 @@ export default function NewObservationToolPage() {
                 className="text-sm flex-1 p-2 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
-
             <div className="flex items-center gap-4">
               <div className="w-32">
                 <label className="block text-gray-700 font-medium">
@@ -1622,7 +1694,6 @@ export default function NewObservationToolPage() {
                     }`}
                   />
                 </button>
-
                 {isDropdownOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -1653,73 +1724,89 @@ export default function NewObservationToolPage() {
               </div>
             </div>
           </div>
-
-          <div className="flex items-center  gap-4">
-            <button
-              onClick={handleSaveSection}
-              className="px-6 py-2 bg-[#2264AC] text-white rounded-lg hover:bg-[#2264AC] transition-colors"
-            >
-              Save Section
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-6 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
-            >
-              Delete
-            </button>
-          </div>
+          <div className="flex items-center  gap-4"></div>
         </div>
-
+        <div className="flex justify-end">
+          <button
+            onClick={handleDelete}
+            className="px-6 py-2 mb-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+          >
+            Delete Section
+          </button>
+        </div>
+        {/* Section Tabs and Add Section Button */}
         <div className="flex items-center justify-center mb-6 border-b border-gray-200">
           <div className="flex items-center justify-center gap-4">
-            <span
-              className="text-[inherit] pb-2 border-b-2"
-              style={{ color: "#2264AC", borderBottomColor: "#2264AC" }}
-            >
-              {sectionName || "Untitled Section"}
-            </span>
+            {sections.map((section, idx) => (
+              <button
+                key={idx}
+                className={`text-[inherit] pb-2 border-b-2 transition-colors mr-2 ${
+                  currentSectionIdx === idx ? "font-semibold" : ""
+                }`}
+                style={{
+                  color: "#2264AC",
+                  borderBottomColor:
+                    currentSectionIdx === idx ? "#2264AC" : "transparent",
+                }}
+                onClick={() => setCurrentSectionIdx(idx)}
+              >
+                {section.name || `Untitled Section ${idx + 1}`}
+              </button>
+            ))}
             <button
               className="text-gray-600 pb-2 border-b-2 border-transparent hover:text-[inherit]"
               style={{ color: "#2264AC" }}
+              onClick={handleAddSection}
+              type="button"
             >
               + Add Section
             </button>
           </div>
         </div>
 
+        {/* Section Name/Description */}
         <div className="bg-white rounded-lg border p-6 mb-4 border-gray-200 shadow-md">
           <input
             type="text"
             placeholder="Untitled Section"
-            value={sectionName}
-            onChange={(e) => setSectionName(e.target.value)}
+            value={currentSection.name}
+            onChange={(e) =>
+              setCurrentSection({ ...currentSection, name: e.target.value })
+            }
             className="w-full text-xl font-medium mb-4 p-2 border-b focus:outline-none"
             style={{ borderBottomColor: "#2264AC" }}
           />
           <textarea
             placeholder="Add Description"
-            value={sectionDescription}
-            onChange={(e) => setSectionDescription(e.target.value)}
+            value={currentSection.description}
+            onChange={(e) =>
+              setCurrentSection({
+                ...currentSection,
+                description: e.target.value,
+              })
+            }
             className="w-full h-24 p-2 border-b focus:outline-none resize-none"
             style={{ borderBottomColor: "#2264AC" }}
           />
         </div>
-
+        {/* Questions for current section */}
         <DndContext
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={questions.map((q) => q.id)}
+            items={currentSection.questions.map((q) => q.id)}
             strategy={verticalListSortingStrategy}
           >
-            {questions.map((question, idx) => (
+            {currentSection.questions.map((question, idx) => (
               <SortableQuestion
                 key={question.id}
                 question={question}
                 index={idx}
-                questions={questions}
-                setQuestions={setQuestions}
+                questions={currentSection.questions}
+                setQuestions={(qs) =>
+                  setCurrentSection({ ...currentSection, questions: qs })
+                }
                 onAddSubQuestion={() => handleOpenQuestionTypeModal(idx)}
                 showMCSubQs={showMCSubQs}
                 mcSubQData={mcSubQData}

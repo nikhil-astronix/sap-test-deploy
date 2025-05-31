@@ -194,7 +194,9 @@ export default function NewDistrictPage() {
   return (
     <div className="container mx-auto bg-white rounded-lg min-h-screen overflow-y-auto">
       <div className="max-w-3xl mx-auto h-auto">
-        <h1 className="text-2xl mb-6 text-center">Create District</h1>
+        <h1 className="text-2xl font-medium mb-6 text-center">
+          Create District
+        </h1>
         <p className="text-gray-600 mb-8 text-center">
           Enter the details below to add a new district.
         </p>
@@ -236,9 +238,9 @@ export default function NewDistrictPage() {
                 validationErrors.state
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-200 focus:ring-emerald-500"
-              } focus:outline-none focus:ring-1`}
+              } focus:outline-none focus:ring-1 text-[12px] text-[#919EAB]`}
             >
-              <option className="text-[12px] text-gray" value="">
+              <option className="text-[12px] text-[#919EAB]" value="">
                 Select state
               </option>
               {states.map((state) => (
@@ -291,9 +293,9 @@ export default function NewDistrictPage() {
                 validationErrors.network
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-200 focus:ring-emerald-500"
-              } focus:outline-none focus:ring-1`}
+              } focus:outline-none focus:ring-1 text-[12px] text-[#919EAB]`}
             >
-              <option className="text-[12px] text-gray" value="">
+              <option className="text-[12px] text-[#919EAB]" value="">
                 Select network
               </option>
               {networks.map((network) => (
@@ -322,9 +324,9 @@ export default function NewDistrictPage() {
                 validationErrors.enrollmentRange
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-200 focus:ring-emerald-500"
-              } focus:outline-none focus:ring-1`}
+              } focus:outline-none focus:ring-1 text-[12px] text-[#919EAB]`}
             >
-              <option className="text-[12px] text-gray" value="">
+              <option className="text-[12px] " value="">
                 Select enrollment range
               </option>
               {enrollmentRanges.map((range) => (
