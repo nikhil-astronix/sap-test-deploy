@@ -137,6 +137,7 @@ export default function CreateClassroomForm() {
 
   const fetchSchools = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: null,
         sort_by: null,
@@ -144,6 +145,7 @@ export default function CreateClassroomForm() {
         curr_page: 1,
         per_page: 100,
         search: null,
+        district_id: districtId,
       };
       const response = await getSchools(requesPayload);
       const formattedschools = response.data.schools.map((school: any) => ({
@@ -226,9 +228,11 @@ export default function CreateClassroomForm() {
   // Handle final form submission
   const onSubmit = async (data: ClassroomFormData) => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       setApiError("");
       const submitData = {
         school_id: data.school_id,
+        district_id: districtId || "",
         school_name: data.school,
         course: data.course,
         teacher_name: data.teacher,

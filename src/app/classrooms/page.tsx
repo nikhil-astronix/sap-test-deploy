@@ -220,8 +220,10 @@ export default function ClassroomsPage() {
   ) => {
     setIsLoading(true);
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requestPayload = {
         is_archived: active,
+        district_id: districtId || "",
         sort_by: null,
         sort_order: null,
         curr_page: page,
