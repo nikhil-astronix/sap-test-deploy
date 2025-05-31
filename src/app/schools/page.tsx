@@ -236,8 +236,10 @@ export default function SchoolsPage() {
   ) => {
     setLoading(true);
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: isArchived,
+        district_id: districtId || "",
         sort_by: sortBy,
         sort_order: sortOrder,
         curr_page: page,
@@ -302,6 +304,7 @@ export default function SchoolsPage() {
             label: intervention.name,
           })
         );
+        console.log("formattedInterventions", formattedInterventions);
         setInterventions(formattedInterventions);
       }
     } catch (error) {
