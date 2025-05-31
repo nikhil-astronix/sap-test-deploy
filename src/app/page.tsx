@@ -1,5 +1,5 @@
 import CurriculumList from "@/components/curriculum/CurriculumList";
-import Selectdistricts from "./selectdistrict/page";
+import Selectdistricts from "./select-district/page";
 
 export default function Home() {
   return (

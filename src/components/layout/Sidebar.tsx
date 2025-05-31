@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   FaBuilding,
   FaSchool,
@@ -96,7 +96,8 @@ const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [districts, setDistricts] = useState([]);
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
+  const [selectedDistrict, setSelectedDistricts] = useState<string[]>([]);
+  const router = useRouter();
 
   // Handle window resize
   useEffect(() => {
@@ -113,9 +114,28 @@ const Sidebar = () => {
   }, []);
 
   useEffect(() => {
-    const storedDistrictValue = localStorage.getItem("districtValue");
-    if (storedDistrictValue) {
-      setSelectedDistricts([storedDistrictValue]);
+    if (selectedDistrict.length > 0) {
+      localStorage.setItem("globalDistrict", selectedDistrict[0]);
+      const navItemsPath = navItems.map((item) => item.path);
+      if (
+        pathname === "/select-district" ||
+        !navItemsPath.includes(pathname || "")
+      ) {
+        router.push("/network");
+      } else if (pathname) {
+        router.push(pathname.toString());
+      }
+    }
+  }, [selectedDistrict]);
+
+  useEffect(() => {
+    if (
+      localStorage.getItem("globalDistrict") === "" ||
+      !localStorage.getItem("globalDistrict")
+    ) {
+      router.push("/select-district");
+    } else {
+      setSelectedDistricts([localStorage.getItem("globalDistrict") || ""]);
     }
   }, []);
   const toggleSidebar = () => {
@@ -212,7 +232,7 @@ const Sidebar = () => {
               <MultiSelectDropdown
                 label="District"
                 options={districts}
-                selectedValues={selectedDistricts}
+                selectedValues={selectedDistrict}
                 onChange={(values) => setSelectedDistricts(values)}
                 placeholder="Select district"
                 className="text-xs"

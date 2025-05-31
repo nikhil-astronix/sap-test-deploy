@@ -60,7 +60,6 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       setTotalRecords(response.data.total);
       setPageNumber(response.data.page);
       setPageSize(response.data.limit);
-      console.log("Districts data fetch successfully");
     } else {
       setFilteredData([]);
       console.log("Error while fetching Districts data");

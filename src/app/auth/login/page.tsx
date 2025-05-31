@@ -101,7 +101,6 @@ function LoginPageContent() {
 
       if (res?.status === "LOGIN_SUCCESS") {
         const response = await getCurrentUser();
-        console.log("response--------", response);
 
         localStorage.setItem("userrole", response.data.user_type);
         localStorage.setItem(
