@@ -183,11 +183,11 @@ export default function InterventionsPage() {
           transition={{ delay: 0.1, duration: 0.3 }}
           className="flex-none mb-8 items-center justify-center"
         >
-          <div className="text-[24px] mb-2 text-center text-black-400">
+          <div className="text-[24px] mb-2 text-center text-black font-medium">
             Tags & Attributes
           </div>
           <p className="text-[#454F5B] text-center text-[16px]">
-            Helping educators and students succeed together.
+            Unique attributes to collect data across your system.
           </p>
         </motion.div>
 

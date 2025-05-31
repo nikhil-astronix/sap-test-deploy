@@ -257,7 +257,7 @@ export default function CreateUserForm() {
     <div className="h-[calc(100vh-88px)] overflow-y-auto bg-white">
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         <div>
-          <h1 className="text-[24px] text-black-400 text-center">
+          <h1 className="text-[24px] text-black font-medium text-center">
             Create User
           </h1>
           <p className="mt-1 text-[16px] text-[#454F5B]-400 text-center">

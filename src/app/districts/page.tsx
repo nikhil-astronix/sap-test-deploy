@@ -296,7 +296,7 @@ const DistrictsPage = () => {
     },
     {
       key: "city",
-      label: "City",
+      label: "City/Town",
       sortable: true,
       icon: <Building size={20} />,
       editable: true,
@@ -663,7 +663,7 @@ const DistrictsPage = () => {
 
       {/* container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md */}
       <div className="container text-center mx-auto px-4 py-8 bg-white">
-        <h1 className="text-2xl text-center mb-2">Districts</h1>
+        <h1 className="text-2xl font-medium text-center mb-2">Districts</h1>
         <p className="text-center text-gray-600 mb-6">
           View and manage all districts in the system.
         </p>
@@ -875,7 +875,7 @@ const DistrictsPage = () => {
                         width={13}
                         alt="Action"
                       />
-                      <span className="text-[12px]-400 text-white font-semibold">
+                      <span className="text-[14px] text-white font-semibold">
                         Action
                       </span>
                     </div>
@@ -944,7 +944,7 @@ const DistrictsPage = () => {
                                 />
                               )
                             ) : (
-                              <div className="text-left">
+                              <div className="text-left text-[14px]">
                                 {renderCell(district, column.key)}
                               </div>
                             )}

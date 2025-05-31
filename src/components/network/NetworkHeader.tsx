@@ -56,7 +56,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
 
   return (
     <>
-      <h1 className="text-2xl text-center mb-2">{title}</h1>
+      <h1 className="text-2xl text-center font-medium mb-2">{title}</h1>
       <p className="text-center text-gray-600 mb-6">{description}</p>
 
       {isEditing ? (

@@ -98,7 +98,7 @@ const NewCurriculumPage = () => {
           className="max-w-3xl mx-auto"
         >
           <div className="mb-8 text-center">
-            <h1 className="text-[24px] mb-2 text-center text-black-400">
+            <h1 className="text-[24px] mb-2 text-center text-black font-medium">
               Instructional Materials
             </h1>
             <p className="text-md text-gray-600">
