@@ -302,7 +302,6 @@ export default function SchoolsPage() {
             label: intervention.name,
           })
         );
-        console.log("formattedInterventions", formattedInterventions);
         setInterventions(formattedInterventions);
       }
     } catch (error) {
