@@ -31,6 +31,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -44,6 +45,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
   }, [selectedFilters, searchTerm]);
 
   const fetchDistrictsInfo = async () => {
+    setIsLoading(true);
     const requestPayload: fetchDistrictsPayload = {
       search: searchTerm,
       sort_by: selectedFilters.sort_by,
@@ -61,9 +63,11 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       setPageNumber(response.data.page);
       setPageSize(response.data.limit);
       console.log("Districts data fetch successfully");
+      setIsLoading(false);
     } else {
       setFilteredData([]);
       console.log("Error while fetching Districts data");
+      setIsLoading(false);
     }
   };
 
@@ -278,14 +282,15 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       <DashboardTable
         data={filteredData}
         columns={districtsColumns}
-        headerColor="blue-700"
+        headerColor="#2264AC"
         renderCell={renderSessionCell}
-        rowColor="blue-50"
+        rowColor="#EBF2FA"
         onFiltersChange={handleFiltersChange}
         totalPages={totalPages}
         totalRecords={totalRecords}
         pageNumber={pageNumber}
         pageSize={pageSize}
+        isLoading={isLoading}
       />
     </div>
   );

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import DashboardTable from '@/components/system-dashboard/DashboardTable';
 import TabComponent from '@/components/system-dashboard/TabComponent';
 import Districts from '@/components/system-dashboard/Districts';
 import ObservationTools from '@/components/system-dashboard/ObservationTools';
@@ -25,16 +24,18 @@ export default function Dashboard() {
     }
   };
 
-  const colorClasses = ['blue-700', 'purple-800', 'green-800'];
+  const colorClasses = ['#2264AC', '#6C4996', '#007778'];
   
   return (
-    <div className="p-6 w-full pl-16 pr-16 mx-auto bg-gray-50">
-      <div className="mb-6 bg-white p-4 rounded-md shadow-sm border border-gray-200">
-        <h1 className="text-2xl font-bold mb-1">Welcome, Jane Doe</h1>
-        <p className="text-gray-600">You have full access to view districts, users, and observation tools across the system.</p>
+    <div className="p-6 w-full shadow-lg rounded-lg bg-white border border-gray-200">
+      <div className="mb-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-2">Welcome, System Admin</h1>
+          <p className="text-gray-600">You have full access to view districts, users, and observation tools across the system.</p>
+        </div>
       </div>
       
-      <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
+      <div className="rounded-md shadow-sm border border-gray-200 overflow-hidden">
         <TabComponent 
           tabs={['Districts', 'Observation Tools', 'Recent Logins']} 
           colorClasses={colorClasses}

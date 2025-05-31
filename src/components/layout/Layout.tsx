@@ -29,10 +29,30 @@ const Layout = ({ children }: LayoutProps) => {
     localStorage.setItem("activeTab", "setup");
   };
 
+  // const handleDashboardClick = () => {
+  //   setShowSetup(false);
+  //   localStorage.setItem("activeTab", "dashboard");
+  //   router.push("/system-dashboard");
+  // };
+
   const handleDashboardClick = () => {
     setShowSetup(false);
-    localStorage.setItem("activeTab", "dashboard");
-    router.push("/system-dashboard");
+    // Check both possible localStorage keys for role (userrole from login page, userRole as fallback)
+    let role = localStorage.getItem("userrole") || localStorage.getItem("userRole") || "";
+    
+    if (role === "Super Admin") {
+      localStorage.setItem("activeTab", "dashboard");
+      router.push("/system-dashboard");
+    } else if (role === "Admin") {
+      localStorage.setItem("activeTab", "dashboard");
+      router.push("/admin-dashboard");
+    } else if (role === "Network Admin") {
+      localStorage.setItem("activeTab", "dashboard");
+      router.push("/network-dashboard");
+    } else {
+      localStorage.setItem("activeTab", "dashboard");
+      router.push("/users");
+    }
   };
 
   const childrenWithProps = React.Children.map(children, (child) => {
