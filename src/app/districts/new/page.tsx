@@ -6,6 +6,7 @@ import { createDistrict, districtPayload } from "@/services/districtService";
 import { getNetwork } from "@/services/networkService";
 import { fetchNetworkRequestPayload } from "@/types/userData";
 import { z } from "zod";
+import Dropdown from "@/components/ui/Dropdown";
 
 // Define schema for district validation
 const districtSchema = z.object({
@@ -47,67 +48,72 @@ export default function NewDistrictPage() {
     enrollmentRange?: string;
   }>({});
 
-  // Dummy data for dropdowns
-  const states = [
-    "Alabama",
-    "Alaska",
-    "Arizona",
-    "Arkansas",
-    "California",
-    "Colorado",
-    "Connecticut",
-    "Delaware",
-    "Florida",
-    "Georgia",
-    "Hawaii",
-    "Idaho",
-    "Illinois",
-    "Indiana",
-    "Iowa",
-    "Kansas",
-    "Kentucky",
-    "Louisiana",
-    "Maine",
-    "Maryland",
-    "Massachusetts",
-    "Michigan",
-    "Minnesota",
-    "Mississippi",
-    "Missouri",
-    "Montana",
-    "Nebraska",
-    "Nevada",
-    "New Hampshire",
-    "New Jersey",
-    "New Mexico",
-    "New York",
-    "North Carolina",
-    "North Dakota",
-    "Ohio",
-    "Oklahoma",
-    "Oregon",
-    "Pennsylvania",
-    "Rhode Island",
-    "South Carolina",
-    "South Dakota",
-    "Tennessee",
-    "Texas",
-    "Utah",
-    "Vermont",
-    "Virginia",
-    "Washington",
-    "West Virginia",
-    "Wisconsin",
-    "Wyoming",
+  type Option = { value: string; label: string };
+  const states: Option[] = [
+    { value: "a1f3g", label: "Alabama" },
+    { value: "k2j4m", label: "Alaska" },
+    { value: "b7z9p", label: "Arizona" },
+    { value: "d8r3x", label: "Arkansas" },
+    { value: "f2n8v", label: "California" },
+    { value: "l6w3e", label: "Colorado" },
+    { value: "q1z5k", label: "Connecticut" },
+    { value: "h4c2a", label: "Delaware" },
+    { value: "y9u7m", label: "Florida" },
+    { value: "t3x8b", label: "Georgia" },
+    { value: "m6v9s", label: "Hawaii" },
+    { value: "n3d5f", label: "Idaho" },
+    { value: "j7q1r", label: "Illinois" },
+    { value: "o4l2t", label: "Indiana" },
+    { value: "v5b6n", label: "Iowa" },
+    { value: "u9a3m", label: "Kansas" },
+    { value: "z3x4l", label: "Kentucky" },
+    { value: "c7w8q", label: "Louisiana" },
+    { value: "e2n5k", label: "Maine" },
+    { value: "w1p6r", label: "Maryland" },
+    { value: "r9d3c", label: "Massachusetts" },
+    { value: "g7m2h", label: "Michigan" },
+    { value: "s3f5n", label: "Minnesota" },
+    { value: "i6t9v", label: "Mississippi" },
+    { value: "b2z7x", label: "Missouri" },
+    { value: "p4e1q", label: "Montana" },
+    { value: "x9l3d", label: "Nebraska" },
+    { value: "n7w6o", label: "Nevada" },
+    { value: "q8t2a", label: "New Hampshire" },
+    { value: "u1j4s", label: "New Jersey" },
+    { value: "t9m5r", label: "New Mexico" },
+    { value: "a8x3v", label: "New York" },
+    { value: "c6e9z", label: "North Carolina" },
+    { value: "f1p7m", label: "North Dakota" },
+    { value: "d5k2x", label: "Ohio" },
+    { value: "m3z9q", label: "Oklahoma" },
+    { value: "g4v7s", label: "Oregon" },
+    { value: "z1x3w", label: "Pennsylvania" },
+    { value: "v6r8b", label: "Rhode Island" },
+    { value: "j5t2n", label: "South Carolina" },
+    { value: "y2u4a", label: "South Dakota" },
+    { value: "l9c6e", label: "Tennessee" },
+    { value: "h8d5o", label: "Texas" },
+    { value: "r3f2s", label: "Utah" },
+    { value: "e9k1x", label: "Vermont" },
+    { value: "s8w4m", label: "Virginia" },
+    { value: "n1z5v", label: "Washington" },
+    { value: "o7p6q", label: "West Virginia" },
+    { value: "t4x8l", label: "Wisconsin" },
+    { value: "k3j9d", label: "Wyoming" },
   ];
 
-  const enrollmentRanges = [
-    "Less than 100,000",
-    "100,000 - 200,000",
-    "200,000 - 400,000",
-    "Greater than 400,000",
+  // const enrollmentRanges = [
+  //   "Less than 100,000",
+  //   "100,000 - 200,000",
+  //   "200,000 - 400,000",
+  //   "Greater than 400,000",
+  // ];
+  const enrollmentRanges: Option[] = [
+    { value: "a9x1v", label: "Less than 100,000" },
+    { value: "b7m3r", label: "100,000 - 200,000" },
+    { value: "c2k6p", label: "200,000 - 400,000" },
+    { value: "d5z9n", label: "Greater than 400,000" },
   ];
-
   const [networks, setNetworks] = useState<any[]>([]);
 
   useEffect(() => {
@@ -128,8 +134,8 @@ export default function NewDistrictPage() {
       let result: any[] = [];
       response.data.networks.forEach((network: any) => {
         result.push({
-          id: network.id,
-          name: network.name,
+          value: network.id,
+          label: network.name,
         });
       });
 
@@ -139,7 +145,25 @@ export default function NewDistrictPage() {
 
   const handleSubmit = async () => {
     // Validate with Zod before submission
-    const result = districtSchema.safeParse(formData);
+    const selectedStateObj = states.filter((s) => s.value === formData.state);
+    const selectedEnrollmentRange = enrollmentRanges.filter(
+      (e) => e.value === formData.enrollmentRange
+    );
+    const selectedNetworkobj = networks.filter(
+      (e) => e.value === formData.network
+    );
+
+    const selectedFormData = {
+      state: selectedStateObj.length ? selectedStateObj[0].label : "",
+      enrollmentRange: selectedEnrollmentRange.length
+        ? selectedEnrollmentRange[0].label
+        : "",
+      network: selectedNetworkobj.length ? selectedNetworkobj[0].value : "",
+      city: formData.city,
+      district: formData.district,
+    };
+
+    const result = districtSchema.safeParse(selectedFormData);
 
     if (!result.success) {
       // Format and set validation errors
@@ -160,11 +184,13 @@ export default function NewDistrictPage() {
 
     try {
       const payload: districtPayload = {
-        name: formData.district,
-        network_id: formData.network,
-        state: formData.state,
-        city: formData.city,
-        enrollment_range: formData.enrollmentRange,
+        name: selectedFormData.district,
+        network_id: selectedFormData.network.length
+          ? selectedFormData.network
+          : null,
+        state: selectedFormData.state,
+        city: selectedFormData.city,
+        enrollment_range: selectedFormData.enrollmentRange,
       };
       const response = await createDistrict(payload);
       if (response.success) {
@@ -192,14 +218,16 @@ export default function NewDistrictPage() {
   };
 
   return (
-    <div className="container mx-auto bg-white rounded-lg min-h-screen overflow-y-auto">
-      <div className="max-w-3xl mx-auto h-auto">
-        <h1 className="text-2xl font-medium mb-6 text-center">
-          Create District
-        </h1>
-        <p className="text-gray-600 mb-8 text-center">
-          Enter the details below to add a new district.
-        </p>
+    <div className="h-[calc(100vh-88px)] overflow-y-auto bg-white">
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div>
+          <h1 className="text-[24px] text-black font-medium text-center">
+            Create District
+          </h1>
+          <p className="mt-1 text-[16px] text-[#454F5B]-400 text-center">
+            Enter the details below to add a new district.
+          </p>
+        </div>
 
         <div className="space-y-6">
           <div>
@@ -229,7 +257,7 @@ export default function NewDistrictPage() {
             <label className="block text-[16px] text-black-400 mb-2">
               State <span className="text-emerald-700">*</span>
             </label>
-            <select
+            {/* <select
               value={formData.state}
               onChange={(e) =>
                 setFormData({ ...formData, state: e.target.value })
@@ -248,7 +276,13 @@ export default function NewDistrictPage() {
                   {state}
                 </option>
               ))}
-            </select>
+            </select> */}
+            <Dropdown
+              options={states}
+              value={formData.state}
+              onChange={(values) => setFormData({ ...formData, state: values })}
+              placeholder="Select state"
+            />
             {validationErrors.state && (
               <p className="mt-1 text-sm text-red-600">
                 {validationErrors.state}
@@ -284,7 +318,7 @@ export default function NewDistrictPage() {
             <label className="block text-[16px] text-black-400 mb-2">
               Network
             </label>
-            <select
+            {/* <select
               value={formData.network}
               onChange={(e) =>
                 setFormData({ ...formData, network: e.target.value })
@@ -303,7 +337,15 @@ export default function NewDistrictPage() {
                   {network.name}
                 </option>
               ))}
-            </select>
+            </select> */}
+            <Dropdown
+              options={networks}
+              value={formData.network}
+              onChange={(values) =>
+                setFormData({ ...formData, network: values })
+              }
+              placeholder="Select network"
+            />
             {validationErrors.network && (
               <p className="mt-1 text-sm text-red-600">
                 {validationErrors.network}
@@ -315,7 +357,7 @@ export default function NewDistrictPage() {
             <label className="block text-[16px] text-black-400 mb-2">
               Enrollment Range <span className="text-emerald-700">*</span>
             </label>
-            <select
+            {/* <select
               value={formData.enrollmentRange}
               onChange={(e) =>
                 setFormData({ ...formData, enrollmentRange: e.target.value })
@@ -334,7 +376,15 @@ export default function NewDistrictPage() {
                   {range}
                 </option>
               ))}
-            </select>
+            </select> */}
+            <Dropdown
+              options={enrollmentRanges}
+              value={formData.enrollmentRange}
+              onChange={(values) =>
+                setFormData({ ...formData, enrollmentRange: values })
+              }
+              placeholder="Select enrollment range"
+            />
             {validationErrors.enrollmentRange && (
               <p className="mt-1 text-sm text-red-600">
                 {validationErrors.enrollmentRange}
