@@ -166,7 +166,6 @@ const DistrictsPage = () => {
       let result: any[] = [];
       response.data.networks.forEach((network: any) => {
         result.push({
-          id: network.id,
           label: network.name,
           value: network.id,
         });
@@ -764,7 +763,10 @@ const DistrictsPage = () => {
             </span>
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => setActive((a) => !a)}
+              onClick={() => {
+                setActive((a) => !a);
+                setSelectedRows(new Set());
+              }}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-emerald-700`}
             >
               <motion.span
@@ -960,7 +962,7 @@ const DistrictsPage = () => {
                             className="text-emerald-700"
                             onClick={() => handleStartEdit(district)}
                           >
-                            <PencilSimpleLine size={16} color="#2264AC" />
+                            <PencilSimpleLine size={16} color="#2A7251" />
                           </button>
                         </td>
                       </tr>
