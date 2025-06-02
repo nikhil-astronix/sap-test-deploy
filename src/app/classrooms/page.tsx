@@ -204,6 +204,14 @@ export default function ClassroomsPage() {
   };
 
   const handleEdit = (schoolId: string, classroom: Classroom): void => {
+    classroom.curriculums = classroom.curriculums.map((curriculum) => {
+      const found = curriculums.find((item) => item.label === curriculum);
+      return found ? found.value : curriculum;
+    });
+    classroom.interventions = classroom.interventions.map((intervention) => {
+      const found = interventions.find((item) => item.label === intervention);
+      return found ? found.value : intervention;
+    });
     setEditing({ schoolId, classroomId: classroom.id });
     setEditData({ ...classroom });
   };
