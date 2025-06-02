@@ -14,6 +14,7 @@ import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
 import { fetchAllDistricts } from "@/services/districtService";
 import { getDistrictsPayload } from "@/services/districtService";
+import Header from "@/components/Header";
 
 interface ErrorResponse {
   message: string;
@@ -254,17 +255,21 @@ export default function CreateUserForm() {
   };
 
   return (
-    <div className="h-[calc(100vh-88px)] overflow-y-auto bg-white">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <div>
+    <div className="container mx-auto px-4 py-8 bg-white rounded-lg shadow-md min-h-full">
+      <div className="max-w-3xl mx-auto h-auto">
+        {/* <div>
           <h1 className="text-[24px] text-black font-medium text-center">
             Create User
           </h1>
           <p className="mt-1 text-[16px] text-[#454F5B]-400 text-center">
             Enter the details below to add a new user.
           </p>
-        </div>
-        <div className="sticky top-0 z-10 py-4 shadow-sm bg-white">
+        </div> */}
+        <Header
+          title="Create User"
+          description="Enter the details below to add a new user."
+        />
+        <div className="sticky top-0 z-10 pt-0 pb-2 bg-white">
           <Stepper steps={stepperSteps} />
         </div>
         <div className="max-w-2xl w-full mx-auto">
@@ -272,7 +277,7 @@ export default function CreateUserForm() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="mt-12"
+            className="mt-4"
           >
             {currentStep === 0 && (
               <BasicInfo
