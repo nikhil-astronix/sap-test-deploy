@@ -120,7 +120,7 @@ export default function SchoolsPage() {
       const districtId = localStorage.getItem("globalDistrict");
       let data = {
         name: updatedRow.name,
-        district_id: districtId || "",
+        district: districtId || "",
         grades: updatedRow.grades,
         curriculums: updatedRow.curriculums?.filter(
           (c: string) => c !== "None"
