@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { Search, ChevronLeft } from 'lucide-react';
 import NetworkTabComponent from "@/components/network-dashboard/NetworkTabComponent";
-import TodaySession from "@/components/network-dashboard/sessions/TodaySession";
-import UpcomingSession from "@/components/network-dashboard/sessions/UpcomingSession";
-import PastSession from "@/components/network-dashboard/sessions/PastSession";
+import TodaySession from "@/components/network-dashboard/sessions/TodaySession/TodaySession";
+import UpcomingSession from "@/components/network-dashboard/sessions/UpcomingSession/UpcomingSession";
+import PastSession from "@/components/network-dashboard/sessions/PastSession/PastSession";
 import Districts from "@/components/network-dashboard/Districts";
 import ObservationTools from "@/components/network-dashboard/ObservationTools";
 import { getDistrictsByNetwork } from "@/services/networkService";
@@ -22,7 +22,7 @@ export default function NetworkDashboard() {
   
   // Single state for the currently viewed classroom session
   const [viewingClassrooms, setViewingClassrooms] = useState<any>(null);
-  const [networkName, setNetworkName] = useState<any>([]);  
+  const newName = localStorage.getItem("name");
   // Custom tab change handler to reset views
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -54,28 +54,6 @@ export default function NetworkDashboard() {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);  // No dependencies needed
-
-  useEffect(() => {
-    const fetchDistricts = async () => {
-      try {
-        const response = await getDistrictsByNetwork();
-        if (response && response.data && 
-            response.data.networks && 
-            response.data.networks.length > 0 && 
-            response.data.networks[0].name) {
-          setNetworkName(response.data.networks[0].name);
-        } else {
-          // Set a default name if network data is unavailable
-          setNetworkName('Network Dashboard');
-          console.log('Network data not available or in unexpected format');
-        }
-      } catch (error) {
-        console.error('Error fetching network districts:', error);
-        setNetworkName('Network Dashboard'); // Fallback name
-      }
-    };
-    fetchDistricts();
-  }, []);
     
   const renderSessionComponent = () => {
     // If viewing classrooms, show classroom details component
@@ -163,7 +141,7 @@ export default function NetworkDashboard() {
       </div>
           <div className="flex flex-row gap-3 mb-6 p-3 bg-gray-100 items-center rounded-xl border border-gray-200">
             <PiNetworkLight size={22} className="text-gray-600" />
-            <h1 className="text-lg font-semibold">{networkName}</h1>
+            <h1 className="text-lg font-semibold">{newName}</h1>
           </div>  
         </div>
       )}

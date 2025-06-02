@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSessionsByNetwork, SessionFilterType } from '@/services/networkService';
-import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../NetworkDashboardTable';
+import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
 import {
   Calendar,
   Clock,
@@ -10,11 +10,11 @@ import {
   Play,
 } from 'lucide-react';
 
-interface UpcomingSessionProps {
+interface TodaySessionProps {
   searchTerm?: string;
 }
 
-export default function UpcomingSession({ searchTerm = '' }: UpcomingSessionProps) {
+export default function TodaySession({ searchTerm = '' }: TodaySessionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionData, setSessionData] = useState<NetworkTableRow[]>([]);
@@ -36,8 +36,9 @@ export default function UpcomingSession({ searchTerm = '' }: UpcomingSessionProp
     setIsLoading(true);
     setError(null);
     try {
-      // Specifically get upcoming sessions
-      const response = await getSessionsByNetwork('upcoming');
+      // Use 'today' filter type for this component
+      const response = await getSessionsByNetwork('all');
+      console.log("response", response);
       if (response.success && response.data) {
         // Transform the API response to match our NetworkTableRow structure
         const transformedData = response?.data?.sessions?.map((session: any) => ({
@@ -49,17 +50,16 @@ export default function UpcomingSession({ searchTerm = '' }: UpcomingSessionProp
           sessionAdmin: session.session_admin,
           observer: session.observers,
           observationTool: session.observation_tool,
-          sessionStatus: 'Upcoming',
           // Add any other fields needed
         }));
         
         setSessionData(transformedData);
       } else {
-        setError('Failed to fetch upcoming session data');
+        setError('Failed to fetch session data');
       }
     } catch (err) {
-      console.error('Error fetching upcoming sessions:', err);
-      setError('An error occurred while fetching upcoming sessions');
+      console.error('Error fetching sessions:', err);
+      setError('An error occurred while fetching sessions');
     } finally {
       setIsLoading(false);
     }

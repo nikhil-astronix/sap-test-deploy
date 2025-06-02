@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSessionsByNetwork, SessionFilterType } from '@/services/networkService';
-import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../NetworkDashboardTable';
+import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
 import {
   Calendar,
   Clock,
@@ -10,11 +10,11 @@ import {
   Play,
 } from 'lucide-react';
 
-interface PastSessionProps {
+interface UpcomingSessionProps {
   searchTerm?: string;
 }
 
-export default function PastSession({ searchTerm = '' }: PastSessionProps) {
+export default function UpcomingSession({ searchTerm = '' }: UpcomingSessionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionData, setSessionData] = useState<NetworkTableRow[]>([]);
@@ -36,11 +36,11 @@ export default function PastSession({ searchTerm = '' }: PastSessionProps) {
     setIsLoading(true);
     setError(null);
     try {
-      // Specifically get past sessions
-      const response = await getSessionsByNetwork('past');
+      // Specifically get upcoming sessions
+      const response = await getSessionsByNetwork('upcoming');
       if (response.success && response.data) {
         // Transform the API response to match our NetworkTableRow structure
-        const transformedData = response?.data?.sessions.map((session: any) => ({
+        const transformedData = response?.data?.sessions?.map((session: any) => ({
           id: session.id || `session-${Math.random().toString(36).substr(2, 9)}`,
           school: session.school || 'Unknown School',
           date: formatDate(session.date),
@@ -49,17 +49,17 @@ export default function PastSession({ searchTerm = '' }: PastSessionProps) {
           sessionAdmin: session.session_admin,
           observer: session.observers,
           observationTool: session.observation_tool,
-          sessionStatus: 'Completed',
+          sessionStatus: 'Upcoming',
           // Add any other fields needed
         }));
         
         setSessionData(transformedData);
       } else {
-        setError('Failed to fetch past session data');
+        setError('Failed to fetch upcoming session data');
       }
     } catch (err) {
-      console.error('Error fetching past sessions:', err);
-      setError('An error occurred while fetching past sessions');
+      console.error('Error fetching upcoming sessions:', err);
+      setError('An error occurred while fetching upcoming sessions');
     } finally {
       setIsLoading(false);
     }
