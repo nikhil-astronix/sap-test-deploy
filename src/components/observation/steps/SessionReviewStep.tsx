@@ -1,5 +1,5 @@
-import React from 'react';
-import { format } from 'date-fns';
+import React from "react";
+import { format } from "date-fns";
 
 interface ReviewData {
   observationDate: Date;
@@ -29,27 +29,39 @@ const SessionReviewStep = ({
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-lg p-6 space-y-6">
         <div>
-          <h3 className="font-medium mb-2">Observation Date</h3>
-          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">{format(data.observationDate, 'MM-dd-yyyy')}</p>
+          <h3 className="block text-[16px] text-balck-400 mb-2">
+            Observation Date
+          </h3>
+          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">
+            {format(data.observationDate, "MM-dd-yyyy")}
+          </p>
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">Start Time</h3>
-          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">{data.startTime || 'Not set'}</p>
+          <h3 className="block text-[16px] text-balck-400 mb-2">Start Time</h3>
+          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">
+            {data.startTime || "Not set"}
+          </p>
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">End Time</h3>
-          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">{data.endTime || 'Not set'}</p>
+          <h3 className="block text-[16px] text-balck-400 mb-2">End Time</h3>
+          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">
+            {data.endTime || "Not set"}
+          </p>
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">School</h3>
-          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">{data.school}</p>
+          <h3 className="block text-[16px] text-balck-400 mb-2">School</h3>
+          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">
+            {data.school}
+          </p>
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">Classroom(s)</h3>
+          <h3 className="block text-[16px] text-balck-400 mb-2">
+            Classroom(s)
+          </h3>
           <div className="flex flex-wrap gap-2">
             {data.classrooms.map((classroom) => (
               <span
@@ -58,7 +70,7 @@ const SessionReviewStep = ({
               >
                 <svg
                   className="w-4 h-4 mr-1"
-                  fill="none" 
+                  fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -76,12 +88,16 @@ const SessionReviewStep = ({
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">Observation Tool</h3>
-          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">{data.observationTool}</p>
+          <h3 className="block text-[16px] text-balck-400 mb-2">
+            Observation Tool
+          </h3>
+          <p className="text-gray-600 bg-gray-100 p-2 rounded-md">
+            {data.observationTool}
+          </p>
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">User(s)</h3>
+          <h3 className="block text-[16px] text-balck-400 mb-2">User(s)</h3>
           <div className="flex flex-wrap gap-2">
             {data.users.map((user) => (
               <span
@@ -89,7 +105,7 @@ const SessionReviewStep = ({
                 className="inline-flex items-center border border-emerald-500 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full"
               >
                 <svg
-                  className="w-4 h-4 mr-1" 
+                  className="w-4 h-4 mr-1"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -108,11 +124,13 @@ const SessionReviewStep = ({
         </div>
 
         <div>
-          <h3 className="font-medium mb-2">Session Admin</h3>
+          <h3 className="block text-[16px] text-balck-400 mb-2">
+            Session Admin
+          </h3>
           <p className="inline-flex items-center border border-emerald-500 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full">
             <span className="relative inline-flex items-center mr-2">
               <svg
-                className="w-4 h-4" 
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -130,29 +148,31 @@ const SessionReviewStep = ({
           </p>
         </div>
 
-        <div className="flex justify-end space-x-4 pt-6">
+        <div className="flex justify-between pt-6">
           <button
             onClick={onBack}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900"
+            className="py-2 text-gray-600 hover:text-gray-800"
           >
             Back
           </button>
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSchedule}
-            className="px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors"
-          >
-            Schedule
-          </button>
+          <div className="flex justify-between items-center space-x-4">
+            <button
+              onClick={onCancel}
+              className="px-6 py-2 bg-[#F4F6F8] text-gray-600 rounded-lg hover:text-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onSchedule}
+              className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-[#2A7251]"
+            >
+              Create
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default SessionReviewStep; 
+export default SessionReviewStep;

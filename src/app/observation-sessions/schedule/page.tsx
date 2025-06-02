@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import StepIndicator from "@/components/observation/StepIndicator";
 import DateTimeStep from "@/components/observation/steps/DateTimeStep";
@@ -10,6 +10,10 @@ import SessionReviewStep from "@/components/observation/steps/SessionReviewStep"
 import { AnimatedContainer } from "@/components/ui/animated-container";
 import Stepper from "@/components/classroom/Stepper";
 import apiClient from "@/api/axiosInterceptor";
+import Header from "@/components/Header";
+import { getSchools } from "@/services/schoolService";
+import { getClassroom } from "@/services/classroomService";
+import { getUser } from "@/services/userService";
 
 const steps = [
   {
@@ -34,22 +38,6 @@ const steps = [
   },
 ];
 
-// Mock data - replace with actual API calls
-const mockUsers = [
-  { id: "1", name: "John Doe", email: "johndoe@gmail.com" },
-  { id: "2", name: "Priya Mehta", email: "priyamehta@gmail.com" },
-];
-
-const mockSchools = [{ id: "1", name: "Sampleschool123" }];
-
-const mockClassrooms = [
-  { id: "1", name: "SampleClassroom1" },
-  { id: "2", name: "SampleClassroom2" },
-  { id: "3", name: "SampleClassroom3" },
-  { id: "4", name: "SampleClassroom4" },
-  { id: "5", name: "SampleClassroom5" },
-];
-
 export default function ScheduleObservationPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
@@ -65,6 +53,10 @@ export default function ScheduleObservationPage() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [sessionAdmin, setSessionAdmin] = useState("");
 
+  const [schoolsData, setSchoolsData] = useState<any[]>([]);
+  const [classroomsData, setClassroomsData] = useState<any[]>([]);
+  const [usersData, setUsersData] = useState<any[]>([]);
+
   const getStepStatus = (index: number) => {
     if (index < currentStep) return "completed";
     if (index === currentStep) return "current";
@@ -75,6 +67,97 @@ export default function ScheduleObservationPage() {
     number: index + 1,
     status: getStepStatus(index) as "completed" | "current" | "upcoming",
   }));
+
+  useEffect(() => {
+    fetchSchools();
+    fetchClassroomsData();
+    fetchUsers();
+  }, []);
+
+  const fetchSchools = async () => {
+    try {
+      const districtId = localStorage.getItem("globalDistrict");
+      const requesPayload = {
+        is_archived: false,
+        district_id: districtId || "",
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+      };
+      const response = await getSchools(requesPayload);
+
+      const formattedSchools = response.data.schools.map((school: any) => ({
+        id: school.id,
+        name: school.name,
+      }));
+      setSchoolsData(formattedSchools);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchClassroomsData = async () => {
+    try {
+      const districtId = localStorage.getItem("globalDistrict");
+      const requestPayload = {
+        is_archived: false,
+        district_id: districtId || "",
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null, // Don't send empty strings
+      };
+
+      const response = await getClassroom(requestPayload);
+
+      if (response.success && response.data) {
+        // Transform API data with safe access patterns
+        const targetSchool = response.data.schools.find(
+          (school: any) => school.schoolId === selectedSchool
+        );
+
+        // If the school exists, map its classes
+        const transformedClassrooms = targetSchool
+          ? (targetSchool.classes as any[]).map((cls: any) => ({
+              id: cls.id,
+              name: cls.course,
+            }))
+          : [];
+
+        setClassroomsData(transformedClassrooms);
+      } else {
+        console.error("API returned unsuccessful response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const requesPayload = {
+        is_archived: false,
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+      };
+      const response = await getUser(requesPayload);
+      const formattedUsers = response.data.users.map((user: any) => ({
+        id: user.id,
+        name: user.first_name,
+        email: user.email,
+      }));
+
+      setUsersData(formattedUsers);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const handleNext = () => {
     // Validate current step before proceeding
@@ -154,15 +237,15 @@ export default function ScheduleObservationPage() {
 
   // Function to get review data
   const getReviewData = () => {
-    const adminUser = mockUsers.find((user) => user.id === sessionAdmin);
-    const selectedUserDetails = mockUsers.filter((user) =>
+    const adminUser = usersData.find((user) => user.id === sessionAdmin);
+    const selectedUserDetails = usersData.filter((user) =>
       selectedUsers.includes(user.id)
     );
-    const selectedClassroomDetails = mockClassrooms
+    const selectedClassroomDetails = classroomsData
       .filter((classroom) => selectedClassrooms.includes(classroom.id))
       .map((classroom) => classroom.name);
     const selectedSchoolName =
-      mockSchools.find((school) => school.id === selectedSchool)?.name || "";
+      schoolsData.find((school) => school.id === selectedSchool)?.name || "";
 
     return {
       observationDate: observationDate!,
@@ -255,14 +338,10 @@ export default function ScheduleObservationPage() {
       variant="fade"
       className="max-w-full  max-h-auto py-8 px-24 bg-white rounded-xl border p-6 shadow-md min-h-screen"
     >
-      <AnimatedContainer variant="slide" custom={direction}>
-        <h1 className="text-2xl font-semibold mb-6 text-center">
-          Schedule Observation Session
-        </h1>
-        <p className="text-gray-600 mb-8 text-center">
-          Fill the details below to schedule a new observation session.
-        </p>
-      </AnimatedContainer>
+      <Header
+        title="Schedule Observation Session"
+        description="Fill the details below to schedule a new observation session."
+      />
 
       <AnimatedContainer
         variant="scale"
@@ -290,8 +369,8 @@ export default function ScheduleObservationPage() {
 
         {currentStep === 1 && (
           <SchoolClassroomStep
-            schools={mockSchools}
-            classrooms={mockClassrooms}
+            schools={schoolsData}
+            classrooms={classroomsData}
             selectedSchool={selectedSchool}
             selectedClassrooms={selectedClassrooms}
             onSchoolChange={setSelectedSchool}
@@ -304,7 +383,7 @@ export default function ScheduleObservationPage() {
 
         {currentStep === 2 && (
           <AssignUsersStep
-            users={mockUsers}
+            users={usersData}
             selectedUsers={selectedUsers}
             sessionAdmin={sessionAdmin}
             onUsersChange={setSelectedUsers}

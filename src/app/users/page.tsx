@@ -65,20 +65,6 @@ export default function SchoolsPage() {
     { id: "Other", label: "Other" },
   ];
 
-  const districts1 = [
-    { id: "District A", label: "District A" },
-    { id: "District B", label: "District B" },
-  ];
-  const schools1 = [
-    { id: "ABC School", label: "ABC School" },
-    { id: "School B", label: "School B" },
-  ];
-
-  const networks1 = [
-    { id: "Network 4", label: "Network 4" },
-    { id: "Network 5", label: "Network 5" },
-  ];
-
   const columns: Column[] = [
     {
       key: "first_name",
