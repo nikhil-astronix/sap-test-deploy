@@ -415,7 +415,7 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
@@ -521,9 +521,7 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-semibold text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] text-black font-medium">Restore</h2>
             </div>
 
             {/* Description */}
@@ -615,7 +613,7 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Trash2 className="text-gray-700" size={24} />
-              <h2 className="text-[16px] font-normal text-black-400">Delete</h2>
+              <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
 
             {/* Prompt */}
@@ -724,7 +722,7 @@ export default function NetworksPage() {
                     type="checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
-                    className="h-4 w-4 appearance-none text-[#2264AC] border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                    className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
                   />
                 </div>
               </th>
@@ -790,7 +788,8 @@ export default function NetworksPage() {
                           onChange={(e) =>
                             handleSelectRow(network.id, "all", e)
                           }
-                          className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                          className="h-4 w-4"
+                          style={{ accentColor: "#2264AC" }}
                         />
                       </div>
                     </td>
@@ -817,7 +816,7 @@ export default function NetworksPage() {
                           </span>
                         )}
                         <div className="flex items-center gap-2">
-                          {!editing && (
+                          {!editing && !active && (
                             <button
                               className="text-emerald-700 mr-2"
                               onClick={(e) => {
@@ -878,7 +877,7 @@ export default function NetworksPage() {
                             className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div className="flex items-center">
+                            {/* <div className="flex items-center">
                               <input
                                 type="checkbox"
                                 checked={selectedRows.districts.has(
@@ -889,7 +888,7 @@ export default function NetworksPage() {
                                 }
                                 className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
                               />
-                            </div>
+                            </div> */}
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             {district.district}
@@ -900,9 +899,7 @@ export default function NetworksPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             {district.city}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            {district.created}
-                          </td>
+                          <td className="px-4 py-2 ">{district.created}</td>
                           <td className="px-4 py-2 text-center">
                             {/* District actions removed */}
                           </td>
