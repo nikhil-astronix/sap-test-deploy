@@ -35,6 +35,7 @@ import {
 import { Intervention } from "@/types/interventionData";
 import { AxiosError } from "axios";
 import Tooltip from "@/components/Tooltip";
+import { useDistrict } from "@/context/DistrictContext";
 
 // Add type definitions
 interface Classroom {
@@ -109,6 +110,7 @@ export default function ClassroomsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   const allClassrooms = active ? activeClassrooms : archivedClassrooms;
 
@@ -116,7 +118,7 @@ export default function ClassroomsPage() {
 
   useEffect(() => {
     fetchData(currentPage, rowsPerPage, null, null, active, search);
-  }, [currentPage, rowsPerPage, search, active]);
+  }, [currentPage, rowsPerPage, search, active, globalDistrict]);
 
   useEffect(() => {
     fetchCurriculums();
@@ -275,8 +277,10 @@ export default function ClassroomsPage() {
       return school?.school || school?.name || "";
     };
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       let data = {
         school_name: getSchoolNameById(editing.schoolId),
+        district_id: districtId || "",
         school_id: editing.schoolId,
         course: editData.course,
         teacher_name: editData.teacher,

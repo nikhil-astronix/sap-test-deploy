@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import LayoutWrapper from "@/components/layout/LayoutWrapper";
 import { Montserrat } from "next/font/google";
+import { DistrictProvider } from "@/context/DistrictContext";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -20,10 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={montserrat.className}>
-      <body>
-        <LayoutWrapper>{children}</LayoutWrapper>
-      </body>
-    </html>
+    <DistrictProvider>
+      <html lang="en" className={montserrat.className}>
+        <body>
+          <LayoutWrapper>{children}</LayoutWrapper>
+        </body>
+      </html>
+    </DistrictProvider>
   );
 }

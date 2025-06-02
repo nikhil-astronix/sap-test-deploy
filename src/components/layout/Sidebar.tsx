@@ -34,6 +34,7 @@ import {
 } from "@phosphor-icons/react";
 import { fetchAllDistricts } from "@/services/districtService";
 import { getDistrictsPayload } from "@/services/districtService";
+import { useDistrict } from "@/context/DistrictContext";
 
 interface NavItem {
   icon: React.ReactNode;
@@ -96,7 +97,10 @@ const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [districts, setDistricts] = useState([]);
-  const [selectedDistrict, setSelectedDistricts] = useState<string[]>([]);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
+  const [selectedDistrict, setSelectedDistricts] = useState<string[]>(
+    globalDistrict ? [globalDistrict] : []
+  );
   const router = useRouter();
 
   // Handle window resize
@@ -115,7 +119,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (selectedDistrict.length > 0) {
-      localStorage.setItem("globalDistrict", selectedDistrict[0]);
+      setGlobalDistrict(selectedDistrict[0]);
       const navItemsPath = navItems.map((item) => item.path);
       if (
         pathname === "/select-district" ||
@@ -123,21 +127,18 @@ const Sidebar = () => {
       ) {
         router.push("/network");
       } else if (pathname) {
-        router.push(pathname.toString());
+        router.refresh();
       }
     }
   }, [selectedDistrict]);
 
   useEffect(() => {
-    if (
-      localStorage.getItem("globalDistrict") === "" ||
-      !localStorage.getItem("globalDistrict")
-    ) {
+    if (!globalDistrict) {
       router.push("/select-district");
     } else {
-      setSelectedDistricts([localStorage.getItem("globalDistrict") || ""]);
+      setSelectedDistricts([globalDistrict]);
     }
-  }, []);
+  }, [globalDistrict]);
   const toggleSidebar = () => {
     if (isMobile) {
       setIsMobileOpen(!isMobileOpen);
