@@ -1,144 +1,3 @@
-//   // Get session status badge
-//   const getSessionStatusBadge = (status: StatusType) => {
-//     switch (status) {
-//       case 'Active':
-//         return <span className="inline-flex items-center gap-1 bg-green-200 text-green-800 px-2 py-1 rounded-full text-xs"><span className="w-2 h-2 bg-green-600 rounded-full"></span> {status}</span>;
-//       case 'Inactive':
-//         return <span className="inline-flex items-center gap-1 bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full text-xs"><span className="w-2 h-2 bg-yellow-600 rounded-full"></span> {status}</span>;
-//       case 'No Session':
-//         return <span className="inline-flex items-center gap-1 bg-red-200 text-red-800 px-2 py-1 rounded-full text-xs"><span className="w-2 h-2 bg-red-600 rounded-full"></span> {status}</span>;
-//       default:
-//         return status;
-//     }
-//   };
-
-//   // Get setup status badge
-//   const getSetupStatusBadge = (status: SetupStatusType) => {
-//     switch (status) {
-//       case 'Complete':
-//         return <span className="inline-flex items-center gap-1 text-green-600 px-2 py-1 text-xs"><span className="w-2 h-2 bg-green-600 rounded-full"></span> {status}</span>;
-//       case 'Partial':
-//         return <span className="inline-flex items-center gap-1 text-yellow-600 px-2 py-1 text-xs"><span className="w-2 h-2 bg-yellow-600 rounded-full"></span> {status}</span>;
-//       case 'Incomplete':
-//         return <span className="inline-flex items-center gap-1 text-red-600 px-2 py-1 text-xs"><span className="w-2 h-2 bg-red-600 rounded-full"></span> {status}</span>;
-//       default:
-//         return status;
-//     }
-//   };
-
-//   // Render cell content
-//   const renderCell = (row: TableRow, column: keyof TableRow) => {
-//     if (column === 'admins') {
-//       const { names, more } = row.admins;
-//       return (
-//         <div>
-//           {names.join(', ')}
-//           {more ? ` +${more} more` : ''}
-//         </div>
-//       );
-//     } else if (column === 'sessionStatus') {
-//       return getSessionStatusBadge(row.sessionStatus);
-//     } else if (column === 'setupStatus') {
-//       return getSetupStatusBadge(row.setupStatus);
-//     } else {
-//       return row[column];
-//     }
-//   };
-
-//   return (
-//     <div className="overflow-x-auto">
-//       <table className="w-full border-collapse">
-//         <thead>
-//           <tr className="bg-white">
-//             {columns
-//               .filter(col => visibleColumns.includes(col.key))
-//               .map((column) => (
-//                 <th
-//                   key={column.key}
-//                   className="border-b whitespace-nowrap bg-blue-400 border-gray-200 p-3 text-left font-medium text-white text-sm"
-//                 >
-//                   <button
-//                     className="flex items-center space-x-1 focus:outline-none"
-//                     onClick={() => column.sortable ? requestSort(column.key) : null}
-//                     disabled={!column.sortable}
-//                   >
-//                     <span>{column.icon}</span>
-//                     <span>{column.label}</span>
-//                     {column.sortable && (
-//                       <span className="ml-1">
-//                         {sortConfig.key === column.key ? (
-//                           sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-//                         ) : (
-//                           <ChevronDown size={14} className="text-gray-300" />
-//                         )}
-//                       </span>
-//                     )}
-//                   </button>
-//                 </th>
-//               ))}
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {currentRows.map((row) => (
-//             <tr key={row.id} className="hover:bg-gray-50">
-//               {columns
-//                 .filter(col => visibleColumns.includes(col.key))
-//                 .map((column) => (
-//                   <td key={`${row.id}-${column.key}`} className="border-b border-gray-200 p-3 text-sm">
-//                     {renderCell(row, column.key)}
-//                   </td>
-//                 ))}
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-
-//       {/* Pagination */}
-//       <div className="flex items-center justify-between mt-4 text-sm">
-//         <div>
-//           {indexOfFirstRow + 1}-{Math.min(indexOfLastRow, data.length)} of {data.length}
-//         </div>
-
-//         <div className="flex items-center space-x-2">
-//           <div>
-//             Rows per page:
-//             <select
-//               value={rowsPerPage}
-//               onChange={(e) => setRowsPerPage(Number(e.target.value))}
-//               className="ml-2 border border-gray-300 rounded p-1"
-//             >
-//               <option value={9}>9</option>
-//               <option value={25}>25</option>
-//               <option value={50}>50</option>
-//               <option value={100}>100</option>
-//             </select>
-//           </div>
-
-//           <div className="flex items-center space-x-1">
-//             <button
-//               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-//               disabled={currentPage === 1}
-//               className="p-1 rounded hover:bg-gray-100 disabled:opacity-50"
-//             >
-//               <ChevronLeft size={16} />
-//             </button>
-//             <span>{currentPage}/{Math.ceil(data.length / rowsPerPage)}</span>
-//             <button
-//               onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(data.length / rowsPerPage)))}
-//               disabled={currentPage >= Math.ceil(data.length / rowsPerPage)}
-//               className="p-1 rounded hover:bg-gray-100 disabled:opacity-50"
-//             >
-//               <ChevronRight size={16} />
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default DashboardTable;
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -195,6 +54,7 @@ interface DashboardTableProps {
   pageNumber: number;
   totalPages: number;
   pageSize: number;
+  isLoading?: boolean;
 }
 
 const DashboardTable = ({
@@ -208,6 +68,7 @@ const DashboardTable = ({
   pageNumber,
   totalPages,
   pageSize,
+  isLoading = false,
 }: DashboardTableProps) => {
   // State for current data, sorting, and pagination
   const [filteredData, setFilteredData] = useState<TableRow[]>(initialData);
@@ -219,7 +80,11 @@ const DashboardTable = ({
     direction: null,
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(9);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const rowsPerPageOptions = [5, 10, 25, 50, 100];
+  const [active, setActive] = useState(false);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const [visibleColumns] = useState<string[]>(columns?.map((col) => col.key));
 
   // Effect to update filtered data when initial data changes
@@ -255,6 +120,10 @@ const DashboardTable = ({
 
   const indexOfFirstRow = (pageNumber - 1) * pageSize + 1;
   const indexOfLastRow = Math.min(indexOfFirstRow + pageSize - 1, totalRecords);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   // Get session status badge with tooltip
   const getSessionStatusBadge = (status: StatusType, row?: TableRow) => {
@@ -408,69 +277,57 @@ const DashboardTable = ({
                 .map((column, index) => (
                   <th
                     key={column.key}
-                    className={`bg-${headerColor} border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm`}
+                    style={{ backgroundColor: headerColor }}
+                    className="border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-semibold text-white text-[14px]"
                   >
                     <button
-                      className="flex items-center space-x-1 focus:outline-none w-full"
+                      className="flex items-center justify-between focus:outline-none w-full"
                       onClick={() =>
                         column.sortable ? requestSort(column.key) : null
                       }
                       disabled={!column.sortable}
                     >
-                      <span>{column.icon}</span>
-                      <span className="mx-1">{column.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span>{column.icon}</span>
+                        <span>{column.label}</span>
+                      </div>
                       {column.sortable && (
-                        <span className="ml-auto">
-                          {sortConfig.key === column.key ? (
-                            sortConfig.direction === "asc" ? (
-                              <ChevronUp size={14} />
-                            ) : (
-                              <ChevronDown size={14} />
-                            )
-                          ) : (
-                            <ChevronDown size={14} className="text-gray-300" />
-                          )}
-                        </span>
+                        <div className="flex flex-col -space-y-1">
+                          <ChevronUp 
+                            size={14} 
+                            className={sortConfig.key === column.key && sortConfig.direction === "asc" 
+                              ? "text-white" 
+                              : "text-gray-300"} 
+                          />
+                          <ChevronDown 
+                            size={14} 
+                            className={sortConfig.key === column.key && sortConfig.direction === "desc" 
+                              ? "text-white" 
+                              : "text-gray-300"} 
+                          />
+                        </div>
                       )}
                     </button>
                   </th>
                 ))}
             </tr>
-            {/* <tr>
-              {columns?.filter(col => visibleColumns?.includes(col.key))
-                .map((column, index) => {
-                  const bgColorClass = headerColor === 'blue-600' ? 'bg-blue-200' : 
-                                     headerColor === 'green-800' ? 'bg-green-200' : 'bg-purple-200';
-                  return (                    <th 
-                      key={`subheader-${column.key}`}
-                      className={`${bgColorClass} border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-2 text-left font-medium text-gray-700 text-xs`}
-                    >
-                      {column.key === 'sessionStatus' && (
-                        <div className="flex justify-between items-center">
-                          <span>Completed 0</span>
-                          <span className="mx-1">|</span>
-                          <span>Upcoming 0</span>
-                        </div>
-                      )}
-                      {column.key === 'setupStatus' && (
-                        <div className="flex justify-between items-center">
-                          <span>Schools 0</span>
-                          <span className="mx-1">|</span>
-                          <span>Tools 0</span>
-                        </div>
-                      )}
-                    </th>
-                  );
-                })}
-            </tr> */}
           </thead>
           <tbody>
-            {filteredData?.length > 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={visibleColumns.length} className="text-center py-8">
+                  <div className="flex justify-center items-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: headerColor }}></div>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredData?.length > 0 ? (
               filteredData?.map((row, rowIndex) => (
                 <tr
                   key={row.id}
+                  style={rowIndex % 2 === 1 ? { backgroundColor: rowColor } : {}}
                   className={`hover:bg-gray-50 ${
-                    rowIndex % 2 === 1 ? `bg-${rowColor}` : "bg-white"
+                    rowIndex % 2 === 0 ? "bg-white" : ""
                   }`}
                 >
                   {columns
@@ -478,7 +335,7 @@ const DashboardTable = ({
                     .map((column, index) => (
                       <td
                         key={`${row.id}-${column.key}`}
-                        className="border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm"
+                        className="border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-[12px]"
                       >
                         {renderCell(row, column.key)}
                       </td>
@@ -500,156 +357,61 @@ const DashboardTable = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-        <div className="flex-1 flex justify-between sm:hidden">
-          <button
-            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-            disabled={currentPage === 1}
-            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-              currentPage === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() =>
-              setCurrentPage(
-                Math.min(
-                  currentPage + 1,
-                  Math.ceil(filteredData.length / rowsPerPage)
-                )
-              )
-            }
-            disabled={
-              currentPage === Math.ceil(filteredData.length / rowsPerPage)
-            }
-            className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-              currentPage === Math.ceil(filteredData.length / rowsPerPage)
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Next
-          </button>
+      <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
+        <div>
+          <p className="text-[12px] text-gray-500">
+            {totalRecords > 0
+              ? `${indexOfFirstRow}-${Math.min(indexOfLastRow, totalRecords)} of ${totalRecords}`
+              : "0 results"}
+          </p>
         </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{indexOfFirstRow}</span> to{" "}
-              <span className="font-medium">{indexOfLastRow}</span> of{" "}
-              <span className="font-medium">{totalRecords}</span> results
-            </p>
-          </div>
-          <div className="flex items-center">
-            <span className="mr-2 text-sm text-gray-700">Rows per page:</span>
+        <div className="flex flex-wrap items-center gap-2 text-[12px]">
+          <div className="flex items-center space-x-2 text-[12px]">
+            <span className="text-[12px] text-gray-500">Rows per page:</span>
             <select
               value={rowsPerPage}
               onChange={(e) => {
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1); // Reset to first page when changing rows per page
               }}
-              className="mr-4 border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="text-[12px] border rounded px-2 py-1"
             >
-              <option value={5}>5</option>
-              <option value={9}>9</option>
-              <option value={15}>15</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
+              {rowsPerPageOptions.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
             </select>
-            <nav
-              className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-              aria-label="Pagination"
-            >
-              <button
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-                className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === 1
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
-              >
-                <span className="sr-only">First</span>
-                <ChevronLeft size={14} />
-                <ChevronLeft size={14} className="-ml-1" />
-              </button>
-              <button
-                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-                className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === 1
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
-              >
-                <span className="sr-only">Previous</span>
-                <ChevronLeft size={14} />
-              </button>
-
-              {/* Page numbers */}
-              {Array.from(
-                {
-                  length: Math.min(5, totalPages),
-                },
-                (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${
-                        currentPage === pageNum
-                          ? "bg-blue-50 border-blue-500 text-blue-600 z-10"
-                          : "bg-white text-gray-500 hover:bg-gray-50"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                }
-              )}
-
-              <button
-                onClick={() =>
-                  setCurrentPage(Math.min(currentPage + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === totalPages
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
-              >
-                <span className="sr-only">Next</span>
-                <ChevronRight size={14} />
-              </button>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === totalPages
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
-              >
-                <span className="sr-only">Last</span>
-                <ChevronRight size={14} />
-                <ChevronRight size={14} className="-ml-1" />
-              </button>
-            </nav>
           </div>
+          <div className="flex items-center space-x-1 text-[12px]">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
+                className={`p-1 border rounded ${
+                  currentPage === 1 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <span className="text-[12px] text-gray-500">
+                {currentPage}/{totalPages || 1}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  currentPage === totalPages || totalPages === 0 || loading
+                }
+                className={`p-1 border rounded text-[12px] ${
+                  currentPage === totalPages || totalPages === 0 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
         </div>
       </div>
     </div>
