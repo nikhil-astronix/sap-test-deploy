@@ -280,7 +280,7 @@ export default function ClassroomsPage() {
       const districtId = localStorage.getItem("globalDistrict");
       let data = {
         school_name: getSchoolNameById(editing.schoolId),
-        district_id: districtId || "",
+        district: districtId || "",
         school_id: editing.schoolId,
         course: editData.course,
         teacher_name: editData.teacher,
