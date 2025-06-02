@@ -106,13 +106,19 @@ const Sidebar = () => {
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
-        setIsExpanded(false);
+      const isNowMobile = window.innerWidth < 768;
+      setIsMobile(isNowMobile);
+
+      if (isNowMobile) {
+        setIsExpanded(false); // Collapse on mobile
+      } else {
+        setIsExpanded(true); // Expand on desktop
+        setIsMobileOpen(false); // Close mobile overlay
       }
     };
 
-    handleResize(); // Initial check
+    handleResize(); // Initial check (run once)
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -257,7 +263,7 @@ const Sidebar = () => {
                     href={item.path}
                     className={`flex items-center p-1.5 rounded-md transition-colors text-gray-600 ${
                       (pathname || "").startsWith(item.path)
-                        ? "bg-white text-gray-900 shadow-md rounded-lg border"
+                        ? "bg-white text-[#494B56] font-semibold shadow-md rounded-lg border"
                         : "hover:bg-gray-50"
                     }`}
                   >

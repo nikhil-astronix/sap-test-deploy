@@ -20,6 +20,7 @@ import {
   updateCurriculumById,
 } from "../../services/curriculumsService";
 import CurriculumCard from "./CurriculumCard";
+import Header from "../Header";
 
 const container = {
   hidden: { opacity: 0 },
@@ -163,15 +164,19 @@ export default function CurriculumList() {
 
   return (
     <div className="px-6 py-2 w-full flex flex-col h-full">
-      <div className="flex-none space-y-6 mb-8">
-        <div>
+      <div className="flex-none space-y-5 mb-8">
+        {/* <div>
           <h1 className="text-[24px] mb-2 text-center text-black font-medium">
             Instructional Materials
           </h1>
           <p className="text-[#454F5B] text-center text-[16px]">
             View and manage instructional materials in one place.
           </p>
-        </div>
+        </div> */}
+        <Header
+          title="Instructional Materials"
+          description="View and manage instructional materials in one place."
+        />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}

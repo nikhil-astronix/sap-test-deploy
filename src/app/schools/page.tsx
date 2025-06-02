@@ -20,6 +20,7 @@ import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
 import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
 import { useDistrict } from "@/context/DistrictContext";
+import Header from "@/components/Header";
 
 export default function SchoolsPage() {
   const [schoolsData, setSchoolsData] = useState<any[]>([]);
@@ -317,10 +318,11 @@ export default function SchoolsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl mb-3 text-center font-medium ">Schools</h1>
-      <p className="text-center text-gray-600 mb-6">
-        Manage all your schools in one place.
-      </p>
+      <Header
+        title="Schools"
+        description="Manage all your schools in one place."
+      />
+
       <Table
         columns={columns}
         data={schoolsData}

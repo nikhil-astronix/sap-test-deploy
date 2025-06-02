@@ -6,6 +6,7 @@ import { createDistrict, districtPayload } from "@/services/districtService";
 import { getNetwork } from "@/services/networkService";
 import { fetchNetworkRequestPayload } from "@/types/userData";
 import { z } from "zod";
+import Header from "@/components/Header";
 
 // Define schema for district validation
 const districtSchema = z.object({
@@ -192,14 +193,12 @@ export default function NewDistrictPage() {
   };
 
   return (
-    <div className="container mx-auto bg-white rounded-lg min-h-screen overflow-y-auto">
+    <div className="container mx-auto px-4 py-8 bg-white rounded-lg shadow-md min-h-full">
       <div className="max-w-3xl mx-auto h-auto">
-        <h1 className="text-2xl font-medium mb-6 text-center">
-          Create District
-        </h1>
-        <p className="text-gray-600 mb-8 text-center">
-          Enter the details below to add a new district.
-        </p>
+        <Header
+          title="Create District"
+          description="Enter the details below to add a new district."
+        />
 
         <div className="space-y-6">
           <div>

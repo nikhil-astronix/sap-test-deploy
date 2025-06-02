@@ -30,6 +30,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -43,6 +44,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   }, [searchTerm, selectedFilters]);
 
   const fetchObservations = async () => {
+    setIsLoading(true);
     const requestPayload: fetchObservationToolsPayload = {
       search: searchTerm,
       sort_by: selectedFilters.sort_by,
@@ -58,9 +60,11 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       setPageNumber(response.data.page);
       setPageSize(response.data.limit);
       console.log("Observation data fetch successfully");
+      setIsLoading(false);
     } else {
       setFilteredData([]);
-      console.log("Error while fetching Observtion data");
+      console.log("Error while fetching Observation data");
+      setIsLoading(false);
     }
   };
 
@@ -140,14 +144,15 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       <DashboardTable
         data={filteredData}
         columns={observationColumns}
-        headerColor="purple-800"
+        headerColor="#6C4996"
         renderCell={renderCell}
-        rowColor="purple-50"
+        rowColor="#F9F5FF"
         onFiltersChange={handleFiltersChange}
         totalPages={totalPages}
         totalRecords={totalRecords}
         pageNumber={pageNumber}
         pageSize={pageSize}
+        isLoading={isLoading}
       />
     </div>
   );

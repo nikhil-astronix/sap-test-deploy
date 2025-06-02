@@ -631,7 +631,7 @@ export default function ClassroomsPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
@@ -732,9 +732,7 @@ export default function ClassroomsPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-semibold text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] font-medium text-black">Restore</h2>
             </div>
 
             {/* Description */}
@@ -825,7 +823,7 @@ export default function ClassroomsPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Trash2 className="text-gray-700" size={24} />
-              <h2 className="text-[16px] font-normal text-black-400">Delete</h2>
+              <h2 className="text-[16px] font-medium text-black">Delete</h2>
             </div>
 
             {/* Prompt */}
@@ -1000,7 +998,6 @@ export default function ClassroomsPage() {
                   <td
                     className="px-4 py-3 border-gray-200 bg-[#F8FAFC]"
                     onClick={(e) => {
-                      // Completely isolate checkbox clicks
                       e.stopPropagation();
                     }}
                   >
@@ -1012,7 +1009,9 @@ export default function ClassroomsPage() {
                           e.stopPropagation();
                           handleSelectRow(school.schoolId, "all", e);
                         }}
-                        className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                        // className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                        className="h-4 w-4 cursor-pointer"
+                        style={{ accentColor: "#2264AC" }}
                       />
                     </div>
                   </td>
@@ -1070,7 +1069,9 @@ export default function ClassroomsPage() {
 
                               handleSelectRow(school.schoolId, classroom.id, e);
                             }}
-                            className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                            // className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                            className="h-4 w-4 cursor-pointer"
+                            style={{ accentColor: "#2264AC" }}
                           />
                         </div>
                       </td>
