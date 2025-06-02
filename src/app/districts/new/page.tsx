@@ -6,6 +6,7 @@ import { createDistrict, districtPayload } from "@/services/districtService";
 import { getNetwork } from "@/services/networkService";
 import { fetchNetworkRequestPayload } from "@/types/userData";
 import { z } from "zod";
+import Header from "@/components/Header";
 import Dropdown from "@/components/ui/Dropdown";
 
 // Define schema for district validation
@@ -218,16 +219,12 @@ export default function NewDistrictPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-88px)] overflow-y-auto bg-white">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <div>
-          <h1 className="text-[24px] text-black font-medium text-center">
-            Create District
-          </h1>
-          <p className="mt-1 text-[16px] text-[#454F5B]-400 text-center">
-            Enter the details below to add a new district.
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8 bg-white rounded-lg shadow-md min-h-full">
+      <div className="max-w-3xl mx-auto h-auto">
+        <Header
+          title="Create District"
+          description="Enter the details below to add a new district."
+        />
 
         <div className="space-y-6">
           <div>

@@ -67,7 +67,7 @@ export interface classroomData {
 
 export interface schoolData {
   name: string;
-  district: string | null;
+  district_id: string;
   grades: string[];
   curriculums: string[];
   interventions: string[];

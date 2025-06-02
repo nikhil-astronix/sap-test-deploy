@@ -17,6 +17,7 @@ import {
 } from "@/services/interventionService";
 import { Intervention, InterventionType } from "@/types/interventionData";
 import { Plus } from "@phosphor-icons/react";
+import Header from "@/components/Header";
 
 type InterventionWithCreatedAt = Intervention & {
   createdAt: Date;
@@ -177,19 +178,10 @@ export default function InterventionsPage() {
       className="p-8  bg-white rounded-lg shadow-md min-h-full"
     >
       <div className="flex flex-col min-h-[calc(100vh-12rem)]">
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="flex-none mb-8 items-center justify-center"
-        >
-          <div className="text-[24px] mb-2 text-center text-black font-medium">
-            Tags & Attributes
-          </div>
-          <p className="text-[#454F5B] text-center text-[16px]">
-            Unique attributes to collect data across your system.
-          </p>
-        </motion.div>
+        <Header
+          title="Tags & Attributes"
+          description="Unique attributes to collect data across your system."
+        />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
@@ -322,7 +314,7 @@ export default function InterventionsPage() {
           className="flex-none flex items-center gap-2 mb-6"
         >
           <span
-            className={`text-12px ${
+            className={`text-16px ${
               isActive ? "text-[#494B56]" : "text-[#000] font-medium"
             }`}
           >

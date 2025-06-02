@@ -43,6 +43,7 @@ import { Column } from "@/components/ui/table";
 import { Span } from "next/dist/trace";
 import { getNetwork } from "@/services/networkService";
 import { fetchNetworkRequestPayload } from "@/types/userData";
+import Header from "@/components/Header";
 
 interface District {
   id: string;
@@ -471,7 +472,7 @@ const DistrictsPage = () => {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
@@ -573,9 +574,7 @@ const DistrictsPage = () => {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-normal text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] text-black font-medium">Restore</h2>
             </div>
 
             {/* Description */}
@@ -660,12 +659,11 @@ const DistrictsPage = () => {
         </div>
       )}
 
-      {/* container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md */}
       <div className="container text-center mx-auto px-4 py-8 bg-white">
-        <h1 className="text-2xl font-medium text-center mb-2">Districts</h1>
-        <p className="text-center text-gray-600 mb-6">
-          View and manage all districts in the system.
-        </p>
+        <Header
+          title="Districts"
+          description="View and manage all districts in the system."
+        />
 
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2 sm:w-2/3 w-full">
@@ -813,7 +811,7 @@ const DistrictsPage = () => {
                         }
                         onChange={handleSelectAll}
                         className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
-                        style={{ accentColor: "#6C4996" }}
+                        style={{ accentColor: "#2264AC" }}
                       />
                     </div>
                   </th>
@@ -913,7 +911,8 @@ const DistrictsPage = () => {
                               type="checkbox"
                               checked={selectedRows.has(district.id)}
                               onChange={(e) => handleSelectRow(district.id, e)}
-                              className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer "
+                              className="h-4 w-4"
+                              style={{ accentColor: "#2264AC" }}
                             />
                           </div>
                         </td>

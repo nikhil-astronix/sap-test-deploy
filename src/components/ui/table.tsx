@@ -285,7 +285,7 @@ TableProps) {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
             <p className="text-left text-black-400 text-[14px] mb-4">
               {selectedRows.length === 0
@@ -457,7 +457,7 @@ TableProps) {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-xl font-normal">Restore</h2>
+              <h2 className="text-[16px] font-medium text-black">Restore</h2>
             </div>
             <p className="text-left text-gray-700 mb-4">
               {selectedRows.length === 0
@@ -619,7 +619,7 @@ TableProps) {
           <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <Trash2 size={24} />
-              <h2 className="text-[16px] text-black-400">Delete</h2>
+              <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
             <p className="text-left text-black-400 text-[14px] mb-4">
               {selectedRows.length === 0
@@ -754,30 +754,6 @@ TableProps) {
             </button>
           )}
 
-          {/* {selectionMode && showDeleteButton && (
-            <button
-              onClick={handleDelete}
-              className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
-            >
-              <Trash2 size={16} />
-              <span>Delete</span>
-            </button>
-          )} */}
-
-          {/* {selectionMode && showArchiveButton && (
-            <button
-              onClick={() =>
-                showArchived
-                  ? setShowRestoreModal(true)
-                  : setShowArchiveModal(true)
-              }
-              className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
-            >
-              <Archive size={16} />
-              <span>Archive</span>
-            </button>
-          )} */}
-
           {editingRowId && ( //!selectionMode &&
             <button
               onClick={handleSaveEdit}
@@ -791,7 +767,13 @@ TableProps) {
         <div className="flex items-center space-x-2">
           <button
             onClick={toggleSelectionModeArchive}
-            className="p-2 text-gray-400"
+            // className="p-2 text-gray-400"
+            className={`${
+              selectedRows.length > 0
+                ? "text-gray-500 hover:text-gray-700"
+                : "text-gray-300 cursor-not-allowed"
+            } ${pageType === "schools" ? "py-2" : "p-2"}`}
+            disabled={selectedRows.length <= 0}
             title={
               pageType === "schools" && showArchived ? "Restore" : "Archive"
             }
@@ -810,7 +792,12 @@ TableProps) {
           {pageType === "schools" && (
             <button
               onClick={toggleSelectionModeDelete}
-              className="p-2 text-gray-500"
+              className={`p-2 ${
+                selectedRows.length > 0
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-300 cursor-not-allowed"
+              }`}
+              disabled={selectedRows.length <= 0}
             >
               <span className="sr-only">Delete</span>
               <Trash2 size={20} className="text-black" />

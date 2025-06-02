@@ -22,6 +22,7 @@ import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
 import { fetchAllDistricts } from "@/services/districtService";
 import { getDistrictsPayload } from "@/services/districtService";
+import Header from "@/components/Header";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -380,16 +381,12 @@ export default function SchoolsPage() {
   };
 
   return (
-    <div className="container text-center mx-auto px-4 py-8 bg-white">
-      <h1 className="text-2xl text-center text-black font-medium mb-2">
-        Users
-      </h1>
-      <div>
-        <p className="text-center text-[16px] text-[#454F5B]-400 mb-2">
-          Browse all users across districts. Add, update, or archive user
-          accounts as needed.
-        </p>
-      </div>
+    <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
+      <Header
+        title="Users"
+        description="Browse all users across districts. Add, update, or archive user
+          accounts as needed."
+      />
 
       <Table
         columns={columns}
