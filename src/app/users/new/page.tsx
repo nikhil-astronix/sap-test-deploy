@@ -59,9 +59,9 @@ const StepSchemas = [
     email: z.string().email("Invalid email"),
   }),
   z.object({
-    district: z.string().min(1, "District is required"),
-    school: z.string().min(1, "School is required"),
-    network: z.string().min(1, "Network is required"),
+    district: z.string(),
+    school: z.string(),
+    network: z.string(),
   }),
   z.object({
     role: z.string().min(1, "Role is required"),
@@ -321,7 +321,7 @@ export default function CreateUserForm() {
               <div>
                 <div className="py-2">
                   <label className="block text-[16px] text-balck-400 mb-2">
-                    First Name*
+                    First Name <span className="text-[#2A7251]">*</span>
                   </label>
                   <input
                     type="text"
@@ -340,7 +340,7 @@ export default function CreateUserForm() {
                 </div>
                 <div className="py-2">
                   <label className="block text-[16px] text-balck-400 mb-2">
-                    Last Name*
+                    Last Name <span className="text-[#2A7251]">*</span>
                   </label>
                   <input
                     type="text"
@@ -359,7 +359,7 @@ export default function CreateUserForm() {
                 </div>
                 <div className="py-2">
                   <label className="block text-[16px] text-balck-400 mb-2">
-                    Email*
+                    Email <span className="text-[#2A7251]">*</span>
                   </label>
                   <input
                     type="email"
@@ -422,7 +422,7 @@ export default function CreateUserForm() {
 
                 <div className="py-2">
                   <label className="block text-[16px] text-balck-400 mb-2">
-                    Role*
+                    Role <span className="text-[#2A7251]">*</span>
                   </label>
                   <Dropdown
                     options={roles}
@@ -437,7 +437,7 @@ export default function CreateUserForm() {
 
                 <div className="py-2">
                   <label className="block text-[16px] text-balck-400 mb-2">
-                    User Type*
+                    User Type <span className="text-[#2A7251]">*</span>
                   </label>
                   <Dropdown
                     options={userTypes}
@@ -510,14 +510,14 @@ function BasicInfo({
     <div className="space-y-6  h-full px-4">
       <div>
         <label className="block text-[16px] text-balck-400 mb-2">
-          First Name*
+          First Name <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           placeholder="Enter first name"
           value={formData.firstName}
           onChange={(e) => onChange("firstName", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] text-[12px] border-none focus:outline-none focus:ring-0 placeholder:text-[#919EAB]-400"
+          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8]  border-none focus:outline-none focus:ring-0 placeholder:text-[#919EAB]-400"
         />
         {errors.firstName && (
           <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
@@ -525,27 +525,29 @@ function BasicInfo({
       </div>
       <div>
         <label className="block text-[16px] text-balck-400 mb-2">
-          Last Name*
+          Last Name <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           placeholder="Enter last name"
           value={formData.lastName}
           onChange={(e) => onChange("lastName", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] text-[12px] border-none focus:outline-none focus:ring-0 placeholder:text-[#919EAB]-400"
+          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8]  border-none focus:outline-none focus:ring-0 placeholder:text-[#919EAB]-400"
         />
         {errors.lastName && (
           <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
         )}
       </div>
       <div>
-        <label className="block text-[16px] text-balck-400 mb-2">Email*</label>
+        <label className="block text-[16px] text-balck-400 mb-2">
+          Email <span className="text-[#2A7251]">*</span>
+        </label>
         <input
           type="email"
           placeholder="Enter email address"
           value={formData.email}
           onChange={(e) => onChange("email", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8] text-[12px] border-none focus:outline-none focus:ring-0 placeholder:text-[#919EAB]-400"
+          className="w-full px-3 py-2 rounded-lg bg-[#F4F6F8]  border-none focus:outline-none focus:ring-0 placeholder:text-[#919EAB]-400"
         />
         {errors.email && (
           <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -674,7 +676,9 @@ function SelectRole({
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-[16px] text-balck-400 mb-2">Role*</label>
+        <label className="block text-[16px] text-balck-400 mb-2">
+          Role <span className="text-[#2A7251]">*</span>
+        </label>
         <Dropdown
           options={roles}
           value={formData.role}
@@ -688,7 +692,7 @@ function SelectRole({
 
       <div>
         <label className="block text-[16px] text-balck-400 mb-2">
-          User Type*
+          User Type <span className="text-[#2A7251]">*</span>
         </label>
         <Dropdown
           options={userTypes}

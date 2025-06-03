@@ -99,7 +99,7 @@ const NewCurriculumPage = () => {
             transition={{ delay: 0.3, duration: 0.3 }}
           >
             <label className="block text-[16px] text-black-400 mb-1">
-              Title <span className="text-emerald-700">*</span>
+              Title <span className="text-[#2A7251]">*</span>
             </label>
             <motion.input
               whileFocus={{ scale: 1.01 }}
@@ -110,7 +110,7 @@ const NewCurriculumPage = () => {
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              className={`w-full text-sm px-4 py-2 text-[12px] bg-gray-100 rounded-lg focus:outline-none focus:ring-1 ${
+              className={`w-full px-4 py-2  bg-gray-100 rounded-lg focus:outline-none focus:ring-1 ${
                 validationErrors.title
                   ? "border border-red-500 focus:ring-red-500"
                   : "focus:ring-emerald-500"
@@ -129,7 +129,7 @@ const NewCurriculumPage = () => {
             transition={{ delay: 0.4, duration: 0.3 }}
           >
             <label className="block text-[16px] text-black-400 mb-1">
-              Description <span className="text-emerald-700">*</span>
+              Description <span className="text-[#2A7251]">*</span>
             </label>
             <motion.textarea
               whileFocus={{ scale: 1.01 }}
@@ -140,7 +140,7 @@ const NewCurriculumPage = () => {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className={`w-full text-sm px-4 py-2 text-[12px] bg-gray-100 rounded-lg focus:outline-none focus:ring-1 min-h-[90px] ${
+              className={`w-full px-4 py-2  bg-gray-100 rounded-lg focus:outline-none focus:ring-1 min-h-[90px] ${
                 validationErrors.description
                   ? "border border-red-500 focus:ring-red-500"
                   : "focus:ring-emerald-500"
@@ -159,7 +159,7 @@ const NewCurriculumPage = () => {
             transition={{ delay: 0.5, duration: 0.3 }}
           >
             <label className="block text-sm font-medium mb-1">
-              Type <span className="text-emerald-700">*</span>
+              Type <span className="text-[#2A7251]">*</span>
             </label>
             <div className="flex gap-4 text-sm flex-col">
               {(["Default", "Custom"] as const).map((option, index) => (

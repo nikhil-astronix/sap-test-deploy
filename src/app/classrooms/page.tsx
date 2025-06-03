@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-import { Trash2, Archive, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   ClockClockwise,
   User,
@@ -9,6 +9,8 @@ import {
   Book,
   ChartBar,
   Tag,
+  Trash,
+  Archive,
 } from "@phosphor-icons/react";
 import Dropdown from "@/components/ui/Dropdown";
 import MultiSelect from "@/components/ui/MultiSelect";
@@ -288,7 +290,7 @@ export default function ClassroomsPage() {
       const districtId = localStorage.getItem("globalDistrict");
       let data = {
         school_name: getSchoolNameById(editing.schoolId),
-        district: districtId || "",
+        district_id: districtId || "",
         school_id: editing.schoolId,
         course: editData.course,
         teacher_name: editData.teacher,
@@ -724,7 +726,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -815,7 +817,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Restore
               </button>
@@ -830,7 +832,7 @@ export default function ClassroomsPage() {
           <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 className="text-gray-700" size={24} />
+              <Trash className="text-gray-700" size={24} />
               <h2 className="text-[16px] font-medium text-black">Delete</h2>
             </div>
 
@@ -916,7 +918,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Delete
               </button>
@@ -945,7 +947,7 @@ export default function ClassroomsPage() {
         archivedLabel="Archived"
         isActiveArchived={false} // Classrooms page has reversed active/archived logic
       />
-      <div className="overflow-x-auto rounded-lg border border-gray-300  bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-300  bg-white">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300">

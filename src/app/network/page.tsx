@@ -12,16 +12,11 @@ import {
   City,
   XCircle,
   ClockClockwise,
+  Archive,
+  Trash,
 } from "@phosphor-icons/react";
 
-import {
-  Trash2,
-  Archive,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  RotateCcw,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   archiveNetwork,
@@ -421,11 +416,11 @@ export default function NetworksPage() {
             {/* Description */}
             <p className="text-left text-black-400 text-[14px] mb-4">
               {getSelectedItemsInfo().length === 0
-                ? "Please select districts to archive."
+                ? "Please select networks to archive."
                 : `Are you sure you want to archive ${
                     getSelectedItemsInfo().length === 1
-                      ? "this District?"
-                      : "these Districts?"
+                      ? "this network?"
+                      : "these networks?"
                   }`}
             </p>
 
@@ -506,7 +501,7 @@ export default function NetworksPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-lg transition-colors`}
+                } text-white font-medium rounded-lg transition-colors`}
               >
                 Archive
               </button>
@@ -598,7 +593,7 @@ export default function NetworksPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-lg transition-colors`}
+                } text-white font-medium rounded-lg transition-colors`}
               >
                 Restore
               </button>
@@ -612,7 +607,7 @@ export default function NetworksPage() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 className="text-gray-700" size={24} />
+              <Trash className="text-gray-700" size={24} />
               <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
 
@@ -684,7 +679,7 @@ export default function NetworksPage() {
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-[#B4351C] text-white rounded-lg hover:bg-[#943015] transition-colors"
+                className="px-4 py-2 bg-[#B4351C] text-white font-medium rounded-lg hover:bg-[#943015] transition-colors"
               >
                 Delete
               </button>
@@ -712,7 +707,7 @@ export default function NetworksPage() {
         isActiveArchived={false}
       />
 
-      <div className=" rounded-lg border border-gray-300 shadow-sm bg-white">
+      <div className=" rounded-xl border border-gray-300 shadow-sm bg-white">
         <table className="w-full border-collapse text-sm rounded-lg">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300 ">
@@ -744,7 +739,7 @@ export default function NetworksPage() {
                   City/Town
                 </span>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
+              <th className="w-[20%] px-4 py-3 text-left font-semibold">
                 <span className="inline-flex items-center gap-2">
                   <User size={16} />
                   Created By
@@ -874,7 +869,7 @@ export default function NetworksPage() {
                           }
                         >
                           <td
-                            className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                            className="px-4 py-3  bg-transparent" //bg-[#F8FAFC]
                             onClick={(e) => e.stopPropagation()}
                           >
                             {/* <div className="flex items-center">

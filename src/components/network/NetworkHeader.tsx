@@ -1,7 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, MagnifyingGlass, ClockClockwise } from "@phosphor-icons/react";
-import { Archive, Trash2, RotateCcw } from "lucide-react";
+import {
+  Plus,
+  MagnifyingGlass,
+  ClockClockwise,
+  Archive,
+  Trash,
+} from "@phosphor-icons/react";
+import { RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Header from "../Header";
 
@@ -95,7 +101,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {/* Determine which button to show based on active state and isActiveArchived flag */}
               {(isActiveArchived ? active : !active) ? (
                 <button
@@ -114,7 +120,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                       : "Select items to archive"
                   }
                 >
-                  <Archive size={20} className="text-black" />
+                  <Archive size={24} className="text-black" />
                 </button>
               ) : (
                 <button
@@ -133,7 +139,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                       : "Select items to restore"
                   }
                 >
-                  <ClockClockwise size={20} className="text-black" />
+                  <ClockClockwise size={24} className="text-black" />
                 </button>
               )}
 
@@ -152,7 +158,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                     : "Select items to delete"
                 }
               >
-                <Trash2 size={20} className="text-black" />
+                <Trash size={24} className="text-black" />
               </button>
               <motion.button
                 whileHover={{ scale: 1.02 }}

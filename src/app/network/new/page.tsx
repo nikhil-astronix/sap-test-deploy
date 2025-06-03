@@ -82,7 +82,7 @@ export default function NewNetworkPage() {
 
         <div className="space-y-6">
           <label className="block text-[16px] text-black-400 mb-2">
-            Network <span className="text-[#2A7251]">*</span>
+            Network <span className="text-[#22A469]">*</span>
           </label>
           <input
             type="text"
@@ -91,7 +91,7 @@ export default function NewNetworkPage() {
             onChange={(e) =>
               setFormData({ ...formData, network: e.target.value })
             }
-            className={`w-full px-3 py-2 rounded-lg border text-[12px] bg-[#F4F6F8] ${
+            className={`w-full px-3 py-2 rounded-lg border  bg-[#F4F6F8] ${
               validationErrors.network
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-200 focus:ring-emerald-500"

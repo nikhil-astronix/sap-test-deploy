@@ -229,7 +229,7 @@ export default function NewDistrictPage() {
         <div className="space-y-6">
           <div>
             <label className="block text-[16px] text-black-400 mb-2">
-              District Name <span className="text-emerald-700">*</span>
+              District Name <span className="text-[#2A7251]">*</span>
             </label>
             <input
               type="text"
@@ -238,7 +238,7 @@ export default function NewDistrictPage() {
               onChange={(e) =>
                 setFormData({ ...formData, district: e.target.value })
               }
-              className={`w-full px-3 py-2 bg-[#F4F6F8] text-[12px] rounded-lg border ${
+              className={`w-full px-3 py-2 bg-[#F4F6F8]  rounded-lg border ${
                 validationErrors.district
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-200 focus:ring-emerald-500"
@@ -252,7 +252,7 @@ export default function NewDistrictPage() {
           </div>
           <div>
             <label className="block text-[16px] text-black-400 mb-2">
-              State <span className="text-emerald-700">*</span>
+              State <span className="text-[#2A7251]">*</span>
             </label>
             {/* <select
               value={formData.state}
@@ -289,7 +289,7 @@ export default function NewDistrictPage() {
 
           <div>
             <label className="block text-[16px] text-black-400 mb-2">
-              City / Town <span className="text-emerald-700">*</span>
+              City / Town <span className="text-[#2A7251]">*</span>
             </label>
             <input
               type="text"
@@ -298,7 +298,7 @@ export default function NewDistrictPage() {
               onChange={(e) =>
                 setFormData({ ...formData, city: e.target.value })
               }
-              className={`w-full px-3 py-2 bg-[#F4F6F8] text-[12px] rounded-lg border ${
+              className={`w-full px-3 py-2 bg-[#F4F6F8]  rounded-lg border ${
                 validationErrors.city
                   ? "border-red-500 focus:ring-red-500"
                   : "border-gray-200 focus:ring-emerald-500"
@@ -352,7 +352,7 @@ export default function NewDistrictPage() {
 
           <div>
             <label className="block text-[16px] text-black-400 mb-2">
-              Enrollment Range <span className="text-emerald-700">*</span>
+              Enrollment Range <span className="text-[#2A7251]">*</span>
             </label>
             {/* <select
               value={formData.enrollmentRange}
