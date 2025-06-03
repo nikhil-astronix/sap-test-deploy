@@ -862,7 +862,7 @@ TableProps) {
         </div>
       </div>
       <div className="rounded-xl border border-gray-200 shadow-sm">
-        <div className="overflow-x-auto rounded-[6px]">
+        <div className="overflow-x-auto rounded-[6px] ">
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">

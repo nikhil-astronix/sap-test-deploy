@@ -844,15 +844,9 @@ export default function NetworksPage() {
                               </button>
                             </>
                           ) : expanded === network.id ? (
-                            <CaretCircleUp
-                              className="text-gray-600"
-                              size={16}
-                            />
+                            <CaretCircleUp size={16} color="#2264AC" />
                           ) : (
-                            <CaretCircleDown
-                              className="text-gray-600"
-                              size={16}
-                            />
+                            <CaretCircleDown color="#2264AC" size={16} />
                           )}
                         </div>
                       </div>

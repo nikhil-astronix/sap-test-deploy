@@ -985,7 +985,7 @@ export default function ClassroomsPage() {
                   Instructional Materials
                 </span>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
+              <th className="w-[20%] px-4 py-3 text-left font-semibold ">
                 <span className="inline-flex items-center gap-2">
                   <Tag size={16} />
                   Tags & Attribute(s)

@@ -25,7 +25,7 @@ export default function ArchiveModal({
   const actionText = item.isArchived ? "unarchive" : "archive";
   const buttonClass = item.isArchived
     ? "bg-emerald-600 text-white hover:bg-emerald-700"
-    : "bg-red-600 text-white hover:bg-red-700";
+    : "bg-[#C23E19] text-white hover:bg-red-700";
 
   return (
     <AnimatePresence>
@@ -105,7 +105,7 @@ export default function ArchiveModal({
                 >
                   <div
                     className={`w-1 ${
-                      item.isArchived ? "bg-emerald-600" : "bg-red-600"
+                      item.isArchived ? "bg-emerald-600" : "bg-[#FFF5F5]"
                     }`}
                   ></div>
                   <div className="p-4 flex-1">
@@ -115,14 +115,14 @@ export default function ArchiveModal({
                           className={`${
                             item.isArchived
                               ? "text-emerald-600"
-                              : "text-red-600"
+                              : "text-[#C23E19]"
                           } font-medium mb-1 flex items-center gap-2`}
                         >
                           <ExclamationTriangleIcon
                             className={`w-5 h-5 ${
                               item.isArchived
                                 ? "text-emerald-600"
-                                : "text-red-600"
+                                : "text-[#C23E19]"
                             } flex-shrink-0`}
                           />
                           {item.isArchived ? "Note" : "Warning"}

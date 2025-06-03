@@ -557,8 +557,8 @@ function SelectInterventions({
                   transition={{ delay: 0.2, duration: 0.3 }}
                   className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                     tag.type === "Custom"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                      : "bg-[#F2FAF6] text-[#2A7251]"
                   }`}
                 >
                   <motion.div
@@ -566,7 +566,7 @@ function SelectInterventions({
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, duration: 0.2 }}
                     className={`w-2 h-2 rounded-full mr-1 ${
-                      tag.type === "Custom" ? "bg-purple-800" : "bg-emerald-800"
+                      tag.type === "Custom" ? "bg-[#6C4996]" : "bg-[#2A7251]"
                     }`}
                   />
                   {tag.type}
@@ -712,8 +712,8 @@ function SelectCurriculum({
                   transition={{ delay: 0.2, duration: 0.3 }}
                   className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                     material.type === "Custom"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                      : "bg-[#F2FAF6] text-[#2A7251]"
                   }`}
                 >
                   <motion.div
@@ -722,8 +722,8 @@ function SelectCurriculum({
                     transition={{ delay: 0.3, duration: 0.2 }}
                     className={`w-2 h-2 rounded-full mr-1 ${
                       material.type === "Custom"
-                        ? "bg-purple-800"
-                        : "bg-emerald-800"
+                        ? "bg-[#6C4996]"
+                        : "bg-[#2A7251]"
                     }`}
                   />
                   {material.type}
@@ -831,7 +831,7 @@ function ReviewSubmit({
               {formData.grades.map((grade: string) => (
                 <span
                   key={grade}
-                  className="bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1 text-[12px]"
+                  className="bg-[#F2FAF6] text-[#2A7251] text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1 text-[12px]"
                 >
                   <Student size={16} />
                   {grade === "K"
@@ -888,8 +888,8 @@ function ReviewSubmit({
                       transition={{ delay: 0.2, duration: 0.3 }}
                       className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                         tag.type === "Custom"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-emerald-100 text-emerald-700"
+                          ? "bg-[#F4EBFF] text-[#6C4996]"
+                          : "bg-[#F2FAF6] text-[#2A7251]"
                       }`}
                     >
                       <motion.div
@@ -898,8 +898,8 @@ function ReviewSubmit({
                         transition={{ delay: 0.3, duration: 0.2 }}
                         className={`w-2 h-2 rounded-full mr-1 ${
                           tag.type === "Custom"
-                            ? "bg-purple-800"
-                            : "bg-emerald-800"
+                            ? "bg-[#6C4996]"
+                            : "bg-[#2A7251]"
                         }`}
                       />
                       {tag.type}
@@ -949,8 +949,8 @@ function ReviewSubmit({
                       transition={{ delay: 0.2, duration: 0.3 }}
                       className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                         material.type === "Custom"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-emerald-100 text-emerald-700"
+                          ? "bg-[#F4EBFF] text-[#6C4996]"
+                          : "bg-[#F2FAF6] text-[#2A7251]"
                       }`}
                     >
                       <motion.div
@@ -959,8 +959,8 @@ function ReviewSubmit({
                         transition={{ delay: 0.3, duration: 0.2 }}
                         className={`w-2 h-2 rounded-full mr-1 ${
                           material.type === "Custom"
-                            ? "bg-purple-800"
-                            : "bg-emerald-800"
+                            ? "bg-[#6C4996]"
+                            : "bg-[#2A7251]"
                         }`}
                       />
                       {material.type}
