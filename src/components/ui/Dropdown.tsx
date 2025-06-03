@@ -50,7 +50,7 @@ export default function Dropdown({
   };
 
   return (
-    <div className={`text-[12px] relative ${className}`} ref={dropdownRef}>
+    <div className={` relative ${className}`} ref={dropdownRef}>
       {/* Selected Tag */}
       {/* {selectedOption && (
         <div className="flex flex-wrap gap-2 mb-2">

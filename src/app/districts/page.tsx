@@ -14,6 +14,7 @@ import {
   PencilSimpleLine,
   ClockClockwise,
   Info,
+  Archive,
 } from "@phosphor-icons/react";
 import {
   ChevronUp,
@@ -22,7 +23,6 @@ import {
   ChevronRight,
   Edit2,
   Trash2,
-  Archive,
   Check,
   X,
   Save,
@@ -152,26 +152,35 @@ const DistrictsPage = () => {
   }, []);
 
   const fetchNetworks = async () => {
-    const payload: fetchNetworkRequestPayload = {
-      is_archived: false,
-      sort_by: null,
-      sort_order: null,
-      curr_page: 1,
-      per_page: 100,
-      search: null,
-    };
-    const response = await getNetwork(payload);
-    console.log("response from network is ", response);
-    if (response.success) {
-      let result: any[] = [];
-      response.data.networks.forEach((network: any) => {
-        result.push({
-          label: network.name,
-          value: network.id,
-        });
-      });
+    setLoading(true);
+    try {
+      const payload: fetchNetworkRequestPayload = {
+        is_archived: false,
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+      };
 
-      setNetworks(result);
+      const response = await getNetwork(payload);
+      console.log("response from network is ", response);
+      if (response.success) {
+        let result: any[] = [];
+        response.data.networks.forEach((network: any) => {
+          result.push({
+            label: network.name,
+            value: network.id,
+          });
+        });
+
+        setNetworks(result);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -271,7 +280,8 @@ const DistrictsPage = () => {
     Array.from(selectedRows).forEach((districtId) => {
       const district = districts.find((d) => d.id === districtId);
       if (district) {
-        items.push(`${district.name} - ${district.state}, ${district.city}`);
+        items.push(`${district.name}`);
+        //items.push(`${district.name} - ${district.state}, ${district.city}`);
       }
     });
 
@@ -559,7 +569,7 @@ const DistrictsPage = () => {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -650,7 +660,7 @@ const DistrictsPage = () => {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Restore
               </button>
@@ -718,7 +728,7 @@ const DistrictsPage = () => {
                     : "Select items to archive"
                 }
               >
-                <Archive size={20} className="text-black" />
+                <Archive size={24} className="text-black" />
               </button>
             ) : (
               <button
@@ -737,7 +747,7 @@ const DistrictsPage = () => {
                     : "Select items to restore"
                 }
               >
-                <ClockClockwise size={20} className="text-black" />
+                <ClockClockwise size={24} className="text-black" />
               </button>
             )}
             <motion.button
@@ -793,7 +803,7 @@ const DistrictsPage = () => {
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 shadow-sm">
+        <div className="rounded-xl border border-gray-200 shadow-sm">
           <div className="overflow-x-auto rounded-lg">
             <table className="w-full">
               <thead>
@@ -883,7 +893,15 @@ const DistrictsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {districts.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="py-8">
+                      <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : districts.length === 0 ? (
                   <tr>
                     <td
                       colSpan={columns.length + 2}

@@ -317,7 +317,13 @@ export default function CurriculumList() {
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <span>Active</span>
+            <span
+              className={`text-16px ${
+                showArchived ? "text-[#494B56]" : "text-[#000] font-medium"
+              }`}
+            >
+              Active
+            </span>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowArchived(!showArchived)}
@@ -339,7 +345,13 @@ export default function CurriculumList() {
                 className="inline-block h-4 w-4 rounded-full bg-white"
               />
             </motion.button>
-            <span>Archived</span>
+            <span
+              className={`text-12px ${
+                showArchived ? "text-[#000] font-medium" : "text-[#494B56]"
+              }`}
+            >
+              Archived
+            </span>
           </div>
         </div>
       </div>

@@ -5,8 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit2,
-  Trash2,
-  Archive,
   Check,
   X,
   Save,
@@ -20,6 +18,8 @@ import {
   Info,
   MagnifyingGlass,
   Plus,
+  Trash,
+  Archive,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
@@ -442,7 +442,7 @@ TableProps) {
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -601,7 +601,7 @@ TableProps) {
               <button
                 disabled={selectedRows.length === 0}
                 onClick={handleRestore}
-                className={`px-4 py-2 text-white rounded-[6px] ${
+                className={`px-4 py-2 text-white font-medium rounded-[6px] ${
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#2A7251] hover:bg-[#2A7251]"
@@ -618,7 +618,7 @@ TableProps) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 size={24} />
+              <Trash size={24} />
               <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
             <p className="text-left text-black-400 text-[14px] mb-4">
@@ -705,7 +705,7 @@ TableProps) {
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-red-600 hover:bg-red-700"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Delete
               </button>
@@ -782,9 +782,9 @@ TableProps) {
               {pageType === "schools" && showArchived ? "Restore" : "Archive"}
             </span>
             {pageType === "schools" && showArchived ? (
-              <ClockClockwise size={20} className="text-black" />
+              <ClockClockwise size={24} className="text-black" />
             ) : (
-              <Archive size={20} className="text-black" />
+              <Archive size={24} className="text-black" />
             )}
           </button>
 
@@ -800,7 +800,7 @@ TableProps) {
               disabled={selectedRows.length <= 0}
             >
               <span className="sr-only">Delete</span>
-              <Trash2 size={20} className="text-black" />
+              <Trash size={24} className="text-black" />
             </button>
           )}
 
@@ -861,7 +861,7 @@ TableProps) {
           </span>
         </div>
       </div>
-      <div className="rounded-[6px] border border-gray-200 shadow-sm">
+      <div className="rounded-xl border border-gray-200 shadow-sm">
         <div className="overflow-x-auto rounded-[6px]">
           <table className="w-full">
             <thead>
@@ -948,11 +948,10 @@ TableProps) {
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td
-                    colSpan={columns.length + 2}
-                    className="px-6 py-4 text-center"
-                  >
-                    Loading...
+                  <td colSpan={7} className="py-8">
+                    <div className="flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                    </div>
                   </td>
                 </tr>
               ) : data.length === 0 ? (

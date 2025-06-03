@@ -62,7 +62,7 @@ export default function ArchiveModal({
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="flex items-center gap-2 mb-6"
+                  className="flex items-center gap-2 mb-3"
                 >
                   <Archive className="text-gray-600" size={24} />
                   <span className="text-[16px] text-black font-medium capitalize">
@@ -145,7 +145,7 @@ export default function ArchiveModal({
                   </div>
                 </motion.div>
 
-                <div className="flex justify-end gap-3 mt-6">
+                <div className="flex justify-end gap-3 mt-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -158,7 +158,7 @@ export default function ArchiveModal({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onArchive}
-                    className={`px-6 py-1 text-sm rounded-[6px] ${buttonClass}`}
+                    className={`px-6 py-1 text-[16px] font-medium rounded-[6px] ${buttonClass}`}
                   >
                     {item.isArchived ? "Unarchive" : "Archive"}
                   </motion.button>
