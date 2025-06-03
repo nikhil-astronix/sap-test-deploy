@@ -14,6 +14,7 @@ import {
   PencilSimpleLine,
   ClockClockwise,
   Info,
+  Archive,
 } from "@phosphor-icons/react";
 import {
   ChevronUp,
@@ -22,7 +23,6 @@ import {
   ChevronRight,
   Edit2,
   Trash2,
-  Archive,
   Check,
   X,
   Save,
@@ -43,6 +43,7 @@ import { Column } from "@/components/ui/table";
 import { Span } from "next/dist/trace";
 import { getNetwork } from "@/services/networkService";
 import { fetchNetworkRequestPayload } from "@/types/userData";
+import Header from "@/components/Header";
 
 interface District {
   id: string;
@@ -151,27 +152,35 @@ const DistrictsPage = () => {
   }, []);
 
   const fetchNetworks = async () => {
-    const payload: fetchNetworkRequestPayload = {
-      is_archived: false,
-      sort_by: null,
-      sort_order: null,
-      curr_page: 1,
-      per_page: 100,
-      search: null,
-    };
-    const response = await getNetwork(payload);
-    console.log("response from network is ", response);
-    if (response.success) {
-      let result: any[] = [];
-      response.data.networks.forEach((network: any) => {
-        result.push({
-          id: network.id,
-          label: network.name,
-          value: network.id,
-        });
-      });
+    setLoading(true);
+    try {
+      const payload: fetchNetworkRequestPayload = {
+        is_archived: false,
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+      };
 
-      setNetworks(result);
+      const response = await getNetwork(payload);
+      console.log("response from network is ", response);
+      if (response.success) {
+        let result: any[] = [];
+        response.data.networks.forEach((network: any) => {
+          result.push({
+            label: network.name,
+            value: network.id,
+          });
+        });
+
+        setNetworks(result);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -271,7 +280,8 @@ const DistrictsPage = () => {
     Array.from(selectedRows).forEach((districtId) => {
       const district = districts.find((d) => d.id === districtId);
       if (district) {
-        items.push(`${district.name} - ${district.state}, ${district.city}`);
+        items.push(`${district.name}`);
+        //items.push(`${district.name} - ${district.state}, ${district.city}`);
       }
     });
 
@@ -296,7 +306,7 @@ const DistrictsPage = () => {
     },
     {
       key: "city",
-      label: "City",
+      label: "City/Town",
       sortable: true,
       icon: <Building size={20} />,
       editable: true,
@@ -472,7 +482,7 @@ const DistrictsPage = () => {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
@@ -559,7 +569,7 @@ const DistrictsPage = () => {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -574,9 +584,7 @@ const DistrictsPage = () => {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-normal text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] text-black font-medium">Restore</h2>
             </div>
 
             {/* Description */}
@@ -652,7 +660,7 @@ const DistrictsPage = () => {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Restore
               </button>
@@ -661,12 +669,11 @@ const DistrictsPage = () => {
         </div>
       )}
 
-      {/* container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md */}
       <div className="container text-center mx-auto px-4 py-8 bg-white">
-        <h1 className="text-2xl text-center mb-2">Districts</h1>
-        <p className="text-center text-gray-600 mb-6">
-          View and manage all districts in the system.
-        </p>
+        <Header
+          title="Districts"
+          description="View and manage all districts in the system."
+        />
 
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2 sm:w-2/3 w-full">
@@ -721,7 +728,7 @@ const DistrictsPage = () => {
                     : "Select items to archive"
                 }
               >
-                <Archive size={20} className="text-black" />
+                <Archive size={24} className="text-black" />
               </button>
             ) : (
               <button
@@ -740,7 +747,7 @@ const DistrictsPage = () => {
                     : "Select items to restore"
                 }
               >
-                <ClockClockwise size={20} className="text-black" />
+                <ClockClockwise size={24} className="text-black" />
               </button>
             )}
             <motion.button
@@ -766,7 +773,10 @@ const DistrictsPage = () => {
             </span>
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => setActive((a) => !a)}
+              onClick={() => {
+                setActive((a) => !a);
+                setSelectedRows(new Set());
+              }}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-emerald-700`}
             >
               <motion.span
@@ -793,7 +803,7 @@ const DistrictsPage = () => {
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 shadow-sm">
+        <div className="rounded-xl border border-gray-200 shadow-sm">
           <div className="overflow-x-auto rounded-lg">
             <table className="w-full">
               <thead>
@@ -811,7 +821,7 @@ const DistrictsPage = () => {
                         }
                         onChange={handleSelectAll}
                         className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
-                        style={{ accentColor: "#6C4996" }}
+                        style={{ accentColor: "#2264AC" }}
                       />
                     </div>
                   </th>
@@ -875,7 +885,7 @@ const DistrictsPage = () => {
                         width={13}
                         alt="Action"
                       />
-                      <span className="text-[12px]-400 text-white font-semibold">
+                      <span className="text-[14px] text-white font-semibold">
                         Action
                       </span>
                     </div>
@@ -883,7 +893,15 @@ const DistrictsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {districts.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="py-8">
+                      <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : districts.length === 0 ? (
                   <tr>
                     <td
                       colSpan={columns.length + 2}
@@ -911,7 +929,8 @@ const DistrictsPage = () => {
                               type="checkbox"
                               checked={selectedRows.has(district.id)}
                               onChange={(e) => handleSelectRow(district.id, e)}
-                              className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer "
+                              className="h-4 w-4"
+                              style={{ accentColor: "#2264AC" }}
                             />
                           </div>
                         </td>
@@ -944,7 +963,7 @@ const DistrictsPage = () => {
                                 />
                               )
                             ) : (
-                              <div className="text-left">
+                              <div className="text-left text-[14px]">
                                 {renderCell(district, column.key)}
                               </div>
                             )}
@@ -961,7 +980,7 @@ const DistrictsPage = () => {
                             className="text-emerald-700"
                             onClick={() => handleStartEdit(district)}
                           >
-                            <PencilSimpleLine size={16} color="#2264AC" />
+                            <PencilSimpleLine size={16} color="#2A7251" />
                           </button>
                         </td>
                       </tr>

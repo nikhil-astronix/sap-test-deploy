@@ -22,6 +22,7 @@ import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
 import { fetchAllDistricts } from "@/services/districtService";
 import { getDistrictsPayload } from "@/services/districtService";
+import Header from "@/components/Header";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -62,20 +63,6 @@ export default function SchoolsPage() {
     { id: "State", label: "State" },
     { id: "Teacher", label: "Teacher" },
     { id: "Other", label: "Other" },
-  ];
-
-  const districts1 = [
-    { id: "District A", label: "District A" },
-    { id: "District B", label: "District B" },
-  ];
-  const schools1 = [
-    { id: "ABC School", label: "ABC School" },
-    { id: "School B", label: "School B" },
-  ];
-
-  const networks1 = [
-    { id: "Network 4", label: "Network 4" },
-    { id: "Network 5", label: "Network 5" },
   ];
 
   const columns: Column[] = [
@@ -380,14 +367,12 @@ export default function SchoolsPage() {
   };
 
   return (
-    <div className="container text-center mx-auto px-4 py-8 bg-white">
-      <h1 className="text-2xl text-center text-black-400 mb-2">Users</h1>
-      <div>
-        <p className="text-center text-[16px] text-[#454F5B]-400 mb-2">
-          Browse all users across districts. Add, update, or archive user
-          accounts as needed.
-        </p>
-      </div>
+    <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
+      <Header
+        title="Users"
+        description="Browse all users across districts. Add, update, or archive user
+          accounts as needed."
+      />
 
       <Table
         columns={columns}

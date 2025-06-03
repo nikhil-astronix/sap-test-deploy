@@ -12,16 +12,11 @@ import {
   City,
   XCircle,
   ClockClockwise,
+  Archive,
+  Trash,
 } from "@phosphor-icons/react";
 
-import {
-  Trash2,
-  Archive,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  RotateCcw,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   archiveNetwork,
@@ -415,17 +410,17 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
             <p className="text-left text-black-400 text-[14px] mb-4">
               {getSelectedItemsInfo().length === 0
-                ? "Please select districts to archive."
+                ? "Please select networks to archive."
                 : `Are you sure you want to archive ${
                     getSelectedItemsInfo().length === 1
-                      ? "this District?"
-                      : "these Districts?"
+                      ? "this network?"
+                      : "these networks?"
                   }`}
             </p>
 
@@ -506,7 +501,7 @@ export default function NetworksPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-lg transition-colors`}
+                } text-white font-medium rounded-lg transition-colors`}
               >
                 Archive
               </button>
@@ -521,9 +516,7 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-semibold text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] text-black font-medium">Restore</h2>
             </div>
 
             {/* Description */}
@@ -600,7 +593,7 @@ export default function NetworksPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-lg transition-colors`}
+                } text-white font-medium rounded-lg transition-colors`}
               >
                 Restore
               </button>
@@ -614,8 +607,8 @@ export default function NetworksPage() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 className="text-gray-700" size={24} />
-              <h2 className="text-[16px] font-normal text-black-400">Delete</h2>
+              <Trash className="text-gray-700" size={24} />
+              <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
 
             {/* Prompt */}
@@ -686,7 +679,7 @@ export default function NetworksPage() {
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-[#B4351C] text-white rounded-lg hover:bg-[#943015] transition-colors"
+                className="px-4 py-2 bg-[#B4351C] text-white font-medium rounded-lg hover:bg-[#943015] transition-colors"
               >
                 Delete
               </button>
@@ -714,7 +707,7 @@ export default function NetworksPage() {
         isActiveArchived={false}
       />
 
-      <div className=" rounded-lg border border-gray-300 shadow-sm bg-white">
+      <div className=" rounded-xl border border-gray-300 shadow-sm bg-white">
         <table className="w-full border-collapse text-sm rounded-lg">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300 ">
@@ -724,7 +717,7 @@ export default function NetworksPage() {
                     type="checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
-                    className="h-4 w-4 appearance-none text-[#2264AC] border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                    className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
                   />
                 </div>
               </th>
@@ -743,10 +736,10 @@ export default function NetworksPage() {
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
                 <span className="inline-flex items-center gap-2">
                   <Building size={16} />
-                  City
+                  City/Town
                 </span>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
+              <th className="w-[20%] px-4 py-3 text-left font-semibold">
                 <span className="inline-flex items-center gap-2">
                   <User size={16} />
                   Created By
@@ -790,7 +783,8 @@ export default function NetworksPage() {
                           onChange={(e) =>
                             handleSelectRow(network.id, "all", e)
                           }
-                          className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                          className="h-4 w-4"
+                          style={{ accentColor: "#2264AC" }}
                         />
                       </div>
                     </td>
@@ -817,7 +811,7 @@ export default function NetworksPage() {
                           </span>
                         )}
                         <div className="flex items-center gap-2">
-                          {!editing && (
+                          {!editing && !active && (
                             <button
                               className="text-emerald-700 mr-2"
                               onClick={(e) => {
@@ -875,10 +869,10 @@ export default function NetworksPage() {
                           }
                         >
                           <td
-                            className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                            className="px-4 py-3  bg-transparent" //bg-[#F8FAFC]
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div className="flex items-center">
+                            {/* <div className="flex items-center">
                               <input
                                 type="checkbox"
                                 checked={selectedRows.districts.has(
@@ -889,7 +883,7 @@ export default function NetworksPage() {
                                 }
                                 className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
                               />
-                            </div>
+                            </div> */}
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             {district.district}
@@ -900,9 +894,7 @@ export default function NetworksPage() {
                           <td className="px-4 py-2 border-r border-gray-200">
                             {district.city}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            {district.created}
-                          </td>
+                          <td className="px-4 py-2 ">{district.created}</td>
                           <td className="px-4 py-2 text-center">
                             {/* District actions removed */}
                           </td>

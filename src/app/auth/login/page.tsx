@@ -76,6 +76,8 @@ function LoginPageContent() {
             router.push("/system-dashboard");
           } else if (role === "admin") {
             router.push("/admin-dashboard");
+          } else if (role === "network-dashboard") {
+            router.push("/network-dashboard");
           } else {
             router.push("/users");
           }
@@ -101,7 +103,6 @@ function LoginPageContent() {
 
       if (res?.status === "LOGIN_SUCCESS") {
         const response = await getCurrentUser();
-        console.log("response--------", response);
 
         localStorage.setItem("userrole", response.data.user_type);
         localStorage.setItem(
@@ -113,6 +114,8 @@ function LoginPageContent() {
           router.push("/system-dashboard");
         } else if (role === "Admin") {
           router.push("/admin-dashboard");
+        } else if (role === "Network Admin") {
+          router.push("/network-dashboard");
         } else {
           router.push("/users");
         }

@@ -51,6 +51,7 @@ interface SessionTablesProps {
   onSave?: () => void;
   onCancel?: () => void;
   isEditingExternal?: boolean; // Add this prop
+  Loading?: boolean;
 }
 
 // TabButton component for consistent styling
@@ -490,6 +491,7 @@ export default function SessionTables({
   onSave,
   onCancel,
   isEditingExternal,
+  Loading,
 }: SessionTablesProps) {
   const [activeTab, setActiveTab] = useState("Today");
   const [searchTerm, setSearchTerm] = useState("");

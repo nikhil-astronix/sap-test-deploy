@@ -198,7 +198,7 @@ export default function CreateSchoolForm() {
   const handleSubmit = async () => {
     // Validate entire form
     const result = schoolFormSchema.safeParse(formData);
-    const districtValue = localStorage.getItem("districtValue");
+    const districtId = localStorage.getItem("globalDistrict");
     if (!result.success) {
       console.error("Validation failed:", result.error);
       return;
@@ -212,7 +212,7 @@ export default function CreateSchoolForm() {
 
       const payload = {
         name: formData.schoolName,
-        district: districtValue,
+        district: districtId || "",
         grades: formData.grades || [],
         curriculums:
           formData.instructionalMaterials?.map((item: any) => item.id) || [],
@@ -299,14 +299,14 @@ function BasicInfo({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School Name <span className="text-emerald-700">*</span>
+          School Name <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           placeholder="Enter School Name"
           value={formData.schoolName}
           onChange={(e) => onChange("schoolName", e.target.value)}
-          className={`w-full px-3 py-2 text-[12px] bg-[#F4F6F8] rounded-lg border ${
+          className={`w-full px-3 py-2 bg-[#F4F6F8] rounded-lg border ${
             validationErrors.schoolName
               ? "border-red-500 focus:ring-red-500"
               : "border-gray-200 focus:ring-emerald-500"
@@ -321,10 +321,10 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <MultiSelect
-          className="bg-[#F4F6F8] text-[12px]"
+          className="bg-[#F4F6F8]"
           options={gradeOptions}
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
@@ -467,7 +467,7 @@ function SelectInterventions({
         )}
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex justify-between ">
         <button
           onClick={onBack}
           className="px-6 py-2 text-gray-600 hover:text-gray-800"
@@ -540,7 +540,7 @@ function SelectCurriculum({
   };
 
   return (
-    <div className="space-y-6 max-h-96 overflow-y-auto">
+    <div className="space-y-6">
       <div className="mb-6">
         <h2 className="mb-3 text-[16px] text-black-400">
           Instructional Materials
@@ -560,7 +560,7 @@ function SelectCurriculum({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-96 overflow-y-auto">
         {filteredMaterials.map((material) => (
           <div
             key={material.id}
@@ -619,7 +619,7 @@ function SelectCurriculum({
         )}
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex justify-between">
         <button
           onClick={onBack}
           className="px-6 py-2 text-gray-600 hover:text-gray-800"
@@ -662,19 +662,19 @@ function ReviewSubmit({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School Name <span className="text-emerald-700">*</span>
+          School Name <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           value={formData.schoolName || ""}
           disabled
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed text-[12px]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed"
         />
       </div>
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <div className="w-full px-3 py-2 rounded-lg bg-white min-h-[38px]">
           {formData.grades && formData.grades.length > 0 ? (
@@ -682,7 +682,7 @@ function ReviewSubmit({
               {formData.grades.map((grade: string) => (
                 <span
                   key={grade}
-                  className="bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1"
+                  className="bg-[#F2FAF6] text-emerald-700 text-sm px-3 py-2 border border-emerald-700 rounded-full flex gap-1"
                 >
                   <Student size={16} />
                   {grade === "K"
@@ -836,18 +836,18 @@ function ReviewSubmit({
           <button
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-[#2A7251] disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-[#2A7251] text-white rounded-lg hover:bg-emerald-800 transition-colors"
           >
-            {isSubmitting ? (
+            {/* {isSubmitting ? (
               <>
                 <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
                 Creating...
               </>
-            ) : (
-              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full">
-                Create
-              </div>
-            )}
+            ) : ( */}
+            {/* <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"> */}
+            Create
+            {/* </div> */}
+            {/* )} */}
           </button>
         </div>
       </div>

@@ -2,7 +2,7 @@ import apiClient from "@/api/axiosInterceptor";
 
 export interface districtPayload {
   name: string;
-  network_id: string;
+  network_id: string | null;
   state: string;
   city: string;
   enrollment_range: string;

@@ -137,6 +137,7 @@ export default function CreateClassroomForm() {
 
   const fetchSchools = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: null,
         sort_by: null,
@@ -144,6 +145,7 @@ export default function CreateClassroomForm() {
         curr_page: 1,
         per_page: 100,
         search: null,
+        district_id: districtId,
       };
       const response = await getSchools(requesPayload);
       const formattedschools = response.data.schools.map((school: any) => ({
@@ -226,9 +228,11 @@ export default function CreateClassroomForm() {
   // Handle final form submission
   const onSubmit = async (data: ClassroomFormData) => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       setApiError("");
       const submitData = {
         school_id: data.school_id,
+        district_id: districtId || "",
         school_name: data.school,
         course: data.course,
         teacher_name: data.teacher,
@@ -346,7 +350,7 @@ function BasicInfo({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School <span className="text-emerald-700">*</span>
+          School <span className="text-[#2A7251]">*</span>
         </label>
         <Dropdown
           options={schoolsData}
@@ -371,7 +375,7 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Course <span className="text-emerald-700">*</span>
+          Course <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -382,7 +386,7 @@ function BasicInfo({
             errors.course
               ? "border-red-500 focus:ring-red-500"
               : "border-gray-200 focus:ring-emerald-500"
-          } focus:outline-none focus:ring-1 bg-[#F4F6F8] text-[12px]`}
+          } focus:outline-none focus:ring-1 bg-[#F4F6F8] `}
         />
         {errors.course && (
           <p className="text-red-500 text-xs mt-1">
@@ -393,14 +397,14 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Teacher <span className="text-emerald-700">*</span>
+          Teacher <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           placeholder="Enter Teacher Name"
           value={formData.teacher}
           onChange={(e) => onChange("teacher", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] text-[12px]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] "
         />
         {errors.teacher && (
           <p className="text-red-500 text-xs mt-1">
@@ -411,14 +415,16 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <MultiSelect
           options={gradeOptions}
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
           placeholder="Select grades"
-          className={`bg-[#F4F6F8] ${errors.grades ? "border-red-500" : ""}`}
+          className={`bg-[#F4F6F8] text-[#919EAB] ${
+            errors.grades ? "border-red-500" : ""
+          }`}
         />
         {errors.grades && (
           <p className="text-red-500 text-xs mt-1">
@@ -436,7 +442,7 @@ function BasicInfo({
           placeholder="Enter class period / section"
           value={formData.classPeriod}
           onChange={(e) => onChange("classPeriod", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] text-[12px]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] "
         />
       </div>
 
@@ -781,7 +787,7 @@ function ReviewSubmit({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School <span className="text-emerald-700">*</span>
+          School <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -793,7 +799,7 @@ function ReviewSubmit({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Course <span className="text-emerald-700">*</span>
+          Course <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -805,7 +811,7 @@ function ReviewSubmit({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Teacher <span className="text-emerald-700">*</span>
+          Teacher <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -817,7 +823,7 @@ function ReviewSubmit({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <div className="w-full px-3 py-2 rounded-lg bg-white min-h-[38px]">
           {formData.grades && formData.grades.length > 0 ? (

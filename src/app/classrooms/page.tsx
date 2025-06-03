@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-import { Trash2, Archive, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   ClockClockwise,
   User,
@@ -9,6 +9,8 @@ import {
   Book,
   ChartBar,
   Tag,
+  Trash,
+  Archive,
 } from "@phosphor-icons/react";
 import Dropdown from "@/components/ui/Dropdown";
 import MultiSelect from "@/components/ui/MultiSelect";
@@ -35,6 +37,7 @@ import {
 import { Intervention } from "@/types/interventionData";
 import { AxiosError } from "axios";
 import Tooltip from "@/components/Tooltip";
+import { useDistrict } from "@/context/DistrictContext";
 
 // Add type definitions
 interface Classroom {
@@ -109,6 +112,7 @@ export default function ClassroomsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   const allClassrooms = active ? activeClassrooms : archivedClassrooms;
 
@@ -116,7 +120,7 @@ export default function ClassroomsPage() {
 
   useEffect(() => {
     fetchData(currentPage, rowsPerPage, null, null, active, search);
-  }, [currentPage, rowsPerPage, search, active]);
+  }, [currentPage, rowsPerPage, search, active, globalDistrict]);
 
   useEffect(() => {
     fetchCurriculums();
@@ -202,6 +206,14 @@ export default function ClassroomsPage() {
   };
 
   const handleEdit = (schoolId: string, classroom: Classroom): void => {
+    classroom.curriculums = classroom.curriculums.map((curriculum) => {
+      const found = curriculums.find((item) => item.label === curriculum);
+      return found ? found.value : curriculum;
+    });
+    classroom.interventions = classroom.interventions.map((intervention) => {
+      const found = interventions.find((item) => item.label === intervention);
+      return found ? found.value : intervention;
+    });
     setEditing({ schoolId, classroomId: classroom.id });
     setEditData({ ...classroom });
   };
@@ -220,8 +232,10 @@ export default function ClassroomsPage() {
   ) => {
     setIsLoading(true);
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requestPayload = {
         is_archived: active,
+        district_id: districtId || "",
         sort_by: null,
         sort_order: null,
         curr_page: page,
@@ -273,8 +287,10 @@ export default function ClassroomsPage() {
       return school?.school || school?.name || "";
     };
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       let data = {
         school_name: getSchoolNameById(editing.schoolId),
+        district_id: districtId || "",
         school_id: editing.schoolId,
         course: editData.course,
         teacher_name: editData.teacher,
@@ -625,7 +641,7 @@ export default function ClassroomsPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
@@ -710,7 +726,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -726,9 +742,7 @@ export default function ClassroomsPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-semibold text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] font-medium text-black">Restore</h2>
             </div>
 
             {/* Description */}
@@ -803,7 +817,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Restore
               </button>
@@ -818,8 +832,8 @@ export default function ClassroomsPage() {
           <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 className="text-gray-700" size={24} />
-              <h2 className="text-[16px] font-normal text-black-400">Delete</h2>
+              <Trash className="text-gray-700" size={24} />
+              <h2 className="text-[16px] font-medium text-black">Delete</h2>
             </div>
 
             {/* Prompt */}
@@ -904,7 +918,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Delete
               </button>
@@ -933,7 +947,7 @@ export default function ClassroomsPage() {
         archivedLabel="Archived"
         isActiveArchived={false} // Classrooms page has reversed active/archived logic
       />
-      <div className="overflow-x-auto rounded-lg border border-gray-300  bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-300  bg-white">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300">
@@ -994,7 +1008,6 @@ export default function ClassroomsPage() {
                   <td
                     className="px-4 py-3 border-gray-200 bg-[#F8FAFC]"
                     onClick={(e) => {
-                      // Completely isolate checkbox clicks
                       e.stopPropagation();
                     }}
                   >
@@ -1006,7 +1019,9 @@ export default function ClassroomsPage() {
                           e.stopPropagation();
                           handleSelectRow(school.schoolId, "all", e);
                         }}
-                        className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                        // className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                        className="h-4 w-4 cursor-pointer"
+                        style={{ accentColor: "#2264AC" }}
                       />
                     </div>
                   </td>
@@ -1064,7 +1079,9 @@ export default function ClassroomsPage() {
 
                               handleSelectRow(school.schoolId, classroom.id, e);
                             }}
-                            className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                            // className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                            className="h-4 w-4 cursor-pointer"
+                            style={{ accentColor: "#2264AC" }}
                           />
                         </div>
                       </td>

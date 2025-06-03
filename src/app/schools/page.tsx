@@ -19,6 +19,8 @@ import {
 import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
 import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
+import { useDistrict } from "@/context/DistrictContext";
+import Header from "@/components/Header";
 
 export default function SchoolsPage() {
   const [schoolsData, setSchoolsData] = useState<any[]>([]);
@@ -38,6 +40,7 @@ export default function SchoolsPage() {
   );
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   const gradeOptions = [
     { label: "Kindergarten", value: "Kindergarten" },
@@ -69,7 +72,7 @@ export default function SchoolsPage() {
       isArchived,
       searchQuery
     );
-  }, [currentPage, rowsPerPage, isArchived, searchQuery]);
+  }, [currentPage, rowsPerPage, isArchived, searchQuery, globalDistrict]);
 
   const columns: Column[] = [
     {
@@ -114,9 +117,10 @@ export default function SchoolsPage() {
 
   const handleSave = async (updatedRow: any) => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       let data = {
         name: updatedRow.name,
-        district: "661943fd4ccf5f44a9a1a002",
+        district: districtId || "",
         grades: updatedRow.grades,
         curriculums: updatedRow.curriculums?.filter(
           (c: string) => c !== "None"
@@ -236,8 +240,10 @@ export default function SchoolsPage() {
   ) => {
     setLoading(true);
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: isArchived,
+        district_id: districtId || "",
         sort_by: sortBy,
         sort_order: sortOrder,
         curr_page: page,
@@ -312,10 +318,11 @@ export default function SchoolsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl mb-3 text-center ">Schools</h1>
-      <p className="text-center text-gray-600 mb-6">
-        Manage all your Schools in one place.
-      </p>
+      <Header
+        title="Schools"
+        description="Manage all your schools in one place."
+      />
+
       <Table
         columns={columns}
         data={schoolsData}

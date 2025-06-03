@@ -1,8 +1,15 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, MagnifyingGlass, ClockClockwise } from "@phosphor-icons/react";
-import { Archive, Trash2, RotateCcw } from "lucide-react";
+import {
+  Plus,
+  MagnifyingGlass,
+  ClockClockwise,
+  Archive,
+  Trash,
+} from "@phosphor-icons/react";
+import { RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Header from "../Header";
 
 interface NetworkHeaderProps {
   title: string;
@@ -56,8 +63,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
 
   return (
     <>
-      <h1 className="text-2xl text-center mb-2">{title}</h1>
-      <p className="text-center text-gray-600 mb-6">{description}</p>
+      <Header title={title} description={description} />
 
       {isEditing ? (
         // Editing mode - show Save/Close buttons
@@ -95,11 +101,11 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {/* Determine which button to show based on active state and isActiveArchived flag */}
               {(isActiveArchived ? active : !active) ? (
                 <button
-                  className={`p-2 ${
+                  className={`py-2 ${
                     hasSelectedItems()
                       ? "text-gray-500 hover:text-gray-700"
                       : "text-gray-300 cursor-not-allowed"
@@ -114,11 +120,11 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                       : "Select items to archive"
                   }
                 >
-                  <Archive size={20} className="text-black" />
+                  <Archive size={24} className="text-black" />
                 </button>
               ) : (
                 <button
-                  className={`p-2 ${
+                  className={`py-2 ${
                     hasSelectedItems()
                       ? "text-gray-500 hover:text-gray-700"
                       : "text-gray-300 cursor-not-allowed"
@@ -133,7 +139,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                       : "Select items to restore"
                   }
                 >
-                  <ClockClockwise size={20} className="text-black" />
+                  <ClockClockwise size={24} className="text-black" />
                 </button>
               )}
 
@@ -152,7 +158,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
                     : "Select items to delete"
                 }
               >
-                <Trash2 size={20} className="text-black" />
+                <Trash size={24} className="text-black" />
               </button>
               <motion.button
                 whileHover={{ scale: 1.02 }}

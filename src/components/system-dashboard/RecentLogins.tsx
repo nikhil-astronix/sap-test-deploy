@@ -33,6 +33,7 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -46,6 +47,7 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   }, [searchTerm, selectedFilters]);
 
   const fetchRecentLoginInfo = async () => {
+    setIsLoading(true);
     const requestPayload: fetchUsersPayload = {
       search: searchTerm,
       sort_by: selectedFilters.sort_by,
@@ -62,9 +64,11 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       setPageNumber(response.data.page);
       setPageSize(response.data.limit);
       console.log("RecentLogin data fetch successfully");
+      setIsLoading(false);
     } else {
       setFilteredData([]);
       console.log("Error while fetching RecentLogin data");
+      setIsLoading(false);
     }
   };
 
@@ -184,14 +188,15 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       <DashboardTable
         data={filteredData}
         columns={loginColumns}
-        headerColor="green-800"
+        headerColor="#007778"
         renderCell={renderRoleCell}
-        rowColor="green-50"
+        rowColor="#EDFFFF"
         onFiltersChange={handleFiltersChange}
         totalPages={totalPages}
         totalRecords={totalRecords}
         pageNumber={pageNumber}
         pageSize={pageSize}
+        isLoading={isLoading}
       />
     </div>
   );

@@ -5,8 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit2,
-  Trash2,
-  Archive,
   Check,
   X,
   Save,
@@ -20,6 +18,8 @@ import {
   Info,
   MagnifyingGlass,
   Plus,
+  Trash,
+  Archive,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
@@ -285,7 +285,7 @@ TableProps) {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
             <p className="text-left text-black-400 text-[14px] mb-4">
               {selectedRows.length === 0
@@ -442,7 +442,7 @@ TableProps) {
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -457,7 +457,7 @@ TableProps) {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-xl font-normal">Restore</h2>
+              <h2 className="text-[16px] font-medium text-black">Restore</h2>
             </div>
             <p className="text-left text-gray-700 mb-4">
               {selectedRows.length === 0
@@ -601,7 +601,7 @@ TableProps) {
               <button
                 disabled={selectedRows.length === 0}
                 onClick={handleRestore}
-                className={`px-4 py-2 text-white rounded-[6px] ${
+                className={`px-4 py-2 text-white font-medium rounded-[6px] ${
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#2A7251] hover:bg-[#2A7251]"
@@ -618,8 +618,8 @@ TableProps) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 size={24} />
-              <h2 className="text-[16px] text-black-400">Delete</h2>
+              <Trash size={24} />
+              <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
             <p className="text-left text-black-400 text-[14px] mb-4">
               {selectedRows.length === 0
@@ -705,7 +705,7 @@ TableProps) {
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-red-600 hover:bg-red-700"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Delete
               </button>
@@ -754,30 +754,6 @@ TableProps) {
             </button>
           )}
 
-          {/* {selectionMode && showDeleteButton && (
-            <button
-              onClick={handleDelete}
-              className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
-            >
-              <Trash2 size={16} />
-              <span>Delete</span>
-            </button>
-          )} */}
-
-          {/* {selectionMode && showArchiveButton && (
-            <button
-              onClick={() =>
-                showArchived
-                  ? setShowRestoreModal(true)
-                  : setShowArchiveModal(true)
-              }
-              className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
-            >
-              <Archive size={16} />
-              <span>Archive</span>
-            </button>
-          )} */}
-
           {editingRowId && ( //!selectionMode &&
             <button
               onClick={handleSaveEdit}
@@ -791,7 +767,13 @@ TableProps) {
         <div className="flex items-center space-x-2">
           <button
             onClick={toggleSelectionModeArchive}
-            className="p-2 text-gray-400"
+            // className="p-2 text-gray-400"
+            className={`${
+              selectedRows.length > 0
+                ? "text-gray-500 hover:text-gray-700"
+                : "text-gray-300 cursor-not-allowed"
+            } ${pageType === "schools" ? "py-2" : "p-2"}`}
+            disabled={selectedRows.length <= 0}
             title={
               pageType === "schools" && showArchived ? "Restore" : "Archive"
             }
@@ -800,9 +782,9 @@ TableProps) {
               {pageType === "schools" && showArchived ? "Restore" : "Archive"}
             </span>
             {pageType === "schools" && showArchived ? (
-              <ClockClockwise size={20} className="text-black" />
+              <ClockClockwise size={24} className="text-black" />
             ) : (
-              <Archive size={20} className="text-black" />
+              <Archive size={24} className="text-black" />
             )}
           </button>
 
@@ -810,10 +792,15 @@ TableProps) {
           {pageType === "schools" && (
             <button
               onClick={toggleSelectionModeDelete}
-              className="p-2 text-gray-500"
+              className={`p-2 ${
+                selectedRows.length > 0
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-300 cursor-not-allowed"
+              }`}
+              disabled={selectedRows.length <= 0}
             >
               <span className="sr-only">Delete</span>
-              <Trash2 size={20} className="text-black" />
+              <Trash size={24} className="text-black" />
             </button>
           )}
 
@@ -874,7 +861,7 @@ TableProps) {
           </span>
         </div>
       </div>
-      <div className="rounded-[6px] border border-gray-200 shadow-sm">
+      <div className="rounded-xl border border-gray-200 shadow-sm">
         <div className="overflow-x-auto rounded-[6px]">
           <table className="w-full">
             <thead>
@@ -951,7 +938,7 @@ TableProps) {
                       width={13}
                       alt="Action"
                     />
-                    <span className="text-[12px]-400 text-white font-semibold">
+                    <span className="text-[14px] text-white font-semibold">
                       Action
                     </span>
                   </div>
@@ -961,11 +948,10 @@ TableProps) {
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td
-                    colSpan={columns.length + 2}
-                    className="px-6 py-4 text-center"
-                  >
-                    Loading...
+                  <td colSpan={7} className="py-8">
+                    <div className="flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                    </div>
                   </td>
                 </tr>
               ) : data.length === 0 ? (
