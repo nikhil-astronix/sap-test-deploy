@@ -28,7 +28,7 @@ export default function InterventionCard({
   const buttonClasses = `text-[12px] font-semibold transition-colors px-4 py-1.5 rounded-full ${
     viewMode === "archived"
       ? "text-[#2264AC] bg-[#E9F3FF] hover:bg-blue-100"
-      : "text-red-600 bg-red-100 hover:bg-red-200"
+      : "text-[#C23E19] font-medium bg-[#FFF2EE] hover:bg-[#FFF2EE]"
   }`;
 
   return (
@@ -49,13 +49,13 @@ export default function InterventionCard({
             <span
               className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-medium ${
                 type === "Custom"
-                  ? "bg-purple-100 text-purple-800"
+                  ? "bg-[#F4EBFF] text-[#6C4996]"
                   : "bg-[#F2FAF6] text-[#2A7251]"
               }`}
             >
               <div
                 className={`w-2 h-2 rounded-full mr-1 ${
-                  type === "Custom" ? "bg-purple-800" : "bg-emerald-800"
+                  type === "Custom" ? "bg-[#6C4996]" : "bg-[#2A7251]"
                 }`}
               />
               {type}

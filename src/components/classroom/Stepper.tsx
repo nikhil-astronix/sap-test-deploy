@@ -32,6 +32,8 @@ export default function Stepper({ steps }: StepperProps) {
                       ? "bg-[#6C4996]" // Last step when completed
                       : index === steps.length - 2
                       ? "bg-[#2264AC]" // Second-to-last step when completed
+                      : index === steps.length - 3
+                      ? "bg-[#007778]"
                       : "bg-emerald-700" // Other completed steps
                     : step.status === "current"
                     ? index === steps.length - 1
@@ -47,8 +49,8 @@ export default function Stepper({ steps }: StepperProps) {
                     className={`w-4 h-4 flex items-center justify-center ${
                       index === steps.length - 1
                         ? "text-white" // Last step
-                        : index === steps.length - 2
-                        ? "text-white" // Second-to-last step
+                        : index === steps.length - 3
+                        ? "bg-[#007778] text-white" // Second-to-last step
                         : "text-white"
                     }`}
                   />
@@ -59,7 +61,7 @@ export default function Stepper({ steps }: StepperProps) {
                         ? "bg-[#6C4996]" // Last step when current
                         : index === steps.length - 2
                         ? "bg-[#2264AC]" // Second-to-last step when current
-                        : "bg-emerald-700" // Default color for current
+                        : "bg-[#2A7251]" // Default color for current
                     }`}
                   />
                 ) : null}
@@ -75,7 +77,7 @@ export default function Stepper({ steps }: StepperProps) {
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                className={`h-[6px] flex-1 mx-2 rounded-xl ${
+                className={`h-[4px] flex-1 mx-2 rounded-xl ${
                   steps[index].status === "completed" &&
                   steps[index + 1].status === "completed"
                     ? "bg-gradient-to-r from-[#2A7251] via-[#007778] to-[#2264AC]"

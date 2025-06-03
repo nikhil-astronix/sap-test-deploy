@@ -219,7 +219,7 @@ export default function InterventionsPage() {
                   <h3 className="text-md font-semibold">Filter By</h3>
                   <button
                     onClick={handleFilterReset}
-                    className="text-emerald-700 hover:text-emerald-800 text-sm"
+                    className="text-[#2A7251] hover:text-emerald-800 text-sm"
                   >
                     Reset
                   </button>
@@ -231,10 +231,10 @@ export default function InterventionsPage() {
                     <button
                       key={type}
                       onClick={() => setFilterType(type)}
-                      className={`flex-1 px-4 py-2 rounded-lg ${
+                      className={`flex-1 px-4 py-2 ${
                         filterType === type
-                          ? "bg-emerald-700 text-white"
-                          : "border border-gray-200 text-gray-600 hover:bg-gray-200"
+                          ? "bg-[#2A7251] text-white"
+                          : "border  border-gray-200 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       {type}({filterCounts[type]})
@@ -288,7 +288,7 @@ export default function InterventionsPage() {
                 {/* Apply Button */}
                 <button
                   onClick={() => setShowFilters(false)}
-                  className="w-full bg-emerald-700 text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
+                  className="w-full bg-[#2A7251] text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
                 >
                   Apply
                 </button>
