@@ -422,6 +422,7 @@ function BasicInfo({
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
           placeholder="Select grades"
+          isGrade={true}
           className={`bg-[#F4F6F8] text-[#919EAB] ${
             errors.grades ? "border-red-500" : ""
           }`}

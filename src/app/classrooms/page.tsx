@@ -1126,6 +1126,7 @@ export default function ClassroomsPage() {
                               onChange={(vals) =>
                                 handleEditChange("grades", vals)
                               }
+                              isGrade={true}
                               placeholder="Select grades"
                             />
                           </td>

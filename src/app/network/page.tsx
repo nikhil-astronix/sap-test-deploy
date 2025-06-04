@@ -730,7 +730,7 @@ export default function NetworksPage() {
                   />
                 </div>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
+              <th className="w-[20%]  py-3 text-left font-semibold border-r border-gray-300">
                 <div className="flex items-center space-x-2">
                   <City size={20} />
                   <span>District</span>
@@ -799,7 +799,7 @@ export default function NetworksPage() {
                     </td>
                     <td
                       colSpan={5}
-                      className="px-4 py-3 border-b border-gray-300"
+                      className="pr-4 py-3 border-b border-gray-300"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExpand(network.id);
@@ -888,7 +888,7 @@ export default function NetworksPage() {
                               />
                             </div> */}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="py-2 border-r border-gray-200">
                             {district.district}
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">

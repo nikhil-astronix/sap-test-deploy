@@ -1036,6 +1036,7 @@ TableProps) {
                                     // onChange={(vals) =>
                                     //   handleEditChange("grades", vals)
                                     // }
+                                    isGrade={column.key === "grades" && true}
                                     onChange={(vals) =>
                                       handleEditChange(column.key, vals)
                                     }

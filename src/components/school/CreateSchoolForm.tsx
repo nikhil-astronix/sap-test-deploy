@@ -328,6 +328,7 @@ function BasicInfo({
           options={gradeOptions}
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
+          isGrade={true}
           placeholder="Select grades"
         />
         {validationErrors.grades && (
