@@ -98,7 +98,7 @@ function ResetPasswordPageContent() {
   };
 
   return (
-    <div className="w-xl mx-auto shadow-xl rounded-xl p-6">
+    <div className="w-xl mx-auto  rounded-xl p-6">
       <AnimatedContainer variant="stagger" staggerItems={true}>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           {isSetNewPw ? "Set New Password" : "Reset Password"}

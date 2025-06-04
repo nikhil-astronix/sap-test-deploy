@@ -22,6 +22,7 @@ import {
 import CurriculumCard from "./CurriculumCard";
 import Header from "../Header";
 import { useDistrict } from "@/context/DistrictContext";
+import { Plus } from "@phosphor-icons/react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -203,7 +204,7 @@ export default function CurriculumList() {
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`p-2 rounded-r-[6px] h-10 flex items-center justify-center ${
-                  showFilters ? "bg-emerald-700 text-white" : ""
+                  showFilters ? "bg-[#2A7251] text-white" : ""
                 }`}
               >
                 <AdjustmentsHorizontalIcon className="h-5 w-5" />
@@ -217,7 +218,7 @@ export default function CurriculumList() {
                   <h3 className="text-md font-semibold">Filter By</h3>
                   <button
                     onClick={handleFilterReset}
-                    className="text-emerald-700 hover:text-emerald-800 text-sm"
+                    className="text-[#2A7251] hover:text-emerald-800 text-sm"
                   >
                     Reset
                   </button>
@@ -234,7 +235,7 @@ export default function CurriculumList() {
                       }
                       className={`flex-1 px-4 py-2 rounded-lg ${
                         filterType === type
-                          ? "bg-emerald-700 text-white"
+                          ? "bg-[#2A7251] text-white"
                           : "border border-gray-200 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
@@ -301,7 +302,7 @@ export default function CurriculumList() {
                 {/* Apply Button */}
                 <button
                   onClick={() => handleApplyFilters()}
-                  className="w-full bg-emerald-700 text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
+                  className="w-full bg-[#2A7251] text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
                 >
                   Apply
                 </button>
@@ -313,9 +314,10 @@ export default function CurriculumList() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push("/curriculums/new")}
-            className="bg-emerald-700 text-white px-4 py-2 rounded-[6px] hover:bg-emerald-800 transition-colors"
+            className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-[6px] hover:bg-[#2A7251] transition-colors"
           >
-            + Add
+            <Plus size={16} />
+            Add
           </motion.button>
         </motion.div>
 

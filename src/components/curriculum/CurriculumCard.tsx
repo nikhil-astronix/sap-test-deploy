@@ -72,8 +72,8 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
             transition={{ delay: 0.2, duration: 0.3 }}
             className={`inline-block flex flex-row items-center w-fit px-3 py-2 rounded-full text-xs font-medium ${
               type === "Custom"
-                ? "bg-purple-100 text-purple-800"
-                : "bg-emerald-100 text-emerald-700"
+                ? "bg-[#F4EBFF] text-[#6C4996]"
+                : "bg-[#F2FAF6] text-[#2A7251]"
             }`}
           >
             <motion.div
@@ -81,7 +81,7 @@ const CurriculumCard: React.FC<CurriculumCardProps> = ({
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, duration: 0.2 }}
               className={`w-2 h-2 rounded-full mr-1 ${
-                type === "Custom" ? "bg-purple-800" : "bg-emerald-800"
+                type === "Custom" ? "bg-[#6C4996]" : "bg-[#2A7251]"
               }`}
             />
             {type}
