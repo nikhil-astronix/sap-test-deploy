@@ -273,6 +273,12 @@ TableProps) {
     }
   };
 
+  const getGradeOptionsForSchool = (schoolId: string) => {
+    const school = data.find((s) => s.id === schoolId);
+    if (!school) return [];
+    return school.grades.map((g: string) => ({ label: g, value: g }));
+  };
+
   return (
     <div
       className={`w-full bg-white transition-all duration-300 ${
@@ -1031,12 +1037,15 @@ TableProps) {
                                 column.key === "curriculums" ||
                                 column.key === "interventions" ? (
                                   <MultiSelect
-                                    options={column.options}
+                                    options={
+                                      column.key === "grades"
+                                        ? getGradeOptionsForSchool(
+                                            editingData.id
+                                          ) // use the row's `id` as `schoolId`
+                                        : column.options || []
+                                    }
                                     values={editingData[column.key] || []}
-                                    // onChange={(vals) =>
-                                    //   handleEditChange("grades", vals)
-                                    // }
-                                    isGrade={column.key === "grades" && true}
+                                    isGrade={column.key === "grades"}
                                     onChange={(vals) =>
                                       handleEditChange(column.key, vals)
                                     }

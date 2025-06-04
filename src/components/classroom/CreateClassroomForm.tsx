@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Stepper from "./Stepper";
 import Dropdown from "../ui/Dropdown";
@@ -63,7 +63,7 @@ const steps = [
   { label: "Review & Submit", id: "review" },
 ];
 
-const gradeOptions = [
+const gradeOptions1 = [
   { label: "Kindergarten", value: "Kindergarten" },
   { label: "1", value: "1" },
   { label: "2", value: "2" },
@@ -86,6 +86,11 @@ export default function CreateClassroomForm() {
   const [interventions, setInterventions] = useState<any[]>([]);
   const [apiError, setApiError] = useState("");
   const [apiSuccess, setApiSuccess] = useState("");
+  const [schools, setSchools] = useState<any[]>([]);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
+  const [gradeOptions, setGradeOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   // Initialize React Hook Form with Zod validation
   const defaultValues: ClassroomFormData = {
@@ -129,6 +134,29 @@ export default function CreateClassroomForm() {
     status: getStepStatus(index) as "completed" | "current" | "upcoming",
   }));
 
+  const schoolMap = useMemo(
+    () => Object.fromEntries(schools.map((school: any) => [school.id, school])),
+    [schools]
+  );
+
+  const handleSchoolChange = (schoolId: string) => {
+    setSelectedSchoolId(schoolId);
+
+    const selectedSchool = schoolMap[schoolId];
+    if (selectedSchool) {
+      const formattedGrades = selectedSchool.grades.map((grade: string) => ({
+        label: grade,
+        value: grade,
+      }));
+      setGradeOptions(formattedGrades);
+    } else {
+      setGradeOptions([]);
+    }
+
+    // Optionally clear previous grade selections
+    // onChange("grades", []);
+  };
+
   useEffect(() => {
     fetchSchools();
     fetchCurriculums();
@@ -153,6 +181,7 @@ export default function CreateClassroomForm() {
         label: school.name,
       }));
       setSchoolsData(formattedschools);
+      setSchools(response.data.schools);
     } catch (error) {
       console.error("Error fetching schools:", error);
     }
@@ -290,6 +319,8 @@ export default function CreateClassroomForm() {
               onNext={() => validateStep(1)}
               schoolsData={schoolsData}
               errors={errors}
+              handleSchoolChange={handleSchoolChange}
+              gradeOptions={gradeOptions}
             />
           )}
 
@@ -337,12 +368,16 @@ function BasicInfo({
   onNext,
   schoolsData,
   errors,
+  handleSchoolChange,
+  gradeOptions,
 }: {
   formData: ClassroomFormData;
   onChange: (field: keyof ClassroomFormData, value: any) => void;
   onNext: () => void;
   schoolsData: any[];
   errors: any;
+  handleSchoolChange: (schoolId: string) => void;
+  gradeOptions: { label: string; value: string }[];
 }) {
   const router = useRouter();
 
@@ -356,10 +391,10 @@ function BasicInfo({
           options={schoolsData}
           value={formData.school_id}
           onChange={(value) => {
+            handleSchoolChange(value); // <-- school id passed
             const selectedSchool = schoolsData.find(
               (school) => school.value === value
             );
-
             onChange("school_id", value);
             onChange("school", selectedSchool?.label || value);
           }}
