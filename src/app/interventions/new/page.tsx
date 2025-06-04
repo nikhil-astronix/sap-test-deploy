@@ -27,7 +27,6 @@ const interventionSchema = z.object({
   type: z.enum(["Default", "Custom"], {
     errorMap: () => ({ message: "Please select a valid type" }),
   }),
-  district_id: z.string().min(1, "District ID is required"),
 });
 
 // Type inference from the schema
@@ -39,13 +38,11 @@ export default function NewInterventionPage() {
     name: "",
     description: "",
     type: InterventionType.Default,
-    district_id: "661943fd4ccf5f44a9a1a002",
   });
   const [validationErrors, setValidationErrors] = useState<{
     name?: string;
     description?: string;
     type?: string;
-    district_id?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,7 +59,6 @@ export default function NewInterventionPage() {
         name: formattedErrors.name?._errors[0],
         description: formattedErrors.description?._errors[0],
         type: formattedErrors.type?._errors[0],
-        district_id: formattedErrors.district_id?._errors[0],
       });
       return;
     }
@@ -72,9 +68,12 @@ export default function NewInterventionPage() {
     setIsSubmitting(true);
 
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const response = await createInterventions({
         ...formData,
         type: formData.type as InterventionType,
+        district_id:
+          formData.type === InterventionType.Custom ? districtId : null,
       });
       router.push("/interventions");
     } catch (error) {

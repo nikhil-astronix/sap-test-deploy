@@ -62,10 +62,12 @@ const NewCurriculumPage = () => {
     setIsSubmitting(true);
 
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const curriculumPayload: createCurriculumPayload = {
         title: formData.title,
         description: formData.description,
         type: formData.type,
+        district_id: formData.type === "Custom" ? districtId : null,
       };
 
       const response = await createCurriculum(curriculumPayload);

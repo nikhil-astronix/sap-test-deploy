@@ -16,5 +16,5 @@ export interface CreateIntervention {
   type: InterventionType;
   name: string;
   description: string;
-  district_id: string;
+  district_id: string | null;
 }
