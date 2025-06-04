@@ -1058,7 +1058,7 @@ TableProps) {
                           ) : (
                             // row[column.key]
                             <span
-                              className={`flex items-center gap-1 px-2 py-1 rounded text-[12px] font-normal text-[#000] ${
+                              className={`flex items-center gap-1 px-2 py-1 rounded text-[14px] font-normal text-[#000] ${
                                 column.key === "user_type"
                                   ? row[column.key] === "Admin"
                                     ? "bg-[#E9F3FF] text-[#2264AC]"
@@ -1189,12 +1189,12 @@ TableProps) {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <span className="text-sm text-gray-500">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={loading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -1217,7 +1217,7 @@ TableProps) {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 px-1">
                 {currentPage}/{totalPages || 1}
               </span>
               <button

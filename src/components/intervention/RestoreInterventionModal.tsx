@@ -73,12 +73,12 @@ export default function RestoreInterventionModal({
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-black mb-4 text-sm"
+                  className="text-black mb-4 text-sm font-medium"
                 >
                   Are you sure you want to restore this{" "}
                   {item.itemType === "Curriculum"
                     ? "Instructional Material"
-                    : item.itemType}
+                    : "Tags & Attributes"}
                   ?
                 </motion.p>
 
@@ -86,11 +86,13 @@ export default function RestoreInterventionModal({
                   whileHover={{ scale: 1.01 }}
                   className="bg-gray-50 p-2 rounded-lg shadow-md mb-4 flex justify-between items-center"
                 >
-                  <span className="text-gray-900 text-sm">{item.title}</span>
-                  <span className="text-gray-900 text-sm">
+                  <span className="text-gray-900 text-sm font-medium">
+                    {item.title}
+                  </span>
+                  <span className="text-gray-900 text-sm font-medium">
                     {item.itemType === "Curriculum"
                       ? "Instructional Material"
-                      : item.itemType}
+                      : "Tags & Attributes"}
                   </span>
                 </motion.div>
 
@@ -104,11 +106,11 @@ export default function RestoreInterventionModal({
                   <div className="p-4 flex-1">
                     <div className="flex items-start gap-2">
                       <div>
-                        <h3 className="text-[#2264AC] text-[16px] mb-1 flex items-center gap-2">
+                        <h3 className="text-[#2264AC] text-[16px] mb-1 flex items-center gap-2 font-medium">
                           <Info size={18} color="#2264AC" />
                           Note
                         </h3>
-                        <p className="text-[#2264AC] text-xs">
+                        <p className="text-[#2264AC] text-xs font-medium">
                           {item.itemType === "Curriculum"
                             ? "Restoring this Instructional Material will make it active again. It will become accessible for adding to classrooms or schools. Please confirm before proceeding."
                             : "Restoring this Tags & Attributes will make it active again. It will become accessible for adding to classrooms or schools. Please confirm before proceeding."}
@@ -123,7 +125,7 @@ export default function RestoreInterventionModal({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onClose}
-                    className="px-4 py-2 text-gray-700 hover:text-gray-600 mr-auto bg-gray-50 rounded-[6px] hover:bg-gray-100"
+                    className="px-4 py-2 text-gray-700 hover:text-gray-600 mr-auto bg-gray-50 rounded-[6px] hover:bg-gray-100 font-medium"
                   >
                     Cancel
                   </motion.button>

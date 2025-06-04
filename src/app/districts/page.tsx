@@ -1002,14 +1002,14 @@ const DistrictsPage = () => {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">Rows per page:</span>
+              <div className="flex items-center space-x-1">
+                <span className="text-sm text-gray ">Rows per page:</span>
                 <select
                   value={rowsPerPage}
                   onChange={(e) => {
                     handleRowsPerPageChange(Number(e.target.value));
                   }}
-                  className="text-sm border rounded px-2 py-1"
+                  className="text-sm  px-1 py-1"
                   disabled={loading}
                 >
                   {[5, 10, 25, 50, 100].map((option) => (
@@ -1032,7 +1032,7 @@ const DistrictsPage = () => {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 px-1">
                   {currentPage}/{totalPages || 1}
                 </span>
                 <button

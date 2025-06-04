@@ -16,7 +16,7 @@ const Tooltip: React.FC<TooltipProps> = ({ content, children }) => (
       "
     >
       {/* Carrot */}
-      <div className="w-2 h-2 bg-black rotate-45 mb-[-4px]" />
+      <div className="w-2 h-2 bg-black translate-y-1 mb-[-4px]" />
       {/* Tooltip Content */}
       <div
         className="

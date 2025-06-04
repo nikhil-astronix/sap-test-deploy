@@ -951,7 +951,7 @@ export default function ClassroomsPage() {
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300">
-              <th className="w-[0.1%] px-4 py-3 text-left border-gray-300">
+              <th className=" px-4 py-3 text-left border-gray-300">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -961,35 +961,35 @@ export default function ClassroomsPage() {
                   />
                 </div>
               </th>
-              <th className="w-[25%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <div className="flex items-center gap-2">
-                  <ChalkboardTeacher size={16} />
-                  Course
+              <th className="w-[25%]  py-3 text-left font-semibold border-r border-gray-300">
+                <div className="flex items-center space-x-2">
+                  <ChalkboardTeacher size={20} />
+                  <span>Course</span>
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <User size={16} />
-                  Teacher
-                </span>
+                <div className="flex items-center space-x-2">
+                  <User size={20} />
+                  <span>Teacher</span>
+                </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <ChartBar size={16} />
-                  Grades
-                </span>
+                <div className="flex items-center space-x-2">
+                  <ChartBar size={20} />
+                  <span>Grades</span>
+                </div>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Book size={16} />
-                  Instructional Materials
-                </span>
+                <div className="flex items-center space-x-2">
+                  <Book size={20} />
+                  <span>Instructional Materials</span>
+                </div>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold ">
-                <span className="inline-flex items-center gap-2">
-                  <Tag size={16} />
-                  Tags & Attribute(s)
-                </span>
+                <div className="flex items-center space-x-2">
+                  <Tag size={20} />
+                  <span>Tags & Attribute(s)</span>
+                </div>
               </th>
               <th className="w-[5%] px-4 py-3"></th>
             </tr>
@@ -1027,7 +1027,7 @@ export default function ClassroomsPage() {
                   </td>
                   <td
                     colSpan={6}
-                    className="px-4 py-3 border-b border-gray-300"
+                    className="pr-4 py-3 border-b border-gray-300"
                   >
                     <div className="flex items-center justify-between mr-2.5">
                       <span className="font-semibold text-sm">
@@ -1065,7 +1065,7 @@ export default function ClassroomsPage() {
                       }}
                     >
                       <td
-                        className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                        className="px-4 py-3 "
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center">
@@ -1089,7 +1089,7 @@ export default function ClassroomsPage() {
                       editing.schoolId === school.schoolId &&
                       editing.classroomId === classroom.id ? (
                         <>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="pr-4 py-2 border-r border-gray-200">
                             <input
                               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2264AC] text-sm"
                               value={editData?.course || ""}
@@ -1153,7 +1153,7 @@ export default function ClassroomsPage() {
                         </>
                       ) : (
                         <>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className=" py-2 border-r border-gray-200">
                             {classroom.course}
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
@@ -1273,14 +1273,14 @@ export default function ClassroomsPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Rows per page:</span>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm text-gray ">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={(e) =>
                   handleRowsPerPageChange(Number(e.target.value))
                 }
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={isLoading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -1303,7 +1303,7 @@ export default function ClassroomsPage() {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 px-1">
                 {currentPage}/{totalPages || 1}
               </span>
               <button

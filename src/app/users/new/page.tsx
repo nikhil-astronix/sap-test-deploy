@@ -205,6 +205,11 @@ export default function CreateUserForm() {
         setTimeout(() => {
           router.push("/users");
         }, 1000);
+      } else {
+        console.log("responseeee", response.error.response.data.detail);
+        const errorMessage = response.error.response.data.detail;
+        setApiError(errorMessage);
+        setApiSuccess("");
       }
     } catch (error: unknown) {
       const errorMessage =

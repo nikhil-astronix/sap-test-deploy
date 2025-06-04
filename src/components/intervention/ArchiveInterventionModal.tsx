@@ -74,12 +74,12 @@ export default function ArchiveModal({
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-black mb-4 text-sm"
+                  className="text-black mb-4 text-sm font-medium"
                 >
                   Are you sure you want to {actionText} this{" "}
                   {item.itemType == "Curriculum"
                     ? "Instructional Material"
-                    : item.itemType}
+                    : "Tags & Attributes"}
                   ?
                 </motion.p>
 
@@ -87,11 +87,13 @@ export default function ArchiveModal({
                   whileHover={{ scale: 1.01 }}
                   className="bg-gray-50 p-2 rounded-[6px] shadow-md mb-4 flex justify-between items-center"
                 >
-                  <span className="text-gray-900 text-sm">{item.title}</span>
-                  <span className="text-gray-900 text-sm">
+                  <span className="text-gray-900 text-sm font-medium">
+                    {item.title}
+                  </span>
+                  <span className="text-gray-900 text-sm font-medium">
                     {item.itemType === "Curriculum"
                       ? "Instructional Material"
-                      : item.itemType}
+                      : "Tags & Attributes"}
                   </span>
                 </motion.div>
 
@@ -123,7 +125,7 @@ export default function ArchiveModal({
                               item.isArchived
                                 ? "text-emerald-600"
                                 : "text-[#C23E19]"
-                            } flex-shrink-0`}
+                            } flex-shrink-0 font-medium`}
                           />
                           {item.isArchived ? "Note" : "Warning"}
                         </h3>
@@ -131,14 +133,14 @@ export default function ArchiveModal({
                           className={`${
                             item.isArchived
                               ? "text-emerald-600"
-                              : "text-red-600"
-                          } text-xs`}
+                              : "text-[#C23E19]"
+                          } text-xs font-medium`}
                         >
                           {item.isArchived
-                            ? `Unarchiving this ${item.itemType.toLowerCase()} will make it visible in active views and restore all related access.`
+                            ? `Unarchiving this Tags & Attributes will make it visible in active views and restore all related access.`
                             : item.itemType === "Curriculum"
                             ? "Archiving this Instructional Material will remove it from active views. It will no longer be accessible to add to a classroom or school. Please confirm before proceeding."
-                            : `Archiving this ${item.itemType} will remove it from active views. It will become accessible for adding to classrooms or schools. Please confirm before proceeding.`}
+                            : `Archiving this Tags & Attributes will remove it from active views. It will become accessible for adding to classrooms or schools. Please confirm before proceeding.`}
                         </p>
                       </div>
                     </div>
@@ -150,7 +152,7 @@ export default function ArchiveModal({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onClose}
-                    className="px-4 py-2 text-gray-700 hover:text-gray-600 mr-auto  rounded-[6px] "
+                    className="px-4 py-2 text-gray-700 hover:text-gray-600 mr-auto  rounded-[6px] font-medium "
                   >
                     Cancel
                   </motion.button>

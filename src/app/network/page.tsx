@@ -439,9 +439,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item.text}</p>
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-gray-500 text-right">
+                    <div className="text-[12px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -545,9 +547,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item.text}</p>
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-gray-500 text-right">
+                    <div className="text-[12px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -631,9 +635,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item.text}</p>
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-black-400 text-right">
+                    <div className="text-[12px] text-black font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -722,28 +728,28 @@ export default function NetworksPage() {
                 </div>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <div className="flex items-center gap-2">
-                  <City size={16} />
-                  District
+                <div className="flex items-center space-x-2">
+                  <City size={20} />
+                  <span>District</span>
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Bank size={16} />
-                  State
-                </span>
+                <div className="inline-flex items-center space-x-2">
+                  <Bank size={20} />
+                  <span>State</span>
+                </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Building size={16} />
-                  City/Town
-                </span>
+                <div className="inline-flex items-center space-x-2">
+                  <Building size={20} />
+                  <span>City/Town</span>
+                </div>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold">
-                <span className="inline-flex items-center gap-2">
-                  <User size={16} />
-                  Created By
-                </span>
+                <div className="inline-flex items-center space-x-2">
+                  <User size={20} />
+                  <span>Created By</span>
+                </div>
               </th>
               <th className="w-[5%] px-4 py-3 rounded-tr-lg"></th>
             </tr>
@@ -922,14 +928,14 @@ export default function NetworksPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Rows per page:</span>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm text-gray ">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={(e) =>
                   handleRowsPerPageChange(Number(e.target.value))
                 }
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={loading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -952,7 +958,7 @@ export default function NetworksPage() {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm px-1 text-gray-500">
                 {currentPage}/{totalPages || 1}
               </span>
               <button
