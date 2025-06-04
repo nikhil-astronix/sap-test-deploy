@@ -18,6 +18,7 @@ import {
 import { Intervention, InterventionType } from "@/types/interventionData";
 import { Plus } from "@phosphor-icons/react";
 import Header from "@/components/Header";
+import { useDistrict } from "@/context/DistrictContext";
 
 type InterventionWithCreatedAt = Intervention & {
   createdAt: Date;
@@ -50,6 +51,7 @@ export default function InterventionsPage() {
     "newest"
   );
   const filterRef = useRef<HTMLDivElement>(null);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   // Initialize with mock data - replace with actual data fetching
   const [interventions, setInterventions] = useState<Intervention[]>([]);
@@ -82,6 +84,7 @@ export default function InterventionsPage() {
   };
 
   const getData = async () => {
+    const districtId = localStorage.getItem("globalDistrict");
     const obj = {
       is_archived: isActive,
       filter: filterType,
@@ -89,16 +92,18 @@ export default function InterventionsPage() {
       per_page: 100,
       sort_order: sortBy === "az" ? "asc" : sortBy === "za" ? "desc" : sortBy,
       sort_by: sortBy === "oldest" ? "title" : "created_at",
+      district_id: districtId || null,
     };
 
     console.log("sortBy:", obj.sort_order);
+
     const response = await getInterventions(obj);
 
     setInterventions(response.data.interventions);
   };
   useEffect(() => {
     getData();
-  }, [isActive, searchQuery, showFilters]);
+  }, [isActive, searchQuery, showFilters, globalDistrict]);
 
   const handleArchiveConfirm = async () => {
     if (archivingIntervention) {
@@ -112,7 +117,12 @@ export default function InterventionsPage() {
       } else {
         const response = await restoreIntervention(archivingIntervention.id);
       }
-      const obj = { is_archived: isActive, type: filterType };
+      const districtId = localStorage.getItem("globalDistrict");
+      const obj = {
+        is_archived: isActive,
+        type: filterType,
+        districtId: districtId || null,
+      };
       const response = await getInterventions(obj);
       setInterventions(response.data.interventions);
       setArchivingIntervention(null);
@@ -131,7 +141,12 @@ export default function InterventionsPage() {
       // } else {
       const response1 = await restoreIntervention(archivingIntervention.id);
       //}
-      const obj = { is_archived: isActive, type: filterType };
+      const districtId = localStorage.getItem("globalDistrict");
+      const obj = {
+        is_archived: isActive,
+        type: filterType,
+        districtId: districtId || null,
+      };
       const response = await getInterventions(obj);
       setInterventions(response.data.interventions);
       setArchivingIntervention(null);
