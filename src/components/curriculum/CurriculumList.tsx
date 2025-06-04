@@ -21,6 +21,7 @@ import {
 } from "../../services/curriculumsService";
 import CurriculumCard from "./CurriculumCard";
 import Header from "../Header";
+import { useDistrict } from "@/context/DistrictContext";
 
 const container = {
   hidden: { opacity: 0 },
@@ -41,6 +42,7 @@ export default function CurriculumList() {
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   const [filterType, setFilterType] = useState<"Default" | "Custom" | "Both">(
     "Both"
@@ -65,10 +67,11 @@ export default function CurriculumList() {
   //feth curriculums list
   useEffect(() => {
     fetchCurriculums();
-  }, [search, showArchived, showFilters]);
+  }, [search, showArchived, showFilters, globalDistrict]);
 
   const fetchCurriculums = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: showArchived,
         type:
@@ -86,6 +89,7 @@ export default function CurriculumList() {
         search: search,
         page: 1,
         limit: 100,
+        district_id: districtId || null,
       };
       const data = await fetchAllCurriculums(requesPayload);
       if (data.success) {
