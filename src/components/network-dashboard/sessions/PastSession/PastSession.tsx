@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getSessionsByNetwork, SessionFilterType } from '@/services/networkService';
 import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
+import PastSessionViewClassroom from './PastSessionViewClassroom';
 import {
   Calendar,
   Clock,
@@ -12,13 +13,27 @@ import {
 
 interface PastSessionProps {
   searchTerm?: string;
+  parentViewClassroomMode?: boolean;
+  setParentViewClassroomMode?: React.Dispatch<React.SetStateAction<boolean>>;
+  setParentSchoolData?: (data: {
+    name: string;
+    date: string;
+    observationTool: string;
+  } | null) => void;
 }
 
-export default function PastSession({ searchTerm = '' }: PastSessionProps) {
+export default function PastSession({ 
+  searchTerm = '',
+  parentViewClassroomMode,
+  setParentViewClassroomMode,
+  setParentSchoolData
+}: PastSessionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionData, setSessionData] = useState<NetworkTableRow[]>([]);
   const [localSearchTerm, setLocalSearchTerm] = useState<string>(searchTerm);
+  const [viewClassroomMode, setViewClassroomMode] = useState(false);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string>('');
 
   // Column definitions for sessions table
   const sessionsColumns: NetworkColumn[] = [
@@ -89,8 +104,26 @@ export default function PastSession({ searchTerm = '' }: PastSessionProps) {
       return (
         <div className="flex space-x-2">
           <button 
-            className="text-blue-600 hover:text-blue-800 flex items-center"
-            onClick={() => console.log('View classrooms for', row.id)}
+            className="text-teal-600 hover:text-teal-800 flex items-center"
+            onClick={() => {
+              // Store the selected school ID and switch to classroom view
+              setSelectedSchoolId(row.id);
+              setViewClassroomMode(true);
+              
+              // Also update the parent state if available
+              if (setParentViewClassroomMode) {
+                setParentViewClassroomMode(true);
+              }
+              
+              // Pass school data to parent component
+              if (setParentSchoolData) {
+                setParentSchoolData({
+                  name: row.school as string,
+                  date: row.date as string,
+                  observationTool: row.observationTool as string
+                });
+              }
+            }}
           >
             <span className="mr-1">View Classrooms</span>
             <Play size={16} />
@@ -129,23 +162,50 @@ export default function PastSession({ searchTerm = '' }: PastSessionProps) {
     fetchSessions();
   }, []);
 
+  // Function to handle going back from classroom view to session list
+  const handleBack = () => {
+    setViewClassroomMode(false);
+    setSelectedSchoolId('');
+    
+    // Also update the parent state if available
+    if (setParentViewClassroomMode) {
+      setParentViewClassroomMode(false);
+    }
+    
+    // Clear parent school data when navigating back
+    if (setParentSchoolData) {
+      setParentSchoolData(null);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <NetworkDashboardTable 
-        data={sessionData}
-        columns={sessionsColumns}
-        headerColor="#007778"
-        rowColor="#EDFFFF"
-        renderCell={renderCell}
-        searchTerm={localSearchTerm}
-        isLoading={isLoading}
-        error={error}
-      />
-      {isLoading &&
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
-        </div>
-      }
+      {viewClassroomMode ? (
+        // Show classroom view when a school is selected
+        <PastSessionViewClassroom 
+          schoolId={selectedSchoolId} 
+          onBack={handleBack}
+        />
+      ) : (
+        // Show sessions table when no school is selected
+        <>
+          <NetworkDashboardTable 
+            data={sessionData}
+            columns={sessionsColumns}
+            headerColor="#007778"
+            rowColor="#EDFFFF"
+            renderCell={renderCell}
+            searchTerm={localSearchTerm}
+            isLoading={isLoading}
+            error={error}
+          />
+          {isLoading &&
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
+            </div>
+          }
+        </>
+      )}
     </div>
   );
 }

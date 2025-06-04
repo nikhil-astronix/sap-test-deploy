@@ -1,7 +1,286 @@
-export default function UpcomingSessionViewClassroom() {
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft } from 'lucide-react';
+import ClassroomTable, { ClassroomTableRow, ClassroomColumn } from '../../sessions/ClassroomTable';
+
+// Define types directly in the component file
+interface ClassroomData {
+  id: string;
+  teacher: string;
+  course: string;
+  grade: number;
+  instructionalMaterials: string[];
+}
+
+interface SchoolData {
+  id: string;
+  name: string;
+  date: string;
+  observationTool: string;
+  classrooms: ClassroomData[];
+}
+
+interface ViewClassroomProps {
+  schoolId?: string;
+  onBack?: () => void;
+}
+
+// Mock data
+const mockSchoolData: SchoolData[] = [
+  {
+    id: '1',
+    name: 'Elmwood Elementary School',
+    date: 'Jan 20',
+    observationTool: 'Literacy FS',
+    classrooms: [
+      {
+        id: '1',
+        teacher: 'Teacher Sample A',
+        course: 'Course Sample A',
+        grade: 2,
+        instructionalMaterials: ['Illustrative Math', 'Amplify', '2 more']
+      },
+      {
+        id: '2',
+        teacher: 'Teacher Sample B',
+        course: 'Course Sample B',
+        grade: 2,
+        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
+      },
+      {
+        id: '3',
+        teacher: 'Teacher Sample C',
+        course: 'Course Sample C',
+        grade: 3,
+        instructionalMaterials: ['Amplify', 'Illustrative Math']
+      },
+      {
+        id: '4',
+        teacher: 'Teacher Sample D',
+        course: 'Course Sample D',
+        grade: 4,
+        instructionalMaterials: ['Illustrative Math', 'Amplify']
+      },
+      {
+        id: '5',
+        teacher: 'Teacher Sample E',
+        course: 'Course Sample E',
+        grade: 5,
+        instructionalMaterials: ['Amplify', 'Illustrative Math', '1 more']
+      },
+      {
+        id: '6',
+        teacher: 'Teacher Sample F',
+        course: 'Course Sample F',
+        grade: 6,
+        instructionalMaterials: ['Illustrative Math', 'Amplify']
+      },
+      {
+        id: '7',
+        teacher: 'Teacher Sample G',
+        course: 'Course Sample G',
+        grade: 7,
+        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
+      },
+      {
+        id: '8',
+        teacher: 'Teacher Sample H',
+        course: 'Course Sample H',
+        grade: 8,
+        instructionalMaterials: ['Illustrative Math', 'Amplify', '2 more']
+      },
+      {
+        id: '9',
+        teacher: 'Teacher Sample I',
+        course: 'Course Sample I',
+        grade: 9,
+        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
+      }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Riverside Middle School',
+    date: 'Jan 22',
+    observationTool: 'Math FS',
+    classrooms: [
+      {
+        id: '10',
+        teacher: 'Teacher Sample J',
+        course: 'Course Sample J',
+        grade: 6,
+        instructionalMaterials: ['Illustrative Math', 'Amplify', '1 more']
+      },
+      {
+        id: '11',
+        teacher: 'Teacher Sample K',
+        course: 'Course Sample K',
+        grade: 7,
+        instructionalMaterials: ['Amplify', 'Illustrative Math', '2 more']
+      }
+    ]
+  }
+];
+
+export default function UpcomingSessionViewClassroom({ schoolId, onBack }: ViewClassroomProps) {
+  const [schoolData, setSchoolData] = useState<SchoolData | null>(null);
+  const [classroomTableData, setClassroomTableData] = useState<ClassroomTableRow[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Define columns for classroom table
+  const classroomColumns: ClassroomColumn[] = [
+    { key: 'teacher', label: 'Teacher', icon: <span className="flex items-center">👨‍🏫</span>, sortable: true },
+    { key: 'course', label: 'Course/Subject', icon: <span className="flex items-center">📚</span>, sortable: true },
+    { key: 'grade', label: 'Grade', icon: <span className="flex items-center">🏫</span>, sortable: true },
+    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <span className="flex items-center">📝</span>, sortable: true },
+    { key: 'action', label: 'Action', icon: <span className="flex items-center">⚙️</span>, sortable: false },
+  ];
+
+  useEffect(() => {
+    // Using dummy/mock data rather than API calls
+    setIsLoading(true);
+    
+    // Simulate a brief loading time
+    const timeoutId = setTimeout(() => {
+      if (schoolId) {
+        const foundSchool = mockSchoolData.find(school => school.id === schoolId);
+        setSchoolData(foundSchool || null);
+        
+        if (foundSchool) {
+          // Transform classrooms to match ClassroomTableRow format
+          const tableData: ClassroomTableRow[] = foundSchool.classrooms.map(classroom => ({
+            id: classroom.id,
+            teacher: classroom.teacher,
+            course: classroom.course,
+            grade: classroom.grade,
+            instructionalMaterials: classroom.instructionalMaterials,
+            action: ""
+          }));
+          setClassroomTableData(tableData);
+        }
+      } else {
+        // Use first school as default if no schoolId provided
+        setSchoolData(mockSchoolData[0]);
+        
+        if (mockSchoolData[0]) {
+          const tableData: ClassroomTableRow[] = mockSchoolData[0].classrooms.map(classroom => ({
+            id: classroom.id,
+            teacher: classroom.teacher,
+            course: classroom.course,
+            grade: classroom.grade,
+            instructionalMaterials: classroom.instructionalMaterials,
+            action: 'view'
+          }));
+          setClassroomTableData(tableData);
+        }
+      }
+      setIsLoading(false);
+    }, 800); // 800ms delay to simulate loading
+    
+    return () => clearTimeout(timeoutId);
+  }, [schoolId]);
+
+  // Custom render function for cells
+  const renderCell = (row: ClassroomTableRow, column: string) => {
+    if (column === 'action') {
+      return (
+        <div className="flex space-x-2">
+          <button 
+            className="bg-teal-600 text-white px-2 py-1 rounded text-xs"
+            onClick={() => console.log('Edit observation for classroom:', row.id)}
+          >
+            Edit Observation
+          </button>
+          <button 
+            className="bg-blue-600 text-white px-2 py-1 rounded text-xs"
+            onClick={() => console.log('View calibration for classroom:', row.id)}
+          >
+            View Calibration
+          </button>
+        </div>
+      );
+    }
+    
+    if (column === 'instructionalMaterials') {
+      const materials = row[column] as string[];
+      if (!materials || materials.length === 0) return '-';
+      
+      return (
+        <div>
+          {materials.slice(0, 2).map((material, index) => (
+            <div key={index}>{material}</div>
+          ))}
+          {materials.length > 2 && (
+            <div className="text-teal-600 text-xs">+{materials.length - 2} more</div>
+          )}
+        </div>
+      );
+    }
+    
+    return undefined;
+  };
+
+  if (!schoolData) {
+    return <div className="p-4">No school data found</div>;
+  }
+
   return (
-    <div>
-      <h1>Upcoming Session View Classroom</h1>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Header with back button and school info */}
+      <div className="bg-white p-4 border-b border-gray-200">
+        <button 
+          onClick={onBack} 
+          className="text-gray-600 hover:text-gray-800 flex items-center transition mb-4"
+        >
+          <ChevronLeft className="mr-1" size={16} />
+          Back
+        </button>
+        
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <div className="bg-teal-600 text-white rounded-md px-2 py-1 text-sm mr-2">
+              {schoolData.date}
+            </div>
+            <h2 className="text-lg font-medium">{schoolData.name} Observation Session</h2>
+          </div>
+          <div className="ml-auto">
+            <a href="#" className="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-sm">
+              {schoolData.observationTool}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Search input */}
+      <div className="p-4 bg-white border-b border-gray-200">
+        <div className="relative">
+          <input 
+            type="text" 
+            placeholder="Search classrooms..." 
+            className="w-full border border-gray-300 rounded-md pl-10 py-2"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <div className="absolute left-3 top-2.5 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div>
+        <ClassroomTable 
+          data={classroomTableData}
+          columns={classroomColumns}
+          headerColor="#007778"
+          rowColor="#EDFFFF"
+          renderCell={renderCell}
+          searchTerm={searchTerm}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   );
 }
