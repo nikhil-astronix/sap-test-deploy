@@ -414,7 +414,7 @@ export default function NetworksPage() {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select networks to archive."
                 : `Are you sure you want to archive ${
@@ -468,10 +468,10 @@ export default function NetworksPage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No networks selected. Please select at least one network to archive."
                   : `Archiving ${
@@ -492,7 +492,7 @@ export default function NetworksPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -522,7 +522,7 @@ export default function NetworksPage() {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select networks to restore."
                 : `Are you sure you want to restore ${
@@ -566,10 +566,10 @@ export default function NetworksPage() {
                   <Info size={16} color="#2264AC" />
                 </div>
                 <div className="ml-1">
-                  <p className="text-sm">Note</p>
+                  <p className="text-sm font-medium">Note</p>
                 </div>
               </div>
-              <p className="text-left text-sm mt-2">
+              <p className="text-left text-sm mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No networks selected. Please select at least one network to restore."
                   : `Restoring ${
@@ -586,7 +586,7 @@ export default function NetworksPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -616,7 +616,7 @@ export default function NetworksPage() {
             </div>
 
             {/* Prompt */}
-            <p className="text-gray-800 mb-4">
+            <p className="text-gray-800 mb-4 font-medium">
               Are you sure you want to delete this Network?
             </p>
 
@@ -665,11 +665,14 @@ export default function NetworksPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-[#C23E19]"> Warning</p>
+                    <p className="text-sm text-[#C23E19] font-medium">
+                      {" "}
+                      Warning
+                    </p>
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-[#C23E19] py-2">
+              <p className="text-sm text-[#C23E19] py-2 font-medium">
                 Deleting this network will remove it from the existing networks.
                 Please confirm before proceeding.
               </p>
@@ -679,7 +682,7 @@ export default function NetworksPage() {
             <div className="flex justify-between items-center">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-gray-700 hover:text-black transition-colors"
+                className="px-4 py-2 text-gray-700 hover:text-black transition-colors font-medium"
               >
                 Cancel
               </button>

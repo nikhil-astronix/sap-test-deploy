@@ -645,7 +645,7 @@ export default function ClassroomsPage() {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4 ">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to archive."
                 : `Are you sure you want to archive ${
@@ -670,9 +670,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px]  text-right">Classroom</div>
+                    <div className="text-[14px]  text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -698,7 +702,7 @@ export default function ClassroomsPage() {
                   <p className="text-sm text-[#C23E19]"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to archive."
                   : `Archiving ${
@@ -715,7 +719,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -746,7 +750,7 @@ export default function ClassroomsPage() {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to restore."
                 : `Are you sure you want to restore ${
@@ -771,9 +775,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px]  text-right">Classroom</div>
+                    <div className="text-[14px]  text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -786,10 +794,10 @@ export default function ClassroomsPage() {
                   <Info size={16} color="#2264AC" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm">Note</p>
+                  <p className="text-sm font-medium">Note</p>
                 </div>
               </div>
-              <p className="text-left text-sm mt-2">
+              <p className="text-left text-sm mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to restore."
                   : `Restoring ${
@@ -806,7 +814,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -837,7 +845,7 @@ export default function ClassroomsPage() {
             </div>
 
             {/* Prompt */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to delete."
                 : `Are you sure you want to delete ${
@@ -862,9 +870,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-right">Classroom</div>
+                    <div className="text-[14px] text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -887,10 +899,10 @@ export default function ClassroomsPage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to delete."
                   : `Deleting ${
@@ -907,7 +919,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -947,7 +959,7 @@ export default function ClassroomsPage() {
         archivedLabel="Archived"
         isActiveArchived={false} // Classrooms page has reversed active/archived logic
       />
-      <div className="overflow-x-auto rounded-xl border border-gray-300  bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-300  bg-white overflow-visible">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300">

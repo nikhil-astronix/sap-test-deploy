@@ -29,28 +29,20 @@ export default function CustomDropdown({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Find the selected option based on value
   const selectedOption = React.useMemo(() => {
-    // Log the value and options to help debug
-    console.log("CustomDropdown value:", value);
-    console.log("CustomDropdown options:", options);
-
     return options?.find(
       (option) =>
-        // Check for both id and value properties, as your data might use either
         option.id === value ||
         option.value === value ||
-        // If the option is a string value
         (typeof option === "string" && option === value)
     );
   }, [options, value]);
 
-  // Determine what text to display in the dropdown
   const displayText = React.useMemo(() => {
     if (selectedOption) {
       return selectedOption.label;
     } else if (value) {
-      return value; // Use value as placeholder if it exists but no matching option found
+      return value;
     }
     return placeholder;
   }, [selectedOption, value, placeholder]);
@@ -74,6 +66,13 @@ export default function CustomDropdown({
     setIsOpen(false);
   };
 
+  const handleClearSelection = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation(); // Prevent dropdown toggle
+    onChange(""); // Clear the selection
+  };
+
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
@@ -93,21 +92,47 @@ export default function CustomDropdown({
           >
             {displayText}
           </span>
-          <svg
-            className={`w-5 h-5 text-gray-400 transition-transform ${
-              isOpen ? "transform rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+
+          <div className="flex items-center">
+            {value && (
+              <button
+                type="button"
+                onClick={handleClearSelection}
+                className="mr-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                aria-label="Clear selection"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+
+            <svg
+              className={`w-5 h-5 text-gray-400 transition-transform ${
+                isOpen ? "transform rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
         </div>
       </button>
 
@@ -129,21 +154,13 @@ export default function CustomDropdown({
                   (selectedOption &&
                     (optionValue === selectedOption.id ||
                       optionValue === selectedOption.value));
-                console.log(
-                  "Rendering option:",
-                  optionValue,
-                  "isSelected:",
-                  isSelected
-                );
 
                 return (
                   <div
                     key={index}
                     onClick={() => handleOptionClick(optionValue as string)}
                     className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${
-                      value === option.label
-                        ? "bg-[#F2FAF6] text-[#2A7251]"
-                        : ""
+                      isSelected ? "bg-[#F2FAF6] text-[#2A7251]" : ""
                     }`}
                     role="option"
                     aria-selected={isSelected}

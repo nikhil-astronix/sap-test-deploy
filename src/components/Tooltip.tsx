@@ -10,22 +10,24 @@ const Tooltip: React.FC<TooltipProps> = ({ content, children }) => (
     {children}
     <div
       className="
-        absolute top-full left-1/2 transform -translate-x-1/2 mt-2
+        absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2
         hidden group-hover:flex flex-col items-center
-        z-10
+        z-50
       "
+      style={{ minWidth: "200px" }} // make tooltip wide enough
     >
-      {/* Carrot */}
-      <div className="w-2 h-2 bg-black translate-y-1 mb-[-4px]" />
-      {/* Tooltip Content */}
+      {/* Tooltip box above */}
       <div
         className="
           bg-black text-white text-xs rounded py-2 px-3
-          shadow-lg whitespace-nowrap
+          shadow-lg max-h-40 overflow-y-auto max-w-xs
         "
+        style={{ wordBreak: "break-word" }} // break long words
       >
         {content}
       </div>
+      {/* Downward-pointing carrot below the box */}
+      <div className="w-2 h-2 bg-black rotate-45 mt-[-4px]" />
     </div>
   </div>
 );
