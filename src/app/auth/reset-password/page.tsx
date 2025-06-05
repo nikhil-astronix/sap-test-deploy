@@ -11,6 +11,7 @@ import {
 } from "../utils/auth-functions";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IconLoader2 } from "@tabler/icons-react";
+import { getCurrentUser } from "@/services/userService";
 
 export default function ResetPasswordPage() {
   return (
@@ -79,7 +80,21 @@ function ResetPasswordPageContent() {
             "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
           document.cookie =
             "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-          router.push("/observations");
+          const response = await getCurrentUser();
+          const full_name =
+            response.data.first_name + " " + response.data.last_name;
+
+          localStorage.setItem("userrole", response.data.user_type);
+          localStorage.setItem("name", full_name);
+
+          const role = response.data.user_type;
+          if (role === "Super Admin") {
+            router.push("/system-dashboard");
+          } else if (role === "Admin") {
+            router.push("/admin-dashboard");
+          } else {
+            router.push("/users");
+          }
         }
       } else {
         await confirmForgotPassword(

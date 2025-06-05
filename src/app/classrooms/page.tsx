@@ -1043,7 +1043,7 @@ export default function ClassroomsPage() {
                   </td>
                   <td
                     colSpan={6}
-                    className="pr-4 py-3 border-b border-gray-300"
+                    className="pr-4 py-4 border-b border-gray-300"
                   >
                     <div className="flex items-center justify-between mr-2.5">
                       <span className="font-semibold text-sm">

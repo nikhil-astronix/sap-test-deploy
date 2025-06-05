@@ -103,12 +103,10 @@ function LoginPageContent() {
 
       if (res?.status === "LOGIN_SUCCESS") {
         const response = await getCurrentUser();
-
+        const full_name =
+          response.data.first_name + " " + response.data.last_name;
         localStorage.setItem("userrole", response.data.user_type);
-        localStorage.setItem(
-          "name",
-          response.data.first_name + " " + response.data.last_name
-        );
+        localStorage.setItem("name", full_name);
         let role = response.data.user_type;
         if (role === "Super Admin") {
           router.push("/system-dashboard");
