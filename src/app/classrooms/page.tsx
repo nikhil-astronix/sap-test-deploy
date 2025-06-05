@@ -129,6 +129,7 @@ export default function ClassroomsPage() {
 
   const fetchCurriculums = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: false,
         type: ["Default", "Custom"].join(","),
@@ -137,6 +138,7 @@ export default function ClassroomsPage() {
         search: null,
         page: 1,
         limit: 100,
+        district_id: districtId || null,
       };
       const data = await fetchAllCurriculums(requesPayload);
 
@@ -156,6 +158,7 @@ export default function ClassroomsPage() {
   };
 
   const fetchInterventions = async () => {
+    const districtId = localStorage.getItem("globalDistrict");
     try {
       const requesPayload = {
         is_archived: false,
@@ -165,6 +168,7 @@ export default function ClassroomsPage() {
         search: null,
         curr_page: 1,
         per_page: 100,
+        district_id: districtId || null,
       };
       const data = await getInterventions(requesPayload);
       if (data.success) {
