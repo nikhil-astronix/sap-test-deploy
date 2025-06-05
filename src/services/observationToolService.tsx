@@ -1,4 +1,5 @@
 import apiClient from "@/api/axiosInterceptor";
+import { getObservationTools as getObservationToolsApi } from "@/api/observation-tool/observationToolsApi";
 
 export const createObservationTool = async (data: any) => {
   try {
@@ -15,23 +16,25 @@ export const createObservationTool = async (data: any) => {
 
 export const getObservationTools = async (params: any = {}) => {
   try {
-    const queryParams = new URLSearchParams();
+    // Get the userIdToken from localStorage
+    const bearerToken = typeof window !== 'undefined' ? localStorage.getItem('userIdToken') : null;
+    if (!bearerToken) {
+      throw new Error('User ID token not found in localStorage');
+    }
 
-    // Add parameters to query string
-    if (params.curr_page) queryParams.append("curr_page", params.curr_page);
-    if (params.per_page) queryParams.append("per_page", params.per_page);
-    if (params.is_archived)
-      queryParams.append("is_archived", params.is_archived);
-    if (params.search) queryParams.append("search", params.search);
-    if (params.sort_by) queryParams.append("sort_by", params.sort_by);
-    if (params.sort_order) queryParams.append("sort_order", params.sort_order);
+    // Map params to match the API function's expected keys
+    const apiParams = {
+      bearerToken,
+      currPage: params.curr_page || 1,
+      perPage: params.per_page || 10,
+      isArchived: typeof params.is_archived === 'boolean' ? params.is_archived : null,
+      search: params.search || null,
+      sortBy: params.sort_by || 'name',
+      sortOrder: params.sort_order || 'asc',
+    };
 
-    const url = `/v1/observation_tool${
-      queryParams.toString() ? "?" + queryParams.toString() : ""
-    }`;
-
-    const response = await apiClient.get(url);
-    return { success: true, data: response.data };
+    const response = await getObservationToolsApi(apiParams);
+    return { success: true, data: response };
   } catch (error) {
     console.error("Observation tool service error:", error);
     return { success: false, error };
