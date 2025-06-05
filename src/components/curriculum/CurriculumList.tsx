@@ -79,13 +79,18 @@ export default function CurriculumList() {
           finalFilterType === "Both"
             ? ["Default", "Custom"].join(",")
             : finalFilterType,
-        sort_by: finalSortBy === "oldest" ? "title" : "created_at",
+        sort_by:
+          finalSortBy === "oldest" || finalSortBy === "newest"
+            ? "created_at"
+            : "title",
         sort_order:
           finalSortBy === "az"
             ? "asc"
             : finalSortBy === "za"
             ? "desc"
-            : finalSortBy,
+            : finalSortBy === "newest"
+            ? "desc"
+            : "asc",
         //  finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
         search: search,
         page: 1,
