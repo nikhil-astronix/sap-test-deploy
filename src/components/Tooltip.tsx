@@ -16,7 +16,7 @@ const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
       const rect = triggerRef.current.getBoundingClientRect();
       setPosition({
         x: rect.left + rect.width / 2,
-        y: rect.top - 10, // Position above the trigger element
+        y: rect.top - 10,
       });
     }
   };
