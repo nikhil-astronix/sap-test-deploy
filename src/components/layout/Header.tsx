@@ -89,23 +89,23 @@ const Header = ({
         staggerItems={true}
         className="flex items-center space-x-6"
       >
-        <motion.div whileHover={{ y: -2 }} whileTap={{ y: 0 }}>
-          <button
-            className={`text-sm font-medium ${
-              activeTab === "dashboard"
-                ? "text-[#2A7251] text-[14px]-400"
-                : "text-black text-[14px]-400"
-            } hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
-            onClick={handleDashboardClickInternal}
-          >
-            Dashboard
-          </button>
-        </motion.div>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`text-sm font-medium ${
+            activeTab === "dashboard"
+              ? "text-[#2A7251] text-[14px]-400"
+              : "text-black text-[14px]-400"
+          } hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
+          onClick={handleDashboardClickInternal}
+        >
+          Dashboard
+        </motion.button>
 
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`px-6 py-1.5 text-sm transition-colors ${
+          className={`px-6 py-1.5 text-sm transition-colors font-medium ${
             activeTab === "setup"
               ? "text-[#2A7251] text-[14px]-400"
               : "text-black text-[14px]-400"

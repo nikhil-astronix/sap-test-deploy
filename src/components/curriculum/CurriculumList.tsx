@@ -363,7 +363,7 @@ export default function CurriculumList() {
       </div>
 
       <div className="flex-1 ">
-        <div className="max-h-96 overflow-y-auto ">
+        <div className="max-h-[510px] overflow-y-auto ">
           <motion.div
             variants={container}
             initial="hidden"

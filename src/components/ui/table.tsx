@@ -1008,7 +1008,7 @@ TableProps) {
                       {columns.map((column) => (
                         <td
                           key={`${rowId || index}-${column.key}`}
-                          className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]"
+                          className="px-3 py-3 whitespace-nowrap border-r-2 border-[#D4D4D4]"
                         >
                           {isEditing && column.editable ? (
                             column.options ? (

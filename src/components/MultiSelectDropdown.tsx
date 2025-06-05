@@ -149,7 +149,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-[#2A7251] ml-1">*</span>}
         </label>
       )}
 

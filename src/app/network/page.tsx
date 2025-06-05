@@ -799,7 +799,7 @@ export default function NetworksPage() {
                     </td>
                     <td
                       colSpan={5}
-                      className="pr-4 py-3 border-b border-gray-300"
+                      className="pr-4 py-4 border-b border-gray-300"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExpand(network.id);
@@ -812,6 +812,12 @@ export default function NetworksPage() {
                             value={editData.name}
                             onChange={(e) => handleEditChange(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleSave(network);
+                              }
+                            }}
                             autoFocus
                           />
                         ) : (
@@ -888,17 +894,17 @@ export default function NetworksPage() {
                               />
                             </div> */}
                           </td>
-                          <td className="py-2 border-r border-gray-200">
+                          <td className="py-4 border-r border-gray-200">
                             {district.district}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="px-4 py-4 border-r border-gray-200">
                             {district.state}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="px-4 py-4 border-r border-gray-200">
                             {district.city}
                           </td>
-                          <td className="px-4 py-2 ">{district.created}</td>
-                          <td className="px-4 py-2 text-center">
+                          <td className="px-4 py-4 ">{district.created}</td>
+                          <td className="px-4 py-4 text-center">
                             {/* District actions removed */}
                           </td>
                         </tr>
