@@ -15,6 +15,7 @@ import {
   ChartBar,
   Book,
   ChartLine,
+  GraduationCap,
 } from "@phosphor-icons/react";
 import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
@@ -79,14 +80,14 @@ export default function SchoolsPage() {
       key: "name",
       label: "School",
       sortable: true,
-      icon: <ChalkboardTeacher size={16} />,
+      icon: <GraduationCap size={20} />,
       editable: true,
     },
     {
       key: "grades",
       label: "Grade(s)",
       sortable: true,
-      icon: <ChartBar size={16} />,
+      icon: <ChartBar size={20} />,
       editable: true,
       options: gradeOptions,
     },
@@ -94,7 +95,7 @@ export default function SchoolsPage() {
       key: "curriculums",
       label: "Instructional Materials",
       sortable: true,
-      icon: <Book size={16} />,
+      icon: <Book size={20} />,
       editable: true,
       options: curriculums,
     },
@@ -102,7 +103,7 @@ export default function SchoolsPage() {
       key: "interventions",
       label: "Tags & Attributes",
       sortable: true,
-      icon: <ChartLine size={16} />,
+      icon: <ChartLine size={20} />,
       editable: true,
       options: interventions,
     },

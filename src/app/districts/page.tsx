@@ -486,7 +486,7 @@ const DistrictsPage = () => {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4 ">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium ">
               {getSelectedItemsInfo().length === 0
                 ? "Please select districts to archive."
                 : `Are you sure you want to archive ${
@@ -511,9 +511,13 @@ const DistrictsPage = () => {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[12px] text-black-400 font-semibold">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-right">District</div>
+                    <div className="text-[12px] text-right font-semibold">
+                      District
+                    </div>
                   </div>
                 ))}
               </div>
@@ -536,10 +540,10 @@ const DistrictsPage = () => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-[#C23E19]">Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium">Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No districts selected. Please select at least one district to archive."
                   : `Archiving ${
@@ -558,7 +562,7 @@ const DistrictsPage = () => {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -588,7 +592,7 @@ const DistrictsPage = () => {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select districts to restore."
                 : `Are you sure you want to restore ${
@@ -613,9 +617,13 @@ const DistrictsPage = () => {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[12px] text-black-400 font-semibold">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-right">District</div>
+                    <div className="text-[12px] text-right font-semibold">
+                      District
+                    </div>
                   </div>
                 ))}
               </div>
@@ -628,10 +636,10 @@ const DistrictsPage = () => {
                   <Info className="h-5 w-5 text-[#2264AC]" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm">Note</p>
+                  <p className="text-sm font-medium">Note</p>
                 </div>
               </div>
-              <p className="text-left text-sm mt-2">
+              <p className="text-left text-sm mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No districts selected. Please select at least one district to restore."
                   : `Restoring ${
@@ -649,7 +657,7 @@ const DistrictsPage = () => {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -1002,14 +1010,14 @@ const DistrictsPage = () => {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">Rows per page:</span>
+              <div className="flex items-center space-x-1">
+                <span className="text-sm text-gray ">Rows per page:</span>
                 <select
                   value={rowsPerPage}
                   onChange={(e) => {
                     handleRowsPerPageChange(Number(e.target.value));
                   }}
-                  className="text-sm border rounded px-2 py-1"
+                  className="text-sm  px-1 py-1"
                   disabled={loading}
                 >
                   {[5, 10, 25, 50, 100].map((option) => (
@@ -1032,7 +1040,7 @@ const DistrictsPage = () => {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 px-1">
                   {currentPage}/{totalPages || 1}
                 </span>
                 <button

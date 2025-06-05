@@ -273,6 +273,12 @@ TableProps) {
     }
   };
 
+  const getGradeOptionsForSchool = (schoolId: string) => {
+    const school = data.find((s) => s.id === schoolId);
+    if (!school) return [];
+    return school.grades.map((g: string) => ({ label: g, value: g }));
+  };
+
   return (
     <div
       className={`w-full bg-white transition-all duration-300 ${
@@ -287,7 +293,7 @@ TableProps) {
               <Archive className="text-gray-600" size={24} />
               <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {selectedRows.length === 0
                 ? `Please select ${
                     pageType === "schools" ? "schools" : "users"
@@ -315,20 +321,20 @@ TableProps) {
                       // User view - show name and email
                       <div className="flex justify-between w-full">
                         <div>
-                          <p className="text-[12px] text-black-400 text-start">
+                          <p className="text-[12px] text-black-400 text-start font-medium">
                             {
                               data.find((row) => row.id === selectedRows[0])
                                 ?.first_name
                             }
                           </p>
-                          <p className="text-[12px] text-[#637381]-400">
+                          <p className="text-[12px] text-[#637381]-400 font-medium">
                             {
                               data.find((row) => row.id === selectedRows[0])
                                 ?.email
                             }
                           </p>
                         </div>
-                        <p className="text-[12px] text-gray-500">
+                        <p className="text-[12px] text-gray-500 font-medium">
                           {data.find((row) => row.id === selectedRows[0])
                             ?.role || "User"}
                         </p>
@@ -336,13 +342,15 @@ TableProps) {
                     ) : (
                       // School view - show school name
                       <div className="flex justify-between w-full">
-                        <p className="text-[12px] text-black-400">
+                        <p className="text-[12px] text-black-400 font-medium">
                           {data.find((row) => row.id === selectedRows[0])
                             ?.school ||
                             data.find((row) => row.id === selectedRows[0])
                               ?.name}
                         </p>
-                        <p className="text-[12px] text-gray-500">School</p>
+                        <p className="text-[12px] text-gray-500 font-medium">
+                          School
+                        </p>
                       </div>
                     )}
                   </div>
@@ -371,20 +379,20 @@ TableProps) {
                       <div className="flex flex-col items-start">
                         {isUser ? (
                           <>
-                            <p className="text-[12px] text-black-400">
+                            <p className="text-[12px] text-black-400 font-medium">
                               {item?.first_name}
                             </p>
-                            <p className="text-[12px] text-[#637381]-400">
+                            <p className="text-[12px] text-[#637381]-400 font-medium">
                               {item?.email}
                             </p>
                           </>
                         ) : (
-                          <p className="text-[12px] text-black-400">
+                          <p className="text-[12px] text-black-400 font-medium">
                             {item?.school || item?.name}
                           </p>
                         )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right">
+                      <div className="text-[12px] text-black-400 text-right font-medium">
                         {isUser ? item?.role : "School"}
                       </div>
                     </div>
@@ -409,10 +417,10 @@ TableProps) {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19]">
+              <p className="text-left text-sm text-[#C23E19] font-medium">
                 {selectedRows.length === 0
                   ? `No ${
                       pageType === "schools" ? "schools" : "users"
@@ -431,7 +439,7 @@ TableProps) {
                   setShowArchiveModal(false);
                   setSelectedRows([]);
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -459,7 +467,7 @@ TableProps) {
               <ClockClockwise className="text-blue-600" size={24} />
               <h2 className="text-[16px] font-medium text-black">Restore</h2>
             </div>
-            <p className="text-left text-gray-700 mb-4">
+            <p className="text-left text-gray-700 mb-4 font-medium">
               {selectedRows.length === 0
                 ? `Please select ${
                     pageType === "schools" ? "schools" : "users"
@@ -486,13 +494,13 @@ TableProps) {
                     {data.find((row) => row.id === selectedRows[0])
                       ?.first_name ? (
                       <>
-                        <p className="text-[12px] text-black-400">
+                        <p className="text-[12px] text-black-400 font-medium">
                           {
                             data.find((row) => row.id === selectedRows[0])
                               ?.first_name
                           }
                         </p>
-                        <p className="text-[12px] text-[#637381]-400">
+                        <p className="text-[12px] text-[#637381]-400 font-medium">
                           {
                             data.find((row) => row.id === selectedRows[0])
                               ?.email
@@ -502,7 +510,7 @@ TableProps) {
                     ) : (
                       <div className="flex flex-col items-start w-full">
                         <div className="flex justify-between w-full">
-                          <p className="text-[12px] text-black-400">
+                          <p className="text-[12px] text-black-400 font-medium">
                             {data.find((row) => row.id === selectedRows[0])
                               ?.school ||
                               data.find((row) => row.id === selectedRows[0])
@@ -512,7 +520,7 @@ TableProps) {
                       </div>
                     )}
                   </div>
-                  <div className="text-[12px] text-black-400 items-center">
+                  <div className="text-[12px] text-black-400 items-center font-medium">
                     {data.find((row) => row.id === selectedRows[0])?.role ||
                       (data.find((row) => row.id === selectedRows[0])?.school
                         ? ""
@@ -543,20 +551,20 @@ TableProps) {
                       <div className="flex flex-col items-start">
                         {isUser ? (
                           <>
-                            <p className="text-[12px] text-black-400">
+                            <p className="text-[12px] text-black-400 font-medium">
                               {item?.first_name}
                             </p>
-                            <p className="text-[12px] text-[#637381]-400">
+                            <p className="text-[12px] text-[#637381]-400 font-medium">
                               {item?.email}
                             </p>
                           </>
                         ) : (
-                          <p className="text-[12px] text-black-400">
+                          <p className="text-[12px] text-black-400 font-medium">
                             {item?.school || item?.name}
                           </p>
                         )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right">
+                      <div className="text-[12px] text-black-400 text-right font-medium">
                         {isUser ? item?.role : "School"}
                       </div>
                     </div>
@@ -570,11 +578,14 @@ TableProps) {
                   <Info size={16} color="#2264AC" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#2264AC] px-1"> Note</p>
+                  <p className="text-sm text-[#2264AC] px-1 font-medium">
+                    {" "}
+                    Note
+                  </p>
                 </div>
               </div>
               <div>
-                <p className="text-left text-sm text-[#2264AC]">
+                <p className="text-left text-sm text-[#2264AC] font-medium">
                   {selectedRows.length === 0
                     ? `No ${
                         pageType === "schools" ? "schools" : "users"
@@ -594,7 +605,7 @@ TableProps) {
                   setShowRestoreModal(false);
                   setSelectedRows([]);
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors rounded-[6px]"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors rounded-[6px] font-medium"
               >
                 Cancel
               </button>
@@ -621,7 +632,7 @@ TableProps) {
               <Trash size={24} />
               <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {selectedRows.length === 0
                 ? "Please select schools to delete."
                 : `Are you sure you want to delete ${
@@ -648,12 +659,14 @@ TableProps) {
                       className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="text-[12px] text-black-400">
+                        <p className="text-[12px] text-black-400 font-medium">
                           {item?.name || item?.school}
                         </p>
                       </div>
 
-                      <p className="text-[12px] text-black-400">School</p>
+                      <p className="text-[12px] text-black-400 font-medium">
+                        School
+                      </p>
                     </div>
                   );
                 })}
@@ -677,10 +690,10 @@ TableProps) {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-600">Warning</p>
+                  <p className="text-sm text-red-600 font-medium">Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-red-600 mt-2">
+              <p className="text-left text-sm text-red-600 mt-2 font-medium">
                 {selectedRows.length === 0
                   ? "No schools selected. Please select at least one school to delete."
                   : "Deleting this school will remove it from the scheduled observation sessions. Please confirm before proceeding"}
@@ -694,7 +707,7 @@ TableProps) {
                   setSelectionMode(false);
                   setSelectedRows([]);
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -861,8 +874,8 @@ TableProps) {
           </span>
         </div>
       </div>
-      <div className="rounded-xl border border-gray-200 shadow-sm">
-        <div className="overflow-x-auto rounded-[6px] ">
+      <div className="rounded-xl border border-gray-200 shadow-sm overflow-visible">
+        <div className="overflow-x-auto rounded-[6px] overflow-visible">
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">
@@ -1024,11 +1037,15 @@ TableProps) {
                                 column.key === "curriculums" ||
                                 column.key === "interventions" ? (
                                   <MultiSelect
-                                    options={column.options}
+                                    options={
+                                      column.key === "grades"
+                                        ? getGradeOptionsForSchool(
+                                            editingData.id
+                                          ) // use the row's `id` as `schoolId`
+                                        : column.options || []
+                                    }
                                     values={editingData[column.key] || []}
-                                    // onChange={(vals) =>
-                                    //   handleEditChange("grades", vals)
-                                    // }
+                                    isGrade={column.key === "grades"}
                                     onChange={(vals) =>
                                       handleEditChange(column.key, vals)
                                     }
@@ -1058,7 +1075,7 @@ TableProps) {
                           ) : (
                             // row[column.key]
                             <span
-                              className={`flex items-center gap-1 px-2 py-1 rounded text-[12px] font-normal text-[#000] ${
+                              className={`flex items-center gap-1 px-2 py-1 rounded text-[14px] font-normal text-[#000] ${
                                 column.key === "user_type"
                                   ? row[column.key] === "Admin"
                                     ? "bg-[#E9F3FF] text-[#2264AC]"
@@ -1189,12 +1206,12 @@ TableProps) {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <span className="text-sm text-gray-500">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={loading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -1217,7 +1234,7 @@ TableProps) {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 px-1">
                 {currentPage}/{totalPages || 1}
               </span>
               <button

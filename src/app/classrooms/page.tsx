@@ -645,7 +645,7 @@ export default function ClassroomsPage() {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4 ">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to archive."
                 : `Are you sure you want to archive ${
@@ -670,9 +670,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px]  text-right">Classroom</div>
+                    <div className="text-[14px]  text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -698,7 +702,7 @@ export default function ClassroomsPage() {
                   <p className="text-sm text-[#C23E19]"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to archive."
                   : `Archiving ${
@@ -715,7 +719,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -746,7 +750,7 @@ export default function ClassroomsPage() {
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to restore."
                 : `Are you sure you want to restore ${
@@ -771,9 +775,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px]  text-right">Classroom</div>
+                    <div className="text-[14px]  text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -786,10 +794,10 @@ export default function ClassroomsPage() {
                   <Info size={16} color="#2264AC" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm">Note</p>
+                  <p className="text-sm font-medium">Note</p>
                 </div>
               </div>
-              <p className="text-left text-sm mt-2">
+              <p className="text-left text-sm mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to restore."
                   : `Restoring ${
@@ -806,7 +814,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -837,7 +845,7 @@ export default function ClassroomsPage() {
             </div>
 
             {/* Prompt */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to delete."
                 : `Are you sure you want to delete ${
@@ -862,9 +870,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-right">Classroom</div>
+                    <div className="text-[14px] text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -887,10 +899,10 @@ export default function ClassroomsPage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to delete."
                   : `Deleting ${
@@ -907,7 +919,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -947,11 +959,11 @@ export default function ClassroomsPage() {
         archivedLabel="Archived"
         isActiveArchived={false} // Classrooms page has reversed active/archived logic
       />
-      <div className="overflow-x-auto rounded-xl border border-gray-300  bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-300  bg-white overflow-visible">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300">
-              <th className="w-[0.1%] px-4 py-3 text-left border-gray-300">
+              <th className=" px-4 py-3 text-left border-gray-300">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -961,35 +973,35 @@ export default function ClassroomsPage() {
                   />
                 </div>
               </th>
-              <th className="w-[25%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <div className="flex items-center gap-2">
-                  <ChalkboardTeacher size={16} />
-                  Course
+              <th className="w-[25%]  py-3 text-left font-semibold border-r border-gray-300">
+                <div className="flex items-center space-x-2">
+                  <ChalkboardTeacher size={20} />
+                  <span>Course</span>
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <User size={16} />
-                  Teacher
-                </span>
+                <div className="flex items-center space-x-2">
+                  <User size={20} />
+                  <span>Teacher</span>
+                </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <ChartBar size={16} />
-                  Grades
-                </span>
+                <div className="flex items-center space-x-2">
+                  <ChartBar size={20} />
+                  <span>Grades</span>
+                </div>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Book size={16} />
-                  Instructional Materials
-                </span>
+                <div className="flex items-center space-x-2">
+                  <Book size={20} />
+                  <span>Instructional Materials</span>
+                </div>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold ">
-                <span className="inline-flex items-center gap-2">
-                  <Tag size={16} />
-                  Tags & Attribute(s)
-                </span>
+                <div className="flex items-center space-x-2">
+                  <Tag size={20} />
+                  <span>Tags & Attribute(s)</span>
+                </div>
               </th>
               <th className="w-[5%] px-4 py-3"></th>
             </tr>
@@ -1027,7 +1039,7 @@ export default function ClassroomsPage() {
                   </td>
                   <td
                     colSpan={6}
-                    className="px-4 py-3 border-b border-gray-300"
+                    className="pr-4 py-3 border-b border-gray-300"
                   >
                     <div className="flex items-center justify-between mr-2.5">
                       <span className="font-semibold text-sm">
@@ -1065,7 +1077,7 @@ export default function ClassroomsPage() {
                       }}
                     >
                       <td
-                        className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                        className="px-4 py-3 "
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center">
@@ -1089,7 +1101,7 @@ export default function ClassroomsPage() {
                       editing.schoolId === school.schoolId &&
                       editing.classroomId === classroom.id ? (
                         <>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="pr-4 py-2 border-r border-gray-200">
                             <input
                               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2264AC] text-sm"
                               value={editData?.course || ""}
@@ -1109,11 +1121,26 @@ export default function ClassroomsPage() {
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             <MultiSelect
-                              options={gradeOptions}
+                              options={
+                                school.classes
+                                  ?.flatMap((cls: any) => cls.grades)
+                                  ?.filter(
+                                    (
+                                      val: any,
+                                      index: any,
+                                      arr: string | any[]
+                                    ) => arr.indexOf(val) === index
+                                  ) // Unique grades
+                                  ?.map((grade: any) => ({
+                                    label: grade,
+                                    value: grade,
+                                  })) || []
+                              }
                               values={editData?.grades || []}
                               onChange={(vals) =>
                                 handleEditChange("grades", vals)
                               }
+                              isGrade={true}
                               placeholder="Select grades"
                             />
                           </td>
@@ -1153,7 +1180,7 @@ export default function ClassroomsPage() {
                         </>
                       ) : (
                         <>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className=" py-2 border-r border-gray-200">
                             {classroom.course}
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
@@ -1273,14 +1300,14 @@ export default function ClassroomsPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Rows per page:</span>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm text-gray ">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={(e) =>
                   handleRowsPerPageChange(Number(e.target.value))
                 }
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={isLoading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -1303,7 +1330,7 @@ export default function ClassroomsPage() {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 px-1">
                 {currentPage}/{totalPages || 1}
               </span>
               <button

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Option {
@@ -27,33 +27,32 @@ export default function CustomDropdown({
   error,
 }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Find the selected option based on value
-  const selectedOption = React.useMemo(() => {
-    // Log the value and options to help debug
-    console.log("CustomDropdown value:", value);
-    console.log("CustomDropdown options:", options);
-
+  const selectedOption = useMemo(() => {
     return options?.find(
       (option) =>
-        // Check for both id and value properties, as your data might use either
         option.id === value ||
         option.value === value ||
-        // If the option is a string value
         (typeof option === "string" && option === value)
     );
   }, [options, value]);
 
-  // Determine what text to display in the dropdown
-  const displayText = React.useMemo(() => {
+  const displayText = useMemo(() => {
     if (selectedOption) {
       return selectedOption.label;
     } else if (value) {
-      return value; // Use value as placeholder if it exists but no matching option found
+      return value;
     }
     return placeholder;
   }, [selectedOption, value, placeholder]);
+
+  const filteredOptions = useMemo(() => {
+    return options.filter((option) =>
+      option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [options, searchTerm]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -62,6 +61,7 @@ export default function CustomDropdown({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setSearchTerm(""); // Clear search when closed
       }
     }
 
@@ -72,6 +72,15 @@ export default function CustomDropdown({
   const handleOptionClick = (optionValue: string) => {
     onChange(optionValue);
     setIsOpen(false);
+    setSearchTerm(""); // Clear search on select
+  };
+
+  const handleClearSelection = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+    onChange("");
+    setSearchTerm("");
   };
 
   return (
@@ -93,21 +102,47 @@ export default function CustomDropdown({
           >
             {displayText}
           </span>
-          <svg
-            className={`w-5 h-5 text-gray-400 transition-transform ${
-              isOpen ? "transform rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+
+          <div className="flex items-center">
+            {value && (
+              <button
+                type="button"
+                onClick={handleClearSelection}
+                className="mr-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                aria-label="Clear selection"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+
+            <svg
+              className={`w-5 h-5 text-gray-400 transition-transform ${
+                isOpen ? "transform rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
         </div>
       </button>
 
@@ -121,29 +156,31 @@ export default function CustomDropdown({
             className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto"
             role="listbox"
           >
-            {options?.length > 0 ? (
-              options.map((option, index) => {
+            <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option, index) => {
                 const optionValue = option.id || option.value || option;
                 const isSelected =
                   optionValue === value ||
                   (selectedOption &&
                     (optionValue === selectedOption.id ||
                       optionValue === selectedOption.value));
-                console.log(
-                  "Rendering option:",
-                  optionValue,
-                  "isSelected:",
-                  isSelected
-                );
 
                 return (
                   <div
                     key={index}
                     onClick={() => handleOptionClick(optionValue as string)}
                     className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${
-                      value === option.label
-                        ? "bg-[#F2FAF6] text-[#2A7251]"
-                        : ""
+                      isSelected ? "bg-[#F2FAF6] text-[#2A7251]" : ""
                     }`}
                     role="option"
                     aria-selected={isSelected}
@@ -153,9 +190,7 @@ export default function CustomDropdown({
                 );
               })
             ) : (
-              <div className="px-4 py-2 text-gray-500">
-                No options available
-              </div>
+              <div className="px-4 py-2 text-gray-500">No options found</div>
             )}
           </motion.div>
         )}
