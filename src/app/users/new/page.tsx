@@ -206,10 +206,16 @@ export default function CreateUserForm() {
           router.push("/users");
         }, 1000);
       } else {
-        console.log("responseeee", response.error.response.data.detail);
-        const errorMessage = response.error.response.data.detail;
-        setApiError(errorMessage);
-        setApiSuccess("");
+        if (response.error && (response.error as AxiosError).isAxiosError) {
+          const axiosError = response.error as AxiosError<{ detail: string }>;
+          const errorMessage =
+            axiosError.response?.data?.detail || "Unknown error";
+          console.log("responseeee", errorMessage);
+          setApiError(errorMessage);
+          setApiSuccess("");
+        } else {
+          setApiError("An unknown error occurred.");
+        }
       }
     } catch (error: unknown) {
       const errorMessage =
