@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import StepIndicator from "@/components/observation/StepIndicator";
+// import StepIndicator from "@/components/observation/StepIndicator";
 import DateTimeStep from "@/components/observation/steps/DateTimeStep";
 import SchoolClassroomStep from "@/components/observation/steps/SchoolClassroomStep";
 import AssignUsersStep from "@/components/observation/steps/AssignUsersStep";
@@ -12,8 +12,9 @@ import Stepper from "@/components/classroom/Stepper";
 import apiClient from "@/api/axiosInterceptor";
 import Header from "@/components/Header";
 import { getSchools } from "@/services/schoolService";
-import { getClassroom } from "@/services/classroomService";
+import { getClassroomsBySchool } from "@/services/classroomService";
 import { getUser } from "@/services/userService";
+import { createSession } from "@/services/obersvation-sessionservice";
 
 const steps = [
   {
@@ -70,9 +71,11 @@ export default function ScheduleObservationPage() {
 
   useEffect(() => {
     fetchSchools();
-    fetchClassroomsData();
     fetchUsers();
   }, []);
+  useEffect(() => {
+    fetchClassroomsData();
+  }, [selectedSchool]);
 
   const fetchSchools = async () => {
     try {
@@ -100,39 +103,33 @@ export default function ScheduleObservationPage() {
 
   const fetchClassroomsData = async () => {
     try {
-      const districtId = localStorage.getItem("globalDistrict");
-      const requestPayload = {
-        is_archived: false,
-        district_id: districtId || "",
-        sort_by: null,
-        sort_order: null,
-        curr_page: 1,
-        per_page: 100,
-        search: null, // Don't send empty strings
-      };
+      // Skip the API call if no school is selected
+      if (!selectedSchool) {
+        setClassroomsData([]);
+        return;
+      }
 
-      const response = await getClassroom(requestPayload);
+      const response = await getClassroomsBySchool(selectedSchool);
+
+      console.log("Classrooms response:", response);
 
       if (response.success && response.data) {
-        // Transform API data with safe access patterns
-        const targetSchool = response.data.schools.find(
-          (school: any) => school.schoolId === selectedSchool
-        );
+        // Map the API response to your required format
+        const formattedClassrooms = response.data.map((classroom: any) => ({
+          id: classroom.id,
+          name: classroom.course, // Using course as the name
+          course: classroom.course,
+        }));
 
-        // If the school exists, map its classes
-        const transformedClassrooms = targetSchool
-          ? (targetSchool.classes as any[]).map((cls: any) => ({
-              id: cls.id,
-              name: cls.course,
-            }))
-          : [];
-
-        setClassroomsData(transformedClassrooms);
+        // Update state with the formatted data
+        setClassroomsData(formattedClassrooms);
       } else {
         console.error("API returned unsuccessful response:", response);
+        setClassroomsData([]);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching classrooms:", error);
+      setClassroomsData([]);
     }
   };
 
@@ -280,26 +277,24 @@ export default function ScheduleObservationPage() {
         reviewData.observationDate
       ),
       end_time: formatTimeToISO(reviewData.endTime, reviewData.observationDate),
-      district: "string", // Add district ID if available
-      school: reviewData.school,
-      classrooms: reviewData.classrooms,
+      district: localStorage.getItem("globalDistrict") || "string",
+      school: selectedSchool, // Send the school ID instead of name
+      classrooms: selectedClassrooms, // Send the classroom IDs instead of names
       observation_tool: reviewData.observationTool,
-      users: reviewData.users.map((user) => user.email), // Assuming you want to use emails
-      session_admin: reviewData.sessionAdmin.email, // Assuming you want to use email
+      users: reviewData.users.map((user) => user.email),
+      session_admin: reviewData.sessionAdmin.email,
     };
-    try {
-      const response = await apiClient.post(
-        `/v1/observation_session/create_observation_session`,
-        formattedData
-      );
 
-      if (response.status === 200) {
+    console.log("Formatted data for API:", formattedData);
+
+    try {
+      const response = await createSession(formattedData);
+
+      if (response.success) {
         console.log("Session scheduled successfully");
         router.push("/observation-sessions");
-        return { success: true, data: response.data };
       } else {
-        console.error("Failed to schedule session", formatDate);
-        return { success: true, data: response.data };
+        console.error("Failed to schedule session:", response.error);
         // Handle error (show notification, etc.)
       }
     } catch (error) {
@@ -316,9 +311,9 @@ export default function ScheduleObservationPage() {
     return `${year}-${month}-${day}`;
   };
 
-  // Helper function to convert time string (like "08:52 AM") to ISO format
+  // Helper function to convert time string (like "08:52 AM") to proper time format
   const formatTimeToISO = (timeStr: string | null, date: Date): string => {
-    if (!timeStr) return new Date().toISOString();
+    if (!timeStr) return new Date().toISOString().split("T")[1];
 
     const [time, period] = timeStr.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
@@ -331,8 +326,10 @@ export default function ScheduleObservationPage() {
     const timeDate = new Date(date);
     timeDate.setHours(hours, minutes, 0, 0);
 
-    return timeDate.toISOString();
+    // Extract just the time part from the ISO string (after the 'T')
+    return timeDate.toISOString().split("T")[1];
   };
+
   return (
     <AnimatedContainer
       variant="fade"
