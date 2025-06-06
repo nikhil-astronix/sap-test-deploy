@@ -20,7 +20,7 @@ import {
 } from "@phosphor-icons/react";
 import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
-import { fetchAllDistricts } from "@/services/districtService";
+import { fetchAllDistrictsByNetwork } from "@/services/districtService";
 import { getDistrictsPayload } from "@/services/districtService";
 import Header from "@/components/Header";
 
@@ -291,8 +291,6 @@ export default function SchoolsPage() {
 
   useEffect(() => {
     getNetworks();
-    getSchoolData();
-    fetchAllDistrictsInfo();
     fetchData(
       currentPage,
       rowsPerPage,
@@ -303,27 +301,48 @@ export default function SchoolsPage() {
     );
   }, [searchQuery]);
 
-  const fetchAllDistrictsInfo = async () => {
-    const payload: getDistrictsPayload = {
-      is_archived: null,
-      network_id: null,
-      sort_by: null,
-      sort_order: null,
-      page: 1,
-      limit: 100,
-      search: null,
-    };
-    const response = await fetchAllDistricts(payload);
-    if (response.success) {
-      const formattedDistricts = response.data.districts.map(
-        (district: any) => ({
-          id: district._id,
+  const handleNetworkChange = async (networkId: string) => {
+    try {
+      const response = await fetchAllDistrictsByNetwork(networkId);
+      if (response.success) {
+        const formattedDistricts = response.data.map((district: any) => ({
+          id: district.id,
           label: district.name,
-        })
-      );
-      setDistricts(formattedDistricts);
-    } else {
+        }));
+        setDistricts(formattedDistricts);
+      } else {
+        setDistricts([]);
+      }
+    } catch (error) {
       setDistricts([]);
+      console.error("Error fetching districts:", error);
+      return [];
+    }
+  };
+
+  const handleDistrictChange = async (districtId: string) => {
+    try {
+      const requestPayload = {
+        is_archived: isArchived,
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+        district_id: districtId,
+      };
+
+      const response = await getSchools(requestPayload);
+      const formattedSchools = response.data.schools.map((school: any) => ({
+        id: school.id,
+        label: school.name,
+      }));
+
+      setSchools(formattedSchools);
+    } catch (error) {
+      setSchools([]);
+      console.error("Error fetching schools:", error);
+      return [];
     }
   };
 
@@ -345,25 +364,6 @@ export default function SchoolsPage() {
 
     setNetworks(formattedNetworks);
     console.log("responseresponseresponse", response);
-  };
-
-  const getSchoolData = async () => {
-    const requestPayload = {
-      is_archived: isArchived,
-      sort_by: null,
-      sort_order: null,
-      curr_page: 1,
-      per_page: 100,
-      search: null,
-    };
-
-    const response = await getSchools(requestPayload);
-    const formattedSchools = response.data.schools.map((school: any) => ({
-      id: school.id,
-      label: school.name,
-    }));
-
-    setSchools(formattedSchools);
   };
 
   return (
@@ -406,6 +406,8 @@ export default function SchoolsPage() {
         dynamicbg={"#F9F5FF"}
         onCreate={"/users/new"}
         pageType="users"
+        onNetworkChange={handleNetworkChange}
+        onDistrictChange={handleDistrictChange}
       />
     </div>
   );

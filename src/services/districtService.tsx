@@ -45,6 +45,18 @@ export const fetchAllDistricts = async (payload: getDistrictsPayload) => {
   }
 };
 
+export const fetchAllDistrictsByNetwork = async (networkId: string) => {
+  try {
+    const response = await apiClient.get(
+      `/v1/district/by-network-id/${networkId}`
+    );
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error while fetching districts:", error);
+    return { success: false, error };
+  }
+};
+
 export const archiveDistricts = async (payload: archiveDistrictPayload) => {
   try {
     const response = await apiClient.patch("/v1/district/archive", payload);
