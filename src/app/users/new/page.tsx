@@ -12,7 +12,10 @@ import Dropdown from "@/components/ui/Dropdown";
 import { number, z } from "zod";
 import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
-import { fetchAllDistricts } from "@/services/districtService";
+import {
+  fetchAllDistricts,
+  fetchAllDistrictsByNetwork,
+} from "@/services/districtService";
 import { getDistrictsPayload } from "@/services/districtService";
 import Header from "@/components/Header";
 
@@ -99,8 +102,6 @@ export default function CreateUserForm() {
 
   useEffect(() => {
     getNetworks();
-    getSchoolData();
-    fetchAllDistrictsInfo();
   }, []);
 
   const fetchAllDistrictsInfo = async () => {
@@ -178,8 +179,85 @@ export default function CreateUserForm() {
     status: getStepStatus(index) as "completed" | "current" | "upcoming",
   }));
 
+  const getDistrictOptions = async (networkId: string) => {
+    try {
+      const response = await fetchAllDistrictsByNetwork(networkId);
+      if (response.success) {
+        console.log("response.data.districts", response);
+        const formattedDistricts = response.data.map((district: any) => ({
+          value: district.id,
+          label: district.name,
+        }));
+        setDistricts(formattedDistricts);
+      } else {
+        setDistricts([]);
+      }
+    } catch (error) {
+      setDistricts([]);
+      console.error("Error fetching districts:", error);
+      return [];
+    }
+  };
+
+  const getSchoolOptions = async (districtId: string) => {
+    try {
+      const requestPayload = {
+        is_archived: false,
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+        district_id: districtId,
+      };
+
+      const response = await getSchools(requestPayload);
+      const formattedSchools = response.data.schools.map((school: any) => ({
+        value: school.id,
+        label: school.name,
+      }));
+
+      setSchools(formattedSchools);
+    } catch (error) {
+      setSchools([]);
+      console.error("Error fetching schools:", error);
+      return [];
+    }
+  };
+
   const handleFormChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    if (field === "network") {
+      try {
+        console.log("jelloo", formData, field, value);
+        setFormData({
+          ...formData,
+          [field]: value,
+          district: "",
+          school: "",
+        });
+
+        getDistrictOptions(value);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    }
+
+    if (field === "district") {
+      try {
+        console.log("jelloo", formData, field, value);
+        setFormData({
+          ...formData,
+          [field]: value,
+          school: "",
+        });
+
+        getSchoolOptions(value);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    }
   };
 
   const handleSubmit = async () => {
