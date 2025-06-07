@@ -52,7 +52,7 @@ export default function UpcomingSession({
     setError(null);
     try {
       // Specifically get upcoming sessions
-      const response = await getSessionsByNetwork('upcoming');
+      const response = await getSessionsByNetwork('all');
       if (response.success && response.data) {
         // Transform the API response to match our NetworkTableRow structure
         const transformedData = response?.data?.sessions?.map((session: any) => ({

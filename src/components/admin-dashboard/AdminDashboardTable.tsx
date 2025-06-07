@@ -48,6 +48,7 @@ interface AdminDashboardTableProps {
   pageNumber: number;
   totalPages: number;
   pageSize: number;
+  isLoading?: boolean;
 }
 
 const AdminDashboardTable = ({
@@ -62,6 +63,7 @@ const AdminDashboardTable = ({
   pageNumber,
   totalPages,
   pageSize,
+  isLoading = false,
 }: AdminDashboardTableProps) => {
   // State for current data, sorting, and pagination
   const [filteredData, setFilteredData] = useState<TableRow[]>(initialData);
@@ -72,6 +74,8 @@ const AdminDashboardTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(9);
   const [visibleColumns] = useState<string[]>(columns?.map((col) => col.key));
+
+  const colorCode = headerColor.split("bg-")[1];
 
   // Effect to update filtered data when initial data changes
   useEffect(() => {
@@ -268,29 +272,41 @@ const AdminDashboardTable = ({
                 .map((column, index) => (
                   <th
                     key={column.key}
-                    className={`bg-${headerColor} border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm`}
+                    className={`${headerColor} border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 whitespace-nowrap p-3 text-left font-medium text-white text-sm`}
                   >
                     <button
-                      className="flex items-center space-x-1 focus:outline-none w-full"
+                      className="flex items-center justify-between space-x-1 focus:outline-none w-full"
                       onClick={() =>
                         column.sortable ? requestSort(column.key) : null
                       }
                       disabled={!column.sortable}
                     >
-                      <span>{column.icon}</span>
-                      <span className="mx-1">{column.label}</span>
+                      <div className="flex items-center space-x-1">
+                        <span>{column.icon}</span>
+                        <span className="mx-1">{column.label}</span>
+                      </div>
                       {column.sortable && (
-                        <span className="ml-auto">
-                          {sortConfig.key === column.key ? (
-                            sortConfig.direction === "asc" ? (
-                              <ChevronUp size={14} />
-                            ) : (
-                              <ChevronDown size={14} />
-                            )
-                          ) : (
-                            <ChevronDown size={14} className="text-gray-300" />
-                          )}
-                        </span>
+                        // <span className="ml-auto">
+                        //   {sortConfig.key === column.key ? (
+                        //     sortConfig.direction === "asc" ? (
+                        //       <ChevronUp size={14} />
+                        //     ) : (
+                        //       <ChevronDown size={14} />
+                        //     )
+                        //   ) : (
+                        //     <ChevronDown size={14} className="text-gray-300" />
+                        //   )}
+                        // </span>
+                        <div className="flex flex-col">
+                          {/* Always show up arrow, highlight when active */}
+                          <ChevronUp 
+                            className={`h-3 w-3 ${sortConfig.key === column.key && sortConfig.direction === "asc" ? "" : "opacity-30"}`} 
+                          />
+                          {/* Always show down arrow, highlight when active */}
+                          <ChevronDown 
+                            className={`h-3 w-3 ${sortConfig.key === column.key && sortConfig.direction === "desc" ? "" : "opacity-30"}`} 
+                          />
+                        </div>
                       )}
                     </button>
                   </th>
@@ -298,12 +314,30 @@ const AdminDashboardTable = ({
             </tr>
           </thead>
           <tbody>
-            {filteredData?.length > 0 ? (
+            {
+            // isLoading ? (
+            //   // Loading skeleton rows
+            //   Array.from({ length: 3 }).map((_, rowIndex) => (
+            //     <tr key={`skeleton-${rowIndex}`} className="animate-pulse">
+            //       {columns
+            //         .filter((col) => visibleColumns.includes(col.key))
+            //         .map((column, index) => (
+            //           <td
+            //             key={`skeleton-${rowIndex}-${column.key}`}
+            //             className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm"
+            //           >
+            //             <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            //           </td>
+            //         ))}
+            //     </tr>
+            //   ))
+            // ) : 
+            filteredData?.length > 0 ? (
               filteredData?.map((row, rowIndex) => (
                 <tr
                   key={row.id}
                   className={`hover:bg-gray-50 ${
-                    rowIndex % 2 === 1 ? `bg-${rowColor}` : "bg-white"
+                    rowIndex % 2 === 1 ? rowColor : "bg-white"
                   }`}
                 >
                   {columns
@@ -320,175 +354,99 @@ const AdminDashboardTable = ({
               ))
             ) : (
               <tr>
+                {!isLoading &&
                 <td
                   colSpan={columns.length}
-                  className="border-b border-gray-200 p-4 text-center text-gray-500"
+                  className="border-b border-gray-200 py-8 text-center"
                 >
-                  No data found
+                  <div className="flex flex-col items-center justify-center p-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-gray-400 mb-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p className="text-gray-500 text-lg font-medium">No data available</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      No matching records found for the current search criteria
+                    </p>
+                  </div>
                 </td>
+                }
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-        <div className="flex-1 flex justify-between sm:hidden">
-          <button
-            onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-            disabled={currentPage === 1}
-            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-              currentPage === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() =>
-              setCurrentPage(
-                Math.min(
-                  currentPage + 1,
-                  Math.ceil(filteredData.length / rowsPerPage)
-                )
-              )
-            }
-            disabled={
-              currentPage === Math.ceil(filteredData.length / rowsPerPage)
-            }
-            className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${
-              currentPage === Math.ceil(filteredData.length / rowsPerPage)
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Next
-          </button>
-        </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+      {/* Pagination - Match network dashboard styling */}
+      {!isLoading && filteredData?.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
           <div>
-            <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{indexOfFirstRow}</span> to{" "}
-              <span className="font-medium">{indexOfLastRow}</span> of{" "}
-              <span className="font-medium">{totalRecords}</span> results
+            <p className="text-[12px] text-gray-500">
+              {totalRecords > 0
+                ? `${indexOfFirstRow}-${indexOfLastRow} of ${totalRecords}`
+                : "0 results"}
             </p>
           </div>
-          <div className="flex items-center">
-            <span className="mr-2 text-sm text-gray-700">Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1); // Reset to first page when changing rows per page
-              }}
-              className="mr-4 border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value={5}>5</option>
-              <option value={9}>9</option>
-              <option value={15}>15</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-            <nav
-              className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-              aria-label="Pagination"
-            >
-              <button
-                onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
-                className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === 1
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
+          <div className="flex flex-wrap items-center gap-2 text-[12px]">
+            <div className="flex items-center space-x-2 text-[12px]">
+              <span className="text-[12px] text-gray-500">Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  const newRowsPerPage = Number(e.target.value);
+                  setRowsPerPage(newRowsPerPage);
+                  // Reset to first page when changing rows per page
+                  setCurrentPage(1);
+                }}
+                className="text-[12px] border rounded px-2 py-1"
               >
-                <span className="sr-only">First</span>
-                <ChevronLeft size={14} />
-                <ChevronLeft size={14} className="-ml-1" />
-              </button>
+                <option value={5}>5</option>
+                <option value={9}>9</option>
+                <option value={15}>15</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+            <div className="flex items-center space-x-1 text-[12px]">
               <button
                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-                className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === 1
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
+                disabled={currentPage === 1 || isLoading}
+                className={`p-1 border rounded ${currentPage === 1 || isLoading
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:bg-gray-100"
+                  }`}
               >
-                <span className="sr-only">Previous</span>
-                <ChevronLeft size={14} />
+                <ChevronLeft size={18} />
               </button>
-
-              {/* Page numbers */}
-              {Array.from(
-                {
-                  length: Math.min(5, totalPages),
-                },
-                (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    // If we have 5 or fewer pages, show all page numbers
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    // If we're near the start, show pages 1-5
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    // If we're near the end, show the last 5 pages
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    // Otherwise show 2 pages before and 2 pages after current page
-                    pageNum = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${
-                        currentPage === pageNum
-                          ? "bg-blue-50 border-blue-500 text-blue-600 z-10"
-                          : "bg-white text-gray-500 hover:bg-gray-50"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                }
-              )}
-
+              <span className="text-[12px] text-gray-500">
+                {currentPage}/{totalPages || 1}
+              </span>
               <button
-                onClick={() =>
+                onClick={() => 
                   setCurrentPage(Math.min(currentPage + 1, totalPages))
                 }
-                disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === totalPages
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
+                disabled={currentPage >= totalPages || isLoading}
+                className={`p-1 border rounded text-[12px] ${currentPage >= totalPages || isLoading
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:bg-gray-100"
+                  }`}
               >
-                <span className="sr-only">Next</span>
-                <ChevronRight size={14} />
+                <ChevronRight size={18} />
               </button>
-              <button
-                onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                  currentPage === totalPages
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
-              >
-                <span className="sr-only">Last</span>
-                <ChevronRight size={14} />
-                <ChevronRight size={14} className="-ml-1" />
-              </button>
-            </nav>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

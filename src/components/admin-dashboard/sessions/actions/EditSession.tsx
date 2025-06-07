@@ -40,6 +40,7 @@ export default function EditSession({ session, onClose, onSave }: EditSessionPro
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">School</label>
               <input 
+                title='school'
                 type="text" 
                 className="w-full p-2 border border-gray-300 rounded-md bg-gray-100" 
                 value={session.school} 
@@ -50,6 +51,7 @@ export default function EditSession({ session, onClose, onSave }: EditSessionPro
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
               <input 
+                title='Date'
                 type="text" 
                 className="w-full p-2 border border-gray-300 rounded-md" 
                 value={date} 
@@ -60,7 +62,8 @@ export default function EditSession({ session, onClose, onSave }: EditSessionPro
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-              <input 
+              <input
+                title='Start Time' 
                 type="text" 
                 className="w-full p-2 border border-gray-300 rounded-md" 
                 value={startTime} 
@@ -72,6 +75,7 @@ export default function EditSession({ session, onClose, onSave }: EditSessionPro
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
               <input 
+                title='End Time'
                 type="text" 
                 className="w-full p-2 border border-gray-300 rounded-md" 
                 value={endTime} 
@@ -83,6 +87,7 @@ export default function EditSession({ session, onClose, onSave }: EditSessionPro
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Observer(s)</label>
               <input 
+                title='Observer'
                 type="text" 
                 className="w-full p-2 border border-gray-300 rounded-md" 
                 value={observers} 

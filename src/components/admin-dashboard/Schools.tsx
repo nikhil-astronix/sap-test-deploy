@@ -26,6 +26,7 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -48,17 +49,27 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       page: selectedFilters.page,
       limit: selectedFilters.limit,
     };
-    const response = await fetchSchools(requestPayload);
-    if (response.success) {
-      setFilteredData(response.data.schools);
-      setTotalPages(response.data.pages);
-      setTotalRecords(response.data.total);
-      setPageNumber(response.data.page);
-      setPageSize(response.data.limit);
-      console.log("Schools data fetch successfully");
-    } else {
+    setIsLoading(true);
+    try {
+      const response = await fetchSchools(requestPayload);
+      console.log(response.data.schools, 'checking the schools data');
+      if (response.success) {
+        setFilteredData(response.data.schools);
+        setTotalPages(response.data.pages);
+        setTotalRecords(response.data.total);
+        setPageNumber(response.data.page);
+        setPageSize(response.data.limit);
+        console.log("Schools data fetch successfully");
+      } else {
+        setFilteredData([]);
+        console.log("Error while fetching Schools data");
+      }
+    } catch (error) {
+      console.error("Error fetching Schools data:", error);
       setFilteredData([]);
-      console.log("Error while fetching Schools data");
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,14 +119,13 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
             <span
               key={tool.id}
               className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                 ${
-                   typeof tool.name === "string" && tool.name.includes("IPG")
-                     ? "bg-green-100 text-green-800"
-                     : typeof tool.name === "string" &&
-                       tool.name.includes("Math")
-                     ? "bg-purple-100 text-purple-800"
-                     : "bg-blue-100 text-blue-800"
-                 }
+                 ${typeof tool.name === "string" && tool.name.includes("IPG")
+                  ? "bg-green-100 text-green-800"
+                  : typeof tool.name === "string" &&
+                    tool.name.includes("Math")
+                    ? "bg-purple-100 text-purple-800"
+                    : "bg-blue-100 text-blue-800"
+                }
               `}
             >
               {tool.name}
@@ -165,13 +175,12 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       return (
         <div className="relative group">
           <div
-            className={`inline-flex items-center gap-1 ${
-              statusObj.status === "Incomplete"
+            className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
                 ? "bg-red-200"
                 : statusObj.status === "Partial"
-                ? "bg-yellow-200"
-                : "bg-green-200"
-            } ${color} px-2 py-1 rounded-full text-xs`}
+                  ? "bg-yellow-200"
+                  : "bg-green-200"
+              } ${color} px-2 py-1 rounded-full text-xs`}
           >
             <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
             {statusObj.status}
@@ -197,11 +206,12 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
   };
 
   return (
+    <div>
     <AdminDashboardTable
       data={filteredData}
       columns={schoolsColumns}
-      headerColor="blue-500"
-      rowColor="blue-50"
+      headerColor="bg-[#2264AC]"
+      rowColor="bg-[#E9F3FF]"
       renderCell={renderCell}
       searchTerm={searchTerm}
       onFiltersChange={handleFiltersChange}
@@ -209,7 +219,14 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       totalRecords={totalRecords}
       pageNumber={pageNumber}
       pageSize={pageSize}
+      isLoading={isLoading}
     />
+    {isLoading &&
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2264AC]"></div>
+      </div>
+    }
+    </div>
   );
 };
 

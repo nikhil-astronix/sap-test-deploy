@@ -37,7 +37,8 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
-    sort_by: "first_name",
+    sort_by: "full_name",
+    // sort_by: "full_name, network_name, districts, user_type, last_login_at",
     sort_order: "asc",
   });
 
@@ -75,22 +76,22 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   // Column definitions for Recent Logins tab
   const loginColumns: Column[] = [
     {
-      key: "first_name",
+      key: "full_name",
       label: "User",
       icon: <User size={16} />,
       sortable: true,
     },
     {
-      key: "network",
+      key: "network_name",
       label: "Network",
       icon: <Network size={16} />,
-      sortable: false,
+      sortable: true,
     },
     {
       key: "districts",
       label: "District",
       icon: <Building2 size={16} />,
-      sortable: false,
+      sortable: true,
     },
     {
       key: "user_type",
@@ -143,17 +144,18 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       );
     }
     if (column === "districts") {
-      if (row[column].length) {
+      if (row[column]?.length) {
         return (
           <span className="text-xs text-black font-normal">
-            {row[column][0].name}
+            {/* {row[column][0].name} */}
+            {row[column]?.map((item: any) => item).join(", ")}
           </span>
         );
       } else {
         return "-";
       }
     }
-    if (column === "first_name") {
+    if (column === "full_name") {
       if (row[column]) {
         return (
           <span className="flex flex-col">
@@ -170,6 +172,17 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
         return (
           <span className="text-xs text-black font-normal">
             {format(new Date(row[column]), "MMMM d, yyyy h:mm a")}
+          </span>
+        );
+      } else {
+        return "-";
+      }
+    }
+    if (column === "network_name") {
+      if (row[column]) {
+        return (
+          <span className="text-xs text-black font-normal">
+            {row[column]}
           </span>
         );
       } else {

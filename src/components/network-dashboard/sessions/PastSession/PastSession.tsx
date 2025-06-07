@@ -52,7 +52,7 @@ export default function PastSession({
     setError(null);
     try {
       // Specifically get past sessions
-      const response = await getSessionsByNetwork('past');
+      const response = await getSessionsByNetwork('all');
       if (response.success && response.data) {
         // Transform the API response to match our NetworkTableRow structure
         const transformedData = response?.data?.sessions.map((session: any) => ({

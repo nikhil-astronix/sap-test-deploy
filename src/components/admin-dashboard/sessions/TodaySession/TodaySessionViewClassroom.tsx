@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronDown, ChevronUp, ChevronRight, Search, User, Book, FileText } from 'lucide-react';
-import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
+import AdminDashboardTable, { TableRow, Column } from '../../AdminDashboardTable';
 
 // Define types directly in the component file
 interface ClassroomData {
@@ -23,6 +23,11 @@ interface SchoolData {
 interface ViewClassroomProps {
   schoolId?: string;
   onBack?: () => void;
+}
+
+// Type guard to check if a value is an object with a name property
+function isSchoolObject(value: any): value is { id: string, name: string } {
+  return value && typeof value === 'object' && 'name' in value;
 }
 
 // Mock data
@@ -124,7 +129,7 @@ const mockSchoolData: SchoolData[] = [
 
 export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClassroomProps) {
   const [schoolData, setSchoolData] = useState<SchoolData | null>(null);
-  const [classroomTableData, setClassroomTableData] = useState<NetworkTableRow[]>([]);
+  const [classroomTableData, setClassroomTableData] = useState<TableRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -133,7 +138,7 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
   const [totalPages, setTotalPages] = useState(1);
 
   // Define columns for classroom table
-  const classroomColumns: NetworkColumn[] = [
+  const classroomColumns: Column[] = [
     { key: 'teacher', label: 'Teacher', icon: <User size={16} />, sortable: true },
     { key: 'course', label: 'Course/Subject', icon: <Book size={16} />, sortable: true },
     { key: 'grade', label: 'Grade', icon: <FileText size={16} />, sortable: true },
@@ -142,24 +147,26 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
   ];
 
   // Create dummy data for when no real data is available
-  const createDummyClassroomData = (): NetworkTableRow[] => {
+  const createDummyClassroomData = (): TableRow[] => {
     return [
       {
         id: 'dummy-1',
-        name: 'Sample Classroom 1', // Required by NetworkTableRow type
+        name: 'Sample Classroom 1', // Required by TableRow type
         teacher: 'Sample Teacher 1',
         course: 'Sample Course 1',
         grade: 3,
         instructionalMaterials: ['Sample Material 1', 'Sample Material 2'],
+        school: 'Sample School', // Add school as a string, not an object
         action: 'view'
       },
       {
         id: 'dummy-2',
-        name: 'Sample Classroom 2', // Required by NetworkTableRow type
+        name: 'Sample Classroom 2', // Required by TableRow type
         teacher: 'Sample Teacher 2',
         course: 'Sample Course 2',
         grade: 5,
         instructionalMaterials: ['Sample Material 3'],
+        school: 'Sample School', // Add school as a string, not an object
         action: 'view'
       }
     ];
@@ -176,14 +183,16 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
         setSchoolData(foundSchool || null);
         
         if (foundSchool && foundSchool.classrooms && foundSchool.classrooms.length > 0) {
-          // Transform classrooms to match NetworkTableRow format
-          const tableData: NetworkTableRow[] = foundSchool.classrooms.map(classroom => ({
+          // Transform classrooms to match TableRow format
+          const tableData: TableRow[] = foundSchool.classrooms.map(classroom => ({
             id: classroom.id,
-            name: `${classroom.teacher}'s Classroom`, // Required by NetworkTableRow type
+            name: `${classroom.teacher}'s Classroom`, // Required by TableRow type
             teacher: classroom.teacher,
             course: classroom.course,
             grade: classroom.grade,
             instructionalMaterials: classroom.instructionalMaterials,
+            // Make sure school is a string, not an object
+            school: foundSchool.name,
             action: ""
           }));
           setClassroomTableData(tableData);
@@ -202,13 +211,15 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
         setSchoolData(defaultSchool || null);
         
         if (defaultSchool && defaultSchool.classrooms && defaultSchool.classrooms.length > 0) {
-          const tableData: NetworkTableRow[] = defaultSchool.classrooms.map(classroom => ({
+          const tableData: TableRow[] = defaultSchool.classrooms.map(classroom => ({
             id: classroom.id,
-            name: `${classroom.teacher}'s Classroom`, // Required by NetworkTableRow type
+            name: `${classroom.teacher}'s Classroom`, // Required by TableRow type
             teacher: classroom.teacher,
             course: classroom.course,
             grade: classroom.grade,
             instructionalMaterials: classroom.instructionalMaterials,
+            // Make sure school is a string, not an object
+            school: defaultSchool.name,
             action: 'view'
           }));
           setClassroomTableData(tableData);
@@ -227,8 +238,14 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
     return () => clearTimeout(timeoutId);
   }, [schoolId, pageSize]);
 
+  // Handle filters change for server-side pagination
+  const handleFiltersChange = (filters: any) => {
+    setCurrentPage(filters.page);
+    setPageSize(filters.limit);
+  };
+
   // Custom render function for cells
-  const renderCell = (row: NetworkTableRow, column: string) => {
+  const renderCell = (row: TableRow, column: string) => {
     if (column === 'action') {
       return (
         <div className="flex space-x-2">
@@ -259,6 +276,17 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
         "No materials"
       );
     }
+    
+    // Handle school column to ensure it's rendered as a string
+    if (column === 'school') {
+      const school = row[column];
+      // Use the type guard to safely handle school objects
+      if (isSchoolObject(school)) {
+        return school.name;
+      }
+      // Otherwise return the school value directly (should be a string)
+      return school || "";
+    }
 
     return undefined;
   };
@@ -276,7 +304,18 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
     <div className="border border-gray-200 rounded-md shadow-sm overflow-hidden">
       <div className="p-4 border-b border-gray-200 flex items-center">
         <button 
-          onClick={onBack} 
+          onClick={() => {
+            // First send a message to close the classroom view
+            window.postMessage({ type: "CLOSE_CLASSROOMS" }, "*");
+            
+            // Then call the onBack prop if provided
+            if (onBack) onBack();
+            
+            // Force a refresh of the parent component with a small delay
+            setTimeout(() => {
+              window.postMessage({ type: "REFRESH_SESSIONS" }, "*");
+            }, 50);
+          }} 
           className="text-blue-600 hover:text-blue-800 flex items-center"
         >
           <ChevronLeft size={16} className="mr-1" />
@@ -286,17 +325,19 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
 
       {/* Table */}
       <div className="w-full overflow-auto">
-        <NetworkDashboardTable
+        <AdminDashboardTable
           data={classroomTableData}
           columns={classroomColumns}
-          headerColor="#007778"
-          rowColor="#EDFFFF"
+          headerColor="bg-[#007778]"
+          rowColor="bg-[#EDFFFF]"
           renderCell={renderCell}
           pageNumber={currentPage}
           pageSize={pageSize}
           totalPages={totalPages}
           totalRecords={totalRecords}
           isLoading={isLoading}
+          onFiltersChange={handleFiltersChange}
+          searchTerm={searchTerm}
         />
       </div>
     </div>
