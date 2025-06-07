@@ -61,6 +61,8 @@ interface TableProps {
   onSearchChange?: (search: string) => void;
   sidebarVisible?: boolean; // New prop to track sidebar visibility
   pageType?: "schools" | "users"; // New prop to differentiate between pages
+  onNetworkChange?: (row: any) => void;
+  onDistrictChange?: (row: any) => void;
 }
 
 export default function Table({
@@ -86,6 +88,8 @@ export default function Table({
   onSearchChange,
   sidebarVisible = false,
   pageType,
+  onNetworkChange,
+  onDistrictChange,
 }: // Default to false if not provided
 TableProps) {
   // State for sorting
@@ -271,8 +275,34 @@ TableProps) {
         [key]: value,
       });
     }
-  };
+    if (key === "network" && onNetworkChange) {
+      try {
+        setEditingData({
+          ...editingData,
+          [key]: value,
+          district: "",
+          school: "",
+        });
 
+        onNetworkChange(value);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    }
+
+    if (key === "district" && onDistrictChange) {
+      try {
+        setEditingData({
+          ...editingData,
+          [key]: value,
+          school: "",
+        });
+        onDistrictChange(value);
+      } catch (error) {
+        console.error("Error fetching schools:", error);
+      }
+    }
+  };
   const getGradeOptionsForSchool = (schoolId: string) => {
     const school = data.find((s) => s.id === schoolId);
     if (!school) return [];

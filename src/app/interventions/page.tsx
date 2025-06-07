@@ -90,8 +90,16 @@ export default function InterventionsPage() {
       filter: filterType,
       search: searchQuery,
       per_page: 100,
-      sort_order: sortBy === "az" ? "asc" : sortBy === "za" ? "desc" : sortBy,
-      sort_by: sortBy === "oldest" ? "title" : "created_at",
+      sort_order:
+        sortBy === "az"
+          ? "asc"
+          : sortBy === "za"
+          ? "desc"
+          : sortBy === "newest"
+          ? "desc"
+          : "asc",
+      sort_by:
+        sortBy === "oldest" || sortBy === "newest" ? "created_at" : "name",
       district_id: districtId || null,
     };
 
