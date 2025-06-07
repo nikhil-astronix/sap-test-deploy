@@ -238,7 +238,7 @@ export default function CurriculumList() {
                       onClick={() =>
                         setFilterType(type as "Default" | "Custom" | "Both")
                       }
-                      className={`flex-1 px-4 py-2 rounded-lg ${
+                      className={`flex-1 px-4 py-2 ${
                         filterType === type
                           ? "bg-[#2A7251] text-white"
                           : "border border-gray-200 text-gray-600 hover:bg-gray-200"

@@ -20,6 +20,7 @@ import { getUser } from "@/services/userService";
 import Dropdown from "@/components/ui/Dropdown";
 import MultiSelect from "@/components/ui/MultiSelect";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Tooltip from "../Tooltip";
 
 // Update the Session interface to match the actual API response
 interface Session {
@@ -55,6 +56,16 @@ interface SessionTablesProps {
   onCancel?: () => void;
   isEditingExternal?: boolean; // Add this prop
   Loading?: boolean;
+  pagination?: {
+    Today: { page: number; perPage: number };
+    Upcoming: { page: number; perPage: number };
+    Past: { page: number; perPage: number };
+  };
+  onPageChange?: (tab: "Today" | "Upcoming" | "Past", page: number) => void;
+  onRowsPerPageChange?: (
+    tab: "Today" | "Upcoming" | "Past",
+    perPage: number
+  ) => void;
 }
 
 // TabButton component for consistent styling
@@ -72,7 +83,7 @@ const TabButton = ({
   className?: string; // Add this to the type definition
 }) => (
   <button
-    className={`px-4 py-3 font-medium text-sm transition-colors relative ${
+    className={`px-4 py-3 font-medium text-sm transition-colors relative rounded-[6px] ${
       active
         ? `bg-${colorClass} border-b-2 border-${colorClass} text-white`
         : "text-gray-500 hover:text-gray-800"
@@ -99,18 +110,20 @@ const SessionTable = ({
   handleCancelEdit,
   handleSaveEdit,
   handleEditChange,
-  isEditingExternal, // Add this prop
+  isEditingExternal,
   schoolsData,
   classroomsData,
-  observationTools, // Add this
-  usersData, // Add this
+  observationTools,
+  usersData,
   selectedSchool,
   selectedClassrooms,
   isLoading,
   handleSchoolChange,
   handleClassroomChange,
-  onPageChange, // Add this prop
-  onRowsPerPageChange, // Add this prop
+  onPageChange,
+  onRowsPerPageChange,
+  currentPage: externalPage,
+  rowsPerPage: externalRowsPerPage,
 }: {
   sessions: Session[];
   searchTerm: string;
@@ -136,6 +149,8 @@ const SessionTable = ({
   isLoading: boolean;
   handleSchoolChange: (value: string) => void;
   handleClassroomChange: (values: string[]) => void;
+  currentPage?: number;
+  rowsPerPage?: number;
   onPageChange?: (page: number) => void;
   onRowsPerPageChange?: (rowsPerPage: number) => void;
 }) => {
@@ -171,14 +186,11 @@ const SessionTable = ({
   };
 
   // Add these state variables inside SessionTable function
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const rowsPerPageOptions = [5, 10, 25, 50, 100];
 
   // Add these handler functions inside SessionTable function
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
     // You might want to notify the parent component to fetch data for this page
     if (onPageChange) {
       onPageChange(page);
@@ -189,8 +201,7 @@ const SessionTable = ({
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const newRowsPerPage = Number(event.target.value);
-    setRowsPerPage(newRowsPerPage);
-    setCurrentPage(1); // Reset to first page when changing rows per page
+    handlePageChange(1); // Reset to first page when changing rows per page
 
     if (onRowsPerPageChange) {
       onRowsPerPageChange(newRowsPerPage);
@@ -204,9 +215,9 @@ const SessionTable = ({
   }, [filteredSessions]);
 
   // Calculate pagination values
-  const totalPages = Math.ceil(totalCount / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, totalCount);
+  const totalPages = Math.ceil(totalCount / externalRowsPerPage);
+  const startIndex = (externalPage - 1) * externalRowsPerPage;
+  const endIndex = Math.min(startIndex + externalRowsPerPage, totalCount);
   const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
 
   return (
@@ -215,60 +226,71 @@ const SessionTable = ({
         <table className="w-full">
           <thead>
             <tr style={{ backgroundColor: getHeaderBgColor(activeTabColor) }}>
-              {/* Checkbox column */}
-              <th className="w-[50px] px-4 py-3 text-center whitespace-nowrap border-r-2 border-gray-200">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-              </th>
+              {/* Checkbox column - only show if not Today tab */}
+              {tabType !== "Today" && (
+                <th className="w-[50px] px-4 py-3 text-center whitespace-nowrap border-r-2 border-gray-200">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className="h-4 w-4 appearance-none border border-white rounded-sm checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                    style={{
+                      backgroundColor: allSelected
+                        ? activeTabColor === "[#007778]"
+                          ? "#007778"
+                          : activeTabColor === "[#2264AC]"
+                          ? "#2264AC"
+                          : "#6C4996"
+                        : "transparent",
+                    }}
+                  />
+                </th>
+              )}
 
               <th className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center  w-full text-[12px]  font-normal text-[#F9F5FF]">
-                  <ChalkboardTeacher size={25} className="pr-1" />
+                <div className="flex items-center  w-full text-[14px]  font-semibold text-[#F9F5FF]">
+                  <GraduationCap size={25} className="pr-1" />
                   <span>School</span>
                 </div>
               </th>
               <th className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center  w-full text-[12px] font-normal text-[#F9F5FF]">
-                  <GraduationCap size={25} className="pr-1" />
+                <div className="flex items-center  w-full text-[14px]  font-semibold text-[#F9F5FF]">
+                  <ChalkboardTeacher size={25} className="pr-1" />
                   <span>Classroom</span>
                 </div>
               </th>
               <th className="min-w-[120px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center w-full text-[12px] font-normal text-[#F9F5FF]">
+                <div className="flex items-center w-full text-[14px]  font-semibold text-[#F9F5FF]">
                   <CalendarDots size={25} className="pr-1" />
                   <span>Date</span>
                 </div>
               </th>
               <th className="min-w-[120px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center  w-full text-[12px] font-normal text-[#F9F5FF]">
+                <div className="flex items-center  w-full text-[14px]  font-semibold text-[#F9F5FF]">
                   <Clock size={25} className="pr-1" />
                   <span>Start Time</span>
                 </div>
               </th>
               <th className="min-w-[120px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center  w-full text-[12px] font-normal text-[#F9F5FF]">
+                <div className="flex items-center  w-full text-[14px]  font-semibold text-[#F9F5FF]">
                   <Clock size={25} className="pr-1" />
                   <span>End Time</span>
                 </div>
               </th>
               <th className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center w-full text-[12px] font-normal text-[#F9F5FF]">
+                <div className="flex items-center w-full text-[14px]  font-semibold text-[#F9F5FF]">
                   <ChartBar size={25} className="pr-1" />
                   <span>Observation Tool</span>
                 </div>
               </th>
               <th className="min-w-[150px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center w-full text-[12px] font-normal text-[#F9F5FF]">
+                <div className="flex items-center w-full text-[14px]  font-semibold text-[#F9F5FF]">
                   <Users size={25} className="pr-1" />
                   <span>Observers</span>
                 </div>
               </th>
               <th className="min-w-[150px] px-4 py-3 text-left whitespace-nowrap font-medium border-r-2 border-gray-200">
-                <div className="flex items-center w-full text-[12px] font-normal text-[#F9F5FF]">
+                <div className="flex items-center w-full text-[14px]  font-semibold text-[#F9F5FF]">
                   <UserGear size={25} className="pr-1" />
                   <span>Session Admin</span>
                 </div>
@@ -280,12 +302,14 @@ const SessionTable = ({
                   className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
                   style={{
                     backgroundColor: getHeaderBgColor(activeTabColor),
-                    boxShadow: "inset 1px 0 0 #E5E7EB",
+                    boxShadow: "inset 1px 0 0 #D4D4D4",
                   }}
                 >
                   <div className="flex justify-center items-center space-x-2">
                     <ArrowDownRight size={20} />
-                    <span className="text-[12px]-400 text-white">Action</span>
+                    <span className="text-[14px]  font-semibold text-white ">
+                      Action
+                    </span>
                   </div>
                 </th>
               )}
@@ -320,23 +344,31 @@ const SessionTable = ({
                       : ""
                   }`}
                 >
-                  {/* Checkbox cell */}
-                  <td className="w-[50px] px-4 py-4 text-center border-r-2 border-[#D4D4D4]">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(session.id)}
-                      onChange={(e) =>
-                        handleSelect(session.id, e.target.checked)
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      disabled={isEditing}
-                    />
-                  </td>
+                  {/* Checkbox cell - only show if not Today tab */}
+                  {tabType !== "Today" && (
+                    <td className="w-[50px] px-4 py-4 text-center border-r-2 border-[#D4D4D4]">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(session.id)}
+                        onChange={(e) =>
+                          handleSelect(session.id, e.target.checked)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        className={`w-4 h-4 rounded border-gray-300 border-2 ${
+                          activeTabColor === "[#007778]"
+                            ? "accent-[#007778]"
+                            : activeTabColor === "[#2264AC]"
+                            ? "accent-[#2264AC] bg-[#2264AC]"
+                            : "accent-[#6C4996] bg-[#6C4996]"
+                        }`}
+                        disabled={isEditing}
+                      />
+                    </td>
+                  )}
 
-                  {/* School */}
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
-                    {isEditing ? (
+                  {/* School - read-only in Today tab when editing */}
+                  <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
+                    {isEditing && tabType !== "Today" ? (
                       <Dropdown
                         options={schoolsData}
                         value={selectedSchool}
@@ -349,11 +381,10 @@ const SessionTable = ({
                     )}
                   </td>
 
-                  {/* Classroom Course */}
-                  <td className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]">
+                  {/* Classroom Course - always editable when in edit mode */}
+                  <td className="px-3 py-3 whitespace-nowrap border-r-2 border-[#D4D4D4]">
                     <div className="text-sm text-gray-900">
                       {isEditing ? (
-                        // Single MultiSelect for all classrooms
                         <MultiSelect
                           options={classroomsData}
                           values={selectedClassrooms}
@@ -367,18 +398,43 @@ const SessionTable = ({
                           showSelectedTags={false}
                           showSlectedOptions={true}
                         />
+                      ) : // Display all classroom courses when not editing
+                      session.classrooms.length > 1 ? (
+                        <Tooltip
+                          content={
+                            <div className="flex flex-col space-y-1">
+                              {session.classrooms.map((classroom, idx) => (
+                                <div key={idx}>
+                                  {classroom.course ?? `Classroom ${idx + 1}`}
+                                </div>
+                              ))}
+                            </div>
+                          }
+                        >
+                          <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
+                            <span className="truncate max-w-[150px]">
+                              {session.classrooms[0].course}
+                            </span>
+                            {session.classrooms.length > 1 && (
+                              <span className="text-blue-700 ml-1 cursor-pointer">
+                                +{session.classrooms.length - 1} more
+                              </span>
+                            )}
+                          </div>
+                        </Tooltip>
+                      ) : session.classrooms.length === 1 ? (
+                        <div className="text-sm text-gray-900">
+                          {session.classrooms[0].course}
+                        </div>
                       ) : (
-                        // Display all classroom courses when not editing
-                        session.classrooms.map((classroom, idx) => (
-                          <div key={idx}>{classroom.course}</div>
-                        ))
+                        <span className="text-sm text-gray-500">None</span>
                       )}
                     </div>
                   </td>
 
-                  {/* Date */}
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
-                    {isEditing ? (
+                  {/* Date - read-only in Today tab when editing */}
+                  <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
+                    {isEditing && tabType !== "Today" ? (
                       <input
                         type="text"
                         value={editingData?.date || ""}
@@ -392,9 +448,9 @@ const SessionTable = ({
                     )}
                   </td>
 
-                  {/* Start Time */}
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
-                    {isEditing ? (
+                  {/* Start Time - read-only in Today tab when editing */}
+                  <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
+                    {isEditing && tabType !== "Today" ? (
                       <input
                         type="text"
                         value={editingData?.start_time || ""}
@@ -408,9 +464,9 @@ const SessionTable = ({
                     )}
                   </td>
 
-                  {/* End Time */}
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
-                    {isEditing ? (
+                  {/* End Time - read-only in Today tab when editing */}
+                  <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
+                    {isEditing && tabType !== "Today" ? (
                       <input
                         type="text"
                         value={editingData?.end_time || ""}
@@ -424,9 +480,9 @@ const SessionTable = ({
                     )}
                   </td>
 
-                  {/* Observation Tool */}
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
-                    {isEditing ? (
+                  {/* Observation Tool - read-only in Today tab when editing */}
+                  <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
+                    {isEditing && tabType !== "Today" ? (
                       <Dropdown
                         options={observationTools.map((tool) => ({
                           value: tool.value,
@@ -451,10 +507,8 @@ const SessionTable = ({
                     )}
                   </td>
 
-                  {/* Session Admin */}
-
-                  {/* Observers */}
-                  <td className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]">
+                  {/* Observers - always editable when in edit mode */}
+                  <td className="px-3 py-3 whitespace-nowrap border-r-2 border-[#D4D4D4]">
                     {isEditing ? (
                       <div className="text-sm text-gray-900">
                         <MultiSelect
@@ -464,7 +518,6 @@ const SessionTable = ({
                           }))}
                           values={editingData?.observer_ids || []}
                           onChange={(selectedUserIds) => {
-                            // Get the full user objects for the selected IDs
                             const selectedObservers = selectedUserIds.map(
                               (id) => {
                                 const user = usersData.find(
@@ -478,7 +531,6 @@ const SessionTable = ({
                               }
                             );
 
-                            // Update both the ID array and the observers array
                             handleEditChange("observer_ids", selectedUserIds);
                             handleEditChange("observers", selectedObservers);
                           }}
@@ -488,22 +540,53 @@ const SessionTable = ({
                           showSlectedOptions={true}
                         />
                       </div>
-                    ) : (
-                      // When not editing, display the observers as before
-                      session.observers.map((observer, idx) => (
-                        <div key={idx} className="text-sm text-gray-900">
-                          {observer.first_name} {observer.last_name}
+                    ) : // When not editing, display the observers as before
+                    session.observers.length > 1 ? (
+                      <Tooltip
+                        content={
+                          <div className="flex flex-col space-y-1">
+                            {session.observers.map((observer, idx) => (
+                              <div key={idx}>
+                                {observer.first_name} {observer.last_name}
+                              </div>
+                            ))}
+                          </div>
+                        }
+                      >
+                        <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
+                          <span className="truncate max-w-[150px]">
+                            {session.observers[0].first_name}{" "}
+                            {session.observers[0].last_name}
+                          </span>
+                          {session.observers.length > 1 && (
+                            <span className="text-blue-700 ml-1 cursor-pointer">
+                              +{session.observers.length - 1} more
+                            </span>
+                          )}
                         </div>
-                      ))
+                      </Tooltip>
+                    ) : session.observers.length === 1 ? (
+                      <div className="text-sm text-gray-900">
+                        {session.observers[0].first_name}{" "}
+                        {session.observers[0].last_name}
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500">None</span>
                     )}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
-                    {isEditing ? (
+
+                  {/* Session Admin - read-only in Today tab when editing */}
+                  <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
+                    {isEditing && tabType !== "Today" ? (
                       <Dropdown
-                        options={usersData.map((user) => ({
-                          value: user.value,
-                          label: `${user.first_name} ${user.last_name}`,
-                        }))}
+                        options={usersData
+                          .filter((user) =>
+                            editingData?.observer_ids?.includes(user.value)
+                          )
+                          .map((user) => ({
+                            value: user.value,
+                            label: `${user.first_name} ${user.last_name}`,
+                          }))}
                         value={editingData?.session_admin_id || ""}
                         onChange={(value) => {
                           const selectedUser = usersData.find(
@@ -517,8 +600,15 @@ const SessionTable = ({
                               : ""
                           );
                         }}
-                        placeholder="Select session admin"
+                        placeholder={
+                          (editingData?.observer_ids?.length || 0) > 0
+                            ? "Select session admin"
+                            : "Select observers first"
+                        }
                         className="w-full px-2 py-1 bg-[#F4F6F8] focus:bg-white"
+                        disabled={
+                          (editingData?.observer_ids?.length || 0) === 0
+                        }
                       />
                     ) : (
                       session.session_admin
@@ -528,7 +618,7 @@ const SessionTable = ({
                   {/* Action column */}
                   {showActions && (
                     <td
-                      className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
+                      className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-3"
                       style={{
                         backgroundColor: index % 2 === 1 ? "#E9F3FF" : "#fff",
                         boxShadow: "inset 2px 0 0 #D4D4D4",
@@ -558,8 +648,9 @@ const SessionTable = ({
         <div>
           {totalCount > 0 && (
             <p className="text-sm text-gray-500">
-              {startIndex + 1}-{Math.min(startIndex + rowsPerPage, totalCount)}{" "}
-              of {totalCount}
+              {startIndex + 1}-
+              {Math.min(startIndex + externalRowsPerPage, totalCount)} of{" "}
+              {totalCount}
             </p>
           )}
         </div>
@@ -567,7 +658,7 @@ const SessionTable = ({
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">Rows per page:</span>
             <select
-              value={rowsPerPage}
+              value={externalRowsPerPage}
               onChange={handleRowsPerPageChange}
               className="text-sm  px-2 py-1"
               disabled={false} // Set to your loading state if available
@@ -582,10 +673,10 @@ const SessionTable = ({
 
           <div className="flex items-center space-x-1">
             <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              onClick={() => handlePageChange(externalPage - 1)}
+              disabled={externalPage === 1}
               className={`p-1 border rounded ${
-                currentPage === 1
+                externalPage === 1
                   ? "text-gray-300"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
@@ -593,13 +684,13 @@ const SessionTable = ({
               <ChevronLeft size={18} />
             </button>
             <span className="text-sm text-gray-500 px-1">
-              {currentPage}/{totalPages || 1}
+              {externalPage}/{totalPages || 1}
             </span>
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => handlePageChange(externalPage + 1)}
+              disabled={externalPage === totalPages || totalPages === 0}
               className={`p-1 border rounded ${
-                currentPage === totalPages || totalPages === 0
+                externalPage === totalPages || totalPages === 0
                   ? "text-gray-300"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
@@ -625,6 +716,9 @@ export default function SessionTables({
   onCancel,
   isEditingExternal,
   Loading,
+  pagination,
+  onPageChange,
+  onRowsPerPageChange,
 }: SessionTablesProps) {
   // Existing state variables...
   const [activeTab, setActiveTab] = useState("Today");
@@ -1044,6 +1138,11 @@ export default function SessionTables({
   // Update the SessionTable component to include checkbox functionality
   const renderTabContent = () => {
     const activeTabColor = getActiveTabColor();
+    const currentTab = activeTab as "Today" | "Upcoming" | "Past";
+
+    // Get pagination values for current tab
+    const currentPage = pagination?.[currentTab]?.page || 1;
+    const rowsPerPage = pagination?.[currentTab]?.perPage || 10;
 
     switch (activeTab) {
       case "Today":
@@ -1076,6 +1175,12 @@ export default function SessionTables({
             isLoading={isLoading || schoolsLoading || classroomsLoading}
             handleSchoolChange={handleSchoolChange}
             handleClassroomChange={handleClassroomChange}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={(page) => onPageChange?.("Today", page)}
+            onRowsPerPageChange={(perPage) =>
+              onRowsPerPageChange?.("Today", perPage)
+            }
           />
         );
       case "Upcoming":
@@ -1110,6 +1215,12 @@ export default function SessionTables({
             isLoading={isLoading || schoolsLoading || classroomsLoading}
             handleSchoolChange={handleSchoolChange}
             handleClassroomChange={handleClassroomChange}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={(page) => onPageChange?.("Upcoming", page)}
+            onRowsPerPageChange={(perPage) =>
+              onRowsPerPageChange?.("Upcoming", perPage)
+            }
           />
         );
       case "Past":
@@ -1142,6 +1253,12 @@ export default function SessionTables({
             isLoading={isLoading || schoolsLoading || classroomsLoading}
             handleSchoolChange={handleSchoolChange}
             handleClassroomChange={handleClassroomChange}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={(page) => onPageChange?.("Past", page)}
+            onRowsPerPageChange={(perPage) =>
+              onRowsPerPageChange?.("Past", perPage)
+            }
           />
         );
       default:
