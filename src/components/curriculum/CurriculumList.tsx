@@ -23,6 +23,7 @@ import CurriculumCard from "./CurriculumCard";
 import Header from "../Header";
 import { useDistrict } from "@/context/DistrictContext";
 import { Plus } from "@phosphor-icons/react";
+import NoResultsFound from "../ui/NoResultsFound";
 
 const container = {
   hidden: { opacity: 0 },
@@ -375,7 +376,7 @@ export default function CurriculumList() {
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
           >
-            {curriculums.length > 0 &&
+            {curriculums.length > 0 ? (
               curriculums.map((curriculum) => (
                 <motion.div key={curriculum.id} variants={item}>
                   <CurriculumCard
@@ -396,7 +397,10 @@ export default function CurriculumList() {
                     }
                   />
                 </motion.div>
-              ))}
+              ))
+            ) : (
+              <NoResultsFound />
+            )}
           </motion.div>
         </div>
       </div>

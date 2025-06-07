@@ -35,12 +35,28 @@ interface Session {
   start_time: string;
   end_time: string;
   observation_tool: string;
+  observation_tool_id: string;
   observers: {
+    id: string;
     first_name: string;
     last_name: string;
   }[];
+  observer_ids: string[];
   session_admin: string;
+  session_admin_id: string;
   status?: "scheduled" | "completed" | "cancelled"; // Optional as it might not be in the API
+}
+
+interface SessionUpdatePayload {
+  id: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  school: string;
+  classrooms: string[];
+  observation_tool: string;
+  users: any[];
+  session_admin: string;
 }
 
 // Props for the SessionTables component
@@ -52,7 +68,7 @@ interface SessionTablesProps {
   onTabChange?: (tab: "Today" | "Upcoming" | "Past") => void;
   // Add editing related props
   onEditingChange?: (isEditing: boolean) => void;
-  onSave?: () => void;
+  onSave?: (data: SessionUpdatePayload) => void;
   onCancel?: () => void;
   isEditingExternal?: boolean; // Add this prop
   Loading?: boolean;
@@ -215,9 +231,12 @@ const SessionTable = ({
   }, [filteredSessions]);
 
   // Calculate pagination values
-  const totalPages = Math.ceil(totalCount / externalRowsPerPage);
-  const startIndex = (externalPage - 1) * externalRowsPerPage;
-  const endIndex = Math.min(startIndex + externalRowsPerPage, totalCount);
+  const totalPages = Math.ceil(totalCount / (externalRowsPerPage ?? 10));
+  const startIndex = ((externalPage ?? 1) - 1) * (externalRowsPerPage ?? 10);
+  const endIndex = Math.min(
+    startIndex + (externalRowsPerPage ?? 10),
+    totalCount
+  );
   const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
 
   return (
@@ -649,8 +668,8 @@ const SessionTable = ({
           {totalCount > 0 && (
             <p className="text-sm text-gray-500">
               {startIndex + 1}-
-              {Math.min(startIndex + externalRowsPerPage, totalCount)} of{" "}
-              {totalCount}
+              {Math.min(startIndex + (externalRowsPerPage ?? 10), totalCount)}{" "}
+              of {totalCount}
             </p>
           )}
         </div>
@@ -673,7 +692,7 @@ const SessionTable = ({
 
           <div className="flex items-center space-x-1">
             <button
-              onClick={() => handlePageChange(externalPage - 1)}
+              onClick={() => handlePageChange((externalPage ?? 1) - 1)}
               disabled={externalPage === 1}
               className={`p-1 border rounded ${
                 externalPage === 1
@@ -687,7 +706,7 @@ const SessionTable = ({
               {externalPage}/{totalPages || 1}
             </span>
             <button
-              onClick={() => handlePageChange(externalPage + 1)}
+              onClick={() => handlePageChange((externalPage ?? 1) + 1)}
               disabled={externalPage === totalPages || totalPages === 0}
               className={`p-1 border rounded ${
                 externalPage === totalPages || totalPages === 0
@@ -1277,7 +1296,7 @@ export default function SessionTables({
         if (parts.length === 3) {
           // For deep nested objects like observers.0.first_name
           const [parent, index, child] = parts;
-          updatedData[parent][parseInt(index)][child] = value;
+          (updatedData as any)[parent][parseInt(index)][child] = value;
         }
 
         setEditingData(updatedData);

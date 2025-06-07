@@ -15,6 +15,7 @@ interface DropdownProps {
   placeholder?: string;
   className?: string;
   error?: string;
+  disabled?: boolean;
 }
 
 export default function Dropdown({
@@ -24,6 +25,7 @@ export default function Dropdown({
   placeholder = "Select an option",
   className = "",
   error,
+  disabled,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

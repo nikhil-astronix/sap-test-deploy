@@ -19,6 +19,7 @@ import { Intervention, InterventionType } from "@/types/interventionData";
 import { Plus } from "@phosphor-icons/react";
 import Header from "@/components/Header";
 import { useDistrict } from "@/context/DistrictContext";
+import NoResultsFound from "@/components/ui/NoResultsFound";
 
 type InterventionWithCreatedAt = Intervention & {
   createdAt: Date;
@@ -383,18 +384,22 @@ export default function InterventionsPage() {
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
           >
-            {interventions.map((intervention) => (
-              <InterventionCard
-                key={intervention.id}
-                type={intervention.type}
-                title={intervention.name}
-                description={intervention.description}
-                isArchived={intervention.isArchived}
-                viewMode={isActive ? "archived" : "active"} // Pass the current view mode
-                onEdit={() => handleEdit(intervention)}
-                onArchive={() => handleArchive(intervention)}
-              />
-            ))}
+            {interventions.length > 0 ? (
+              interventions.map((intervention) => (
+                <InterventionCard
+                  key={intervention.id}
+                  type={intervention.type}
+                  title={intervention.name}
+                  description={intervention.description}
+                  isArchived={intervention.isArchived}
+                  viewMode={isActive ? "archived" : "active"} // Pass the current view mode
+                  onEdit={() => handleEdit(intervention)}
+                  onArchive={() => handleArchive(intervention)}
+                />
+              ))
+            ) : (
+              <NoResultsFound />
+            )}
           </motion.div>
         </div>
       </div>
