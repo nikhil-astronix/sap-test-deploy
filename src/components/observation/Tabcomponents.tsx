@@ -14,9 +14,12 @@ import {
 } from "@phosphor-icons/react";
 import { Check, X } from "lucide-react";
 import { getSchools } from "@/services/schoolService";
-import { getClassroom } from "@/services/classroomService";
+import { getClassroomsBySchool } from "@/services/classroomService";
+import { getObservationTools } from "@/services/observationToolService";
+import { getUser } from "@/services/userService";
 import Dropdown from "@/components/ui/Dropdown";
 import MultiSelect from "@/components/ui/MultiSelect";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Update the Session interface to match the actual API response
 interface Session {
@@ -36,7 +39,7 @@ interface Session {
     last_name: string;
   }[];
   session_admin: string;
-  status: string | undefined; //"scheduled" | "completed" | "cancelled" | undefined; // Optional as it might not be in the API
+  status?: "scheduled" | "completed" | "cancelled"; // Optional as it might not be in the API
 }
 
 // Props for the SessionTables component
@@ -99,11 +102,15 @@ const SessionTable = ({
   isEditingExternal, // Add this prop
   schoolsData,
   classroomsData,
+  observationTools, // Add this
+  usersData, // Add this
   selectedSchool,
   selectedClassrooms,
   isLoading,
   handleSchoolChange,
   handleClassroomChange,
+  onPageChange, // Add this prop
+  onRowsPerPageChange, // Add this prop
 }: {
   sessions: Session[];
   searchTerm: string;
@@ -122,11 +129,15 @@ const SessionTable = ({
   isEditingExternal?: boolean;
   schoolsData: any[];
   classroomsData: any[];
+  observationTools: any[];
+  usersData: any[];
   selectedSchool: string;
   selectedClassrooms: string[];
   isLoading: boolean;
   handleSchoolChange: (value: string) => void;
   handleClassroomChange: (values: string[]) => void;
+  onPageChange?: (page: number) => void;
+  onRowsPerPageChange?: (rowsPerPage: number) => void;
 }) => {
   // Filter sessions based on search term
   const filteredSessions = sessions.filter(
@@ -158,6 +169,45 @@ const SessionTable = ({
         return "#6C4996"; // Default to blue-700
     }
   };
+
+  // Add these state variables inside SessionTable function
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const rowsPerPageOptions = [5, 10, 25, 50, 100];
+
+  // Add these handler functions inside SessionTable function
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // You might want to notify the parent component to fetch data for this page
+    if (onPageChange) {
+      onPageChange(page);
+    }
+  };
+
+  const handleRowsPerPageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const newRowsPerPage = Number(event.target.value);
+    setRowsPerPage(newRowsPerPage);
+    setCurrentPage(1); // Reset to first page when changing rows per page
+
+    if (onRowsPerPageChange) {
+      onRowsPerPageChange(newRowsPerPage);
+    }
+  };
+
+  // Add these calculations after state variables in SessionTable function
+  useEffect(() => {
+    // Update total count when sessions change
+    setTotalCount(filteredSessions.length);
+  }, [filteredSessions]);
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(totalCount / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = Math.min(startIndex + rowsPerPage, totalCount);
+  const paginatedSessions = filteredSessions.slice(startIndex, endIndex);
 
   return (
     <div className="rounded-[6px] border border-gray-200 shadow-sm">
@@ -242,7 +292,7 @@ const SessionTable = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredSessions.map((session, index) => {
+            {paginatedSessions.map((session, index) => {
               // Check both editingRowId and isEditingExternal
               const isEditing =
                 session.id === editingRowId && isEditingExternal === true;
@@ -302,27 +352,27 @@ const SessionTable = ({
                   {/* Classroom Course */}
                   <td className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]">
                     <div className="text-sm text-gray-900">
-                      {session.classrooms.map((classroom, idx) => (
-                        <div key={idx}>
-                          {isEditing ? (
-                            <MultiSelect
-                              options={classroomsData}
-                              values={selectedClassrooms}
-                              onChange={handleClassroomChange}
-                              placeholder={
-                                isLoading
-                                  ? "Loading classrooms..."
-                                  : "Select classrooms"
-                              }
-                              className="w-48 bg-[#F4F6F8]"
-                              showSelectedTags={false}
-                              showSlectedOptions={false}
-                            />
-                          ) : (
-                            classroom.course
-                          )}
-                        </div>
-                      ))}
+                      {isEditing ? (
+                        // Single MultiSelect for all classrooms
+                        <MultiSelect
+                          options={classroomsData}
+                          values={selectedClassrooms}
+                          onChange={handleClassroomChange}
+                          placeholder={
+                            isLoading
+                              ? "Loading classrooms..."
+                              : "Select classrooms"
+                          }
+                          className="w-48 bg-[#F4F6F8]"
+                          showSelectedTags={false}
+                          showSlectedOptions={true}
+                        />
+                      ) : (
+                        // Display all classroom courses when not editing
+                        session.classrooms.map((classroom, idx) => (
+                          <div key={idx}>{classroom.course}</div>
+                        ))
+                      )}
                     </div>
                   </td>
 
@@ -377,13 +427,24 @@ const SessionTable = ({
                   {/* Observation Tool */}
                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={editingData?.observation_tool || ""}
-                        onChange={(e) =>
-                          handleEditChange("observation_tool", e.target.value)
-                        }
-                        className="w-full px-2 py-1 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      <Dropdown
+                        options={observationTools.map((tool) => ({
+                          value: tool.value,
+                          label: tool.label,
+                        }))}
+                        value={editingData?.observation_tool_id || ""}
+                        onChange={(value) => {
+                          const selectedTool = observationTools.find(
+                            (t) => t.value === value
+                          );
+                          handleEditChange("observation_tool_id", value);
+                          handleEditChange(
+                            "observation_tool",
+                            selectedTool?.label || ""
+                          );
+                        }}
+                        placeholder="Select observation tool"
+                        className="w-full px-2 py-1 bg-[#F4F6F8] focus:bg-white"
                       />
                     ) : (
                       session.observation_tool
@@ -391,61 +452,77 @@ const SessionTable = ({
                   </td>
 
                   {/* Session Admin */}
+
+                  {/* Observers */}
+                  <td className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]">
+                    {isEditing ? (
+                      <div className="text-sm text-gray-900">
+                        <MultiSelect
+                          options={usersData.map((user) => ({
+                            value: user.value,
+                            label: `${user.first_name} ${user.last_name}`,
+                          }))}
+                          values={editingData?.observer_ids || []}
+                          onChange={(selectedUserIds) => {
+                            // Get the full user objects for the selected IDs
+                            const selectedObservers = selectedUserIds.map(
+                              (id) => {
+                                const user = usersData.find(
+                                  (u) => u.value === id
+                                );
+                                return {
+                                  id: id,
+                                  first_name: user?.first_name || "",
+                                  last_name: user?.last_name || "",
+                                };
+                              }
+                            );
+
+                            // Update both the ID array and the observers array
+                            handleEditChange("observer_ids", selectedUserIds);
+                            handleEditChange("observers", selectedObservers);
+                          }}
+                          placeholder="Select observers"
+                          className="w-64 bg-[#F4F6F8]"
+                          showSelectedTags={false}
+                          showSlectedOptions={true}
+                        />
+                      </div>
+                    ) : (
+                      // When not editing, display the observers as before
+                      session.observers.map((observer, idx) => (
+                        <div key={idx} className="text-sm text-gray-900">
+                          {observer.first_name} {observer.last_name}
+                        </div>
+                      ))
+                    )}
+                  </td>
                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 border-r-2 border-[#D4D4D4]">
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={editingData?.session_admin || ""}
-                        onChange={(e) =>
-                          handleEditChange("session_admin", e.target.value)
-                        }
-                        className="w-full px-2 py-1 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      <Dropdown
+                        options={usersData.map((user) => ({
+                          value: user.value,
+                          label: `${user.first_name} ${user.last_name}`,
+                        }))}
+                        value={editingData?.session_admin_id || ""}
+                        onChange={(value) => {
+                          const selectedUser = usersData.find(
+                            (u) => u.value === value
+                          );
+                          handleEditChange("session_admin_id", value);
+                          handleEditChange(
+                            "session_admin",
+                            selectedUser
+                              ? `${selectedUser.first_name} ${selectedUser.last_name}`
+                              : ""
+                          );
+                        }}
+                        placeholder="Select session admin"
+                        className="w-full px-2 py-1 bg-[#F4F6F8] focus:bg-white"
                       />
                     ) : (
                       session.session_admin
                     )}
-                  </td>
-
-                  {/* Observers */}
-                  <td className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]">
-                    {isEditing
-                      ? session.observers.map((observer, idx) => (
-                          <div key={idx} className="mb-1 flex gap-1">
-                            <input
-                              type="text"
-                              value={
-                                editingData?.observers[idx]?.first_name || ""
-                              }
-                              onChange={(e) =>
-                                handleEditChange(
-                                  `observers.${idx}.first_name`,
-                                  e.target.value
-                                )
-                              }
-                              className="w-1/2 px-2 py-1 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="First Name"
-                            />
-                            <input
-                              type="text"
-                              value={
-                                editingData?.observers[idx]?.last_name || ""
-                              }
-                              onChange={(e) =>
-                                handleEditChange(
-                                  `observers.${idx}.last_name`,
-                                  e.target.value
-                                )
-                              }
-                              className="w-1/2 px-2 py-1 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Last Name"
-                            />
-                          </div>
-                        ))
-                      : session.observers.map((observer, idx) => (
-                          <div key={idx} className="text-sm text-gray-900">
-                            {observer.first_name} {observer.last_name}
-                          </div>
-                        ))}
                   </td>
 
                   {/* Action column */}
@@ -476,6 +553,62 @@ const SessionTable = ({
           </tbody>
         </table>
       </div>
+
+      <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
+        <div>
+          {totalCount > 0 && (
+            <p className="text-sm text-gray-500">
+              {startIndex + 1}-{Math.min(startIndex + rowsPerPage, totalCount)}{" "}
+              of {totalCount}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-500">Rows per page:</span>
+            <select
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+              className="text-sm  px-2 py-1"
+              disabled={false} // Set to your loading state if available
+            >
+              {rowsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`p-1 border rounded ${
+                currentPage === 1
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <span className="text-sm text-gray-500 px-1">
+              {currentPage}/{totalPages || 1}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className={`p-1 border rounded ${
+                currentPage === totalPages || totalPages === 0
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -493,206 +626,243 @@ export default function SessionTables({
   isEditingExternal,
   Loading,
 }: SessionTablesProps) {
+  // Existing state variables...
   const [activeTab, setActiveTab] = useState("Today");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Session | null>(null);
 
-  // Add inside the SessionTable component
+  // States for dropdown data
   const [schoolsData, setSchoolsData] = useState<any[]>([]);
   const [classroomsData, setClassroomsData] = useState<any[]>([]);
+  const [observationTools, setObservationTools] = useState<any[]>([]);
+  const [usersData, setUsersData] = useState<any[]>([]);
   const [selectedSchool, setSelectedSchool] = useState<string>("");
   const [selectedClassrooms, setSelectedClassrooms] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Add useEffect hooks for fetching data
-  useEffect(() => {
-    fetchSchools();
-  }, []);
+  // Add loading and error states
+  const [schoolsLoading, setSchoolsLoading] = useState<boolean>(false);
+  const [classroomsLoading, setClassroomsLoading] = useState<boolean>(false);
+  const [toolsLoading, setToolsLoading] = useState<boolean>(false);
+  const [usersLoading, setUsersLoading] = useState<boolean>(false);
 
-  // Add effect to fetch classrooms when school changes
-  useEffect(() => {
-    if (selectedSchool) {
-      fetchClassrooms(selectedSchool);
-    }
-  }, [selectedSchool]);
+  const [schoolsError, setSchoolsError] = useState<string | null>(null);
+  const [classroomsError, setClassroomsError] = useState<string | null>(null);
+  const [toolsError, setToolsError] = useState<string | null>(null);
+  const [usersError, setUsersError] = useState<string | null>(null);
 
-  // Add functions for fetching schools and classrooms
+  // Fetch schools data for dropdown
   const fetchSchools = async () => {
+    setSchoolsLoading(true);
+    setSchoolsError(null);
+
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requestPayload = {
-        is_archived: null,
-        sort_by: null,
-        sort_order: null,
+        is_archived: false,
+        district_id: districtId || "",
+        sort_by: "name",
+        sort_order: "asc",
         curr_page: 1,
         per_page: 100,
         search: null,
       };
+
       const response = await getSchools(requestPayload);
-      const formattedSchools = response.data.schools.map((school: any) => ({
-        value: school.id,
-        label: school.name,
-      }));
-      setSchoolsData(formattedSchools);
+
+      if (response.data && response.data.schools) {
+        // Transform the response to match dropdown format
+        const formattedSchools = response.data.schools.map((school: any) => ({
+          value: school.id,
+          label: school.name,
+        }));
+
+        setSchoolsData(formattedSchools);
+      } else {
+        console.error("API returned unexpected response format:", response);
+        setSchoolsData([]);
+      }
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch schools";
+      setSchoolsError(errorMessage);
       console.error("Error fetching schools:", error);
+      setSchoolsData([]);
+    } finally {
+      setSchoolsLoading(false);
     }
   };
 
-  const fetchClassrooms = async (schoolId?: string) => {
-    setIsLoading(true);
+  // Fetch classrooms data when a school is selected
+  const fetchClassroomsData = async (schoolId: string) => {
+    if (!schoolId) {
+      setClassroomsData([]);
+      return;
+    }
+
+    setClassroomsLoading(true);
+    setClassroomsError(null);
+
+    try {
+      const response = await getClassroomsBySchool(schoolId);
+
+      if (response.success && response.data) {
+        // Transform the response to match dropdown format
+        const formattedClassrooms = response.data.map((classroom: any) => ({
+          value: classroom.id,
+          label: `${classroom.course} (${classroom.id})`,
+        }));
+
+        setClassroomsData(formattedClassrooms);
+      } else {
+        console.error("API returned unsuccessful response:", response);
+        setClassroomsData([]);
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch classrooms";
+      setClassroomsError(errorMessage);
+      console.error("Error fetching classrooms:", error);
+      setClassroomsData([]);
+    } finally {
+      setClassroomsLoading(false);
+    }
+  };
+
+  // Fetch observation tools data
+  const fetchObservationTools = async () => {
+    setToolsLoading(true);
+    setToolsError(null);
+
+    try {
+      const response = await getObservationTools({
+        is_archived: false,
+        sort_by: "name",
+        sort_order: "asc",
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+      });
+
+      if (response.data && response.data.observation_tools) {
+        // Transform the response to match dropdown format
+        const formattedTools = response.data.observation_tools.map(
+          (tool: any) => ({
+            value: tool.id,
+            label: tool.name || "Untitled Observation Tool",
+          })
+        );
+
+        setObservationTools(formattedTools);
+      } else {
+        console.error("API returned unexpected response format:", response);
+        setObservationTools([]);
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch observation tools";
+      setToolsError(errorMessage);
+      console.error("Error fetching observation tools:", error);
+      setObservationTools([]);
+    } finally {
+      setToolsLoading(false);
+    }
+  };
+
+  // Fetch users data for observers and admin dropdowns
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    setUsersError(null);
+
     try {
       const requestPayload = {
         is_archived: false,
-        sort_by: null,
-        sort_order: null,
+        sort_by: "first_name",
+        sort_order: "asc",
         curr_page: 1,
         per_page: 100,
         search: null,
-        school_id: schoolId || null,
       };
 
-      const response = await getClassroom(requestPayload);
-      if (response.success && response.data) {
-        const formattedClassrooms = response.data.schools.flatMap(
-          (school: any) => {
-            return (school.classes || []).map((classItem: any) => ({
-              value: classItem.id,
-              label: `${classItem.course} (${school.school})`,
-              schoolId: school.schoolId,
-              teacher: classItem.teacher,
-            }));
-          }
-        );
+      const response = await getUser(requestPayload);
 
-        const filteredClassrooms = schoolId
-          ? formattedClassrooms.filter(
-              (classroom: any) => classroom.schoolId === schoolId
-            )
-          : formattedClassrooms;
+      if (response.data && response.data.users) {
+        // Transform the response to match dropdown format
+        const formattedUsers = response.data.users.map((user: any) => ({
+          value: user.id,
+          label: `${user.first_name} ${user.last_name} (${user.email})`,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          email: user.email,
+        }));
 
-        setClassroomsData(filteredClassrooms);
+        setUsersData(formattedUsers);
+      } else {
+        console.error("API returned unexpected response format:", response);
+        setUsersData([]);
       }
     } catch (error) {
-      console.error("Error fetching classrooms:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to fetch users";
+      setUsersError(errorMessage);
+      console.error("Error fetching users:", error);
+      setUsersData([]);
     } finally {
-      setIsLoading(false);
+      setUsersLoading(false);
     }
   };
 
-  // Add handlers for selection changes
+  // Call fetch functions when component mounts
+  useEffect(() => {
+    fetchSchools();
+    fetchObservationTools();
+    fetchUsers();
+  }, []);
+
+  // Update the handleSchoolChange to fetch classrooms when a school is selected
   const handleSchoolChange = (schoolId: string) => {
     setSelectedSchool(schoolId);
     setSelectedClassrooms([]);
 
-    // Get the current sessions based on active tab
-    const currentSessions = getCurrentSessions();
+    // Fetch classrooms for the selected school
+    fetchClassroomsData(schoolId);
 
-    // Filter sessions based on selected school
-    const schoolSessions = currentSessions.filter(
-      (session) =>
-        session.school === schoolsData.find((s) => s.value === schoolId)?.label
-    );
-
-    if (schoolSessions.length > 0) {
-      const schoolSessionIds = schoolSessions.map((session) => session.id);
-      handleSelectAll(true, schoolSessionIds);
-    } else {
-      handleSelectAll(false);
+    // Update the editing data with the new school
+    if (editingData) {
+      const schoolName =
+        schoolsData.find((school) => school.value === schoolId)?.label || "";
+      setEditingData({
+        ...editingData,
+        school: schoolName,
+      });
     }
   };
 
-  const handleClassroomChange = (classroomIds: string[]) => {
-    setSelectedClassrooms(classroomIds);
-
-    // Get the current sessions based on active tab
-    const currentSessions = getCurrentSessions();
-
-    // Filter sessions based on selected classrooms
-    if (classroomIds.length > 0) {
-      const selectedClassroomLabels = classroomsData
-        .filter((c) => classroomIds.includes(c.value))
-        .map((c) => c.label.split(" (")[0]); // Extract the course name
-
-      const classroomSessions = currentSessions.filter((session) =>
-        session.classrooms.some((classroom) =>
-          selectedClassroomLabels.includes(classroom.course)
-        )
-      );
-
-      const classroomSessionIds = classroomSessions.map(
-        (session) => session.id
-      );
-      setSelectedIds(classroomSessionIds);
-      if (onSelectionChange) onSelectionChange(classroomSessionIds);
-    } else if (selectedSchool) {
-      // If no classrooms selected but school is selected, fall back to school filter
-      handleSchoolChange(selectedSchool);
-    } else {
-      // Clear selection if neither school nor classrooms are selected
-      handleSelectAll(false);
-    }
-  };
-
-  // Get currently displayed sessions based on tab
-  const getCurrentSessions = () => {
-    switch (activeTab) {
-      case "Today":
-        return todaySessions;
-      case "Upcoming":
-        return upcomingSessions;
-      case "Past":
-        return pastSessions;
-      default:
-        return [];
-    }
-  };
-
-  // Handle checkbox selection
-  const handleSelect = (id: string, isSelected: boolean) => {
-    let newSelectedIds;
-    if (isSelected) {
-      newSelectedIds = [...selectedIds, id];
-    } else {
-      newSelectedIds = selectedIds.filter((selectedId) => selectedId !== id);
-    }
-
-    setSelectedIds(newSelectedIds);
-
-    // Call the parent callback if provided
-    if (onSelectionChange) {
-      onSelectionChange(newSelectedIds);
-    }
-  };
-
-  // Handle "select all" checkbox
-  const handleSelectAll = (checked: boolean, ids?: string[]) => {
-    const currentSessions = getCurrentSessions();
-
-    const newSelectedIds = checked
-      ? ids || currentSessions.map((session) => session.id)
-      : [];
-
-    setSelectedIds(newSelectedIds);
-
-    // Call the parent callback if provided
-    if (onSelectionChange) {
-      onSelectionChange(newSelectedIds);
-    }
-  };
-
-  // Notify parent component about editing state changes
-  useEffect(() => {
-    if (onEditingChange) {
-      onEditingChange(editingRowId !== null);
-    }
-  }, [editingRowId, onEditingChange]);
-
-  // Modified start editing function
+  // Modified start editing function to fetch necessary data
   const handleStartEdit = (session: Session) => {
     setEditingRowId(session.id);
-    setEditingData({ ...session });
+
+    // Create observer_ids array from existing observers
+    const observerIds = session.observers
+      .map((observer) => {
+        const matchingUser = usersData.find(
+          (user) =>
+            user.first_name === observer.first_name &&
+            user.last_name === observer.last_name
+        );
+        return matchingUser ? matchingUser.value : "";
+      })
+      .filter((id) => id !== "");
+
+    // Set editing data with all necessary fields at once
+    setEditingData({
+      ...session,
+      observer_ids: observerIds,
+    });
 
     // Initialize school selection
     const schoolOption = schoolsData.find(
@@ -700,9 +870,10 @@ export default function SessionTables({
     );
     if (schoolOption) {
       setSelectedSchool(schoolOption.value);
+      fetchClassroomsData(schoolOption.value);
     }
 
-    // Initialize classroom selections based on current classrooms
+    // Initialize classroom selections
     const classroomIds = session.classrooms
       .map((classroom) => {
         const match = classroomsData.find(
@@ -713,41 +884,122 @@ export default function SessionTables({
       .filter((id) => id !== null) as string[];
 
     setSelectedClassrooms(classroomIds);
+
+    // Notify parent component about editing state change
+    if (onEditingChange) {
+      onEditingChange(true);
+    }
+  };
+
+  // Function to handle selecting/deselecting an individual session
+  const handleSelect = (sessionId: string, isSelected: boolean) => {
+    let newSelectedIds;
+
+    if (isSelected) {
+      // Add the ID if it's not already selected
+      newSelectedIds = [...selectedIds, sessionId];
+    } else {
+      // Remove the ID if it's selected
+      newSelectedIds = selectedIds.filter((id) => id !== sessionId);
+    }
+
+    setSelectedIds(newSelectedIds);
+
+    // Notify parent component if callback provided
+    if (onSelectionChange) {
+      onSelectionChange(newSelectedIds);
+    }
+  };
+
+  // Function to handle selecting/deselecting all sessions
+  const handleSelectAll = (checked: boolean) => {
+    let newSelectedIds: string[] = [];
+
+    if (checked) {
+      // Get the appropriate sessions based on active tab
+      const currentSessions =
+        activeTab === "Today"
+          ? todaySessions
+          : activeTab === "Upcoming"
+          ? upcomingSessions
+          : pastSessions;
+
+      // Select all sessions in the current tab
+      newSelectedIds = currentSessions.map((session) => session.id);
+    }
+
+    setSelectedIds(newSelectedIds);
+
+    // Notify parent component if callback provided
+    if (onSelectionChange) {
+      onSelectionChange(newSelectedIds);
+    }
   };
 
   // Update save function to call parent's onSave
   const handleSaveEdit = () => {
     if (editingData) {
-      // Local updates to sessions...
-      let updatedSessions;
+      setIsLoading(true);
 
-      switch (activeTab) {
-        case "Today":
-          updatedSessions = todaySessions.map((session) =>
-            session.id === editingRowId ? editingData : session
-          );
-          // If parent component provides save handler, call it
-          if (onSave) {
-            onSave();
-          }
-          break;
-        case "Upcoming":
-          updatedSessions = upcomingSessions.map((session) =>
-            session.id === editingRowId ? editingData : session
-          );
-          // setUpcomingSessions(updatedSessions);
-          break;
-        case "Past":
-          updatedSessions = pastSessions.map((session) =>
-            session.id === editingRowId ? editingData : session
-          );
-          // setPastSessions(updatedSessions);
-          break;
+      // Prepare the data for the API
+      const updateData = {
+        id: editingData.id,
+        date: editingData.date,
+        start_time: editingData.start_time,
+        end_time: editingData.end_time,
+        school: selectedSchool, // Use selected school ID
+        classrooms: selectedClassrooms, // Use selected classroom IDs
+        observation_tool: editingData.observation_tool_id || "",
+        users: editingData.observers.map((observer) => observer.id || ""),
+        session_admin: editingData.session_admin_id || "",
+      };
+
+      // Call the parent's onSave which should handle the API call
+      if (onSave) {
+        onSave(updateData);
+      }
+
+      // Notify about editing state change
+      if (onEditingChange) {
+        onEditingChange(false);
       }
 
       // Reset editing state
       setEditingRowId(null);
       setEditingData(null);
+      setIsLoading(false);
+    }
+  };
+
+  // Add this function after handleSchoolChange in your SessionTables component
+  const handleClassroomChange = (classroomIds: string[]) => {
+    // Update selected classrooms state
+    setSelectedClassrooms(classroomIds);
+
+    // Update editing data with new classrooms
+    if (editingData) {
+      // Get the selected classroom details from the classroomsData array
+      const selectedClassroomEntries = classroomIds.map((classroomId) => {
+        const classroomOption = classroomsData.find(
+          (c) => c.value === classroomId
+        );
+
+        // Extract just the course name (removing the ID in parentheses)
+        const courseName = classroomOption
+          ? classroomOption.label.split(" (")[0]
+          : "Unknown Course";
+
+        return {
+          course: courseName,
+          teacher_name: "Not specified", // You might need to fetch this separately
+          grades: [], // You might need to fetch this separately
+        };
+      });
+
+      setEditingData({
+        ...editingData,
+        classrooms: selectedClassroomEntries,
+      });
     }
   };
 
@@ -756,9 +1008,14 @@ export default function SessionTables({
     setEditingRowId(null);
     setEditingData(null);
 
-    // If parent component provides cancel handler, call it
+    // Notify parent component about edit cancellation
     if (onCancel) {
       onCancel();
+    }
+
+    // Also notify about editing state change
+    if (onEditingChange) {
+      onEditingChange(false);
     }
   };
 
@@ -810,12 +1067,13 @@ export default function SessionTables({
             handleSaveEdit={handleSaveEdit}
             handleEditChange={handleEditChange}
             isEditingExternal={isEditingExternal}
-            // Add these missing props:
             schoolsData={schoolsData}
             classroomsData={classroomsData}
+            observationTools={observationTools}
+            usersData={usersData}
             selectedSchool={selectedSchool}
             selectedClassrooms={selectedClassrooms}
-            isLoading={isLoading}
+            isLoading={isLoading || schoolsLoading || classroomsLoading}
             handleSchoolChange={handleSchoolChange}
             handleClassroomChange={handleClassroomChange}
           />
@@ -843,12 +1101,13 @@ export default function SessionTables({
             handleSaveEdit={handleSaveEdit}
             handleEditChange={handleEditChange}
             isEditingExternal={isEditingExternal}
-            // Add these missing props:
             schoolsData={schoolsData}
             classroomsData={classroomsData}
+            observationTools={observationTools}
+            usersData={usersData}
             selectedSchool={selectedSchool}
             selectedClassrooms={selectedClassrooms}
-            isLoading={isLoading}
+            isLoading={isLoading || schoolsLoading || classroomsLoading}
             handleSchoolChange={handleSchoolChange}
             handleClassroomChange={handleClassroomChange}
           />
@@ -874,12 +1133,13 @@ export default function SessionTables({
             handleSaveEdit={handleSaveEdit}
             handleEditChange={handleEditChange}
             isEditingExternal={isEditingExternal}
-            // Add these missing props:
             schoolsData={schoolsData}
             classroomsData={classroomsData}
+            observationTools={observationTools}
+            usersData={usersData}
             selectedSchool={selectedSchool}
             selectedClassrooms={selectedClassrooms}
-            isLoading={isLoading}
+            isLoading={isLoading || schoolsLoading || classroomsLoading}
             handleSchoolChange={handleSchoolChange}
             handleClassroomChange={handleClassroomChange}
           />
@@ -899,17 +1159,8 @@ export default function SessionTables({
 
         if (parts.length === 3) {
           // For deep nested objects like observers.0.first_name
-          const [parent, indexStr, child] = parts;
-          const index = parseInt(indexStr, 10);
-
-          if (
-            parent in updatedData &&
-            Array.isArray((updatedData as any)[parent]) &&
-            (updatedData as any)[parent][index]
-          ) {
-            // Use 'as any' to bypass strict typing for dynamic access
-            ((updatedData as any)[parent][index] as any)[child] = value;
-          }
+          const [parent, index, child] = parts;
+          updatedData[parent][parseInt(index)][child] = value;
         }
 
         setEditingData(updatedData);
@@ -917,7 +1168,7 @@ export default function SessionTables({
         // Handle simple properties
         setEditingData({
           ...editingData,
-          [key as keyof typeof editingData]: value,
+          [key]: value,
         });
       }
     }
@@ -931,6 +1182,8 @@ export default function SessionTables({
       setEditingData(null);
     }
   }, [isEditingExternal]);
+
+  // Add this useEffect in the SessionTable component
 
   return (
     <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">

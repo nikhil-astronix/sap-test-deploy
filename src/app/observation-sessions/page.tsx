@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import SessionTables from "@/components/observation/Tabcomponents";
@@ -15,95 +15,9 @@ import {
 
 export default function ObservationSessionsPage() {
   // Example data following the API structure
-  const [todaySessions, setTodaySessions] = useState([
-    {
-      id: "1",
-      school: "Lincoln High School",
-      classrooms: [
-        {
-          course: "Math 101",
-          teacher_name: "Mr. Johnson",
-          grades: ["9", "10"],
-        },
-      ],
-      date: "May 28, 2025",
-      start_time: "9:00 AM",
-      end_time: "10:30 AM",
-      observation_tool: "Classroom Assessment Tool",
-      observers: [
-        {
-          first_name: "John",
-          last_name: "Doe",
-        },
-        {
-          first_name: "Jane",
-          last_name: "Smith",
-        },
-      ],
-      session_admin: "Principal Johnson",
-      status: "scheduled",
-    },
-  ]);
-
-  const [upcomingSessions, setUpcomingSessions] = useState([
-    {
-      id: "1",
-      school: "Lincoln School",
-      classrooms: [
-        {
-          course: "Math 101",
-          teacher_name: "Mr. Johnson",
-          grades: ["9", "10"],
-        },
-      ],
-      date: "May 28, 2025",
-      start_time: "9:00 AM",
-      end_time: "10:30 AM",
-      observation_tool: "Classroom Assessment Tool",
-      observers: [
-        {
-          first_name: "John",
-          last_name: "Doe",
-        },
-        {
-          first_name: "Jane",
-          last_name: "Smith",
-        },
-      ],
-      session_admin: "Principal Johnson",
-      status: "scheduled",
-    },
-  ]);
-
-  const [pastSessions, setPastSessions] = useState([
-    {
-      id: "1",
-      school: "Lincoln High",
-      classrooms: [
-        {
-          course: "Math 101",
-          teacher_name: "Mr. Johnson",
-          grades: ["9", "10"],
-        },
-      ],
-      date: "May 28, 2025",
-      start_time: "9:00 AM",
-      end_time: "10:30 AM",
-      observation_tool: "Classroom Assessment Tool",
-      observers: [
-        {
-          first_name: "John",
-          last_name: "Doe",
-        },
-        {
-          first_name: "Jane",
-          last_name: "Smith",
-        },
-      ],
-      session_admin: "Principal Johnson",
-      status: "scheduled",
-    },
-  ]);
+  const [todaySessions, setTodaySessions] = useState<any[]>([]);
+  const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
+  const [pastSessions, setPastSessions] = useState<any[]>([]);
 
   // State management
   const [sessionAvailable, setSessionAvailable] = useState(true); // Simulating session availability
@@ -153,7 +67,7 @@ export default function ObservationSessionsPage() {
       if (session) {
         // Get all classroom courses concatenated
         const courses = session.classrooms
-          .map((classroom) => classroom.course)
+          .map((classroom: { course: any }) => classroom.course)
           .join(", ");
 
         // Format: "School - Classroom Courses - Admin"
@@ -167,13 +81,23 @@ export default function ObservationSessionsPage() {
   // Fetch sessions on component mount and when active/search changes
   useEffect(() => {
     fetchSessions();
-  }, [active, search]);
 
+    // Only check availability on first load (no dependencies)
+    if (!sessionAvailabilityChecked.current) {
+      checkSessionAvailability();
+      sessionAvailabilityChecked.current = true;
+    }
+  }, [active, search, activeTab]);
+
+  // Add this ref at the component level
+  const sessionAvailabilityChecked = useRef(false);
+
+  // Updated fetchSessions to use time parameter based on active tab
   const fetchSessions = async () => {
     setIsLoading(true);
 
     try {
-      // Fetch sessions based on the 'active' state (archived or not)
+      // Fetch sessions based on the active tab and archived state
       const requestPayload = {
         is_archived: active,
         sort_by: "date",
@@ -181,50 +105,85 @@ export default function ObservationSessionsPage() {
         curr_page: 1,
         per_page: 100,
         search: search || null,
-        time: null, // We'll get all and distribute by time category
+        time: activeTab, // Use active tab value directly
       };
 
       const response = await getSessions(requestPayload);
+      console.log("API Response:", response);
 
       if (response.success && response.data) {
-        // Process sessions by category - exact implementation depends on API response structure
-        const sessionData = response.data.sessions || [];
-        setSessionAvailable(sessionData.length > 0);
+        const sessionData = response.data.observation_sessions || [];
+        console.log(`Fetched ${activeTab} sessions:`, sessionData);
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Update only the appropriate array based on activeTab
+        switch (activeTab) {
+          case "Today":
+            setTodaySessions(sessionData);
+            break;
+          case "Upcoming":
+            setUpcomingSessions(sessionData);
+            break;
+          case "Past":
+            setPastSessions(sessionData);
+            break;
+        }
 
-        const todaySessions = sessionData.filter((session: any) => {
-          const sessionDate = new Date(session.date);
-          sessionDate.setHours(0, 0, 0, 0);
-          return sessionDate.getTime() === today.getTime();
-        });
-
-        const upcomingSessions = sessionData.filter((session: any) => {
-          const sessionDate = new Date(session.date);
-          sessionDate.setHours(0, 0, 0, 0);
-          return sessionDate > today;
-        });
-
-        const pastSessions = sessionData.filter((session: any) => {
-          const sessionDate = new Date(session.date);
-          sessionDate.setHours(0, 0, 0, 0);
-          return sessionDate < today;
-        });
-
-        // Update state
-        setTodaySessions(todaySessions);
-        setUpcomingSessions(upcomingSessions);
-        setPastSessions(pastSessions);
+        // Check if any sessions are available across all tabs and archived states
+        checkSessionAvailability();
       } else {
         console.error("Failed to fetch sessions:", response.error);
-        // toast.error("Failed to fetch sessions");
       }
     } catch (error) {
       console.error("Error fetching sessions:", error);
-      // toast.error("Failed to fetch sessions");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Add this function to check session availability across all states
+  const checkSessionAvailability = async () => {
+    try {
+      // Check for any sessions in archived state
+      const archivedResponse = await getSessions({
+        is_archived: true,
+        sort_by: "date",
+        sort_order: "asc",
+        curr_page: 1,
+        per_page: 1, // Just need to know if any exist
+        search: null,
+        time: null,
+      });
+
+      // Check for any sessions in non-archived state
+      const activeResponse = await getSessions({
+        is_archived: false,
+        sort_by: "date",
+        sort_order: "asc",
+        curr_page: 1,
+        per_page: 1, // Just need to know if any exist
+        search: null,
+        time: null,
+      });
+
+      // Sessions are available if there's data in either archived or active state
+      const hasArchivedSessions =
+        archivedResponse.success &&
+        archivedResponse.data &&
+        archivedResponse.data.observation_sessions &&
+        archivedResponse.data.observation_sessions.length > 0;
+
+      const hasActiveSessions =
+        activeResponse.success &&
+        activeResponse.data &&
+        activeResponse.data.observation_sessions &&
+        activeResponse.data.observation_sessions.length > 0;
+
+      // Update sessionAvailable based on whether any sessions exist in either state
+      setSessionAvailable(hasArchivedSessions || hasActiveSessions);
+    } catch (error) {
+      console.error("Error checking session availability:", error);
+      // Default to assuming sessions are available if check fails
+      setSessionAvailable(true);
     }
   };
 
@@ -426,6 +385,11 @@ export default function ObservationSessionsPage() {
     setEditingData(null);
   };
 
+  // Add this effect to fetch data when tab changes
+  useEffect(() => {
+    fetchSessions();
+  }, [activeTab]);
+
   return (
     <div className="max-w-6xl mx-auto py-8 bg-white rounded-lg border p-6 shadow-md">
       {sessionAvailable ? (
@@ -443,7 +407,7 @@ export default function ObservationSessionsPage() {
                 </div>
 
                 {/* Description */}
-                <p className="text-left text-black-400 text-[14px] mb-4 ">
+                <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
                   {getSelectedItemsInfo().length === 0
                     ? "Please select sessions to archive."
                     : `Are you sure you want to archive ${
@@ -468,9 +432,13 @@ export default function ObservationSessionsPage() {
                         className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                       >
                         <div className="flex flex-col items-start">
-                          <p className="text-[12px] text-black-400">{item}</p>
+                          <p className="text-[12px] text-black font-medium">
+                            {item}
+                          </p>
                         </div>
-                        <div className="text-[12px] text-right">Session</div>
+                        <div className="text-[12px] text-right font-medium">
+                          Session
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -496,7 +464,7 @@ export default function ObservationSessionsPage() {
                       <p className="text-sm text-[#C23E19]"> Warning</p>
                     </div>
                   </div>
-                  <p className="text-left text-sm text-[#C23E19] mt-2">
+                  <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                     {getSelectedItemsInfo().length === 0
                       ? "No sessions selected. Please select at least one session to archive."
                       : ` All users, tools or ${
@@ -515,7 +483,7 @@ export default function ObservationSessionsPage() {
                 <div className="flex justify-between">
                   <button
                     onClick={() => setShowArchiveModal(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
                     disabled={isLoading}
                   >
                     Cancel
@@ -527,9 +495,9 @@ export default function ObservationSessionsPage() {
                       getSelectedItemsInfo().length === 0 || isLoading
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-[#B4351C] hover:bg-[#943015]"
-                    } text-white rounded-[6px] transition-colors`}
+                    } text-white rounded-[6px] transition-colors font-medium`}
                   >
-                    {isLoading ? "Processing..." : "Archive"}
+                    Archive
                   </button>
                 </div>
               </div>
@@ -549,7 +517,7 @@ export default function ObservationSessionsPage() {
                 </div>
 
                 {/* Description */}
-                <p className="text-left text-black-400 text-[14px] mb-4">
+                <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
                   {getSelectedItemsInfo().length === 0
                     ? "Please select sessions to restore."
                     : `Are you sure you want to restore ${
@@ -574,9 +542,13 @@ export default function ObservationSessionsPage() {
                         className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                       >
                         <div className="flex flex-col items-start">
-                          <p className="text-[12px] text-black-400">{item}</p>
+                          <p className="text-[12px] text-black-400 font-medium">
+                            {item}
+                          </p>
                         </div>
-                        <div className="text-[12px] text-right">Session</div>
+                        <div className="text-[12px] text-right font-medium">
+                          Session
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -589,10 +561,10 @@ export default function ObservationSessionsPage() {
                       <Info className="h-5 w-5 text-blue-400" weight="fill" />
                     </div>
                     <div className="ml-3">
-                      <p className="text-sm text-blue-700">Note</p>
+                      <p className="text-sm text-blue-700 font-medium">Note</p>
                     </div>
                   </div>
-                  <p className="text-left text-sm mt-2">
+                  <p className="text-left text-sm mt-2 font-medium">
                     {getSelectedItemsInfo().length === 0
                       ? "No sessions selected. Please select at least one session to restore."
                       : `Restoring ${
@@ -611,7 +583,7 @@ export default function ObservationSessionsPage() {
                 <div className="flex justify-between">
                   <button
                     onClick={() => setShowRestoreModal(false)}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
                     disabled={isLoading}
                   >
                     Cancel
@@ -623,9 +595,9 @@ export default function ObservationSessionsPage() {
                       getSelectedItemsInfo().length === 0 || isLoading
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700"
-                    } text-white rounded-[6px] transition-colors`}
+                    } text-white rounded-[6px] transition-colors font-medium`}
                   >
-                    {isLoading ? "Processing..." : "Restore"}
+                    Restore
                   </button>
                 </div>
               </div>
