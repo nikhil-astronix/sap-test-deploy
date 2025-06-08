@@ -91,6 +91,24 @@ const UpcomingSessions = ({
     }
   ];
 
+      // Helper functions to format date and time
+      const formatDate = (dateStr: string) => {
+        if (!dateStr) return 'N/A';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      };
+      
+      const formatTime = (timeStr: string) => {
+        if (!timeStr) return 'N/A';
+        const timePart = timeStr.includes('T') ? timeStr.split('T')[1] : timeStr;
+        const time = timePart.split('+')[0]; // Remove timezone part if present
+        const [hours, minutes] = time.split(':');
+        const hour = parseInt(hours, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 || 12;
+        return `${hour12}:${minutes} ${ampm}`;
+      };
+
   const fetchSessionData = async () => {
     setIsLoading(true);
     try {
@@ -137,49 +155,49 @@ const UpcomingSessions = ({
     {
       key: "school",
       label: "School",
-      icon: <School size={16} />,
+      icon: <School size={20} />,
       sortable: true,
     },
     {
       key: "date",
       label: "Date",
-      icon: <Calendar size={16} />,
+      icon: <Calendar size={20} />,
       sortable: true,
     },
     {
       key: "start_time",
       label: "Start Time",
-      icon: <Clock size={16} />,
+      icon: <Clock size={20} />,
       sortable: true,
     },
     {
       key: "end_time",
       label: "End Time",
-      icon: <Clock size={16} />,
+      icon: <Clock size={20} />,
       sortable: true,
     },
     {
       key: "session_admin",
       label: "Session Admin",
-      icon: <User size={16} />,
+      icon: <User size={20} />,
       sortable: true,
     },
     {
       key: "observers",
       label: "Observer(s)",
-      icon: <User size={16} />,
+      icon: <User size={20} />,
       sortable: true,
     },
     {
       key: "observation_tool",
       label: "Observation Tool(s)",
-      icon: <Activity size={16} />,
+      icon: <Activity size={20} />,
       sortable: true,
     },
     {
       key: "action",
       label: "Action",
-      icon: <Activity size={16} />,
+      icon: <Activity size={20} />,
       sortable: false,
     },
   ];
@@ -202,15 +220,15 @@ const UpcomingSessions = ({
             <RiEdit2Line size={18} />
           </button>
           <p className="text-[#007778] flex items-center ml-2 mr-2">|</p>
-          {row.viewClassrooms && (
+          {/* {row.viewClassrooms && ( */}
             <button
               className="text-[#007778] flex items-center"
               onClick={() => handleViewClassrooms(row)}
             >
               <span className="mr-1">View Classrooms</span>
-              <Play size={16} />
+              <Play size={20} />
             </button>
-          )}
+          {/* )} */}
         </div>
       );
     }
@@ -237,7 +255,7 @@ const UpcomingSessions = ({
     if (column === "school") {
       return (
         <span className="text-xs text-black font-normal">
-          {row[column].name}
+          {row[column]}
         </span>
       );
     }
@@ -246,7 +264,8 @@ const UpcomingSessions = ({
       if (row[column]) {
         return (
           <span className="text-xs text-black font-normal">
-            {format(new Date(row[column]), "MMMM d, yyyy")}
+            {/* {format(new Date(row[column]), "MMMM d, yyyy")} */}
+            {formatDate(row[column])}
           </span>
         );
       } else {
@@ -258,7 +277,8 @@ const UpcomingSessions = ({
       if (row[column]) {
         return (
           <span className="text-xs text-black font-normal">
-            {format(new Date(row[column]), "h:mm a")}
+            {/* {format(new Date(row[column]), "h:mm a")} */}
+            {formatTime(row[column])}
           </span>
         );
       } else {
@@ -286,10 +306,7 @@ const UpcomingSessions = ({
                 {observers.slice(0, 2).join(", ")}
               </span>
               {observers.length > 2 && (
-                <span
-                  style={{ color: "#007778" }}
-                  className="ml-1 text-xs font-medium"
-                >
+                <span className="text-[#007778] ml-1 text-xs font-medium">
                   +{observers.length - 2} more
                 </span>
               )}

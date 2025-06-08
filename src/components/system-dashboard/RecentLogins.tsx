@@ -2,16 +2,12 @@
 
 import { useState, useEffect } from "react";
 import {
-  Users,
-  Building2,
-  Clock,
-  Mail,
-  UserCircle,
   User,
   Network,
-  Calendar,
-  Laptop,
 } from "lucide-react";
+import { PiCity } from "react-icons/pi";
+import { LuIdCard } from "react-icons/lu";
+import { PiCalendarDots } from "react-icons/pi";
 import DashboardTable, {
   TableRow,
   Column,
@@ -78,31 +74,31 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
     {
       key: "full_name",
       label: "User",
-      icon: <User size={16} />,
+      icon: <User size={20} />,
       sortable: true,
     },
     {
       key: "network_name",
       label: "Network",
-      icon: <Network size={16} />,
+      icon: <Network size={20} />,
       sortable: true,
     },
     {
       key: "districts",
       label: "District",
-      icon: <Building2 size={16} />,
+      icon: <PiCity size={20} />,
       sortable: true,
     },
     {
       key: "user_type",
       label: "Role",
-      icon: <Users size={16} />,
+      icon: <LuIdCard size={20} />,
       sortable: true,
     },
     {
       key: "last_login_at",
       label: "Date",
-      icon: <Calendar size={16} />,
+      icon: <PiCalendarDots size={20} />,
       sortable: true,
     },
   ];

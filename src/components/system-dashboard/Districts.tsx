@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react";
 import {
   Network,
-  Building2,
   Users,
   Hash,
-  Clock,
-  ActivitySquare,
-  Settings,
 } from "lucide-react";
+import { PiCity } from "react-icons/pi";
+import { IoDocumentTextOutline } from "react-icons/io5";
+import { PiGearFine } from "react-icons/pi";
 import DashboardTable, {
   TableRow,
   Column,
@@ -18,6 +17,7 @@ import DashboardTable, {
 import { fetchDistricts } from "@/services/dashboardService";
 import { fetchDistrictsPayload } from "@/models/dashboard";
 import { format } from "date-fns";
+import Tooltip from "../Tooltip";
 
 interface DistrictsProps {
   searchTerm?: string;
@@ -76,43 +76,44 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
     {
       key: "network_name",
       label: "Network",
-      icon: <Network size={16} />,
+      icon: <Network size={20} />,
       sortable: true,
     },
     {
       key: "name",
       label: "District",
-      icon: <Building2 size={16} />,
+      icon: <PiCity size={20} />,
       sortable: true,
     },
     {
       key: "admins",
       label: "Admins",
-      icon: <Users size={16} />,
+      icon: <Users size={20} />,
       sortable: false,
     },
     {
       key: "user_count",
       label: "Number of Users",
-      icon: <Hash size={16} />,
+      icon: <Hash size={20} />,
       sortable: true,
     },
     {
       key: "last_observation",
       label: "Last Session",
-      icon: <Clock size={16} />,
+      // icon: <Clock size={16} />,
+      icon: <IoDocumentTextOutline size={20} />,
       sortable: true,
     },
     {
       key: "session_status",
       label: "Session Status",
-      icon: <ActivitySquare size={16} />,
+      icon: <PiGearFine size={20} />,
       sortable: true,
     },
     {
       key: "setup_status",
       label: "Setup Status",
-      icon: <Settings size={16} />,
+      icon: <PiGearFine size={20} />,
       sortable: true,
     },
   ];
@@ -188,25 +189,39 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       return (
         <div className="relative group">
           <div
-            className={`inline-flex items-center gap-1 ${
-              statusObj.status === "Incomplete"
+            className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
                 ? "bg-red-200"
                 : statusObj.status === "Partial"
-                ? "bg-yellow-200"
-                : "bg-green-200"
-            } ${color} px-2 py-1 rounded-full text-xs`}
+                  ? "bg-yellow-200"
+                  : "bg-green-200"
+              } ${color} px-2 py-1 rounded-full text-xs`}
           >
             <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
             {statusObj.status}
           </div>
           {statusObj && (
-            <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
-              <div className="flex items-center justify-between whitespace-nowrap">
-                <span>Classroom {statusObj.school_count}</span>
+            // <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
+            //   <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
+            //     <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
+            //     <span>
+            //       Classroom {statusObj.school_count}
+            //     </span>
+            //     <span className="mx-1">|</span>
+            //     <span>Tools {statusObj.tool_count}</span>
+            //   </div>
+            // </div>
+            <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
+                after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+              <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
+                <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
+                <span>
+                  Classroom {statusObj.school_count}
+                </span>
                 <span className="mx-1">|</span>
                 <span>Tools {statusObj.tool_count}</span>
               </div>
             </div>
+
           )}
         </div>
       );
@@ -241,11 +256,13 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
           >
             <span className="w-2 h-2 bg-black rounded-full"></span> {status}
           </span>
-          <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
-            <div className="flex items-center justify-between whitespace-nowrap">
-              <span>Completed {completed_count}</span>
+            <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
+                after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+              <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
+                <span className={`w-2 h-2 mx-1 left-0 ${bgColor} rounded-full`}></span>
+              <span className="">Completed {completed_count}</span>
               <span className="mx-1">|</span>
-              <span>Upcoming {upcoming_count}</span>
+              <span className="">Upcoming {upcoming_count}</span>
             </div>
           </div>
         </div>

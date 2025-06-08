@@ -27,7 +27,7 @@ export default function TodaySession({
   searchTerm = '',
   parentViewClassroomMode,
   setParentViewClassroomMode,
-  setParentSchoolData
+  setParentSchoolData,
 }: TodaySessionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

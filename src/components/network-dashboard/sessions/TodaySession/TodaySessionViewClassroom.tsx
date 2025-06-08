@@ -150,7 +150,7 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
         teacher: 'Sample Teacher 1',
         course: 'Sample Course 1',
         grade: 3,
-        instructionalMaterials: ['Sample Material 1', 'Sample Material 2'],
+        instructionalMaterials: ['Sample Material 1'],
         action: 'view'
       },
       {
