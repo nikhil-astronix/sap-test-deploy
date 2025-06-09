@@ -514,7 +514,7 @@ export default function ClassroomsPage() {
       if (response.success) {
         // Refresh the data
         fetchData(currentPage, rowsPerPage, null, null, active, search);
-
+        setSelectedRows({ schools: new Set(), classes: new Set() });
         // Show success notification if you have a toast system
         // toast.success('Classroom(s) restored successfully');
       } else {
@@ -569,7 +569,7 @@ export default function ClassroomsPage() {
       if (response.success) {
         // Refresh the data
         fetchData(currentPage, rowsPerPage, null, null, active, search);
-
+        setSelectedRows({ schools: new Set(), classes: new Set() });
         // Show success notification
       } else {
       }
@@ -621,7 +621,7 @@ export default function ClassroomsPage() {
       if (response.success) {
         // Refresh the data
         fetchData(currentPage, rowsPerPage, null, null, active, search);
-
+        setSelectedRows({ schools: new Set(), classes: new Set() });
         // Show success notification if you have a toast system
         // toast.success('Classroom(s) deleted successfully');
       } else {
@@ -1058,11 +1058,16 @@ export default function ClassroomsPage() {
                         className="bg-transparent border-0 p-0 cursor-pointer"
                       >
                         {expanded === school.schoolId ? (
-                          <CaretCircleUp className="text-gray-600" size={16} />
+                          <CaretCircleUp
+                            className="text-gray-600"
+                            size={16}
+                            color="#2264AC"
+                          />
                         ) : (
                           <CaretCircleDown
                             className="text-gray-600"
                             size={16}
+                            color="#2264AC"
                           />
                         )}
                       </button>
@@ -1168,18 +1173,19 @@ export default function ClassroomsPage() {
                               placeholder="Select tags"
                             />
                           </td>
-                          <td className="px-4 py-2 text-center">
-                            {/* No edit icon in edit mode */}
 
-                            <button
-                              className="text-emerald-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(school.schoolId, classroom);
-                              }}
-                            >
-                              <PencilSimpleLine size={16} color="#2264AC" />
-                            </button>
+                          <td className="px-4 py-2 text-center">
+                            {!editing && !active && (
+                              <button
+                                className="text-emerald-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(school.schoolId, classroom);
+                                }}
+                              >
+                                <PencilSimpleLine size={16} color="#2264AC" />
+                              </button>
+                            )}
                           </td>
                         </>
                       ) : (
@@ -1244,7 +1250,11 @@ export default function ClassroomsPage() {
                               "None"
                             )}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200 relative group">
+                          <td
+                            className={`px-4 py-2  border-gray-200 relative group ${
+                              !active ? "border-r-2" : "border-r-0"
+                            }`}
+                          >
                             {classroom.interventions.length > 0 ? (
                               <Tooltip
                                 content={
@@ -1273,15 +1283,17 @@ export default function ClassroomsPage() {
                             )}
                           </td>
                           <td className="px-4 py-2 text-center">
-                            <button
-                              className="text-emerald-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(school.schoolId, classroom);
-                              }}
-                            >
-                              <PencilSimpleLine size={16} color="#2264AC" />
-                            </button>
+                            {!editing && !active && (
+                              <button
+                                className="text-emerald-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(school.schoolId, classroom);
+                                }}
+                              >
+                                <PencilSimpleLine size={16} color="#2264AC" />
+                              </button>
+                            )}
                           </td>
                         </>
                       )}

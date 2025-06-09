@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Menu } from "@headlessui/react";
 import {
   MagnifyingGlassIcon,
@@ -22,7 +22,8 @@ import {
 import CurriculumCard from "./CurriculumCard";
 import Header from "../Header";
 import { useDistrict } from "@/context/DistrictContext";
-import { Plus } from "@phosphor-icons/react";
+import { Plus, Faders } from "@phosphor-icons/react";
+import NoResultsFound from "../ui/NoResultsFound";
 
 const container = {
   hidden: { opacity: 0 },
@@ -64,6 +65,9 @@ export default function CurriculumList() {
 
   const router = useRouter();
   const [curriculums, setCurriculums] = useState([] as Curriculum[]);
+  const [bothCurriculums, setBothCurriculums] = useState();
+  const [defaultCurriculums, setDefaultCurriculums] = useState();
+  const [customCurriculums, setCustomCurriculums] = useState();
 
   //feth curriculums list
   useEffect(() => {
@@ -100,6 +104,9 @@ export default function CurriculumList() {
       const data = await fetchAllCurriculums(requesPayload);
       if (data.success) {
         setCurriculums(data.data.curriculums);
+        setBothCurriculums(data.data.total_both_curriculums);
+        setDefaultCurriculums(data.data.total_default_curriculums);
+        setCustomCurriculums(data.data.total_custom_curriculums);
       } else {
         setCurriculums([] as Curriculum[]);
       }
@@ -172,6 +179,14 @@ export default function CurriculumList() {
     }
   };
 
+  const filterCounts = useMemo(() => {
+    return {
+      Default: defaultCurriculums, //interventions.filter((item) => item.type === "Default").length,
+      Custom: customCurriculums, //interventions.filter((item) => item.type === "Custom").length,
+      Both: bothCurriculums, //interventions.length,
+    };
+  }, [curriculums]);
+
   return (
     <div className="px-6 py-2 w-full flex flex-col h-full">
       <div className="flex-none space-y-5 mb-8">
@@ -212,7 +227,7 @@ export default function CurriculumList() {
                   showFilters ? "bg-[#2A7251] text-white" : ""
                 }`}
               >
-                <AdjustmentsHorizontalIcon className="h-5 w-5" />
+                <Faders className="h-5 w-5" />
               </button>
             </div>
 
@@ -238,19 +253,13 @@ export default function CurriculumList() {
                       onClick={() =>
                         setFilterType(type as "Default" | "Custom" | "Both")
                       }
-                      className={`flex-1 px-4 py-2 rounded-lg ${
+                      className={`flex-1 px-4 py-2 ${
                         filterType === type
                           ? "bg-[#2A7251] text-white"
                           : "border border-gray-200 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
-                      {type}(
-                      {
-                        curriculums.filter((c) =>
-                          type === "Both" ? true : c.type === type
-                        ).length
-                      }
-                      )
+                      {type}({filterCounts[type]})
                     </button>
                   ))}
                 </div>
@@ -375,7 +384,7 @@ export default function CurriculumList() {
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
           >
-            {curriculums.length > 0 &&
+            {curriculums.length > 0 ? (
               curriculums.map((curriculum) => (
                 <motion.div key={curriculum.id} variants={item}>
                   <CurriculumCard
@@ -396,7 +405,10 @@ export default function CurriculumList() {
                     }
                   />
                 </motion.div>
-              ))}
+              ))
+            ) : (
+              <NoResultsFound />
+            )}
           </motion.div>
         </div>
       </div>

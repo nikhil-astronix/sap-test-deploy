@@ -165,7 +165,7 @@ const Header = ({
                   ) : null}
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-black bg-white rounded-b-md hover:bg-gray-100"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-black bg-white rounded hover:bg-[#2A7251] hover:text-white"
                   >
                     <SignOut className="text-black-400" size={16} />
                     Logout
