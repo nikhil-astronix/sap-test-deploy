@@ -677,7 +677,7 @@ const DistrictsPage = () => {
         </div>
       )}
 
-      <div className="container text-center mx-auto px-4 py-8 bg-white">
+      <div className="container text-center mx-auto px-4 py-8 bg-white rounded-lg shadow-md">
         <Header
           title="Districts"
           description="View and manage all districts in the system."
