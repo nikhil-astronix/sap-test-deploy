@@ -131,7 +131,7 @@ export default function NetworkDashboardTable({
         sort_by: sortConfig.key,
         sort_order: sortConfig.direction,
       };
-      // Notify parent component of filter changes to fetch fresh data
+      // Notify parent component of filter changes
       onFiltersChange(updatedFilters);
     }
   }, [currentPage, rowsPerPage, sortConfig, onFiltersChange]);
@@ -149,6 +149,28 @@ export default function NetworkDashboardTable({
     }
 
     setSortConfig({ key, direction });
+    
+    // If we're not using server-side filtering (no onFiltersChange), sort locally
+    if (!onFiltersChange) {
+      const sortedData = [...filteredData];
+      if (direction !== null) {
+        sortedData.sort((a, b) => {
+          const valueA = a[key] !== undefined ? a[key] : '';
+          const valueB = b[key] !== undefined ? b[key] : '';
+          
+          if (typeof valueA === 'string' && typeof valueB === 'string') {
+            return direction === 'asc' 
+              ? valueA.localeCompare(valueB) 
+              : valueB.localeCompare(valueA);
+          } else {
+            return direction === 'asc'
+              ? (valueA > valueB ? 1 : -1)
+              : (valueA < valueB ? 1 : -1);
+          }
+        });
+      }
+      setFilteredData(sortedData);
+    }
   };
 
   // Function to filter data based on search term
@@ -157,6 +179,12 @@ export default function NetworkDashboardTable({
     
     const lowerCaseTerm = term.toLowerCase();
     return data.filter(row => {
+      // First check name field which is common in most rows
+      if (row.name && typeof row.name === 'string' && 
+          row.name.toLowerCase().includes(lowerCaseTerm)) {
+        return true;
+      }
+      
       // Generic search across all visible columns
       return visibleColumns.some(colKey => {
         const cellValue = row[colKey];
@@ -165,7 +193,7 @@ export default function NetworkDashboardTable({
         if (colKey === 'admins' && Array.isArray(row.admins)) {
           return row.admins.some(admin => 
             `${admin.first_name} ${admin.last_name}`.toLowerCase().includes(lowerCaseTerm) ||
-            admin.email.toLowerCase().includes(lowerCaseTerm)
+            (admin.email && admin.email.toLowerCase().includes(lowerCaseTerm))
           );
         }
         
@@ -212,6 +240,9 @@ export default function NetworkDashboardTable({
     // Ensure page is valid and within bounds
     const validPage = Math.max(1, Math.min(page, onFiltersChange ? totalPages : calculatedTotalPages));
     setCurrentPage(validPage);
+    
+    // If we're not using server-side pagination, no need to do anything else
+    // The getPaginatedData function will handle slicing the data correctly
   };
   
   // Get paginated data for client-side pagination
@@ -453,10 +484,11 @@ export default function NetworkDashboardTable({
         <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
           <div>
             <p className="text-[12px] text-gray-500">
-              {onFiltersChange ? totalRecords : filteredData.length > 0
-                ? `${indexOfFirstRow}-${indexOfLastRow} of ${onFiltersChange ? totalRecords : filteredData.length}`
-                : "0 results"}
+              {(onFiltersChange ? totalRecords : filteredData.length) > 0
+                ? `Showing ${indexOfFirstRow}-${indexOfLastRow} of ${onFiltersChange ? totalRecords : filteredData.length} records`
+                : "0 records"}
             </p>
+
           </div>
           <div className="flex flex-wrap items-center gap-2 text-[12px]">
             <div className="flex items-center space-x-2 text-[12px]">
@@ -489,10 +521,10 @@ export default function NetworkDashboardTable({
                   : "text-gray-600 hover:bg-gray-100"
                   }`}
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={16} />
               </button>
-              <span className="text-[12px] text-gray-500">
-                {onFiltersChange ? pageNumber : currentPage}/{onFiltersChange ? totalPages : calculatedTotalPages || 1}
+              <span className="text-[12px] text-gray-500 px-2">
+                {onFiltersChange ? pageNumber : currentPage} of {onFiltersChange ? totalPages : calculatedTotalPages || 1}
               </span>
               <button
                 onClick={() => 
@@ -512,7 +544,7 @@ export default function NetworkDashboardTable({
                   : "text-gray-600 hover:bg-gray-100"
                   }`}
               >
-                <ChevronRight size={18} />
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>

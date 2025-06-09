@@ -11,6 +11,8 @@ import ObservationTools from "@/components/admin-dashboard/ObservationTools";
 import RecentLogins from "@/components/admin-dashboard/RecentLogins";
 import Schools from "@/components/admin-dashboard/Schools";
 import TodaySessionViewClassroom from "@/components/admin-dashboard/sessions/TodaySession/TodaySessionViewClassroom";
+import { date } from "zod";
+import { GoArrowLeft } from "react-icons/go";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("Todays Sessions");
@@ -131,15 +133,47 @@ export default function AdminDashboard() {
     }
   }, [viewingClassrooms]);
 
+  const CalendarDate = ({ date }: { date: any }) => {
+    const dateObj = new Date(date);
+    
+    // Get month name
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthName = monthNames[dateObj.getMonth()];
+    
+    // Get day of month
+    const dayOfMonth = dateObj.getDate();
+    
+    return (
+      <div className="inline-block">
+        {/* Calendar container */}
+        <div className="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden w-[40px] h-[40px]">
+          {/* Month header */}
+          <div className="bg-green-600 text-white flex items-top text-center justify-center h-[16px]">
+            <span className="text-xs h-[16px]">
+              {monthName}
+            </span>
+          </div>
+          {/* Day number */}
+          <div className="flex items-center text-center justify-center flex-1 h-[24px]">
+            <span className="text-md font-bold text-green-600">
+              {dayOfMonth}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="p-6 w-full shadow-lg rounded-lg bg-white border border-gray-200">
+    <div className="p-6 pl-12 pr-12 w-full shadow-lg rounded-lg bg-white border border-gray-200">
       {showSessionDetails && (
         <div className="mb-4">
           <button
             onClick={() => setViewingClassrooms(null)}
-            className="flex items-center bg-gray-100 rounded-md p-1 pl-2 pr-4 hover:bg-gray-200 border border-gray-300"
+            className="flex gap-1 rounded-xl text-sm items-center bg-gray-100 rounded-md p-1 pl-2 pr-4 pt-1 pb-1 hover:bg-gray-200 border border-gray-300"
           >
-            <ChevronLeft size={18} />
+            <GoArrowLeft size={18} />
             <span>Back</span>
           </button>
         </div>
@@ -147,27 +181,19 @@ export default function AdminDashboard() {
 
       {showSessionDetails ? (
         <div className="mb-6">
-          <div className="flex items-center mb-2">
-            <div className="flex items-center">
-              <div className="bg-teal-600 text-white rounded-md h-8 w-8 flex items-center justify-center mr-2">
-                <span className="text-sm font-medium">
-                  {viewingClassrooms?.date ? format(new Date(viewingClassrooms.date), "d") : ""}
-                </span>
-              </div>
-              <h1 className="text-2xl font-semibold">
-                {viewingClassrooms?.school?.name} Observation Session
+          <div className="flex items-center mb-2 bg-gray-100 p-2 rounded-xl">
+            <div className="flex items-center gap-3">
+              <CalendarDate date={viewingClassrooms?.date || new Date()} />
+              <h1 className="text-base font-semibold">
+                {viewingClassrooms?.school} Observation Session
               </h1>
             </div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <p className="text-gray-600">
-              Viewing classrooms for observation session on{" "}
-              {viewingClassrooms?.date ? format(new Date(viewingClassrooms.date), "MMMM d, yyyy") : ""}
-            </p>
-            <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+            <div className="ml-auto right-0 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
               {viewingClassrooms?.observation_tool}
             </div>
+          </div>
+          <div className="mt-[20px] mb-[-10px] font-semibold text-lg">
+            Observation Classrooms
           </div>
         </div>
       ) : (

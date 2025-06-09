@@ -302,7 +302,7 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
 
   return (
     <div className="border border-gray-200 rounded-md shadow-sm overflow-hidden">
-      <div className="p-4 border-b border-gray-200 flex items-center">
+      {/* <div className="p-4 border-b border-gray-200 flex items-center">
         <button 
           onClick={() => {
             // First send a message to close the classroom view
@@ -321,7 +321,7 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
           <ChevronLeft size={16} className="mr-1" />
           Back
         </button>
-      </div>
+      </div> */}
 
       {/* Table */}
       <div className="w-full overflow-auto">

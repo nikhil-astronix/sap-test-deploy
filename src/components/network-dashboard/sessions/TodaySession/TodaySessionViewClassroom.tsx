@@ -1,23 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronDown, ChevronUp, ChevronRight, Search, User, Book, FileText } from 'lucide-react';
+import { PiNotebook } from "react-icons/pi";
+import { BiBookAlt } from "react-icons/bi";
+import { GoArrowDownRight } from "react-icons/go";
+import { FileText } from 'lucide-react';
+import { PiGraduationCapLight } from "react-icons/pi";
 import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
+import { viewClassroomSession } from '@/services/networkService';
 
 // Define types directly in the component file
-interface ClassroomData {
-  id: string;
-  teacher: string;
+interface ObservationClassroom {
+  observation_id: string;
+  classroom_id: string;
+  teacher_name: string;
   course: string;
-  grade: number;
-  instructionalMaterials: string[];
-  action?: string;
+  grades: string[];
+  interventions: string[];
+  curriculums: string[];
+  submission_state: string;
 }
 
 interface SchoolData {
-  id: string;
-  name: string;
   date: string;
-  observationTool: string;
-  classrooms: ClassroomData[];
+  school: string;
+  school_id: string;
+  observation_tool: string;
+  observation_tool_id: string;
+  observation_classrooms: ObservationClassroom[];
+  total_observation_classrooms: number;
+  total_pages: number;
+  curr_page: number;
+  per_page: number;
 }
 
 interface ViewClassroomProps {
@@ -25,102 +37,7 @@ interface ViewClassroomProps {
   onBack?: () => void;
 }
 
-// Mock data
-const mockSchoolData: SchoolData[] = [
-  {
-    id: '1',
-    name: 'Elmwood Elementary School',
-    date: 'Jan 20',
-    observationTool: 'Literacy FS',
-    classrooms: [
-      {
-        id: '1',
-        teacher: 'Teacher Sample A',
-        course: 'Course Sample A',
-        grade: 2,
-        instructionalMaterials: ['Illustrative Math', 'Amplify', '2 more']
-      },
-      {
-        id: '2',
-        teacher: 'Teacher Sample B',
-        course: 'Course Sample B',
-        grade: 2,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
-      },
-      {
-        id: '3',
-        teacher: 'Teacher Sample C',
-        course: 'Course Sample C',
-        grade: 3,
-        instructionalMaterials: ['Amplify', 'Illustrative Math']
-      },
-      {
-        id: '4',
-        teacher: 'Teacher Sample D',
-        course: 'Course Sample D',
-        grade: 4,
-        instructionalMaterials: ['Illustrative Math', 'Amplify']
-      },
-      {
-        id: '5',
-        teacher: 'Teacher Sample E',
-        course: 'Course Sample E',
-        grade: 5,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '1 more']
-      },
-      {
-        id: '6',
-        teacher: 'Teacher Sample F',
-        course: 'Course Sample F',
-        grade: 6,
-        instructionalMaterials: ['Illustrative Math', 'Amplify']
-      },
-      {
-        id: '7',
-        teacher: 'Teacher Sample G',
-        course: 'Course Sample G',
-        grade: 7,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
-      },
-      {
-        id: '8',
-        teacher: 'Teacher Sample H',
-        course: 'Course Sample H',
-        grade: 8,
-        instructionalMaterials: ['Illustrative Math', 'Amplify', '2 more']
-      },
-      {
-        id: '9',
-        teacher: 'Teacher Sample I',
-        course: 'Course Sample I',
-        grade: 9,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Riverside Middle School',
-    date: 'Jan 22',
-    observationTool: 'Math FS',
-    classrooms: [
-      {
-        id: '10',
-        teacher: 'Teacher Sample J',
-        course: 'Course Sample J',
-        grade: 6,
-        instructionalMaterials: ['Illustrative Math', 'Amplify', '1 more']
-      },
-      {
-        id: '11',
-        teacher: 'Teacher Sample K',
-        course: 'Course Sample K',
-        grade: 7,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '2 more']
-      }
-    ]
-  }
-];
+
 
 export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClassroomProps) {
   const [schoolData, setSchoolData] = useState<SchoolData | null>(null);
@@ -134,12 +51,53 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
 
   // Define columns for classroom table
   const classroomColumns: NetworkColumn[] = [
-    { key: 'teacher', label: 'Teacher', icon: <User size={16} />, sortable: true },
-    { key: 'course', label: 'Course/Subject', icon: <Book size={16} />, sortable: true },
-    { key: 'grade', label: 'Grade', icon: <FileText size={16} />, sortable: true },
-    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <FileText size={16} />, sortable: false },
-    { key: 'action', label: 'Action', icon: <FileText size={16} />, sortable: false }
+    { key: 'teacher', label: 'Teacher', icon: <PiGraduationCapLight size={20} />, sortable: true },
+    { key: 'course', label: 'Course/Subject', icon: <PiNotebook size={20} />, sortable: true },
+    { key: 'grade', label: 'Grade', icon: <FileText size={20} />, sortable: true },
+    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <BiBookAlt size={20} />, sortable: false },
+    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false }
   ];
+
+  const getClassroomData = async () => {
+    if (!schoolId) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await viewClassroomSession(schoolId);
+      
+      if (response.success) {
+        const data = response.data;
+        setSchoolData(data);
+        
+        if (data.observation_classrooms && data.observation_classrooms.length > 0) {
+          // Transform API data to match NetworkTableRow format
+          const tableData: NetworkTableRow[] = data.observation_classrooms.map((classroom: ObservationClassroom) => ({
+            id: classroom.classroom_id,
+            name: classroom.teacher_name, // Required by NetworkTableRow type
+            teacher: classroom.teacher_name,
+            course: classroom.course,
+            grade: classroom.grades.join(', '),
+            instructionalMaterials: classroom.curriculums,
+            action: classroom.submission_state
+          }));
+          
+          setClassroomTableData(tableData);
+          setTotalRecords(data.total_observation_classrooms);
+          setTotalPages(data.total_pages);
+          setCurrentPage(data.curr_page);
+          setPageSize(data.per_page);
+        } else {
+          setClassroomTableData([]);
+          setTotalRecords(0);
+          setTotalPages(1);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching classroom data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Create dummy data for when no real data is available
   const createDummyClassroomData = (): NetworkTableRow[] => {
@@ -166,66 +124,8 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
   };
 
   useEffect(() => {
-    // Using dummy/mock data rather than API calls
-    setIsLoading(true);
-    
-    // Simulate a brief loading time
-    const timeoutId = setTimeout(() => {
-      if (schoolId) {
-        const foundSchool = mockSchoolData.find(school => school.id === schoolId);
-        setSchoolData(foundSchool || null);
-        
-        if (foundSchool && foundSchool.classrooms && foundSchool.classrooms.length > 0) {
-          // Transform classrooms to match NetworkTableRow format
-          const tableData: NetworkTableRow[] = foundSchool.classrooms.map(classroom => ({
-            id: classroom.id,
-            name: `${classroom.teacher}'s Classroom`, // Required by NetworkTableRow type
-            teacher: classroom.teacher,
-            course: classroom.course,
-            grade: classroom.grade,
-            instructionalMaterials: classroom.instructionalMaterials,
-            action: ""
-          }));
-          setClassroomTableData(tableData);
-          setTotalRecords(tableData.length);
-          setTotalPages(Math.ceil(tableData.length / pageSize));
-        } else {
-          // If no classrooms found or empty classrooms array, provide dummy data
-          const dummyData = createDummyClassroomData();
-          setClassroomTableData(dummyData);
-          setTotalRecords(dummyData.length);
-          setTotalPages(Math.ceil(dummyData.length / pageSize));
-        }
-      } else {
-        // Use first school as default if no schoolId provided
-        const defaultSchool = mockSchoolData[0];
-        setSchoolData(defaultSchool || null);
-        
-        if (defaultSchool && defaultSchool.classrooms && defaultSchool.classrooms.length > 0) {
-          const tableData: NetworkTableRow[] = defaultSchool.classrooms.map(classroom => ({
-            id: classroom.id,
-            name: `${classroom.teacher}'s Classroom`, // Required by NetworkTableRow type
-            teacher: classroom.teacher,
-            course: classroom.course,
-            grade: classroom.grade,
-            instructionalMaterials: classroom.instructionalMaterials,
-            action: 'view'
-          }));
-          setClassroomTableData(tableData);
-          setTotalRecords(tableData.length);
-          setTotalPages(Math.ceil(tableData.length / pageSize));
-        } else {
-          // If no classrooms found or empty classrooms array, provide dummy data
-          const dummyData = createDummyClassroomData();
-          setClassroomTableData(dummyData);
-          setTotalRecords(dummyData.length);
-          setTotalPages(Math.ceil(dummyData.length / pageSize));
-        }
-      }
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timeoutId);
-  }, [schoolId, pageSize]);
+    getClassroomData();
+  }, [schoolId]);
 
   // Custom render function for cells
   const renderCell = (row: NetworkTableRow, column: string) => {
@@ -233,13 +133,13 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
       return (
         <div className="flex space-x-2">
           <button 
-            className="text-teal-600 hover:text-teal-800 flex items-center bg-teal-100 px-3 py-1 rounded-md"
+            className="text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors duration-200"
           >
             <span className="mr-1">Edit Observation</span>
           </button>
           <span className="mx-1">|</span>
           <button 
-            className="text-blue-600 hover:text-blue-800 flex items-center"
+            className="text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors duration-200"
           >
             <span className="mr-1">View Calibration</span>
           </button>
@@ -249,14 +149,21 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
 
     if (column === 'instructionalMaterials') {
       const materials = row[column] as string[];
-      return materials?.length ? (
-        <div className="flex flex-col gap-1">
-          {materials.map((material, index) => (
-            <span key={index} className="text-sm">{material}</span>
-          ))}
+      if (!materials || materials.length === 0) return 'No materials';
+      
+      // Show first two materials with comma separation
+      const displayMaterials = materials.slice(0, 2).join(', ');
+      
+      // If more than 2 materials, show +X more
+      const extraCount = materials.length > 2 ? materials.length - 2 : 0;
+      
+      return (
+        <div>
+          <span className="text-sm">{displayMaterials}</span>
+          {extraCount > 0 && (
+            <span className="text-[#007778] text-xs ml-1">+{extraCount} more</span>
+          )}
         </div>
-      ) : (
-        "No materials"
       );
     }
 
@@ -267,23 +174,13 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
   const hasClassroomData = classroomTableData && classroomTableData.length > 0;
   
   // Create a default school name if schoolData is null
-  const schoolName = schoolData ? schoolData.name : "Unknown School";
+  const schoolName = schoolData ? schoolData.school : "Unknown School";
   const sessionDate = schoolData ? schoolData.date : "Today";
-  const observationTool = schoolData ? schoolData.observationTool : "Not Available";
+  const observationTool = schoolData ? schoolData.observation_tool : "Not Available";
   
 
   return (
     <div className="border border-gray-200 rounded-md shadow-sm overflow-hidden">
-      <div className="p-4 border-b border-gray-200 flex items-center">
-        <button 
-          onClick={onBack} 
-          className="text-blue-600 hover:text-blue-800 flex items-center"
-        >
-          <ChevronLeft size={16} className="mr-1" />
-          Back
-        </button>
-      </div>
-
       {/* Table */}
       <div className="w-full overflow-auto">
         <NetworkDashboardTable
@@ -298,6 +195,11 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
           totalRecords={totalRecords}
           isLoading={isLoading}
         />
+        {isLoading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007778]"></div>
+          </div>
+        )}
       </div>
     </div>
   );

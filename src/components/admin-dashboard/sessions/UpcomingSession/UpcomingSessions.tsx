@@ -1,10 +1,15 @@
 "use client";
 
-import { Calendar, Clock, School, User, Activity, Play } from "lucide-react";
+import { Clock, Play } from 'lucide-react';
+import { PiUsers } from "react-icons/pi";
+import { LuUserRoundCog } from "react-icons/lu";
+import { GoArrowDownRight } from "react-icons/go";
+import { IoSchoolOutline } from "react-icons/io5";
+import { BiBriefcaseAlt2 } from "react-icons/bi";
+import { PiCalendarDots } from "react-icons/pi";
 import { RiEdit2Line } from "react-icons/ri";
 import AdminDashboardTable, { TableRow, Column } from "../../AdminDashboardTable";
 import { useEffect, useState } from "react";
-import ViewClass from "../actions/ViewClass";
 import EditSession from "../actions/EditSession";
 import { TableFilters } from "@/components/system-dashboard/DashboardTable";
 import { observationSessionPayload } from "@/models/dashboard";
@@ -91,23 +96,23 @@ const UpcomingSessions = ({
     }
   ];
 
-      // Helper functions to format date and time
-      const formatDate = (dateStr: string) => {
-        if (!dateStr) return 'N/A';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      };
-      
-      const formatTime = (timeStr: string) => {
-        if (!timeStr) return 'N/A';
-        const timePart = timeStr.includes('T') ? timeStr.split('T')[1] : timeStr;
-        const time = timePart.split('+')[0]; // Remove timezone part if present
-        const [hours, minutes] = time.split(':');
-        const hour = parseInt(hours, 10);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const hour12 = hour % 12 || 12;
-        return `${hour12}:${minutes} ${ampm}`;
-      };
+  // Helper functions to format date and time
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const formatTime = (timeStr: string) => {
+    if (!timeStr) return 'N/A';
+    const timePart = timeStr.includes('T') ? timeStr.split('T')[1] : timeStr;
+    const time = timePart.split('+')[0]; // Remove timezone part if present
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
 
   const fetchSessionData = async () => {
     setIsLoading(true);
@@ -150,56 +155,16 @@ const UpcomingSessions = ({
     }
   };
 
-  // Column definitions for Sessions tab
+  // Column definitions for sessions table
   const sessionsColumns: Column[] = [
-    {
-      key: "school",
-      label: "School",
-      icon: <School size={20} />,
-      sortable: true,
-    },
-    {
-      key: "date",
-      label: "Date",
-      icon: <Calendar size={20} />,
-      sortable: true,
-    },
-    {
-      key: "start_time",
-      label: "Start Time",
-      icon: <Clock size={20} />,
-      sortable: true,
-    },
-    {
-      key: "end_time",
-      label: "End Time",
-      icon: <Clock size={20} />,
-      sortable: true,
-    },
-    {
-      key: "session_admin",
-      label: "Session Admin",
-      icon: <User size={20} />,
-      sortable: true,
-    },
-    {
-      key: "observers",
-      label: "Observer(s)",
-      icon: <User size={20} />,
-      sortable: true,
-    },
-    {
-      key: "observation_tool",
-      label: "Observation Tool(s)",
-      icon: <Activity size={20} />,
-      sortable: true,
-    },
-    {
-      key: "action",
-      label: "Action",
-      icon: <Activity size={20} />,
-      sortable: false,
-    },
+    { key: 'school', label: 'School', icon: <IoSchoolOutline size={20} />, sortable: true },
+    { key: 'date', label: 'Date', icon: <PiCalendarDots size={20} />, sortable: true },
+    { key: 'start_time', label: 'Start Time', icon: <Clock size={20} />, sortable: true },
+    { key: 'end_time', label: 'End Time', icon: <Clock size={20} />, sortable: true },
+    { key: 'session_admin', label: 'Session Admin', icon: <LuUserRoundCog size={20} />, sortable: true },
+    { key: 'observers', label: 'Observer(s)', icon: <PiUsers size={20} />, sortable: true },
+    { key: "observation_tool", label: 'Observation Tool(s)', icon: <BiBriefcaseAlt2 size={20} />, sortable: true },
+    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false },
   ];
 
   // State for modals
@@ -221,13 +186,13 @@ const UpcomingSessions = ({
           </button>
           <p className="text-[#007778] flex items-center ml-2 mr-2">|</p>
           {/* {row.viewClassrooms && ( */}
-            <button
-              className="text-[#007778] flex items-center"
-              onClick={() => handleViewClassrooms(row)}
-            >
-              <span className="mr-1">View Classrooms</span>
-              <Play size={20} />
-            </button>
+          <button
+            className="text-[#007778] flex items-center"
+            onClick={() => handleViewClassrooms(row)}
+          >
+            <span className="mr-1">View Classrooms</span>
+            <Play size={20} />
+          </button>
           {/* )} */}
         </div>
       );
@@ -237,15 +202,14 @@ const UpcomingSessions = ({
       const tool = row[column] as string;
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            typeof tool === "string" && tool.includes("IPG")
-              ? "bg-green-100 text-green-800"
-              : typeof tool === "string" && tool.includes("Math")
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${typeof tool === "string" && tool.includes("IPG")
+            ? "bg-green-100 text-green-800"
+            : typeof tool === "string" && tool.includes("Math")
               ? "bg-purple-100 text-purple-800"
               : typeof tool === "string" && tool.includes("AAPS")
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-blue-100 text-blue-800"
-          }`}
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-blue-100 text-blue-800"
+            }`}
         >
           {tool}
         </span>

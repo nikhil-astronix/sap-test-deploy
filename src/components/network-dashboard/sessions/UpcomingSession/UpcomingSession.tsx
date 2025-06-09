@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { getSessionsByNetwork, SessionFilterType } from '@/services/networkService';
 import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
 import UpcomingSessionViewClassroom from './UpcomingSessionViewClassroom';
-import {
-  Calendar,
-  Clock,
-  School,
-  User,
-  Activity,
-  Play,
-} from 'lucide-react';
+import {Clock, Play} from 'lucide-react';
+import { PiUsers } from "react-icons/pi";
+import { LuUserRoundCog } from "react-icons/lu";
+import { GoArrowDownRight } from "react-icons/go";
+import { IoSchoolOutline } from "react-icons/io5";
+import { BiBriefcaseAlt2 } from "react-icons/bi";
+import { PiCalendarDots } from "react-icons/pi";
 
 interface UpcomingSessionProps {
   searchTerm?: string;
@@ -37,14 +36,14 @@ export default function UpcomingSession({
 
   // Column definitions for sessions table
   const sessionsColumns: NetworkColumn[] = [
-    { key: 'school', label: 'School', icon: <School size={16} />, sortable: true },
-    { key: 'date', label: 'Date', icon: <Calendar size={16} />, sortable: true },
-    { key: 'startTime', label: 'Start Time', icon: <Clock size={16} />, sortable: true },
-    { key: 'endTime', label: 'End Time', icon: <Clock size={16} />, sortable: true },
-    { key: 'sessionAdmin', label: 'Session Admin', icon: <User size={16} />, sortable: true },
-    { key: 'observer', label: 'Observer(s)', icon: <User size={16} />, sortable: true },
-    { key: 'observationTool', label: 'Observation Tool(s)', icon: <Activity size={16} />, sortable: true },
-    { key: 'action', label: 'Action', icon: <Activity size={16} />, sortable: false },
+    { key: 'school', label: 'School', icon: <IoSchoolOutline size={20} />, sortable: true },
+    { key: 'date', label: 'Date', icon: <PiCalendarDots size={20} />, sortable: true },
+    { key: 'startTime', label: 'Start Time', icon: <Clock size={20} />, sortable: true },
+    { key: 'endTime', label: 'End Time', icon: <Clock size={20} />, sortable: true },
+    { key: 'sessionAdmin', label: 'Session Admin', icon: <LuUserRoundCog size={20} />, sortable: true },
+    { key: 'observer', label: 'Observer(s)', icon: <PiUsers size={20} />, sortable: true },
+    { key: 'observationTool', label: 'Observation Tool(s)', icon: <BiBriefcaseAlt2 size={20} />, sortable: true },
+    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false },
   ];
 
   const fetchSessions = async () => {
@@ -52,7 +51,7 @@ export default function UpcomingSession({
     setError(null);
     try {
       // Specifically get upcoming sessions
-      const response = await getSessionsByNetwork('all');
+      const response = await getSessionsByNetwork('upcoming');
       if (response.success && response.data) {
         // Transform the API response to match our NetworkTableRow structure
         const transformedData = response?.data?.sessions?.map((session: any) => ({
@@ -110,12 +109,23 @@ export default function UpcomingSession({
               setSelectedSchoolId(row.id);
               setViewClassroomMode(true);
               
-              // Also update the parent state if available
+              // Use postMessage to communicate with parent component
+              window.postMessage({
+                type: 'VIEW_CLASSROOMS',
+                session: {
+                  id: row.id,
+                  school: row.school,
+                  date: row.date,
+                  observation_tool: row.observationTool
+                }
+              }, '*');
+              
+              // Also update the parent state if available (legacy approach)
               if (setParentViewClassroomMode) {
                 setParentViewClassroomMode(true);
               }
               
-              // Pass school data to parent component
+              // Pass school data to parent component (legacy approach)
               if (setParentSchoolData) {
                 setParentSchoolData({
                   name: row.school as string,
@@ -126,8 +136,28 @@ export default function UpcomingSession({
             }}
           >
             <span className="mr-1">View Classrooms</span>
-            <Play size={16} />
+            <Play size={20} />
           </button>
+        </div>
+      );
+    }
+    
+    if (column === 'observer') {
+      const observers = row[column] as string[];
+      if (!observers || observers.length === 0) return '-';
+      
+      // Show first two observers with comma separation
+      const displayObservers = observers.slice(0, 2).join(', ');
+      
+      // If more than 2 observers, show +X more
+      const extraCount = observers.length > 2 ? observers.length - 2 : 0;
+      
+      return (
+        <div>
+          <span className="text-xs">{displayObservers}</span>
+          {extraCount > 0 && (
+            <span className="text-[#007778] text-xs ml-1">+{extraCount} more</span>
+          )}
         </div>
       );
     }

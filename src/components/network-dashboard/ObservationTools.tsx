@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Network, Hash, Building, Calendar } from "lucide-react";
+import {User, Network, Hash, Building, Calendar} from "lucide-react";
+import { BiBriefcaseAlt2 } from "react-icons/bi";
+import { PiCalendarDots } from "react-icons/pi";
 import NetworkDashboardTable, {
   NetworkColumn,
   NetworkTableRow,
@@ -23,7 +25,7 @@ export default function ObservationTools({ searchTerm = '' }: ObservationToolsPr
     {
       key: "name",
       label: "Observation Tool",
-      icon: <Network className="h-4 w-4" />,
+      icon: <BiBriefcaseAlt2 className="h-4 w-4" />,
       sortable: true,
     },
     {
@@ -35,19 +37,19 @@ export default function ObservationTools({ searchTerm = '' }: ObservationToolsPr
     {
       key: "districts",
       label: "Used In Districts",
-      icon: <Building className="h-4 w-4" />,
+      icon: <Hash className="h-4 w-4" />,
       sortable: true,
     },
     {
       key: "schools",
       label: "Used In Schools",
-      icon: <Building className="h-4 w-4" />,
+      icon: <Hash className="h-4 w-4" />,
       sortable: true,
     },
     {
       key: "lastUsedDate",
       label: "Last Used Date",
-      icon: <Calendar className="h-4 w-4" />,
+      icon: <PiCalendarDots className="h-4 w-4" />,
       sortable: true,
     },
   ];

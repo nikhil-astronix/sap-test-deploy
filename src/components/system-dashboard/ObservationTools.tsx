@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  ClipboardList,
-  User,
-  Hash,
-} from "lucide-react";
+import {User, Hash} from "lucide-react";
 import { BiBriefcaseAlt2 } from "react-icons/bi";
 import DashboardTable, {
   TableRow,
