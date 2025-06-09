@@ -811,8 +811,8 @@ const DistrictsPage = () => {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 shadow-sm">
-          <div className="overflow-x-auto rounded-lg">
+        <div className="rounded-xl border border-gray-200 shadow-sm ">
+          <div className="overflow-x-auto rounded-lg ">
             <table className="w-full">
               <thead>
                 <tr
@@ -834,70 +834,78 @@ const DistrictsPage = () => {
                     </div>
                   </th>
                   {/* )} */}
-                  {columns.map((column) => (
-                    <th
-                      key={column.key}
-                      className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200"
-                    >
-                      <div
-                        className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
-                          column.sortable ? "cursor-pointer" : ""
+                  {columns.map((column, colIndex) => {
+                    const isLastColumn = colIndex === columns.length - 1;
+                    return (
+                      <th
+                        key={column.key}
+                        className={`min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200 ${
+                          isLastColumn && active
+                            ? "rounded-tr-xl"
+                            : "border-r-2 border-[#D4D4D4]"
                         }`}
-                        onClick={() =>
-                          column.sortable && handleSort(column.key)
-                        }
                       >
-                        {/* Left side: icon and label */}
-                        <div className="flex items-center space-x-2">
-                          {column.icon && <span>{column.icon}</span>}
-                          <span>{column.label}</span>
-                        </div>
-
-                        {/* Right side: sorting indicators */}
-                        {column.sortable && (
-                          <div className="ml-4 flex flex-col items-end">
-                            <ChevronUp
-                              size={12}
-                              className={`${
-                                sortConfig.key === column.key &&
-                                sortConfig.direction === "asc"
-                                  ? "text-white"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                            <ChevronDown
-                              size={12}
-                              className={`${
-                                sortConfig.key === column.key &&
-                                sortConfig.direction === "desc"
-                                  ? "text-white"
-                                  : "text-gray-300"
-                              }`}
-                            />
+                        <div
+                          className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
+                            column.sortable ? "cursor-pointer" : ""
+                          }`}
+                          onClick={() =>
+                            column.sortable && handleSort(column.key)
+                          }
+                        >
+                          {/* Left side: icon and label */}
+                          <div className="flex items-center space-x-2">
+                            {column.icon && <span>{column.icon}</span>}
+                            <span>{column.label}</span>
                           </div>
-                        )}
+                          {/* Right side: sorting indicators */}
+                          {column.sortable && (
+                            <div className="ml-4 flex flex-col items-end">
+                              <ChevronUp
+                                size={12}
+                                className={`${
+                                  sortConfig.key === column.key &&
+                                  sortConfig.direction === "asc"
+                                    ? "text-white"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                              <ChevronDown
+                                size={12}
+                                className={`${
+                                  sortConfig.key === column.key &&
+                                  sortConfig.direction === "desc"
+                                    ? "text-white"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </th>
+                    );
+                  })}
+                  {!active && (
+                    <th
+                      className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
+                      style={{
+                        backgroundColor: "#2264AC",
+                        boxShadow: "inset 1px 0 0 #E5E7EB",
+                      }}
+                    >
+                      <div className="flex justify-center items-center space-x-2">
+                        <Image
+                          src="/action.svg"
+                          height={13}
+                          width={13}
+                          alt="Action"
+                        />
+                        <span className="text-[14px] text-white font-semibold">
+                          Action
+                        </span>
                       </div>
                     </th>
-                  ))}
-                  <th
-                    className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
-                    style={{
-                      backgroundColor: "#2264AC",
-                      boxShadow: "inset 1px 0 0 #E5E7EB",
-                    }}
-                  >
-                    <div className="flex justify-center items-center space-x-2">
-                      <Image
-                        src="/action.svg"
-                        height={13}
-                        width={13}
-                        alt="Action"
-                      />
-                      <span className="text-[14px] text-white font-semibold">
-                        Action
-                      </span>
-                    </div>
-                  </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -922,6 +930,7 @@ const DistrictsPage = () => {
                   districts.map((district, index) => {
                     const rowId = district.id;
                     const isEditing = editingRowId === rowId;
+
                     return (
                       <tr
                         key={district.id}
@@ -942,55 +951,67 @@ const DistrictsPage = () => {
                             />
                           </div>
                         </td>
-                        {columns.map((column) => (
-                          <td
-                            key={`${rowId || index}-${column.key}`}
-                            className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4] text-left bg-transparent"
-                          >
-                            {isEditing && column.editable ? (
-                              column.options ? (
-                                <div className="relative text-left">
-                                  {
-                                    <CustomDropdown
-                                      value={editingData[column.key]}
-                                      options={column.options}
-                                      onChange={(val: any) =>
-                                        handleEditChange(column.key, val)
-                                      }
-                                    />
-                                  }
-                                </div>
+                        {columns.map((column, colIndex) => {
+                          const isLastColumn = colIndex === columns.length - 1;
+                          return (
+                            <td
+                              key={`${rowId || index}-${column.key}`}
+                              className={`px-3 py-4 whitespace-nowrap text-left bg-transparent border-[#D4D4D4] ${
+                                isLastColumn && active
+                                  ? "border-r-0"
+                                  : "border-r-2"
+                              }`}
+                            >
+                              {isEditing && column.editable ? (
+                                column.options ? (
+                                  <div className="relative text-left">
+                                    {
+                                      <CustomDropdown
+                                        value={editingData[column.key]}
+                                        options={column.options}
+                                        onChange={(val: any) =>
+                                          handleEditChange(column.key, val)
+                                        }
+                                      />
+                                    }
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={editingData[column.key]}
+                                    onChange={(e) =>
+                                      handleEditChange(
+                                        column.key,
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-left"
+                                  />
+                                )
                               ) : (
-                                <input
-                                  type="text"
-                                  value={editingData[column.key]}
-                                  onChange={(e) =>
-                                    handleEditChange(column.key, e.target.value)
-                                  }
-                                  className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-left"
-                                />
-                              )
-                            ) : (
-                              <div className="text-left text-[14px]">
-                                {renderCell(district, column.key)}
-                              </div>
-                            )}
-                          </td>
-                        ))}
-                        <td
-                          className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
-                          style={{
-                            backgroundColor: "#ffffff",
-                            boxShadow: "inset 2px 0 0 #D4D4D4",
-                          }}
-                        >
-                          <button
-                            className="text-emerald-700"
-                            onClick={() => handleStartEdit(district)}
+                                <div className="text-left text-[14px]">
+                                  {renderCell(district, column.key)}
+                                </div>
+                              )}
+                            </td>
+                          );
+                        })}
+                        {!active && (
+                          <td
+                            className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
+                            style={{
+                              backgroundColor: "#ffffff",
+                              boxShadow: "inset 2px 0 0 #D4D4D4",
+                            }}
                           >
-                            <PencilSimpleLine size={16} color="#2A7251" />
-                          </button>
-                        </td>
+                            <button
+                              className="text-emerald-700"
+                              onClick={() => handleStartEdit(district)}
+                            >
+                              <PencilSimpleLine size={16} color="#2A7251" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     );
                   })

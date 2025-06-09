@@ -188,14 +188,14 @@ const Sidebar = () => {
   const sidebarContent = (
     <div
       className={`h-full bg-gray-50 transition-all duration-300 ease-in-out flex-shrink-0
-        ${isExpanded ? "w-[280px]" : "w-16"}
+        ${isExpanded ? "w-[280px]" : "w-[280px]"}
       `}
     >
       {isMobile && (
         <div className="relative">
           <button
             onClick={toggleSidebar}
-            className="absolute right-4 top-6 bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-full shadow-lg z-10"
+            className="absolute left-6 top-6 bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-full shadow-lg z-10"
             aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
           >
             {isExpanded ? (
