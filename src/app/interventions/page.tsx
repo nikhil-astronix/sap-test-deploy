@@ -16,7 +16,7 @@ import {
   restoreIntervention,
 } from "@/services/interventionService";
 import { Intervention, InterventionType } from "@/types/interventionData";
-import { Plus } from "@phosphor-icons/react";
+import { Plus, Faders } from "@phosphor-icons/react";
 import Header from "@/components/Header";
 import { useDistrict } from "@/context/DistrictContext";
 import NoResultsFound from "@/components/ui/NoResultsFound";
@@ -56,6 +56,9 @@ export default function InterventionsPage() {
 
   // Initialize with mock data - replace with actual data fetching
   const [interventions, setInterventions] = useState<Intervention[]>([]);
+  const [bothInterventions, setBothInterventions] = useState();
+  const [defaultInterventions, setDefaultInterventions] = useState();
+  const [customInterventions, setCustomInterventions] = useState();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -88,7 +91,7 @@ export default function InterventionsPage() {
     const districtId = localStorage.getItem("globalDistrict");
     const obj = {
       is_archived: isActive,
-      filter: filterType,
+      filter: filterType === "Both" ? null : filterType,
       search: searchQuery,
       per_page: 100,
       sort_order:
@@ -109,6 +112,9 @@ export default function InterventionsPage() {
     const response = await getInterventions(obj);
 
     setInterventions(response.data.interventions);
+    setBothInterventions(response.data.total_both_interventions);
+    setDefaultInterventions(response.data.total_default_interventions);
+    setCustomInterventions(response.data.total_custom_interventions);
   };
   useEffect(() => {
     getData();
@@ -188,9 +194,9 @@ export default function InterventionsPage() {
   // Replace the hardcoded filter counts with a useMemo hook
   const filterCounts = useMemo(() => {
     return {
-      Default: interventions.filter((item) => item.type === "Default").length,
-      Custom: interventions.filter((item) => item.type === "Custom").length,
-      Both: interventions.length,
+      Default: defaultInterventions, //interventions.filter((item) => item.type === "Default").length,
+      Custom: customInterventions, //interventions.filter((item) => item.type === "Custom").length,
+      Both: bothInterventions, //interventions.length,
     };
   }, [interventions]);
 
@@ -232,7 +238,7 @@ export default function InterventionsPage() {
                     : "border border-gray-300 bg-gray-100"
                 }`}
               >
-                <AdjustmentsHorizontalIcon className="h-5 w-5" />
+                <Faders className="h-5 w-5" />
               </button>
             </div>
 
