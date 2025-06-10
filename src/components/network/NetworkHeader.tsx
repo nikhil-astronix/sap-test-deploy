@@ -210,46 +210,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
 						</div>
 					</div>
 
-					{/* Only show the Active/Archive toggle if NOT on Today's tab */}
-					{!disableArchiveActions && (
-						<div className='flex items-center gap-2 mb-4 mt-4'>
-							<div className='flex items-center space-x-2'>
-								<span
-									className={`text-12px ${
-										active ? "text-[#494B56]" : "text-[#000] font-medium"
-									}`}
-								>
-									{activeLabel}
-								</span>
-								<motion.button
-									whileTap={{ scale: 0.95 }}
-									onClick={() => setActive((a) => !a)}
-									className='relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-[#2A7251]'
-								>
-									<motion.span
-										layout
-										initial={false}
-										animate={{
-											x: active ? 24 : 4,
-										}}
-										transition={{
-											type: "spring",
-											stiffness: 500,
-											damping: 30,
-										}}
-										className='inline-block h-4 w-4 rounded-full bg-white'
-									/>
-								</motion.button>
-								<span
-									className={`text-12px ${
-										active ? "text-[#000] font-medium" : "text-[#494B56]"
-									}`}
-								>
-									{archivedLabel}
-								</span>
-							</div>
-						</div>
-					)}
+					{/* Switch button is completely removed - no conditional rendering */}
 				</>
 			)}
 		</>
