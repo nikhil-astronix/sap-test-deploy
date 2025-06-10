@@ -4,6 +4,7 @@ import { createNetwork } from "@/services/networkService";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { z } from "zod";
+import Header from "@/components/Header";
 
 // Define schema for network validation
 const networkSchema = z.object({
@@ -72,18 +73,16 @@ export default function NewNetworkPage() {
   };
 
   return (
-    <div className="container mx-auto bg-white rounded-lg min-h-screen overflow-y-auto">
+    <div className="container mx-auto px-4 py-8 bg-white rounded-lg shadow-md min-h-full">
       <div className="max-w-3xl mx-auto h-auto">
-        <h1 className="text-2xl font-medium  my-6 text-center">
-          Create Network
-        </h1>
-        <p className="text-gray-600 mb-8 text-center">
-          Enter the details below to add a new network.
-        </p>
+        <Header
+          title="Create Network"
+          description="Enter the details below to add a new network."
+        />
 
-        <div>
+        <div className="space-y-6">
           <label className="block text-[16px] text-black-400 mb-2">
-            Network <span className="text-emerald-700">*</span>
+            Network Name <span className="text-[#22A469]">*</span>
           </label>
           <input
             type="text"
@@ -92,7 +91,7 @@ export default function NewNetworkPage() {
             onChange={(e) =>
               setFormData({ ...formData, network: e.target.value })
             }
-            className={`w-full px-3 py-2 rounded-lg border text-[12px] bg-[#F4F6F8] ${
+            className={`w-full px-3 py-2 rounded-lg border  bg-[#F4F6F8] ${
               validationErrors.network
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-200 focus:ring-emerald-500"
@@ -103,7 +102,13 @@ export default function NewNetworkPage() {
               {validationErrors.network}
             </p>
           )}
-          <div className="flex justify-end mt-6 px-2 ">
+          <div className="flex justify-between mt-6 px-2">
+            <button
+              onClick={() => router.push("/network")}
+              className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+            >
+              Cancel
+            </button>
             <button
               onClick={handleSubmit}
               disabled={isLoading}

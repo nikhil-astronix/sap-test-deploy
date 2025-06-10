@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MultiSelect from "@/components/ui/MultiSelect";
-import Dropdown from "@/components/ui/Dropdown"; // Add this import
+import Dropdown from "@/components/ui/Dropdown";
 
 interface Classroom {
 	id: string;
@@ -17,6 +17,9 @@ interface SchoolClassroomStepProps {
 	classrooms: Classroom[];
 	selectedSchool: string;
 	selectedClassrooms: string[];
+	observationTools: Array<{ id: string; name: string }>; // Add this
+	selectedObservationTool: string; // Add this
+	onObservationToolChange: (toolId: string) => void; // Add this
 	onSchoolChange: (schoolId: string) => void;
 	onClassroomChange: (classroomIds: string[]) => void;
 	onNext: () => void;
@@ -29,6 +32,9 @@ const SchoolClassroomStep = ({
 	classrooms,
 	selectedSchool,
 	selectedClassrooms,
+	observationTools, // Add this
+	selectedObservationTool, // Add this
+	onObservationToolChange, // Add this
 	onSchoolChange,
 	onClassroomChange,
 	onNext,
@@ -45,7 +51,9 @@ const SchoolClassroomStep = ({
 		<div className='max-w-2xl mx-auto'>
 			<div className='space-y-6'>
 				<div>
-					<label className='block text-sm font-medium mb-1'>School</label>
+					<label className='block text-[16px] text-balck-400 mb-2'>
+						School
+					</label>
 					<Dropdown
 						options={schoolOptions}
 						value={selectedSchool}
@@ -58,7 +66,9 @@ const SchoolClassroomStep = ({
 				</div>
 
 				<div>
-					<label className='block text-sm font-medium mb-1'>Classroom(s)</label>
+					<label className='block text-[16px] text-balck-400 mb-2'>
+						Classroom(s)
+					</label>
 					<div className='space-y-2'>
 						{selectedClassrooms.map((id) => {
 							const classroom = classrooms.find((c) => c.id === id);
@@ -66,7 +76,7 @@ const SchoolClassroomStep = ({
 							return (
 								<div
 									key={id}
-									className='inline-flex items-center bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full mr-2'
+									className='inline-flex items-center bg-emerald-50 text-emerald-700 px-4 py-1.5 border border-emerald-700 rounded-full mr-2'
 								>
 									<span>{classroom.name}</span>
 									<button
@@ -110,37 +120,44 @@ const SchoolClassroomStep = ({
 				</div>
 
 				<div>
-					<label className='block text-sm font-medium mb-1'>
+					<label className='block text-[16px] text-balck-400 mb-2'>
 						Observation Tool
 					</label>
 					<Dropdown
-						options={[]} // Add your observation tool options here
-						value={""}
-						onChange={() => {}} // Add your onChange handler
+						options={observationTools.map((tool) => ({
+							value: tool.id,
+							label: tool.name,
+						}))}
+						value={selectedObservationTool}
+						onChange={onObservationToolChange}
 						placeholder='Select an observation tool'
-						className='bg-gray-50'
+						className='bg-[#F4F6F8]'
 					/>
 				</div>
 
-				<div className='flex justify-end space-x-4 pt-6'>
+				<div className='flex justify-between space-x-4 pt-6 w-full'>
 					<button
 						onClick={onBack}
 						className='px-4 py-2 text-gray-700 hover:text-gray-900'
 					>
 						Back
 					</button>
-					<button
-						onClick={onCancel}
-						className='px-4 py-2 text-gray-700 hover:text-gray-900'
-					>
-						Cancel
-					</button>
-					<button
-						onClick={onNext}
-						className='px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors'
-					>
-						Next
-					</button>
+
+					<div className='flex space-x-4 justify-between full'>
+						<button
+							onClick={onCancel}
+							className='px-4 py-2 text-gray-700 hover:text-gray-900 bg-[#F4F6F8] rounded-md '
+						>
+							Cancel
+						</button>
+						<button
+							onClick={onNext}
+							className='px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors'
+							// disabled={selectedUsers.length > 0 && !sessionAdmin}
+						>
+							Next
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

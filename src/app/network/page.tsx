@@ -12,16 +12,12 @@ import {
   City,
   XCircle,
   ClockClockwise,
+  Archive,
+  Trash,
+  CheckCircle,
 } from "@phosphor-icons/react";
 
-import {
-  Trash2,
-  Archive,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  RotateCcw,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   archiveNetwork,
@@ -415,17 +411,17 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
-                ? "Please select districts to archive."
+                ? "Please select networks to archive."
                 : `Are you sure you want to archive ${
                     getSelectedItemsInfo().length === 1
-                      ? "this District?"
-                      : "these Districts?"
+                      ? "this network?"
+                      : "these networks?"
                   }`}
             </p>
 
@@ -444,9 +440,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item.text}</p>
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-gray-500 text-right">
+                    <div className="text-[12px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -471,10 +469,10 @@ export default function NetworksPage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No networks selected. Please select at least one network to archive."
                   : `Archiving ${
@@ -495,7 +493,7 @@ export default function NetworksPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -506,7 +504,7 @@ export default function NetworksPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-lg transition-colors`}
+                } text-white font-medium rounded-lg transition-colors`}
               >
                 Archive
               </button>
@@ -521,13 +519,11 @@ export default function NetworksPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-semibold text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] text-black font-medium">Restore</h2>
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select networks to restore."
                 : `Are you sure you want to restore ${
@@ -552,9 +548,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item.text}</p>
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-gray-500 text-right">
+                    <div className="text-[12px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -569,10 +567,10 @@ export default function NetworksPage() {
                   <Info size={16} color="#2264AC" />
                 </div>
                 <div className="ml-1">
-                  <p className="text-sm">Note</p>
+                  <p className="text-sm font-medium">Note</p>
                 </div>
               </div>
-              <p className="text-left text-sm mt-2">
+              <p className="text-left text-sm mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No networks selected. Please select at least one network to restore."
                   : `Restoring ${
@@ -589,7 +587,7 @@ export default function NetworksPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -600,7 +598,7 @@ export default function NetworksPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-lg transition-colors`}
+                } text-white font-medium rounded-lg transition-colors`}
               >
                 Restore
               </button>
@@ -614,12 +612,12 @@ export default function NetworksPage() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 className="text-gray-700" size={24} />
-              <h2 className="text-[16px] font-normal text-black-400">Delete</h2>
+              <Trash className="text-gray-700" size={24} />
+              <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
 
             {/* Prompt */}
-            <p className="text-gray-800 mb-4">
+            <p className="text-gray-800 mb-4 font-medium">
               Are you sure you want to delete this Network?
             </p>
 
@@ -638,9 +636,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item.text}</p>
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-black-400 text-right">
+                    <div className="text-[12px] text-black font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -666,11 +666,14 @@ export default function NetworksPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-[#C23E19]"> Warning</p>
+                    <p className="text-sm text-[#C23E19] font-medium">
+                      {" "}
+                      Warning
+                    </p>
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-[#C23E19] py-2">
+              <p className="text-sm text-[#C23E19] py-2 font-medium">
                 Deleting this network will remove it from the existing networks.
                 Please confirm before proceeding.
               </p>
@@ -680,13 +683,13 @@ export default function NetworksPage() {
             <div className="flex justify-between items-center">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-gray-700 hover:text-black transition-colors"
+                className="px-4 py-2 text-gray-700 hover:text-black transition-colors font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-[#B4351C] text-white rounded-lg hover:bg-[#943015] transition-colors"
+                className="px-4 py-2 bg-[#B4351C] text-white font-medium rounded-lg hover:bg-[#943015] transition-colors"
               >
                 Delete
               </button>
@@ -714,7 +717,7 @@ export default function NetworksPage() {
         isActiveArchived={false}
       />
 
-      <div className=" rounded-lg border border-gray-300 shadow-sm bg-white">
+      <div className=" rounded-xl border border-gray-300 shadow-sm bg-white">
         <table className="w-full border-collapse text-sm rounded-lg">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300 ">
@@ -724,33 +727,33 @@ export default function NetworksPage() {
                     type="checkbox"
                     checked={selectAll}
                     onChange={handleSelectAll}
-                    className="h-4 w-4 appearance-none text-[#2264AC] border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
+                    className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
                   />
                 </div>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <div className="flex items-center gap-2">
-                  <City size={16} />
-                  District
+              <th className="w-[20%]  py-3 text-left font-semibold border-r border-gray-300">
+                <div className="flex items-center space-x-2">
+                  <City size={20} />
+                  <span>District</span>
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Bank size={16} />
-                  State
-                </span>
+                <div className="inline-flex items-center space-x-2">
+                  <Bank size={20} />
+                  <span>State</span>
+                </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Building size={16} />
-                  City/Town
-                </span>
+                <div className="inline-flex items-center space-x-2">
+                  <Building size={20} />
+                  <span>City/Town</span>
+                </div>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <User size={16} />
-                  Created By
-                </span>
+              <th className="w-[20%] px-4 py-3 text-left font-semibold">
+                <div className="inline-flex items-center space-x-2">
+                  <User size={20} />
+                  <span>Created By</span>
+                </div>
               </th>
               <th className="w-[5%] px-4 py-3 rounded-tr-lg"></th>
             </tr>
@@ -790,13 +793,14 @@ export default function NetworksPage() {
                           onChange={(e) =>
                             handleSelectRow(network.id, "all", e)
                           }
-                          className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                          className="h-4 w-4"
+                          style={{ accentColor: "#2264AC" }}
                         />
                       </div>
                     </td>
                     <td
                       colSpan={5}
-                      className="px-4 py-3 border-b border-gray-300"
+                      className="pr-4 py-4 border-b border-gray-300"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExpand(network.id);
@@ -805,10 +809,16 @@ export default function NetworksPage() {
                       <div className="flex items-center justify-between">
                         {editing === network.id ? (
                           <input
-                            className="font-semibold text-sm py-1 px-0 bg-transparent border-b-2 border-blue-500 focus:outline-none focus:ring-0 w-full max-w-[250px]"
+                            className="font-semibold text-sm py-1 px-0 bg-transparent border-b-2 border-[#637381] focus:outline-none focus:ring-0 w-full max-w-[250px]"
                             value={editData.name}
                             onChange={(e) => handleEditChange(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleSave(network);
+                              }
+                            }}
                             autoFocus
                           />
                         ) : (
@@ -817,7 +827,7 @@ export default function NetworksPage() {
                           </span>
                         )}
                         <div className="flex items-center gap-2">
-                          {!editing && (
+                          {!editing && !active && (
                             <button
                               className="text-emerald-700 mr-2"
                               onClick={(e) => {
@@ -837,7 +847,7 @@ export default function NetworksPage() {
                                   handleSave(network);
                                 }}
                               >
-                                <Check size={18} />
+                                <CheckCircle size={18} color="#2264AC" />
                               </button>
                               <button
                                 className="text-gray-500"
@@ -850,15 +860,9 @@ export default function NetworksPage() {
                               </button>
                             </>
                           ) : expanded === network.id ? (
-                            <CaretCircleUp
-                              className="text-gray-600"
-                              size={16}
-                            />
+                            <CaretCircleUp size={16} color="#2264AC" />
                           ) : (
-                            <CaretCircleDown
-                              className="text-gray-600"
-                              size={16}
-                            />
+                            <CaretCircleDown color="#2264AC" size={16} />
                           )}
                         </div>
                       </div>
@@ -875,10 +879,10 @@ export default function NetworksPage() {
                           }
                         >
                           <td
-                            className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                            className="px-4 py-3  bg-transparent" //bg-[#F8FAFC]
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div className="flex items-center">
+                            {/* <div className="flex items-center">
                               <input
                                 type="checkbox"
                                 checked={selectedRows.districts.has(
@@ -889,21 +893,19 @@ export default function NetworksPage() {
                                 }
                                 className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
                               />
-                            </div>
+                            </div> */}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="py-4 border-r border-gray-200">
                             {district.district}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="px-4 py-4 border-r border-gray-200">
                             {district.state}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="px-4 py-4 border-r border-gray-200">
                             {district.city}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            {district.created}
-                          </td>
-                          <td className="px-4 py-2 text-center">
+                          <td className="px-4 py-4 ">{district.created}</td>
+                          <td className="px-4 py-4 text-center">
                             {/* District actions removed */}
                           </td>
                         </tr>
@@ -936,14 +938,14 @@ export default function NetworksPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Rows per page:</span>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm text-gray ">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={(e) =>
                   handleRowsPerPageChange(Number(e.target.value))
                 }
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={loading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -966,7 +968,7 @@ export default function NetworksPage() {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm px-1 text-gray-500">
                 {currentPage}/{totalPages || 1}
               </span>
               <button

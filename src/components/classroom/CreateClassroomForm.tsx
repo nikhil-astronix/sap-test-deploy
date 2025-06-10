@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import Stepper from "./Stepper";
 import Dropdown from "../ui/Dropdown";
@@ -63,7 +63,7 @@ const steps = [
   { label: "Review & Submit", id: "review" },
 ];
 
-const gradeOptions = [
+const gradeOptions1 = [
   { label: "Kindergarten", value: "Kindergarten" },
   { label: "1", value: "1" },
   { label: "2", value: "2" },
@@ -86,6 +86,11 @@ export default function CreateClassroomForm() {
   const [interventions, setInterventions] = useState<any[]>([]);
   const [apiError, setApiError] = useState("");
   const [apiSuccess, setApiSuccess] = useState("");
+  const [schools, setSchools] = useState<any[]>([]);
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
+  const [gradeOptions, setGradeOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   // Initialize React Hook Form with Zod validation
   const defaultValues: ClassroomFormData = {
@@ -129,6 +134,29 @@ export default function CreateClassroomForm() {
     status: getStepStatus(index) as "completed" | "current" | "upcoming",
   }));
 
+  const schoolMap = useMemo(
+    () => Object.fromEntries(schools.map((school: any) => [school.id, school])),
+    [schools]
+  );
+
+  const handleSchoolChange = (schoolId: string) => {
+    setSelectedSchoolId(schoolId);
+
+    const selectedSchool = schoolMap[schoolId];
+    if (selectedSchool) {
+      const formattedGrades = selectedSchool.grades.map((grade: string) => ({
+        label: grade,
+        value: grade,
+      }));
+      setGradeOptions(formattedGrades);
+    } else {
+      setGradeOptions([]);
+    }
+
+    // Optionally clear previous grade selections
+    // onChange("grades", []);
+  };
+
   useEffect(() => {
     fetchSchools();
     fetchCurriculums();
@@ -137,6 +165,7 @@ export default function CreateClassroomForm() {
 
   const fetchSchools = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: null,
         sort_by: null,
@@ -144,6 +173,7 @@ export default function CreateClassroomForm() {
         curr_page: 1,
         per_page: 100,
         search: null,
+        district_id: districtId,
       };
       const response = await getSchools(requesPayload);
       const formattedschools = response.data.schools.map((school: any) => ({
@@ -151,6 +181,7 @@ export default function CreateClassroomForm() {
         label: school.name,
       }));
       setSchoolsData(formattedschools);
+      setSchools(response.data.schools);
     } catch (error) {
       console.error("Error fetching schools:", error);
     }
@@ -158,6 +189,7 @@ export default function CreateClassroomForm() {
 
   const fetchCurriculums = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: false,
         type: ["Default", "Custom"].join(","),
@@ -166,6 +198,7 @@ export default function CreateClassroomForm() {
         search: null,
         page: 1,
         limit: 100,
+        district_id: districtId || null,
       };
       const data = await fetchAllCurriculums(requesPayload);
 
@@ -179,6 +212,7 @@ export default function CreateClassroomForm() {
 
   const fetchInterventions = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: false,
         filter: null,
@@ -187,6 +221,7 @@ export default function CreateClassroomForm() {
         search: null,
         curr_page: 1,
         per_page: 100,
+        district_id: districtId || null,
       };
       const data = await getInterventions(requesPayload);
       if (data.success) {
@@ -226,9 +261,11 @@ export default function CreateClassroomForm() {
   // Handle final form submission
   const onSubmit = async (data: ClassroomFormData) => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       setApiError("");
       const submitData = {
         school_id: data.school_id,
+        district_id: districtId || "",
         school_name: data.school,
         course: data.course,
         teacher_name: data.teacher,
@@ -286,6 +323,8 @@ export default function CreateClassroomForm() {
               onNext={() => validateStep(1)}
               schoolsData={schoolsData}
               errors={errors}
+              handleSchoolChange={handleSchoolChange}
+              gradeOptions={gradeOptions}
             />
           )}
 
@@ -333,12 +372,16 @@ function BasicInfo({
   onNext,
   schoolsData,
   errors,
+  handleSchoolChange,
+  gradeOptions,
 }: {
   formData: ClassroomFormData;
   onChange: (field: keyof ClassroomFormData, value: any) => void;
   onNext: () => void;
   schoolsData: any[];
   errors: any;
+  handleSchoolChange: (schoolId: string) => void;
+  gradeOptions: { label: string; value: string }[];
 }) {
   const router = useRouter();
 
@@ -346,16 +389,16 @@ function BasicInfo({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School <span className="text-emerald-700">*</span>
+          School <span className="text-[#2A7251]">*</span>
         </label>
         <Dropdown
           options={schoolsData}
           value={formData.school_id}
           onChange={(value) => {
+            handleSchoolChange(value); // <-- school id passed
             const selectedSchool = schoolsData.find(
               (school) => school.value === value
             );
-
             onChange("school_id", value);
             onChange("school", selectedSchool?.label || value);
           }}
@@ -371,7 +414,7 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Course <span className="text-emerald-700">*</span>
+          Course <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -382,7 +425,7 @@ function BasicInfo({
             errors.course
               ? "border-red-500 focus:ring-red-500"
               : "border-gray-200 focus:ring-emerald-500"
-          } focus:outline-none focus:ring-1 bg-[#F4F6F8] text-[12px]`}
+          } focus:outline-none focus:ring-1 bg-[#F4F6F8] `}
         />
         {errors.course && (
           <p className="text-red-500 text-xs mt-1">
@@ -393,14 +436,14 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Teacher <span className="text-emerald-700">*</span>
+          Teacher <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           placeholder="Enter Teacher Name"
           value={formData.teacher}
           onChange={(e) => onChange("teacher", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] text-[12px]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] "
         />
         {errors.teacher && (
           <p className="text-red-500 text-xs mt-1">
@@ -411,14 +454,15 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <MultiSelect
           options={gradeOptions}
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
           placeholder="Select grades"
-          className={`bg-[#F4F6F8] text-[#919EAB] text-[12px] ${
+          isGrade={true}
+          className={`bg-[#F4F6F8] text-[#919EAB] ${
             errors.grades ? "border-red-500" : ""
           }`}
         />
@@ -438,7 +482,7 @@ function BasicInfo({
           placeholder="Enter class period / section"
           value={formData.classPeriod}
           onChange={(e) => onChange("classPeriod", e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] text-[12px]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-[#F4F6F8] "
         />
       </div>
 
@@ -553,8 +597,8 @@ function SelectInterventions({
                   transition={{ delay: 0.2, duration: 0.3 }}
                   className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                     tag.type === "Custom"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                      : "bg-[#F2FAF6] text-[#2A7251]"
                   }`}
                 >
                   <motion.div
@@ -562,7 +606,7 @@ function SelectInterventions({
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, duration: 0.2 }}
                     className={`w-2 h-2 rounded-full mr-1 ${
-                      tag.type === "Custom" ? "bg-purple-800" : "bg-emerald-800"
+                      tag.type === "Custom" ? "bg-[#6C4996]" : "bg-[#2A7251]"
                     }`}
                   />
                   {tag.type}
@@ -708,8 +752,8 @@ function SelectCurriculum({
                   transition={{ delay: 0.2, duration: 0.3 }}
                   className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                     material.type === "Custom"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                      : "bg-[#F2FAF6] text-[#2A7251]"
                   }`}
                 >
                   <motion.div
@@ -718,8 +762,8 @@ function SelectCurriculum({
                     transition={{ delay: 0.3, duration: 0.2 }}
                     className={`w-2 h-2 rounded-full mr-1 ${
                       material.type === "Custom"
-                        ? "bg-purple-800"
-                        : "bg-emerald-800"
+                        ? "bg-[#6C4996]"
+                        : "bg-[#2A7251]"
                     }`}
                   />
                   {material.type}
@@ -783,7 +827,7 @@ function ReviewSubmit({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School <span className="text-emerald-700">*</span>
+          School <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -795,7 +839,7 @@ function ReviewSubmit({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Course <span className="text-emerald-700">*</span>
+          Course <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -807,7 +851,7 @@ function ReviewSubmit({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Teacher <span className="text-emerald-700">*</span>
+          Teacher <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
@@ -819,7 +863,7 @@ function ReviewSubmit({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <div className="w-full px-3 py-2 rounded-lg bg-white min-h-[38px]">
           {formData.grades && formData.grades.length > 0 ? (
@@ -827,7 +871,7 @@ function ReviewSubmit({
               {formData.grades.map((grade: string) => (
                 <span
                   key={grade}
-                  className="bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1 text-[12px]"
+                  className="bg-[#F2FAF6] text-[#2A7251] text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1 text-[12px]"
                 >
                   <Student size={16} />
                   {grade === "K"
@@ -884,8 +928,8 @@ function ReviewSubmit({
                       transition={{ delay: 0.2, duration: 0.3 }}
                       className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                         tag.type === "Custom"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-emerald-100 text-emerald-700"
+                          ? "bg-[#F4EBFF] text-[#6C4996]"
+                          : "bg-[#F2FAF6] text-[#2A7251]"
                       }`}
                     >
                       <motion.div
@@ -894,8 +938,8 @@ function ReviewSubmit({
                         transition={{ delay: 0.3, duration: 0.2 }}
                         className={`w-2 h-2 rounded-full mr-1 ${
                           tag.type === "Custom"
-                            ? "bg-purple-800"
-                            : "bg-emerald-800"
+                            ? "bg-[#6C4996]"
+                            : "bg-[#2A7251]"
                         }`}
                       />
                       {tag.type}
@@ -945,8 +989,8 @@ function ReviewSubmit({
                       transition={{ delay: 0.2, duration: 0.3 }}
                       className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                         material.type === "Custom"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-emerald-100 text-emerald-700"
+                          ? "bg-[#F4EBFF] text-[#6C4996]"
+                          : "bg-[#F2FAF6] text-[#2A7251]"
                       }`}
                     >
                       <motion.div
@@ -955,8 +999,8 @@ function ReviewSubmit({
                         transition={{ delay: 0.3, duration: 0.2 }}
                         className={`w-2 h-2 rounded-full mr-1 ${
                           material.type === "Custom"
-                            ? "bg-purple-800"
-                            : "bg-emerald-800"
+                            ? "bg-[#6C4996]"
+                            : "bg-[#2A7251]"
                         }`}
                       />
                       {material.type}

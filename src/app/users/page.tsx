@@ -20,8 +20,9 @@ import {
 } from "@phosphor-icons/react";
 import { getNetwork } from "@/services/networkService";
 import { getSchools } from "@/services/schoolService";
-import { fetchAllDistricts } from "@/services/districtService";
+import { fetchAllDistrictsByNetwork } from "@/services/districtService";
 import { getDistrictsPayload } from "@/services/districtService";
+import Header from "@/components/Header";
 
 export default function SchoolsPage() {
   const [usersData, setUsersData] = useState<any[]>([]);
@@ -64,33 +65,19 @@ export default function SchoolsPage() {
     { id: "Other", label: "Other" },
   ];
 
-  const districts1 = [
-    { id: "District A", label: "District A" },
-    { id: "District B", label: "District B" },
-  ];
-  const schools1 = [
-    { id: "ABC School", label: "ABC School" },
-    { id: "School B", label: "School B" },
-  ];
-
-  const networks1 = [
-    { id: "Network 4", label: "Network 4" },
-    { id: "Network 5", label: "Network 5" },
-  ];
-
   const columns: Column[] = [
     {
       key: "first_name",
       label: "First Name",
       sortable: true,
-      icon: <IdentificationBadge size={16} />,
+      icon: <IdentificationBadge size={20} />,
       editable: true,
     },
     {
       key: "last_name",
       label: "Last Name",
       sortable: true,
-      icon: <IdentificationBadge size={16} />,
+      icon: <IdentificationBadge size={20} />,
       editable: true,
       // options: gradeOptions,
     },
@@ -98,7 +85,7 @@ export default function SchoolsPage() {
       key: "email",
       label: "Email",
       sortable: true,
-      icon: <Envelope size={18} />,
+      icon: <Envelope size={20} />,
       editable: true,
       // options: curriculaOptions,
     },
@@ -106,7 +93,7 @@ export default function SchoolsPage() {
       key: "network",
       label: "Network",
       sortable: true,
-      icon: <Network size={16} />,
+      icon: <Network size={20} />,
       editable: true,
       options: networks,
     },
@@ -114,7 +101,7 @@ export default function SchoolsPage() {
       key: "district",
       label: "District",
       sortable: true,
-      icon: <City size={16} />,
+      icon: <City size={20} />,
       editable: true,
       options: districts,
     },
@@ -122,7 +109,7 @@ export default function SchoolsPage() {
       key: "school",
       label: "School",
       sortable: true,
-      icon: <GraduationCap size={16} />,
+      icon: <GraduationCap size={20} />,
       editable: true,
       options: schools,
     },
@@ -130,7 +117,7 @@ export default function SchoolsPage() {
       key: "role",
       label: "Role",
       sortable: true,
-      icon: <IdentificationCard size={18} />,
+      icon: <IdentificationCard size={20} />,
       editable: true,
       options: roles,
     },
@@ -138,7 +125,7 @@ export default function SchoolsPage() {
       key: "user_type",
       label: "User Type",
       sortable: true,
-      icon: <IdentificationCard size={18} />,
+      icon: <IdentificationCard size={20} />,
       editable: true,
       options: userTypes,
     },
@@ -304,8 +291,6 @@ export default function SchoolsPage() {
 
   useEffect(() => {
     getNetworks();
-    getSchoolData();
-    fetchAllDistrictsInfo();
     fetchData(
       currentPage,
       rowsPerPage,
@@ -316,27 +301,48 @@ export default function SchoolsPage() {
     );
   }, [searchQuery]);
 
-  const fetchAllDistrictsInfo = async () => {
-    const payload: getDistrictsPayload = {
-      is_archived: null,
-      network_id: null,
-      sort_by: null,
-      sort_order: null,
-      page: 1,
-      limit: 100,
-      search: null,
-    };
-    const response = await fetchAllDistricts(payload);
-    if (response.success) {
-      const formattedDistricts = response.data.districts.map(
-        (district: any) => ({
-          id: district._id,
+  const handleNetworkChange = async (networkId: string) => {
+    try {
+      const response = await fetchAllDistrictsByNetwork(networkId);
+      if (response.success) {
+        const formattedDistricts = response.data.map((district: any) => ({
+          id: district.id,
           label: district.name,
-        })
-      );
-      setDistricts(formattedDistricts);
-    } else {
+        }));
+        setDistricts(formattedDistricts);
+      } else {
+        setDistricts([]);
+      }
+    } catch (error) {
       setDistricts([]);
+      console.error("Error fetching districts:", error);
+      return [];
+    }
+  };
+
+  const handleDistrictChange = async (districtId: string) => {
+    try {
+      const requestPayload = {
+        is_archived: isArchived,
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+        district_id: districtId,
+      };
+
+      const response = await getSchools(requestPayload);
+      const formattedSchools = response.data.schools.map((school: any) => ({
+        id: school.id,
+        label: school.name,
+      }));
+
+      setSchools(formattedSchools);
+    } catch (error) {
+      setSchools([]);
+      console.error("Error fetching schools:", error);
+      return [];
     }
   };
 
@@ -360,36 +366,13 @@ export default function SchoolsPage() {
     console.log("responseresponseresponse", response);
   };
 
-  const getSchoolData = async () => {
-    const requestPayload = {
-      is_archived: isArchived,
-      sort_by: null,
-      sort_order: null,
-      curr_page: 1,
-      per_page: 100,
-      search: null,
-    };
-
-    const response = await getSchools(requestPayload);
-    const formattedSchools = response.data.schools.map((school: any) => ({
-      id: school.id,
-      label: school.name,
-    }));
-
-    setSchools(formattedSchools);
-  };
-
   return (
-    <div className="container text-center mx-auto px-4 py-8 bg-white">
-      <h1 className="text-2xl text-center text-black font-medium mb-2">
-        Users
-      </h1>
-      <div>
-        <p className="text-center text-[16px] text-[#454F5B]-400 mb-2">
-          Browse all users across districts. Add, update, or archive user
-          accounts as needed.
-        </p>
-      </div>
+    <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
+      <Header
+        title="Users"
+        description="Browse all users across districts. Add, update, or archive user
+          accounts as needed."
+      />
 
       <Table
         columns={columns}
@@ -423,6 +406,8 @@ export default function SchoolsPage() {
         dynamicbg={"#F9F5FF"}
         onCreate={"/users/new"}
         pageType="users"
+        onNetworkChange={handleNetworkChange}
+        onDistrictChange={handleDistrictChange}
       />
     </div>
   );

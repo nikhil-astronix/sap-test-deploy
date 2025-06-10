@@ -67,8 +67,30 @@ export interface classroomData {
 
 export interface schoolData {
   name: string;
-  district: string | null;
+  district: string;
   grades: string[];
   curriculums: string[];
   interventions: string[];
+}
+
+export interface FetchAllSessionsRequestPayload {
+  is_archived: boolean;
+  sort_by: string | null;
+  sort_order: string | null;
+  curr_page: number;
+  per_page: number;
+  search: string | null;
+  time: string | null;
+}
+
+export interface ObservationSessionData {
+  date: string;
+  start_time: string;
+  end_time: string;
+  district: string;
+  school: string;
+  classrooms: string[];
+  observation_tool: string;
+  users: string[];
+  session_admin: string;
 }

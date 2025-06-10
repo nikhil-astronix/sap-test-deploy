@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { AnimatedContainer } from "@/components/ui/animated-container";
 import { motion } from "framer-motion";
 import { FaChevronDown } from "react-icons/fa";
@@ -25,6 +25,8 @@ import {
 import apiClient from "@/api/axiosInterceptor";
 import { createObservationTool } from "@/services/observationToolService";
 import { useRouter } from "next/navigation";
+import { getObservationTools } from "@/api/observation-tool/observationToolsApi";
+import { getObservationToolById } from "@/api/observation-tool/observationToolsApi";
 
 interface ExistingTool {
   id: string;
@@ -46,6 +48,7 @@ interface Subsection {
   name: string;
   description: string;
   questions: Question[];
+  isImported?: boolean;
 }
 
 // Update Question type to include subsections for conditional logic
@@ -59,6 +62,7 @@ type Question = {
   // For future extensibility, not used in this UI yet
   conditionalLogicOptions?: ConditionalLogicOption[];
   subsections?: Subsection[];
+  isImported: boolean;
 };
 
 // Sortable Question Card (move outside main component)
@@ -132,8 +136,10 @@ function SortableQuestion({
             options: ["", ""],
             isMandatory: true,
             conditionalLogic: false,
+            isImported: false,
           },
         ],
+        isImported: false,
       });
       return { ...q, subsections: newSubsections };
     });
@@ -191,6 +197,7 @@ function SortableQuestion({
               options: [""],
               isMandatory: false,
               conditionalLogic: false,
+              isImported: false,
             },
           ],
         };
@@ -240,6 +247,7 @@ function SortableQuestion({
           setQuestions(updatedQuestions);
         }}
         className="w-full text-xl font-medium mb-4 p-2 border-b focus:outline-none"
+        disabled={question.isImported}
       />
       <div className="w-full mt-2 relative ">
         <ReactQuill
@@ -268,6 +276,7 @@ function SortableQuestion({
             "bullet",
             "align",
           ]}
+          readOnly={question.isImported}
         />
         <div
           id={`custom-quill-toolbar-${question.id}`}
@@ -296,7 +305,7 @@ function SortableQuestion({
           </div>
           {question.options.map((opt, optIdx) => (
             <div key={optIdx} className="flex items-center gap-4 mb-2">
-              <input type="checkbox" />
+              <input type="checkbox" disabled />
               <input
                 type="text"
                 className="w-56 p-2 border rounded text-base"
@@ -320,24 +329,30 @@ function SortableQuestion({
                   );
                   setQuestions(updatedQuestions);
                 }}
+                disabled={question.isImported}
               />
-              <button
-                className="ml-2 text-gray-400"
-                onClick={() => {
-                  const updatedQuestions = questions.map((q, i) =>
-                    i === index
-                      ? {
-                          ...q,
-                          options: q.options.filter((_, oi) => oi !== optIdx),
-                        }
-                      : q
-                  );
-                  setQuestions(updatedQuestions);
-                }}
+              {!question.isImported && (
+                <button
+                  className="ml-2 text-gray-400"
+                  onClick={() => {
+                    const updatedQuestions = questions.map((q, i) =>
+                      i === index
+                        ? {
+                            ...q,
+                            options: q.options.filter((_, oi) => oi !== optIdx),
+                          }
+                        : q
+                    );
+                    setQuestions(updatedQuestions);
+                  }}
+                >
+                  ×
+                </button>
+              )}
+              <select
+                className="ml-8 border rounded p-1"
+                disabled={question.isImported}
               >
-                ×
-              </button>
-              <select className="ml-8 border rounded p-1">
                 <option>Choose</option>
                 {question.subsections &&
                   question.subsections.length > 0 &&
@@ -350,38 +365,40 @@ function SortableQuestion({
               <span className="flex-1"></span>
             </div>
           ))}
-          <div className="flex items-center">
-            <button
-              className="text-sm mt-2 text-left"
-              style={{ color: "#2264AC" }}
-              onClick={() => {
-                const updatedQuestions = questions.map((q, i) =>
-                  i === index ? { ...q, options: [...q.options, ""] } : q
-                );
-                setQuestions(updatedQuestions);
-              }}
-            >
-              + Add more options
-            </button>
-            <span className="flex-1"></span>
-            {(!question.subsections || question.subsections.length === 0) && (
-              <div className="relative group mt-2 flex justify-end">
-                <button
-                  className="px-4 py-2 rounded bg-[#2264AC] text-white"
-                  onClick={handleAddSubsection}
-                  type="button"
-                >
-                  + Add Subsection
-                </button>
-                <div className="absolute left-1/2 -translate-x-1/2 -top-16 w-64 bg-black text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                  <strong>Subsection</strong>
-                  <br />
-                  This label helps you organize groups of questions and set up
-                  skip logic (e.g., "If answer is A, go to Subsection 1").
+          {!question.isImported && (
+            <div className="flex items-center">
+              <button
+                className="text-sm mt-2 text-left"
+                style={{ color: "#2264AC" }}
+                onClick={() => {
+                  const updatedQuestions = questions.map((q, i) =>
+                    i === index ? { ...q, options: [...q.options, ""] } : q
+                  );
+                  setQuestions(updatedQuestions);
+                }}
+              >
+                + Add more options
+              </button>
+              <span className="flex-1"></span>
+              {(!question.subsections || question.subsections.length === 0) && (
+                <div className="relative group mt-2 flex justify-end">
+                  <button
+                    className="px-4 py-2 rounded bg-[#2264AC] text-white"
+                    onClick={handleAddSubsection}
+                    type="button"
+                  >
+                    + Add Subsection
+                  </button>
+                  <div className="absolute left-1/2 -translate-x-1/2 -top-16 w-64 bg-black text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                    <strong>Subsection</strong>
+                    <br />
+                    This label helps you organize groups of questions and set up
+                    skip logic (e.g., "If answer is A, go to Subsection 1").
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
           {/* Subsection Tabs and UI */}
           {question.subsections && question.subsections.length > 0 && (
             <div className="mt-6 border border-gray-200 rounded-lg p-4">
@@ -445,6 +462,9 @@ function SortableQuestion({
                         borderBottomColor: "#2264AC",
                         background: "transparent",
                       }}
+                      disabled={
+                        question.subsections[activeSubsection].isImported
+                      }
                     />
                     <textarea
                       placeholder="Add Description"
@@ -460,6 +480,9 @@ function SortableQuestion({
                         borderBottomColor: "#2264AC",
                         background: "white",
                       }}
+                      disabled={
+                        question.subsections[activeSubsection].isImported
+                      }
                     />
                   </div>
                   {/* Sub-Questions List */}
@@ -530,6 +553,7 @@ function SortableQuestion({
                                 handleSetSubQuestions(updatedQuestions);
                               }}
                               className="font-semibold text-lg text-gray-800 bg-transparent border-b border-gray-300 focus:outline-none flex-1"
+                              disabled={subQ.isImported}
                             />
                             <div className="flex items-center gap-4">
                               <span className="text-sm text-gray-600">
@@ -554,6 +578,7 @@ function SortableQuestion({
                                     : "bg-gray-300"
                                 }`}
                                 style={{ minWidth: 40 }}
+                                disabled={subQ.isImported}
                               >
                                 <span
                                   className={`inline-block w-4 h-4 transform bg-white rounded-full shadow transition-transform duration-200 ${
@@ -563,19 +588,21 @@ function SortableQuestion({
                                   }`}
                                 />
                               </button>
-                              <button
-                                className="text-red-500 bg-red-50 hover:text-red-600 rounded-lg p-2 ml-2"
-                                title="Delete"
-                                onClick={() => {
-                                  const updatedQuestions = (
-                                    question.subsections?.[activeSubsection]
-                                      ?.questions || []
-                                  ).filter((_, i) => i !== subIdx);
-                                  handleSetSubQuestions(updatedQuestions);
-                                }}
-                              >
-                                <Trash2 size={16} />
-                              </button>
+                              {!subQ.isImported && (
+                                <button
+                                  className="text-red-500 bg-red-50 hover:text-red-600 rounded-lg p-2 ml-2"
+                                  title="Delete"
+                                  onClick={() => {
+                                    const updatedQuestions = (
+                                      question.subsections?.[activeSubsection]
+                                        ?.questions || []
+                                    ).filter((_, i) => i !== subIdx);
+                                    handleSetSubQuestions(updatedQuestions);
+                                  }}
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
                             </div>
                           </div>
                           {/* Sub-question subtext/description */}
@@ -613,6 +640,7 @@ function SortableQuestion({
                                   "bullet",
                                   "align",
                                 ]}
+                                readOnly={subQ.isImported}
                               />
                               <div
                                 id={`custom-quill-toolbar-${subQ.id}`}
@@ -675,63 +703,72 @@ function SortableQuestion({
                                         minWidth: "120px",
                                         maxWidth: "220px",
                                       }}
+                                      disabled={subQ.isImported}
                                     />
-                                    <button
-                                      className="text-gray-400"
-                                      onClick={() => {
-                                        const updatedQuestions = (
-                                          question.subsections?.[
-                                            activeSubsection
-                                          ]?.questions || []
-                                        ).map((q, i) =>
-                                          i === subIdx
-                                            ? {
-                                                ...q,
-                                                options: q.options.filter(
-                                                  (_, oi) => oi !== optIdx
-                                                ),
-                                              }
-                                            : q
-                                        );
-                                        handleSetSubQuestions(updatedQuestions);
-                                      }}
-                                    >
-                                      <span className="text-2xl">×</span>
-                                    </button>
+                                    {!subQ.isImported && (
+                                      <button
+                                        className="text-gray-400"
+                                        onClick={() => {
+                                          const updatedQuestions = (
+                                            question.subsections?.[
+                                              activeSubsection
+                                            ]?.questions || []
+                                          ).map((q, i) =>
+                                            i === subIdx
+                                              ? {
+                                                  ...q,
+                                                  options: q.options.filter(
+                                                    (_, oi) => oi !== optIdx
+                                                  ),
+                                                }
+                                              : q
+                                          );
+                                          handleSetSubQuestions(
+                                            updatedQuestions
+                                          );
+                                        }}
+                                      >
+                                        <span className="text-2xl">×</span>
+                                      </button>
+                                    )}
                                   </div>
                                 )
                               )}
-                              <button
-                                className="text-sm mt-2 text-left"
-                                style={{ color: "#2264AC" }}
-                                onClick={() => {
-                                  const updatedQuestions = (
-                                    question.subsections?.[activeSubsection]
-                                      ?.questions || []
-                                  ).map((q, i) =>
-                                    i === subIdx
-                                      ? { ...q, options: [...q.options, ""] }
-                                      : q
-                                  );
-                                  handleSetSubQuestions(updatedQuestions);
-                                }}
-                              >
-                                + Add more options
-                              </button>
+                              {!subQ.isImported && (
+                                <button
+                                  className="text-sm mt-2 text-left"
+                                  style={{ color: "#2264AC" }}
+                                  onClick={() => {
+                                    const updatedQuestions = (
+                                      question.subsections?.[activeSubsection]
+                                        ?.questions || []
+                                    ).map((q, i) =>
+                                      i === subIdx
+                                        ? { ...q, options: [...q.options, ""] }
+                                        : q
+                                    );
+                                    handleSetSubQuestions(updatedQuestions);
+                                  }}
+                                >
+                                  + Add more options
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
                       ))}
                     </SortableContext>
                   </DndContext>
-                  <button
-                    className="w-full py-3 rounded-lg transition-colors flex items-center justify-center mt-2"
-                    style={{ background: "#E3ECF6", color: "#2264AC" }}
-                    onClick={handleAddSubQuestion}
-                    type="button"
-                  >
-                    + Add Sub Question
-                  </button>
+                  {!question.subsections[activeSubsection].isImported && (
+                    <button
+                      className="w-full py-3 rounded-lg transition-colors flex items-center justify-center mt-2"
+                      style={{ background: "#E3ECF6", color: "#2264AC" }}
+                      onClick={handleAddSubQuestion}
+                      type="button"
+                    >
+                      + Add Sub Question
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -766,85 +803,93 @@ function SortableQuestion({
                   minWidth: "120px",
                   maxWidth: "220px",
                 }}
+                disabled={question.isImported}
               />
-              <button
-                className="text-gray-400"
-                onClick={() => {
-                  const updatedQuestions = questions.map((q, i) =>
-                    i === index
-                      ? {
-                          ...q,
-                          options: q.options.filter((_, oi) => oi !== optIdx),
-                        }
-                      : q
-                  );
-                  setQuestions(updatedQuestions);
-                }}
-              >
-                ×
-              </button>
+              {!question.isImported && (
+                <button
+                  className="text-gray-400"
+                  onClick={() => {
+                    const updatedQuestions = questions.map((q, i) =>
+                      i === index
+                        ? {
+                            ...q,
+                            options: q.options.filter((_, oi) => oi !== optIdx),
+                          }
+                        : q
+                    );
+                    setQuestions(updatedQuestions);
+                  }}
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))}
-          <button
-            className="text-sm mt-2 text-left"
-            style={{ color: "#2264AC" }}
-            onClick={() => {
-              const updatedQuestions = questions.map((q, i) =>
-                i === index ? { ...q, options: [...q.options, ""] } : q
-              );
-              setQuestions(updatedQuestions);
-            }}
-          >
-            + Add more options
-          </button>
+          {!question.isImported && (
+            <button
+              className="text-sm mt-2 text-left"
+              style={{ color: "#2264AC" }}
+              onClick={() => {
+                const updatedQuestions = questions.map((q, i) =>
+                  i === index ? { ...q, options: [...q.options, ""] } : q
+                );
+                setQuestions(updatedQuestions);
+              }}
+            >
+              + Add more options
+            </button>
+          )}
           {showMCSubQs &&
             showMCSubQs[index] &&
             mcSubQData &&
-            mcSubQData[index] && (
+            (
+              mcSubQData[index] as {
+                title: string;
+                options: string[];
+                isMandatory: boolean;
+              }[]
+            ).map((subQ, subIdx: number) => (
               <MultipleChoiceSubQuestionCard
-                subQuestion={mcSubQData[index]}
-                onChange={(q) =>
-                  setMcSubQData((prev: any) => ({ ...prev, [index]: q }))
-                }
-                onDelete={() =>
-                  setShowMCQ((prev: any) => ({ ...prev, [index]: false }))
-                }
+                key={subIdx}
+                subQuestion={subQ}
+                onChange={(q) => setMcSubQData(index, subIdx, q)}
+                onDelete={() => setShowMCQ(index, subIdx)}
               />
-            )}
+            ))}
           {showCheckboxSubQs &&
             showCheckboxSubQs[index] &&
             checkboxSubQData &&
-            checkboxSubQData[index] && (
+            (
+              checkboxSubQData[index] as {
+                title: string;
+                options: string[];
+                isMandatory: boolean;
+              }[]
+            ).map((subQ, subIdx: number) => (
               <CheckboxSubQuestionCard
-                subQuestion={checkboxSubQData[index]}
-                onChange={(q) =>
-                  setCheckboxSubQData((prev: any) => ({ ...prev, [index]: q }))
-                }
-                onDelete={() =>
-                  setShowCheckboxSubQs((prev: any) => ({
-                    ...prev,
-                    [index]: false,
-                  }))
-                }
+                key={subIdx}
+                subQuestion={subQ}
+                onChange={(q) => setCheckboxSubQData(index, subIdx, q)}
+                onDelete={() => setShowCheckboxSubQs(index, subIdx)}
               />
-            )}
+            ))}
           {showOpenEndedSubQs &&
             showOpenEndedSubQs[index] &&
             openEndedSubQData &&
-            openEndedSubQData[index] && (
+            (
+              openEndedSubQData[index] as {
+                title: string;
+                subText: string;
+                isMandatory: boolean;
+              }[]
+            ).map((subQ, subIdx: number) => (
               <OpenEndedSubQuestionCard
-                subQuestion={openEndedSubQData[index]}
-                onChange={(q) =>
-                  setOpenEndedSubQData((prev: any) => ({ ...prev, [index]: q }))
-                }
-                onDelete={() =>
-                  setShowOpenEndedSubQs((prev: any) => ({
-                    ...prev,
-                    [index]: false,
-                  }))
-                }
+                key={subIdx}
+                subQuestion={subQ}
+                onChange={(q) => setOpenEndedSubQData(index, subIdx, q)}
+                onDelete={() => setShowOpenEndedSubQs(index, subIdx)}
               />
-            )}
+            ))}
         </div>
       )}
       <div className="flex flex-row gap-6 mt-6">
@@ -862,6 +907,7 @@ function SortableQuestion({
               question.isMandatory ? "bg-[#2264AC]" : "bg-gray-300"
             }`}
             style={{ minWidth: 40 }}
+            disabled={question.isImported}
           >
             <span
               className={`inline-block w-4 h-4 transform bg-white rounded-full shadow transition-transform duration-200 ${
@@ -886,27 +932,31 @@ function SortableQuestion({
               setQuestions(updatedQuestions);
             }}
             style={{ accentColor: "#2264AC" }}
+            disabled={question.isImported}
           />
           Add Conditional Logic
         </label>
-        <button
-          className="px-2 py-2 rounded text-xs"
-          style={{ background: "#2264AC", color: "white" }}
-          onClick={onAddSubQuestion}
-        >
-          + Add Sub Question
-        </button>
-
-        <button
-          className="text-red-500 bg-red-50 hover:text-red-600 rounded-lg p-2"
-          title="Delete"
-          onClick={() => {
-            const updatedQuestions = questions.filter((_, i) => i !== index);
-            setQuestions(updatedQuestions);
-          }}
-        >
-          <Trash2 size={16} />
-        </button>
+        {!question.isImported && (
+          <button
+            className="px-2 py-2 rounded text-xs"
+            style={{ background: "#2264AC", color: "white" }}
+            onClick={onAddSubQuestion}
+          >
+            + Add Sub Question
+          </button>
+        )}
+        {!question.isImported && (
+          <button
+            className="text-red-500 bg-red-50 hover:text-red-600 rounded-lg p-2"
+            title="Delete"
+            onClick={() => {
+              const updatedQuestions = questions.filter((_, i) => i !== index);
+              setQuestions(updatedQuestions);
+            }}
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
       <style jsx global>{`
         .no-quill-border .ql-editor {
@@ -1053,7 +1103,7 @@ function MultipleChoiceSubQuestionCard({
             />
           </button>
           <button
-            className="text-red-500 bg-white hover:text-red-600 rounded-lg p-2 border border-red-200"
+            className="text-red-500 bg-red-50 hover:text-red-600 rounded-lg p-2 border border-red-200"
             title="Delete"
             onClick={onDelete}
           >
@@ -1328,6 +1378,40 @@ function CheckboxSubQuestionCard({
   );
 }
 
+// Utility to map API tool data to internal format, marking imported data as read-only
+function mapApiToolToSections(apiTool: any) {
+  if (!apiTool.sections) return [];
+  return apiTool.sections.map((section: any) => ({
+    id: section.id,
+    name: section.name,
+    description: section.description,
+    isImported: true,
+    questions: (section.questions || []).map((q: any) => ({
+      id: q.id,
+      title: q.text,
+      subText: q.sub_text,
+      options: (q.options || []).map((opt: any) => opt.text),
+      isMandatory: q.is_mandatory,
+      conditionalLogic: q.is_conditional,
+      isImported: true,
+      subsections: (q.sub_sections || []).map((sub: any) => ({
+        name: sub.name,
+        description: sub.description,
+        isImported: true,
+        questions: (sub.questions || []).map((subQ: any) => ({
+          id: subQ.id,
+          title: subQ.text,
+          subText: subQ.sub_text,
+          options: (subQ.options || []).map((opt: any) => opt.text),
+          isMandatory: subQ.is_mandatory,
+          conditionalLogic: false,
+          isImported: true,
+        })),
+      })),
+    })),
+  }));
+}
+
 export default function NewObservationToolPage() {
   const [sections, setSections] = useState([
     {
@@ -1341,44 +1425,59 @@ export default function NewObservationToolPage() {
           options: ["", ""],
           isMandatory: true,
           conditionalLogic: false,
+          isImported: false,
         },
       ],
+      isImported: false,
     },
   ]);
   const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
   const [toolName, setToolName] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [selectedTool, setSelectedTool] = useState<ExistingTool | null>(null);
   const [showQuestionTypeModal, setShowQuestionTypeModal] = useState(false);
   const [modalParentIdx, setModalParentIdx] = useState<number | null>(null);
   const [modalSubsectionIdx, setModalSubsectionIdx] = useState<number | null>(
     null
   );
-  const [showMCSubQs, setShowMCSubQs] = useState<{ [qIdx: number]: boolean }>(
-    {}
-  );
+  const [showMCSubQs, setShowMCSubQs] = useState<{
+    [sectionIdx: number]: { [qIdx: number]: boolean };
+  }>({});
   const [mcSubQData, setMcSubQData] = useState<{
-    [qIdx: number]: { title: string; options: string[]; isMandatory: boolean };
+    [sectionIdx: number]: {
+      [qIdx: number]: {
+        title: string;
+        options: string[];
+        isMandatory: boolean;
+      }[];
+    };
   }>({});
   const [showOpenEndedSubQs, setShowOpenEndedSubQs] = useState<{
-    [qIdx: number]: boolean;
+    [sectionIdx: number]: { [qIdx: number]: boolean };
   }>({});
   const [openEndedSubQData, setOpenEndedSubQData] = useState<{
-    [qIdx: number]: { title: string; subText: string; isMandatory: boolean };
+    [sectionIdx: number]: {
+      [qIdx: number]: {
+        title: string;
+        subText: string;
+        isMandatory: boolean;
+      }[];
+    };
   }>({});
   const [showCheckboxSubQs, setShowCheckboxSubQs] = useState<{
-    [qIdx: number]: boolean;
+    [sectionIdx: number]: { [qIdx: number]: boolean };
   }>({});
   const [checkboxSubQData, setCheckboxSubQData] = useState<{
-    [qIdx: number]: { title: string; options: string[]; isMandatory: boolean };
+    [sectionIdx: number]: {
+      [qIdx: number]: {
+        title: string;
+        options: string[];
+        isMandatory: boolean;
+      }[];
+    };
   }>({});
-
-  // Mock data for existing tools
-  const existingTools: ExistingTool[] = [
-    { id: "1", name: "e² Literacy Tool" },
-    { id: "2", name: "e² Math Tool" },
-    { id: "3", name: "Sample Observation Tool1" },
-  ];
+  // State for existing tools fetched from API
+  const [existingTools, setExistingTools] = useState<ExistingTool[]>([]);
 
   // Helper to get/set current section
   const currentSection = sections[currentSectionIdx];
@@ -1464,8 +1563,10 @@ export default function NewObservationToolPage() {
               options: ["", ""],
               isMandatory: true,
               conditionalLogic: false,
+              isImported: false,
             },
           ],
+          isImported: false,
         },
       ]);
       setCurrentSectionIdx(0);
@@ -1495,8 +1596,10 @@ export default function NewObservationToolPage() {
             options: ["", ""],
             isMandatory: true,
             conditionalLogic: false,
+            isImported: false,
           },
         ],
+        isImported: false,
       },
     ]);
     setCurrentSectionIdx(sections.length); // Switch to new section
@@ -1514,6 +1617,7 @@ export default function NewObservationToolPage() {
         options: ["", ""],
         isMandatory: true,
         conditionalLogic: false,
+        isImported: false,
       },
     ];
     setCurrentSection({ ...currentSection, questions: updatedQuestions });
@@ -1552,41 +1656,89 @@ export default function NewObservationToolPage() {
   const handleSelectQuestionType = (type: string) => {
     if (modalParentIdx === null) return;
     if (type === "multiple_choice") {
-      setShowMCSubQs((prev) => ({ ...prev, [modalParentIdx]: true }));
-      setMcSubQData((prev) => ({
+      setShowMCSubQs((prev) => ({
         ...prev,
-        [modalParentIdx]: {
-          title: "",
-          options: [""],
-          isMandatory: false,
+        [currentSectionIdx]: {
+          ...(prev[currentSectionIdx] || {}),
+          [modalParentIdx]: true,
         },
       }));
+      setMcSubQData((prev) => {
+        const prevSection = prev[currentSectionIdx] || {};
+        const prevArr = prevSection[modalParentIdx] || [];
+        return {
+          ...prev,
+          [currentSectionIdx]: {
+            ...prevSection,
+            [modalParentIdx]: [
+              ...prevArr,
+              {
+                title: "",
+                options: [""],
+                isMandatory: false,
+              },
+            ],
+          },
+        };
+      });
       setShowQuestionTypeModal(false);
       return;
     }
     if (type === "checkbox") {
-      setShowCheckboxSubQs((prev) => ({ ...prev, [modalParentIdx]: true }));
-      setCheckboxSubQData((prev) => ({
+      setShowCheckboxSubQs((prev) => ({
         ...prev,
-        [modalParentIdx]: {
-          title: "",
-          options: [""],
-          isMandatory: false,
+        [currentSectionIdx]: {
+          ...(prev[currentSectionIdx] || {}),
+          [modalParentIdx]: true,
         },
       }));
+      setCheckboxSubQData((prev) => {
+        const prevSection = prev[currentSectionIdx] || {};
+        const prevArr = prevSection[modalParentIdx] || [];
+        return {
+          ...prev,
+          [currentSectionIdx]: {
+            ...prevSection,
+            [modalParentIdx]: [
+              ...prevArr,
+              {
+                title: "",
+                options: [""],
+                isMandatory: false,
+              },
+            ],
+          },
+        };
+      });
       setShowQuestionTypeModal(false);
       return;
     }
     if (type === "open_ended") {
-      setShowOpenEndedSubQs((prev) => ({ ...prev, [modalParentIdx]: true }));
-      setOpenEndedSubQData((prev) => ({
+      setShowOpenEndedSubQs((prev) => ({
         ...prev,
-        [modalParentIdx]: {
-          title: "",
-          subText: "",
-          isMandatory: false,
+        [currentSectionIdx]: {
+          ...(prev[currentSectionIdx] || {}),
+          [modalParentIdx]: true,
         },
       }));
+      setOpenEndedSubQData((prev) => {
+        const prevSection = prev[currentSectionIdx] || {};
+        const prevArr = prevSection[modalParentIdx] || [];
+        return {
+          ...prev,
+          [currentSectionIdx]: {
+            ...prevSection,
+            [modalParentIdx]: [
+              ...prevArr,
+              {
+                title: "",
+                subText: "",
+                isMandatory: false,
+              },
+            ],
+          },
+        };
+      });
       setShowQuestionTypeModal(false);
       return;
     }
@@ -1603,6 +1755,7 @@ export default function NewObservationToolPage() {
                 name: "",
                 description: "",
                 questions: [],
+                isImported: true,
               });
             }
             const subQType =
@@ -1614,8 +1767,9 @@ export default function NewObservationToolPage() {
               ...subQType,
               isMandatory: false,
               conditionalLogic: false,
+              isImported: true,
             });
-            return { ...q, subsections };
+            return { ...q, subsections, isImported: true };
           } else {
             const subsections = q.subsections ? [...q.subsections] : [];
             if (!subsections[modalSubsectionIdx]) return q;
@@ -1628,14 +1782,65 @@ export default function NewObservationToolPage() {
               ...subQType,
               isMandatory: false,
               conditionalLogic: false,
+              isImported: true,
             });
-            return { ...q, subsections };
+            return { ...q, subsections, isImported: true };
           }
         }),
+        isImported: true,
       };
     });
     setShowQuestionTypeModal(false);
   };
+
+  React.useEffect(() => {
+    // Get the bearer token from localStorage
+    const bearerToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("userIdToken")
+        : null;
+    if (!bearerToken) {
+      console.warn("No userIdToken found in localStorage");
+      return;
+    }
+    getObservationTools({ bearerToken })
+      .then((res) => {
+        console.log("getObservationTools response:", res);
+        if (res && Array.isArray(res.observation_tools)) {
+          setExistingTools(
+            res.observation_tools.map((tool: any) => ({
+              id: tool.id,
+              name: tool.name,
+            }))
+          );
+        }
+      })
+      .catch((err) => {
+        console.error("getObservationTools error:", err);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    if (!selectedTool) return;
+    const bearerToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("userIdToken")
+        : null;
+    if (!bearerToken) {
+      console.warn("No userIdToken found in localStorage");
+      return;
+    }
+    getObservationToolById({ bearerToken, toolId: selectedTool.id })
+      .then((res) => {
+        console.log("getObservationToolById response:", res);
+        // Map and set imported sections
+        const importedSections = mapApiToolToSections(res);
+        setSections(importedSections.length > 0 ? importedSections : []);
+      })
+      .catch((err) => {
+        console.error("getObservationToolById error:", err);
+      });
+  }, [selectedTool]);
 
   return (
     <AnimatedContainer
@@ -1687,7 +1892,11 @@ export default function NewObservationToolPage() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="w-full p-2 bg-gray-50 border rounded-lg flex items-center justify-between text-gray-500"
                 >
-                  <span>{selectedTool || "Existing Observation Tool"}</span>
+                  <span>
+                    {selectedTool
+                      ? selectedTool.name || selectedTool.id
+                      : "Existing Observation Tool"}
+                  </span>
                   <FaChevronDown
                     className={`transition-transform duration-200 ${
                       isDropdownOpen ? "rotate-180" : ""
@@ -1701,24 +1910,28 @@ export default function NewObservationToolPage() {
                     exit={{ opacity: 0, y: -10 }}
                     className="absolute w-full mt-1 bg-white border rounded-lg shadow-lg z-10"
                   >
-                    {existingTools.map((tool) => (
-                      <label
-                        key={tool.id}
-                        className="flex items-center p-3 hover:bg-gray-50 cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="tool"
-                          className="mr-3 text-sm"
-                          checked={selectedTool === tool.name}
-                          onChange={() => {
-                            setSelectedTool(tool.name);
-                            setIsDropdownOpen(false);
-                          }}
-                        />
-                        <span>{tool.name}</span>
-                      </label>
-                    ))}
+                    {existingTools.length === 0 ? (
+                      <div className="p-3 text-gray-400">No tools found</div>
+                    ) : (
+                      existingTools.map((tool) => (
+                        <label
+                          key={tool.id}
+                          className="flex items-center p-3 hover:bg-gray-50 cursor-pointer"
+                        >
+                          <input
+                            type="radio"
+                            name="tool"
+                            className="mr-3 text-sm"
+                            checked={selectedTool?.id === tool.id}
+                            onChange={() => {
+                              setSelectedTool(tool);
+                              setIsDropdownOpen(false);
+                            }}
+                          />
+                          <span>{tool.name || tool.id}</span>
+                        </label>
+                      ))
+                    )}
                   </motion.div>
                 )}
               </div>
@@ -1744,13 +1957,21 @@ export default function NewObservationToolPage() {
                   currentSectionIdx === idx ? "font-semibold" : ""
                 }`}
                 style={{
-                  color: "#2264AC",
+                  color: section.isImported ? "#888" : "#2264AC",
                   borderBottomColor:
                     currentSectionIdx === idx ? "#2264AC" : "transparent",
+                  cursor: section.isImported ? "not-allowed" : "pointer",
                 }}
                 onClick={() => setCurrentSectionIdx(idx)}
+                disabled={section.isImported}
               >
                 {section.name || `Untitled Section ${idx + 1}`}
+                {section.isImported && (
+                  <span style={{ fontSize: 12, color: "#888" }}>
+                    {" "}
+                    (imported)
+                  </span>
+                )}
               </button>
             ))}
             <button
@@ -1775,6 +1996,7 @@ export default function NewObservationToolPage() {
             }
             className="w-full text-xl font-medium mb-4 p-2 border-b focus:outline-none"
             style={{ borderBottomColor: "#2264AC" }}
+            disabled={currentSection.isImported}
           />
           <textarea
             placeholder="Add Description"
@@ -1787,6 +2009,7 @@ export default function NewObservationToolPage() {
             }
             className="w-full h-24 p-2 border-b focus:outline-none resize-none"
             style={{ borderBottomColor: "#2264AC" }}
+            disabled={currentSection.isImported}
           />
         </div>
         {/* Questions for current section */}
@@ -1798,30 +2021,142 @@ export default function NewObservationToolPage() {
             items={currentSection.questions.map((q) => q.id)}
             strategy={verticalListSortingStrategy}
           >
-            {currentSection.questions.map((question, idx) => (
-              <SortableQuestion
-                key={question.id}
-                question={question}
-                index={idx}
-                questions={currentSection.questions}
-                setQuestions={(qs) =>
-                  setCurrentSection({ ...currentSection, questions: qs })
-                }
-                onAddSubQuestion={() => handleOpenQuestionTypeModal(idx)}
-                showMCSubQs={showMCSubQs}
-                mcSubQData={mcSubQData}
-                setMcSubQData={setMcSubQData}
-                setShowMCQ={setShowMCSubQs}
-                showCheckboxSubQs={showCheckboxSubQs}
-                checkboxSubQData={checkboxSubQData}
-                setCheckboxSubQData={setCheckboxSubQData}
-                setShowCheckboxSubQs={setShowCheckboxSubQs}
-                showOpenEndedSubQs={showOpenEndedSubQs}
-                openEndedSubQData={openEndedSubQData}
-                setOpenEndedSubQData={setOpenEndedSubQData}
-                setShowOpenEndedSubQs={setShowOpenEndedSubQs}
-              />
-            ))}
+            {currentSection.questions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8">
+                <p className="text-gray-400 mb-4">No questions yet.</p>
+                <button
+                  className="px-4 py-2 rounded bg-[#2264AC] text-white"
+                  onClick={handleAddQuestion}
+                >
+                  + Add First Question
+                </button>
+              </div>
+            ) : (
+              currentSection.questions.map((question, idx) => (
+                <SortableQuestion
+                  key={question.id}
+                  question={question}
+                  index={idx}
+                  questions={currentSection.questions}
+                  setQuestions={(qs) =>
+                    setCurrentSection({ ...currentSection, questions: qs })
+                  }
+                  onAddSubQuestion={() => handleOpenQuestionTypeModal(idx)}
+                  showMCSubQs={showMCSubQs[currentSectionIdx] || {}}
+                  mcSubQData={mcSubQData[currentSectionIdx] || {}}
+                  setMcSubQData={(qIdx: number, subQIdx: number, q: any) =>
+                    setMcSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.map((item, idx) =>
+                        idx === subQIdx ? q : item
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  setShowMCQ={(qIdx: number, subQIdx: number) =>
+                    setMcSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.filter(
+                        (_, idx) => idx !== subQIdx
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  showCheckboxSubQs={showCheckboxSubQs[currentSectionIdx] || {}}
+                  checkboxSubQData={checkboxSubQData[currentSectionIdx] || {}}
+                  setCheckboxSubQData={(
+                    qIdx: number,
+                    subQIdx: number,
+                    q: any
+                  ) =>
+                    setCheckboxSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.map((item, idx) =>
+                        idx === subQIdx ? q : item
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  setShowCheckboxSubQs={(qIdx: number, subQIdx: number) =>
+                    setCheckboxSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.filter(
+                        (_, idx) => idx !== subQIdx
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  showOpenEndedSubQs={
+                    showOpenEndedSubQs[currentSectionIdx] || {}
+                  }
+                  openEndedSubQData={openEndedSubQData[currentSectionIdx] || {}}
+                  setOpenEndedSubQData={(
+                    qIdx: number,
+                    subQIdx: number,
+                    q: any
+                  ) =>
+                    setOpenEndedSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.map((item, idx) =>
+                        idx === subQIdx ? q : item
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  setShowOpenEndedSubQs={(qIdx: number, subQIdx: number) =>
+                    setOpenEndedSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.filter(
+                        (_, idx) => idx !== subQIdx
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                />
+              ))
+            )}
           </SortableContext>
         </DndContext>
         <button

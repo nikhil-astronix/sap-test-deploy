@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-import { Trash2, Archive, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   ClockClockwise,
   User,
@@ -9,6 +9,8 @@ import {
   Book,
   ChartBar,
   Tag,
+  Trash,
+  Archive,
 } from "@phosphor-icons/react";
 import Dropdown from "@/components/ui/Dropdown";
 import MultiSelect from "@/components/ui/MultiSelect";
@@ -35,6 +37,7 @@ import {
 import { Intervention } from "@/types/interventionData";
 import { AxiosError } from "axios";
 import Tooltip from "@/components/Tooltip";
+import { useDistrict } from "@/context/DistrictContext";
 
 // Add type definitions
 interface Classroom {
@@ -109,6 +112,7 @@ export default function ClassroomsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   const allClassrooms = active ? activeClassrooms : archivedClassrooms;
 
@@ -116,7 +120,7 @@ export default function ClassroomsPage() {
 
   useEffect(() => {
     fetchData(currentPage, rowsPerPage, null, null, active, search);
-  }, [currentPage, rowsPerPage, search, active]);
+  }, [currentPage, rowsPerPage, search, active, globalDistrict]);
 
   useEffect(() => {
     fetchCurriculums();
@@ -125,6 +129,7 @@ export default function ClassroomsPage() {
 
   const fetchCurriculums = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: false,
         type: ["Default", "Custom"].join(","),
@@ -133,6 +138,7 @@ export default function ClassroomsPage() {
         search: null,
         page: 1,
         limit: 100,
+        district_id: districtId || null,
       };
       const data = await fetchAllCurriculums(requesPayload);
 
@@ -152,6 +158,7 @@ export default function ClassroomsPage() {
   };
 
   const fetchInterventions = async () => {
+    const districtId = localStorage.getItem("globalDistrict");
     try {
       const requesPayload = {
         is_archived: false,
@@ -161,6 +168,7 @@ export default function ClassroomsPage() {
         search: null,
         curr_page: 1,
         per_page: 100,
+        district_id: districtId || null,
       };
       const data = await getInterventions(requesPayload);
       if (data.success) {
@@ -202,6 +210,14 @@ export default function ClassroomsPage() {
   };
 
   const handleEdit = (schoolId: string, classroom: Classroom): void => {
+    classroom.curriculums = classroom.curriculums.map((curriculum) => {
+      const found = curriculums.find((item) => item.label === curriculum);
+      return found ? found.value : curriculum;
+    });
+    classroom.interventions = classroom.interventions.map((intervention) => {
+      const found = interventions.find((item) => item.label === intervention);
+      return found ? found.value : intervention;
+    });
     setEditing({ schoolId, classroomId: classroom.id });
     setEditData({ ...classroom });
   };
@@ -220,8 +236,10 @@ export default function ClassroomsPage() {
   ) => {
     setIsLoading(true);
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requestPayload = {
         is_archived: active,
+        district_id: districtId || "",
         sort_by: null,
         sort_order: null,
         curr_page: page,
@@ -273,8 +291,10 @@ export default function ClassroomsPage() {
       return school?.school || school?.name || "";
     };
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       let data = {
         school_name: getSchoolNameById(editing.schoolId),
+        district_id: districtId || "",
         school_id: editing.schoolId,
         course: editData.course,
         teacher_name: editData.teacher,
@@ -494,7 +514,7 @@ export default function ClassroomsPage() {
       if (response.success) {
         // Refresh the data
         fetchData(currentPage, rowsPerPage, null, null, active, search);
-
+        setSelectedRows({ schools: new Set(), classes: new Set() });
         // Show success notification if you have a toast system
         // toast.success('Classroom(s) restored successfully');
       } else {
@@ -549,7 +569,7 @@ export default function ClassroomsPage() {
       if (response.success) {
         // Refresh the data
         fetchData(currentPage, rowsPerPage, null, null, active, search);
-
+        setSelectedRows({ schools: new Set(), classes: new Set() });
         // Show success notification
       } else {
       }
@@ -601,7 +621,7 @@ export default function ClassroomsPage() {
       if (response.success) {
         // Refresh the data
         fetchData(currentPage, rowsPerPage, null, null, active, search);
-
+        setSelectedRows({ schools: new Set(), classes: new Set() });
         // Show success notification if you have a toast system
         // toast.success('Classroom(s) deleted successfully');
       } else {
@@ -625,11 +645,11 @@ export default function ClassroomsPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4 ">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to archive."
                 : `Are you sure you want to archive ${
@@ -654,9 +674,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px]  text-right">Classroom</div>
+                    <div className="text-[14px]  text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -682,7 +706,7 @@ export default function ClassroomsPage() {
                   <p className="text-sm text-[#C23E19]"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to archive."
                   : `Archiving ${
@@ -699,7 +723,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -710,7 +734,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -726,13 +750,11 @@ export default function ClassroomsPage() {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-semibold text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] font-medium text-black">Restore</h2>
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to restore."
                 : `Are you sure you want to restore ${
@@ -757,9 +779,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px]  text-right">Classroom</div>
+                    <div className="text-[14px]  text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -772,10 +798,10 @@ export default function ClassroomsPage() {
                   <Info size={16} color="#2264AC" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm">Note</p>
+                  <p className="text-sm font-medium">Note</p>
                 </div>
               </div>
-              <p className="text-left text-sm mt-2">
+              <p className="text-left text-sm mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to restore."
                   : `Restoring ${
@@ -792,7 +818,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -803,7 +829,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Restore
               </button>
@@ -818,12 +844,12 @@ export default function ClassroomsPage() {
           <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 className="text-gray-700" size={24} />
-              <h2 className="text-[16px] font-normal text-black-400">Delete</h2>
+              <Trash className="text-gray-700" size={24} />
+              <h2 className="text-[16px] font-medium text-black">Delete</h2>
             </div>
 
             {/* Prompt */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select classrooms to delete."
                 : `Are you sure you want to delete ${
@@ -848,9 +874,13 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[14px] text-black-400 font-medium">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-right">Classroom</div>
+                    <div className="text-[14px] text-right font-medium">
+                      Classroom
+                    </div>
                   </div>
                 ))}
               </div>
@@ -873,10 +903,10 @@ export default function ClassroomsPage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No classrooms selected. Please select at least one classroom to delete."
                   : `Deleting ${
@@ -893,7 +923,7 @@ export default function ClassroomsPage() {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -904,7 +934,7 @@ export default function ClassroomsPage() {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Delete
               </button>
@@ -933,11 +963,11 @@ export default function ClassroomsPage() {
         archivedLabel="Archived"
         isActiveArchived={false} // Classrooms page has reversed active/archived logic
       />
-      <div className="overflow-x-auto rounded-lg border border-gray-300  bg-white">
+      <div className="overflow-x-auto rounded-xl border border-gray-300  bg-white overflow-visible">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-[#2264AC] text-white border-b border-gray-300">
-              <th className="w-[0.1%] px-4 py-3 text-left border-gray-300">
+              <th className=" px-4 py-3 text-left border-gray-300">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -947,35 +977,35 @@ export default function ClassroomsPage() {
                   />
                 </div>
               </th>
-              <th className="w-[25%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <div className="flex items-center gap-2">
-                  <ChalkboardTeacher size={16} />
-                  Course
+              <th className="w-[25%]  py-3 text-left font-semibold border-r border-gray-300">
+                <div className="flex items-center space-x-2">
+                  <ChalkboardTeacher size={20} />
+                  <span>Course</span>
                 </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <User size={16} />
-                  Teacher
-                </span>
+                <div className="flex items-center space-x-2">
+                  <User size={20} />
+                  <span>Teacher</span>
+                </div>
               </th>
               <th className="w-[15%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <ChartBar size={16} />
-                  Grades
-                </span>
+                <div className="flex items-center space-x-2">
+                  <ChartBar size={20} />
+                  <span>Grades</span>
+                </div>
               </th>
               <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Book size={16} />
-                  Instructional Materials
-                </span>
+                <div className="flex items-center space-x-2">
+                  <Book size={20} />
+                  <span>Instructional Materials</span>
+                </div>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left font-semibold border-r border-gray-300">
-                <span className="inline-flex items-center gap-2">
-                  <Tag size={16} />
-                  Tags & Attribute(s)
-                </span>
+              <th className="w-[20%] px-4 py-3 text-left font-semibold ">
+                <div className="flex items-center space-x-2">
+                  <Tag size={20} />
+                  <span>Tags & Attribute(s)</span>
+                </div>
               </th>
               <th className="w-[5%] px-4 py-3"></th>
             </tr>
@@ -994,7 +1024,6 @@ export default function ClassroomsPage() {
                   <td
                     className="px-4 py-3 border-gray-200 bg-[#F8FAFC]"
                     onClick={(e) => {
-                      // Completely isolate checkbox clicks
                       e.stopPropagation();
                     }}
                   >
@@ -1006,13 +1035,15 @@ export default function ClassroomsPage() {
                           e.stopPropagation();
                           handleSelectRow(school.schoolId, "all", e);
                         }}
-                        className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                        // className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                        className="h-4 w-4 cursor-pointer"
+                        style={{ accentColor: "#2264AC" }}
                       />
                     </div>
                   </td>
                   <td
                     colSpan={6}
-                    className="px-4 py-3 border-b border-gray-300"
+                    className="pr-4 py-4 border-b border-gray-300"
                   >
                     <div className="flex items-center justify-between mr-2.5">
                       <span className="font-semibold text-sm">
@@ -1027,11 +1058,16 @@ export default function ClassroomsPage() {
                         className="bg-transparent border-0 p-0 cursor-pointer"
                       >
                         {expanded === school.schoolId ? (
-                          <CaretCircleUp className="text-gray-600" size={16} />
+                          <CaretCircleUp
+                            className="text-gray-600"
+                            size={16}
+                            color="#2264AC"
+                          />
                         ) : (
                           <CaretCircleDown
                             className="text-gray-600"
                             size={16}
+                            color="#2264AC"
                           />
                         )}
                       </button>
@@ -1050,7 +1086,7 @@ export default function ClassroomsPage() {
                       }}
                     >
                       <td
-                        className="px-4 py-3 border-r border-gray-200 bg-[#F8FAFC]"
+                        className="px-4 py-3 "
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center">
@@ -1064,7 +1100,9 @@ export default function ClassroomsPage() {
 
                               handleSelectRow(school.schoolId, classroom.id, e);
                             }}
-                            className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                            // className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                            className="h-4 w-4 cursor-pointer"
+                            style={{ accentColor: "#2264AC" }}
                           />
                         </div>
                       </td>
@@ -1072,7 +1110,7 @@ export default function ClassroomsPage() {
                       editing.schoolId === school.schoolId &&
                       editing.classroomId === classroom.id ? (
                         <>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className="pr-4 py-2 border-r border-gray-200">
                             <input
                               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2264AC] text-sm"
                               value={editData?.course || ""}
@@ -1092,11 +1130,26 @@ export default function ClassroomsPage() {
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
                             <MultiSelect
-                              options={gradeOptions}
+                              options={
+                                school.classes
+                                  ?.flatMap((cls: any) => cls.grades)
+                                  ?.filter(
+                                    (
+                                      val: any,
+                                      index: any,
+                                      arr: string | any[]
+                                    ) => arr.indexOf(val) === index
+                                  ) // Unique grades
+                                  ?.map((grade: any) => ({
+                                    label: grade,
+                                    value: grade,
+                                  })) || []
+                              }
                               values={editData?.grades || []}
                               onChange={(vals) =>
                                 handleEditChange("grades", vals)
                               }
+                              isGrade={true}
                               placeholder="Select grades"
                             />
                           </td>
@@ -1120,23 +1173,24 @@ export default function ClassroomsPage() {
                               placeholder="Select tags"
                             />
                           </td>
-                          <td className="px-4 py-2 text-center">
-                            {/* No edit icon in edit mode */}
 
-                            <button
-                              className="text-emerald-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(school.schoolId, classroom);
-                              }}
-                            >
-                              <PencilSimpleLine size={16} color="#2264AC" />
-                            </button>
+                          <td className="px-4 py-2 text-center">
+                            {!editing && !active && (
+                              <button
+                                className="text-emerald-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(school.schoolId, classroom);
+                                }}
+                              >
+                                <PencilSimpleLine size={16} color="#2264AC" />
+                              </button>
+                            )}
                           </td>
                         </>
                       ) : (
                         <>
-                          <td className="px-4 py-2 border-r border-gray-200">
+                          <td className=" py-2 border-r border-gray-200">
                             {classroom.course}
                           </td>
                           <td className="px-4 py-2 border-r border-gray-200">
@@ -1196,7 +1250,11 @@ export default function ClassroomsPage() {
                               "None"
                             )}
                           </td>
-                          <td className="px-4 py-2 border-r border-gray-200 relative group">
+                          <td
+                            className={`px-4 py-2  border-gray-200 relative group ${
+                              !active ? "border-r-2" : "border-r-0"
+                            }`}
+                          >
                             {classroom.interventions.length > 0 ? (
                               <Tooltip
                                 content={
@@ -1225,15 +1283,17 @@ export default function ClassroomsPage() {
                             )}
                           </td>
                           <td className="px-4 py-2 text-center">
-                            <button
-                              className="text-emerald-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(school.schoolId, classroom);
-                              }}
-                            >
-                              <PencilSimpleLine size={16} color="#2264AC" />
-                            </button>
+                            {!editing && !active && (
+                              <button
+                                className="text-emerald-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(school.schoolId, classroom);
+                                }}
+                              >
+                                <PencilSimpleLine size={16} color="#2264AC" />
+                              </button>
+                            )}
                           </td>
                         </>
                       )}
@@ -1256,14 +1316,14 @@ export default function ClassroomsPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Rows per page:</span>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm text-gray ">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={(e) =>
                   handleRowsPerPageChange(Number(e.target.value))
                 }
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={isLoading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -1286,7 +1346,7 @@ export default function ClassroomsPage() {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 px-1">
                 {currentPage}/{totalPages || 1}
               </span>
               <button

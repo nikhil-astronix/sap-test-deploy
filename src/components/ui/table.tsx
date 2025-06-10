@@ -5,8 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit2,
-  Trash2,
-  Archive,
   Check,
   X,
   Save,
@@ -20,6 +18,8 @@ import {
   Info,
   MagnifyingGlass,
   Plus,
+  Trash,
+  Archive,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
@@ -61,6 +61,8 @@ interface TableProps {
   onSearchChange?: (search: string) => void;
   sidebarVisible?: boolean; // New prop to track sidebar visibility
   pageType?: "schools" | "users"; // New prop to differentiate between pages
+  onNetworkChange?: (row: any) => void;
+  onDistrictChange?: (row: any) => void;
 }
 
 export default function Table({
@@ -86,6 +88,8 @@ export default function Table({
   onSearchChange,
   sidebarVisible = false,
   pageType,
+  onNetworkChange,
+  onDistrictChange,
 }: // Default to false if not provided
 TableProps) {
   // State for sorting
@@ -271,6 +275,38 @@ TableProps) {
         [key]: value,
       });
     }
+    if (key === "network" && onNetworkChange) {
+      try {
+        setEditingData({
+          ...editingData,
+          [key]: value,
+          district: "",
+          school: "",
+        });
+
+        onNetworkChange(value);
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    }
+
+    if (key === "district" && onDistrictChange) {
+      try {
+        setEditingData({
+          ...editingData,
+          [key]: value,
+          school: "",
+        });
+        onDistrictChange(value);
+      } catch (error) {
+        console.error("Error fetching schools:", error);
+      }
+    }
+  };
+  const getGradeOptionsForSchool = (schoolId: string) => {
+    const school = data.find((s) => s.id === schoolId);
+    if (!school) return [];
+    return school.grades.map((g: string) => ({ label: g, value: g }));
   };
 
   return (
@@ -285,9 +321,9 @@ TableProps) {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {selectedRows.length === 0
                 ? `Please select ${
                     pageType === "schools" ? "schools" : "users"
@@ -315,20 +351,20 @@ TableProps) {
                       // User view - show name and email
                       <div className="flex justify-between w-full">
                         <div>
-                          <p className="text-[12px] text-black-400 text-start">
+                          <p className="text-[12px] text-black-400 text-start font-medium">
                             {
                               data.find((row) => row.id === selectedRows[0])
                                 ?.first_name
                             }
                           </p>
-                          <p className="text-[12px] text-[#637381]-400">
+                          <p className="text-[12px] text-[#637381]-400 font-medium">
                             {
                               data.find((row) => row.id === selectedRows[0])
                                 ?.email
                             }
                           </p>
                         </div>
-                        <p className="text-[12px] text-gray-500">
+                        <p className="text-[12px] text-gray-500 font-medium">
                           {data.find((row) => row.id === selectedRows[0])
                             ?.role || "User"}
                         </p>
@@ -336,13 +372,15 @@ TableProps) {
                     ) : (
                       // School view - show school name
                       <div className="flex justify-between w-full">
-                        <p className="text-[12px] text-black-400">
+                        <p className="text-[12px] text-black-400 font-medium">
                           {data.find((row) => row.id === selectedRows[0])
                             ?.school ||
                             data.find((row) => row.id === selectedRows[0])
                               ?.name}
                         </p>
-                        <p className="text-[12px] text-gray-500">School</p>
+                        <p className="text-[12px] text-gray-500 font-medium">
+                          School
+                        </p>
                       </div>
                     )}
                   </div>
@@ -371,20 +409,20 @@ TableProps) {
                       <div className="flex flex-col items-start">
                         {isUser ? (
                           <>
-                            <p className="text-[12px] text-black-400">
+                            <p className="text-[12px] text-black-400 font-medium">
                               {item?.first_name}
                             </p>
-                            <p className="text-[12px] text-[#637381]-400">
+                            <p className="text-[12px] text-[#637381]-400 font-medium">
                               {item?.email}
                             </p>
                           </>
                         ) : (
-                          <p className="text-[12px] text-black-400">
+                          <p className="text-[12px] text-black-400 font-medium">
                             {item?.school || item?.name}
                           </p>
                         )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right">
+                      <div className="text-[12px] text-black-400 text-right font-medium">
                         {isUser ? item?.role : "School"}
                       </div>
                     </div>
@@ -409,10 +447,10 @@ TableProps) {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-[#C23E19]"> Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19]">
+              <p className="text-left text-sm text-[#C23E19] font-medium">
                 {selectedRows.length === 0
                   ? `No ${
                       pageType === "schools" ? "schools" : "users"
@@ -431,7 +469,7 @@ TableProps) {
                   setShowArchiveModal(false);
                   setSelectedRows([]);
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -442,7 +480,7 @@ TableProps) {
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -457,9 +495,9 @@ TableProps) {
           <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-xl font-normal">Restore</h2>
+              <h2 className="text-[16px] font-medium text-black">Restore</h2>
             </div>
-            <p className="text-left text-gray-700 mb-4">
+            <p className="text-left text-gray-700 mb-4 font-medium">
               {selectedRows.length === 0
                 ? `Please select ${
                     pageType === "schools" ? "schools" : "users"
@@ -486,13 +524,13 @@ TableProps) {
                     {data.find((row) => row.id === selectedRows[0])
                       ?.first_name ? (
                       <>
-                        <p className="text-[12px] text-black-400">
+                        <p className="text-[12px] text-black-400 font-medium">
                           {
                             data.find((row) => row.id === selectedRows[0])
                               ?.first_name
                           }
                         </p>
-                        <p className="text-[12px] text-[#637381]-400">
+                        <p className="text-[12px] text-[#637381]-400 font-medium">
                           {
                             data.find((row) => row.id === selectedRows[0])
                               ?.email
@@ -502,7 +540,7 @@ TableProps) {
                     ) : (
                       <div className="flex flex-col items-start w-full">
                         <div className="flex justify-between w-full">
-                          <p className="text-[12px] text-black-400">
+                          <p className="text-[12px] text-black-400 font-medium">
                             {data.find((row) => row.id === selectedRows[0])
                               ?.school ||
                               data.find((row) => row.id === selectedRows[0])
@@ -512,7 +550,7 @@ TableProps) {
                       </div>
                     )}
                   </div>
-                  <div className="text-[12px] text-black-400 items-center">
+                  <div className="text-[12px] text-black-400 items-center font-medium">
                     {data.find((row) => row.id === selectedRows[0])?.role ||
                       (data.find((row) => row.id === selectedRows[0])?.school
                         ? ""
@@ -543,20 +581,20 @@ TableProps) {
                       <div className="flex flex-col items-start">
                         {isUser ? (
                           <>
-                            <p className="text-[12px] text-black-400">
+                            <p className="text-[12px] text-black-400 font-medium">
                               {item?.first_name}
                             </p>
-                            <p className="text-[12px] text-[#637381]-400">
+                            <p className="text-[12px] text-[#637381]-400 font-medium">
                               {item?.email}
                             </p>
                           </>
                         ) : (
-                          <p className="text-[12px] text-black-400">
+                          <p className="text-[12px] text-black-400 font-medium">
                             {item?.school || item?.name}
                           </p>
                         )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right">
+                      <div className="text-[12px] text-black-400 text-right font-medium">
                         {isUser ? item?.role : "School"}
                       </div>
                     </div>
@@ -570,11 +608,14 @@ TableProps) {
                   <Info size={16} color="#2264AC" />
                 </div>
                 <div>
-                  <p className="text-sm text-[#2264AC] px-1"> Note</p>
+                  <p className="text-sm text-[#2264AC] px-1 font-medium">
+                    {" "}
+                    Note
+                  </p>
                 </div>
               </div>
               <div>
-                <p className="text-left text-sm text-[#2264AC]">
+                <p className="text-left text-sm text-[#2264AC] font-medium">
                   {selectedRows.length === 0
                     ? `No ${
                         pageType === "schools" ? "schools" : "users"
@@ -594,14 +635,14 @@ TableProps) {
                   setShowRestoreModal(false);
                   setSelectedRows([]);
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors rounded-[6px]"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors rounded-[6px] font-medium"
               >
                 Cancel
               </button>
               <button
                 disabled={selectedRows.length === 0}
                 onClick={handleRestore}
-                className={`px-4 py-2 text-white rounded-[6px] ${
+                className={`px-4 py-2 text-white font-medium rounded-[6px] ${
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#2A7251] hover:bg-[#2A7251]"
@@ -618,10 +659,10 @@ TableProps) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-[6px] p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
             <div className="flex items-center gap-2 mb-4">
-              <Trash2 size={24} />
-              <h2 className="text-[16px] text-black-400">Delete</h2>
+              <Trash size={24} />
+              <h2 className="text-[16px] text-black font-medium">Delete</h2>
             </div>
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {selectedRows.length === 0
                 ? "Please select schools to delete."
                 : `Are you sure you want to delete ${
@@ -648,12 +689,14 @@ TableProps) {
                       className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="text-[12px] text-black-400">
+                        <p className="text-[12px] text-black-400 font-medium">
                           {item?.name || item?.school}
                         </p>
                       </div>
 
-                      <p className="text-[12px] text-black-400">School</p>
+                      <p className="text-[12px] text-black-400 font-medium">
+                        School
+                      </p>
                     </div>
                   );
                 })}
@@ -677,10 +720,10 @@ TableProps) {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-600">Warning</p>
+                  <p className="text-sm text-red-600 font-medium">Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-red-600 mt-2">
+              <p className="text-left text-sm text-red-600 mt-2 font-medium">
                 {selectedRows.length === 0
                   ? "No schools selected. Please select at least one school to delete."
                   : "Deleting this school will remove it from the scheduled observation sessions. Please confirm before proceeding"}
@@ -694,7 +737,7 @@ TableProps) {
                   setSelectionMode(false);
                   setSelectedRows([]);
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -705,7 +748,7 @@ TableProps) {
                   selectedRows.length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-red-600 hover:bg-red-700"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Delete
               </button>
@@ -754,30 +797,6 @@ TableProps) {
             </button>
           )}
 
-          {/* {selectionMode && showDeleteButton && (
-            <button
-              onClick={handleDelete}
-              className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
-            >
-              <Trash2 size={16} />
-              <span>Delete</span>
-            </button>
-          )} */}
-
-          {/* {selectionMode && showArchiveButton && (
-            <button
-              onClick={() =>
-                showArchived
-                  ? setShowRestoreModal(true)
-                  : setShowArchiveModal(true)
-              }
-              className="px-4 py-1 rounded bg-red-50 text-red-500 flex items-center space-x-1 hover:bg-red-100"
-            >
-              <Archive size={16} />
-              <span>Archive</span>
-            </button>
-          )} */}
-
           {editingRowId && ( //!selectionMode &&
             <button
               onClick={handleSaveEdit}
@@ -791,7 +810,13 @@ TableProps) {
         <div className="flex items-center space-x-2">
           <button
             onClick={toggleSelectionModeArchive}
-            className="p-2 text-gray-400"
+            // className="p-2 text-gray-400"
+            className={`${
+              selectedRows.length > 0
+                ? "text-gray-500 hover:text-gray-700"
+                : "text-gray-300 cursor-not-allowed"
+            } ${pageType === "schools" ? "py-2" : "p-2"}`}
+            disabled={selectedRows.length <= 0}
             title={
               pageType === "schools" && showArchived ? "Restore" : "Archive"
             }
@@ -800,9 +825,9 @@ TableProps) {
               {pageType === "schools" && showArchived ? "Restore" : "Archive"}
             </span>
             {pageType === "schools" && showArchived ? (
-              <ClockClockwise size={20} className="text-black" />
+              <ClockClockwise size={24} className="text-black" />
             ) : (
-              <Archive size={20} className="text-black" />
+              <Archive size={24} className="text-black" />
             )}
           </button>
 
@@ -810,10 +835,15 @@ TableProps) {
           {pageType === "schools" && (
             <button
               onClick={toggleSelectionModeDelete}
-              className="p-2 text-gray-500"
+              className={`p-2 ${
+                selectedRows.length > 0
+                  ? "text-gray-500 hover:text-gray-700"
+                  : "text-gray-300 cursor-not-allowed"
+              }`}
+              disabled={selectedRows.length <= 0}
             >
               <span className="sr-only">Delete</span>
-              <Trash2 size={20} className="text-black" />
+              <Trash size={24} className="text-black" />
             </button>
           )}
 
@@ -874,8 +904,8 @@ TableProps) {
           </span>
         </div>
       </div>
-      <div className="rounded-[6px] border border-gray-200 shadow-sm">
-        <div className="overflow-x-auto rounded-[6px]">
+      <div className="rounded-xl border border-gray-200 shadow-sm overflow-visible">
+        <div className="overflow-x-auto rounded-[6px] overflow-visible">
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: staticbg }} className="text-white">
@@ -894,78 +924,88 @@ TableProps) {
                   </div>
                 </th>
                 {/* )} */}
-                {columns.map((column) => (
-                  <th
-                    key={column.key}
-                    className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200"
-                  >
-                    <div
-                      className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
-                        column.sortable ? "cursor-pointer" : ""
+                {columns.map((column, colIndex) => {
+                  const isLastColumn = colIndex === columns.length - 1;
+                  return (
+                    <th
+                      key={column.key}
+                      className={`min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200 ${
+                        isLastColumn && showArchived
+                          ? "rounded-tr-xl"
+                          : "border-r-2 border-[#D4D4D4]"
                       }`}
-                      onClick={() => column.sortable && handleSort(column.key)}
                     >
-                      {/* Left side: icon and label */}
-                      <div className="flex items-center space-x-2">
-                        {column.icon && <span>{column.icon}</span>}
-                        <span>{column.label}</span>
-                      </div>
-
-                      {/* Right side: sorting indicators */}
-                      {column.sortable && (
-                        <div className="ml-4 flex flex-col items-end">
-                          <ChevronUp
-                            size={12}
-                            className={`${
-                              sortConfig.key === column.key &&
-                              sortConfig.direction === "asc"
-                                ? "text-white"
-                                : "text-gray-300"
-                            }`}
-                          />
-                          <ChevronDown
-                            size={12}
-                            className={`${
-                              sortConfig.key === column.key &&
-                              sortConfig.direction === "desc"
-                                ? "text-white"
-                                : "text-gray-300"
-                            }`}
-                          />
+                      <div
+                        className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
+                          column.sortable ? "cursor-pointer" : ""
+                        }`}
+                        onClick={() =>
+                          column.sortable && handleSort(column.key)
+                        }
+                      >
+                        {/* Left side: icon and label */}
+                        <div className="flex items-center space-x-2">
+                          {column.icon && <span>{column.icon}</span>}
+                          <span>{column.label}</span>
                         </div>
-                      )}
+
+                        {/* Right side: sorting indicators */}
+                        {column.sortable && (
+                          <div className="ml-4 flex flex-col items-end">
+                            <ChevronUp
+                              size={12}
+                              className={`${
+                                sortConfig.key === column.key &&
+                                sortConfig.direction === "asc"
+                                  ? "text-white"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                            <ChevronDown
+                              size={12}
+                              className={`${
+                                sortConfig.key === column.key &&
+                                sortConfig.direction === "desc"
+                                  ? "text-white"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
+                {!showArchived && (
+                  <th
+                    className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
+                    style={{
+                      backgroundColor: staticbg,
+                      boxShadow: "inset 1px 0 0 #E5E7EB",
+                    }}
+                  >
+                    <div className="flex justify-center items-center space-x-2">
+                      <Image
+                        src="/action.svg"
+                        height={13}
+                        width={13}
+                        alt="Action"
+                      />
+                      <span className="text-[14px] text-white font-semibold">
+                        Action
+                      </span>
                     </div>
                   </th>
-                ))}
-                <th
-                  className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
-                  style={{
-                    backgroundColor: staticbg,
-                    boxShadow: "inset 1px 0 0 #E5E7EB",
-                  }}
-                >
-                  <div className="flex justify-center items-center space-x-2">
-                    <Image
-                      src="/action.svg"
-                      height={13}
-                      width={13}
-                      alt="Action"
-                    />
-                    <span className="text-[14px] text-white font-semibold">
-                      Action
-                    </span>
-                  </div>
-                </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td
-                    colSpan={columns.length + 2}
-                    className="px-6 py-4 text-center"
-                  >
-                    Loading...
+                  <td colSpan={7} className="py-8">
+                    <div className="flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                    </div>
                   </td>
                 </tr>
               ) : data.length === 0 ? (
@@ -1006,15 +1046,21 @@ TableProps) {
                         </div>
                       </td>
 
-                      {columns.map((column) => (
-                        <td
-                          key={`${rowId || index}-${column.key}`}
-                          className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4]"
-                        >
-                          {isEditing && column.editable ? (
-                            column.options ? (
-                              <div className="relative">
-                                {/* <select
+                      {columns.map((column, colIndex) => {
+                        const isLastColumn = colIndex === columns.length - 1;
+                        return (
+                          <td
+                            key={`${rowId || index}-${column.key}`}
+                            className={`px-3 py-3 whitespace-nowrap border-r-2 border-gray-200 ${
+                              isLastColumn && !showArchived
+                                ? "rounded-tr-xl"
+                                : "border-r-1 border-[#D4D4D4]"
+                            }`}
+                          >
+                            {isEditing && column.editable ? (
+                              column.options ? (
+                                <div className="relative">
+                                  {/* <select
                                     value={editingData[column.key]}
                                     onChange={(e) =>
                                       handleEditChange(
@@ -1034,157 +1080,163 @@ TableProps) {
                                     ))}
                                   </select> */}
 
-                                {column.key === "grades" ||
-                                column.key === "curriculums" ||
-                                column.key === "interventions" ? (
-                                  <MultiSelect
-                                    options={column.options}
-                                    values={editingData[column.key] || []}
-                                    // onChange={(vals) =>
-                                    //   handleEditChange("grades", vals)
-                                    // }
-                                    onChange={(vals) =>
-                                      handleEditChange(column.key, vals)
-                                    }
-                                  />
-                                ) : (
-                                  <CustomDropdown
-                                    value={editingData[column.key]}
-                                    options={column.options}
-                                    onChange={(val) =>
-                                      handleEditChange(column.key, val)
-                                    }
-                                  />
-                                )}
-                              </div>
-                            ) : (
-                              <input
-                                type="text"
-                                value={editingData[column.key]}
-                                onChange={(e) =>
-                                  handleEditChange(column.key, e.target.value)
-                                }
-                                className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
-                              />
-                            )
-                          ) : column.renderCell ? (
-                            column.renderCell(row)
-                          ) : (
-                            // row[column.key]
-                            <span
-                              className={`flex items-center gap-1 px-2 py-1 rounded text-[12px] font-normal text-[#000] ${
-                                column.key === "user_type"
-                                  ? row[column.key] === "Admin"
-                                    ? "bg-[#E9F3FF] text-[#2264AC]"
-                                    : row[column.key] === "Super Admin"
-                                    ? "bg-[#F4EBFF] text-[#6C4996]"
-                                    : row[column.key] === "Network Admin"
-                                    ? "bg-[#FFFCDD] text-[#F59E0B]"
-                                    : row[column.key] === "Observer"
-                                    ? "bg-[#D6FDFD] text-[#007778]"
-                                    : row[column.key] === "District Viewer"
-                                    ? "bg-[#FFF4EF] text-[#F25D00]"
-                                    : "bg-gray-100 text-gray-700"
-                                  : "text-black"
-                              }`}
-                            >
-                              {column.key === "user_type" && (
-                                <span
-                                  className={`h-2 w-2 rounded-full ${
-                                    row[column.key] === "Admin"
-                                      ? "bg-[#2264AC]"
-                                      : row[column.key] === "Super Admin"
-                                      ? "bg-[#6C4996]"
-                                      : row[column.key] === "Network Admin"
-                                      ? "bg-[#F59E0B]"
-                                      : row[column.key] === "Observer"
-                                      ? "bg-[#007778]"
-                                      : row[column.key] === "District Viewer"
-                                      ? "bg-[#F25D00]"
-                                      : "bg-gray-700"
-                                  }`}
-                                ></span>
-                              )}
-
-                              {/* ✅ For multiselect keys */}
-                              {[
-                                "grades",
-                                "curriculums",
-                                "interventions",
-                              ].includes(column.key) &&
-                              Array.isArray(row[column.key]) ? (
-                                <>
-                                  {(() => {
-                                    const values: string[] =
-                                      row[column.key] || [];
-
-                                    const validOptions = column.options || [];
-
-                                    const labels = values
-                                      .map((val) => {
-                                        const found = validOptions.find(
-                                          (opt) => opt.value === val
-                                        );
-                                        return found?.label;
-                                      })
-                                      .filter(Boolean); // removes undefined
-
-                                    const firstLabel = labels[0];
-                                    const remainingCount = labels.length - 1;
-
-                                    return (
-                                      <>
-                                        {firstLabel}
-                                        {remainingCount > 0 && (
-                                          <Tooltip
-                                            content={
-                                              <div className="flex flex-col space-y-1">
-                                                {labels.map((label, idx) => (
-                                                  <div key={idx}>{label}</div>
-                                                ))}
-                                              </div>
-                                            }
-                                          >
-                                            <span className="text-blue-600 cursor-pointer ml-1">
-                                              +{remainingCount} more
-                                            </span>
-                                          </Tooltip>
-                                        )}
-                                      </>
-                                    );
-                                  })()}
-                                </>
+                                  {column.key === "grades" ||
+                                  column.key === "curriculums" ||
+                                  column.key === "interventions" ? (
+                                    <MultiSelect
+                                      options={
+                                        column.key === "grades"
+                                          ? getGradeOptionsForSchool(
+                                              editingData.id
+                                            ) // use the row's `id` as `schoolId`
+                                          : column.options || []
+                                      }
+                                      values={editingData[column.key] || []}
+                                      isGrade={column.key === "grades"}
+                                      onChange={(vals) =>
+                                        handleEditChange(column.key, vals)
+                                      }
+                                    />
+                                  ) : (
+                                    <CustomDropdown
+                                      value={editingData[column.key]}
+                                      options={column.options}
+                                      onChange={(val) =>
+                                        handleEditChange(column.key, val)
+                                      }
+                                    />
+                                  )}
+                                </div>
                               ) : (
-                                row[column.key]
-                              )}
-                            </span>
-                          )}
-                        </td>
-                      ))}
+                                <input
+                                  type="text"
+                                  value={editingData[column.key]}
+                                  onChange={(e) =>
+                                    handleEditChange(column.key, e.target.value)
+                                  }
+                                  className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
+                                />
+                              )
+                            ) : column.renderCell ? (
+                              column.renderCell(row)
+                            ) : (
+                              // row[column.key]
+                              <span
+                                className={`flex items-center gap-1 px-2 py-1 rounded text-[14px] font-normal text-[#000] ${
+                                  column.key === "user_type"
+                                    ? row[column.key] === "Admin"
+                                      ? "bg-[#E9F3FF] text-[#2264AC]"
+                                      : row[column.key] === "Super Admin"
+                                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                                      : row[column.key] === "Network Admin"
+                                      ? "bg-[#FFFCDD] text-[#F59E0B]"
+                                      : row[column.key] === "Observer"
+                                      ? "bg-[#D6FDFD] text-[#007778]"
+                                      : row[column.key] === "District Viewer"
+                                      ? "bg-[#FFF4EF] text-[#F25D00]"
+                                      : "bg-gray-100 text-gray-700"
+                                    : "text-black"
+                                }`}
+                              >
+                                {column.key === "user_type" && (
+                                  <span
+                                    className={`h-2 w-2 rounded-full ${
+                                      row[column.key] === "Admin"
+                                        ? "bg-[#2264AC]"
+                                        : row[column.key] === "Super Admin"
+                                        ? "bg-[#6C4996]"
+                                        : row[column.key] === "Network Admin"
+                                        ? "bg-[#F59E0B]"
+                                        : row[column.key] === "Observer"
+                                        ? "bg-[#007778]"
+                                        : row[column.key] === "District Viewer"
+                                        ? "bg-[#F25D00]"
+                                        : "bg-gray-700"
+                                    }`}
+                                  ></span>
+                                )}
 
-                      <td
-                        className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
-                        style={{
-                          backgroundColor: "#ffffff",
-                          boxShadow: "inset 2px 0 0 #D4D4D4",
-                        }}
-                      >
-                        <div className="flex justify-center items-center">
-                          <button
-                            onClick={() => handleStartEdit(row)}
-                            className="text-green-500 hover:text-green-700"
-                            title="Edit"
-                          >
-                            <Image
-                              src="/actionrow.svg"
-                              height={20}
-                              width={20}
-                              alt="Edit"
-                              className="inline"
-                            />
-                          </button>
-                        </div>
-                      </td>
+                                {/* ✅ For multiselect keys */}
+                                {[
+                                  "grades",
+                                  "curriculums",
+                                  "interventions",
+                                ].includes(column.key) &&
+                                Array.isArray(row[column.key]) ? (
+                                  <>
+                                    {(() => {
+                                      const values: string[] =
+                                        row[column.key] || [];
+
+                                      const validOptions = column.options || [];
+
+                                      const labels = values
+                                        .map((val) => {
+                                          const found = validOptions.find(
+                                            (opt) => opt.value === val
+                                          );
+                                          return found?.label;
+                                        })
+                                        .filter(Boolean); // removes undefined
+
+                                      const firstLabel = labels[0];
+                                      const remainingCount = labels.length - 1;
+
+                                      return (
+                                        <>
+                                          {firstLabel}
+                                          {remainingCount > 0 && (
+                                            <Tooltip
+                                              content={
+                                                <div className="flex flex-col space-y-1">
+                                                  {labels.map((label, idx) => (
+                                                    <div key={idx}>{label}</div>
+                                                  ))}
+                                                </div>
+                                              }
+                                            >
+                                              <span className="text-blue-600 cursor-pointer ml-1">
+                                                +{remainingCount} more
+                                              </span>
+                                            </Tooltip>
+                                          )}
+                                        </>
+                                      );
+                                    })()}
+                                  </>
+                                ) : (
+                                  row[column.key]
+                                )}
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                      {!showArchived && (
+                        <td
+                          className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
+                          style={{
+                            backgroundColor: "#ffffff",
+                            boxShadow: "inset 2px 0 0 #D4D4D4",
+                          }}
+                        >
+                          <div className="flex justify-center items-center">
+                            <button
+                              onClick={() => handleStartEdit(row)}
+                              className="text-green-500 hover:text-green-700"
+                              title="Edit"
+                            >
+                              <Image
+                                src="/actionrow.svg"
+                                height={20}
+                                width={20}
+                                alt="Edit"
+                                className="inline"
+                              />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })
@@ -1203,12 +1255,12 @@ TableProps) {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <span className="text-sm text-gray-500">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
-                className="text-sm border rounded px-2 py-1"
+                className="text-sm  px-1 py-1"
                 disabled={loading}
               >
                 {rowsPerPageOptions.map((option) => (
@@ -1231,7 +1283,7 @@ TableProps) {
               >
                 <ChevronLeft size={18} />
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 px-1">
                 {currentPage}/{totalPages || 1}
               </span>
               <button

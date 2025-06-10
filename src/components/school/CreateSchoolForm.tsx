@@ -100,6 +100,7 @@ export default function CreateSchoolForm() {
 
   const fetchCurriculums = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: false,
         type: ["Default", "Custom"].join(","),
@@ -108,6 +109,7 @@ export default function CreateSchoolForm() {
         search: null,
         page: 1,
         limit: 100,
+        district_id: districtId || null,
       };
       const data = await fetchAllCurriculums(requesPayload);
 
@@ -122,6 +124,7 @@ export default function CreateSchoolForm() {
 
   const fetchInterventions = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: false,
         filter: null,
@@ -130,6 +133,7 @@ export default function CreateSchoolForm() {
         search: null,
         curr_page: 1,
         per_page: 100,
+        district_id: districtId || null,
       };
       const data = await getInterventions(requesPayload);
       if (data.success) {
@@ -198,7 +202,7 @@ export default function CreateSchoolForm() {
   const handleSubmit = async () => {
     // Validate entire form
     const result = schoolFormSchema.safeParse(formData);
-    const districtValue = localStorage.getItem("districtValue");
+    const districtId = localStorage.getItem("globalDistrict");
     if (!result.success) {
       console.error("Validation failed:", result.error);
       return;
@@ -212,7 +216,7 @@ export default function CreateSchoolForm() {
 
       const payload = {
         name: formData.schoolName,
-        district: districtValue,
+        district: districtId || "",
         grades: formData.grades || [],
         curriculums:
           formData.instructionalMaterials?.map((item: any) => item.id) || [],
@@ -299,14 +303,14 @@ function BasicInfo({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School Name <span className="text-emerald-700">*</span>
+          School Name <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           placeholder="Enter School Name"
           value={formData.schoolName}
           onChange={(e) => onChange("schoolName", e.target.value)}
-          className={`w-full px-3 py-2 text-[12px] bg-[#F4F6F8] rounded-lg border ${
+          className={`w-full px-3 py-2 bg-[#F4F6F8] rounded-lg border ${
             validationErrors.schoolName
               ? "border-red-500 focus:ring-red-500"
               : "border-gray-200 focus:ring-emerald-500"
@@ -321,13 +325,14 @@ function BasicInfo({
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <MultiSelect
-          className="bg-[#F4F6F8] text-[12px]"
+          className="bg-[#F4F6F8]"
           options={gradeOptions}
           values={formData.grades}
           onChange={(values) => onChange("grades", values)}
+          isGrade={true}
           placeholder="Select grades"
         />
         {validationErrors.grades && (
@@ -441,8 +446,8 @@ function SelectInterventions({
                   transition={{ delay: 0.2, duration: 0.3 }}
                   className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                     tag.type === "Custom"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                      : "bg-[#F2FAF6] text-[#2A7251]"
                   }`}
                 >
                   <motion.div
@@ -450,7 +455,7 @@ function SelectInterventions({
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, duration: 0.2 }}
                     className={`w-2 h-2 rounded-full mr-1 ${
-                      tag.type === "Custom" ? "bg-purple-800" : "bg-emerald-800"
+                      tag.type === "Custom" ? "bg-[#6C4996]" : "bg-[#2A7251]"
                     }`}
                   />
                   {tag.type}
@@ -467,7 +472,7 @@ function SelectInterventions({
         )}
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex justify-between ">
         <button
           onClick={onBack}
           className="px-6 py-2 text-gray-600 hover:text-gray-800"
@@ -540,7 +545,7 @@ function SelectCurriculum({
   };
 
   return (
-    <div className="space-y-6 max-h-96 overflow-y-auto">
+    <div className="space-y-6">
       <div className="mb-6">
         <h2 className="mb-3 text-[16px] text-black-400">
           Instructional Materials
@@ -560,7 +565,7 @@ function SelectCurriculum({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-96 overflow-y-auto">
         {filteredMaterials.map((material) => (
           <div
             key={material.id}
@@ -591,8 +596,8 @@ function SelectCurriculum({
                   transition={{ delay: 0.2, duration: 0.3 }}
                   className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                     material.type === "Custom"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-emerald-100 text-emerald-700"
+                      ? "bg-[#F4EBFF] text-[#6C4996]"
+                      : "bg-[#F2FAF6] text-[#2A7251]"
                   }`}
                 >
                   <motion.div
@@ -601,8 +606,8 @@ function SelectCurriculum({
                     transition={{ delay: 0.3, duration: 0.2 }}
                     className={`w-2 h-2 rounded-full mr-1 ${
                       material.type === "Custom"
-                        ? "bg-purple-800"
-                        : "bg-emerald-800"
+                        ? "bg-[#6C4996]"
+                        : "bg-[#2A7251]"
                     }`}
                   />
                   {material.type}
@@ -619,7 +624,7 @@ function SelectCurriculum({
         )}
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex justify-between">
         <button
           onClick={onBack}
           className="px-6 py-2 text-gray-600 hover:text-gray-800"
@@ -662,19 +667,19 @@ function ReviewSubmit({
     <div className="space-y-6 h-full px-4">
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          School Name <span className="text-emerald-700">*</span>
+          School Name <span className="text-[#2A7251]">*</span>
         </label>
         <input
           type="text"
           value={formData.schoolName || ""}
           disabled
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed text-[12px]"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-[#F4F6F8] cursor-not-allowed"
         />
       </div>
 
       <div>
         <label className="block text-[16px] text-black-400 mb-2">
-          Grade(s) <span className="text-emerald-700">*</span>
+          Grade(s) <span className="text-[#2A7251]">*</span>
         </label>
         <div className="w-full px-3 py-2 rounded-lg bg-white min-h-[38px]">
           {formData.grades && formData.grades.length > 0 ? (
@@ -682,7 +687,7 @@ function ReviewSubmit({
               {formData.grades.map((grade: string) => (
                 <span
                   key={grade}
-                  className="bg-[#F2FAF6] text-emerald-700 text-xs px-3 py-2 border border-emerald-700 rounded-full flex gap-1"
+                  className="bg-[#F2FAF6] text-[#2A7251] text-sm px-3 py-2 border border-emerald-700 rounded-full flex gap-1"
                 >
                   <Student size={16} />
                   {grade === "K"
@@ -728,8 +733,8 @@ function ReviewSubmit({
                       transition={{ delay: 0.2, duration: 0.3 }}
                       className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                         tag.type === "Custom"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-emerald-100 text-emerald-700"
+                          ? "bg-[#F4EBFF] text-[#6C4996]"
+                          : "bg-[#F2FAF6] text-[#2A7251]"
                       }`}
                     >
                       <motion.div
@@ -738,8 +743,8 @@ function ReviewSubmit({
                         transition={{ delay: 0.3, duration: 0.2 }}
                         className={`w-2 h-2 rounded-full mr-1 ${
                           tag.type === "Custom"
-                            ? "bg-purple-800"
-                            : "bg-emerald-800"
+                            ? "bg-[#6C4996]"
+                            : "bg-[#2A7251]"
                         }`}
                       />
                       {tag.type}
@@ -790,8 +795,8 @@ function ReviewSubmit({
                       transition={{ delay: 0.2, duration: 0.3 }}
                       className={`inline-block flex flex-row items-center w-fit px-3 py-1 rounded-full text-xs font-medium ${
                         material.type === "Custom"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-emerald-100 text-emerald-700"
+                          ? "bg-[#F4EBFF] text-[#6C4996]"
+                          : "bg-[#F2FAF6] text-[#2A7251]"
                       }`}
                     >
                       <motion.div
@@ -800,8 +805,8 @@ function ReviewSubmit({
                         transition={{ delay: 0.3, duration: 0.2 }}
                         className={`w-2 h-2 rounded-full mr-1 ${
                           material.type === "Custom"
-                            ? "bg-purple-800"
-                            : "bg-emerald-800"
+                            ? "bg-[#6C4996]"
+                            : "bg-[#2A7251]"
                         }`}
                       />
                       {material.type}

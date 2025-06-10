@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Menu } from "@headlessui/react";
 import {
   MagnifyingGlassIcon,
@@ -20,6 +20,10 @@ import {
   updateCurriculumById,
 } from "../../services/curriculumsService";
 import CurriculumCard from "./CurriculumCard";
+import Header from "../Header";
+import { useDistrict } from "@/context/DistrictContext";
+import { Plus, Faders } from "@phosphor-icons/react";
+import NoResultsFound from "../ui/NoResultsFound";
 
 const container = {
   hidden: { opacity: 0 },
@@ -40,6 +44,7 @@ export default function CurriculumList() {
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   const [filterType, setFilterType] = useState<"Default" | "Custom" | "Both">(
     "Both"
@@ -60,35 +65,48 @@ export default function CurriculumList() {
 
   const router = useRouter();
   const [curriculums, setCurriculums] = useState([] as Curriculum[]);
+  const [bothCurriculums, setBothCurriculums] = useState();
+  const [defaultCurriculums, setDefaultCurriculums] = useState();
+  const [customCurriculums, setCustomCurriculums] = useState();
 
   //feth curriculums list
   useEffect(() => {
     fetchCurriculums();
-  }, [search, showArchived, showFilters]);
+  }, [search, showArchived, showFilters, globalDistrict]);
 
   const fetchCurriculums = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: showArchived,
         type:
           finalFilterType === "Both"
             ? ["Default", "Custom"].join(",")
             : finalFilterType,
-        sort_by: finalSortBy === "oldest" ? "title" : "created_at",
+        sort_by:
+          finalSortBy === "oldest" || finalSortBy === "newest"
+            ? "created_at"
+            : "title",
         sort_order:
           finalSortBy === "az"
             ? "asc"
             : finalSortBy === "za"
             ? "desc"
-            : finalSortBy,
+            : finalSortBy === "newest"
+            ? "desc"
+            : "asc",
         //  finalSortBy === "newest" || finalSortBy === "az" ? "desc" : "asc",
         search: search,
         page: 1,
         limit: 100,
+        district_id: districtId || null,
       };
       const data = await fetchAllCurriculums(requesPayload);
       if (data.success) {
         setCurriculums(data.data.curriculums);
+        setBothCurriculums(data.data.total_both_curriculums);
+        setDefaultCurriculums(data.data.total_default_curriculums);
+        setCustomCurriculums(data.data.total_custom_curriculums);
       } else {
         setCurriculums([] as Curriculum[]);
       }
@@ -161,17 +179,29 @@ export default function CurriculumList() {
     }
   };
 
+  const filterCounts = useMemo(() => {
+    return {
+      Default: defaultCurriculums, //interventions.filter((item) => item.type === "Default").length,
+      Custom: customCurriculums, //interventions.filter((item) => item.type === "Custom").length,
+      Both: bothCurriculums, //interventions.length,
+    };
+  }, [curriculums]);
+
   return (
     <div className="px-6 py-2 w-full flex flex-col h-full">
-      <div className="flex-none space-y-6 mb-8">
-        <div>
+      <div className="flex-none space-y-5 mb-8">
+        {/* <div>
           <h1 className="text-[24px] mb-2 text-center text-black font-medium">
             Instructional Materials
           </h1>
           <p className="text-[#454F5B] text-center text-[16px]">
             View and manage instructional materials in one place.
           </p>
-        </div>
+        </div> */}
+        <Header
+          title="Instructional Materials"
+          description="View and manage instructional materials in one place."
+        />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
@@ -194,10 +224,10 @@ export default function CurriculumList() {
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`p-2 rounded-r-[6px] h-10 flex items-center justify-center ${
-                  showFilters ? "bg-emerald-700 text-white" : ""
+                  showFilters ? "bg-[#2A7251] text-white" : ""
                 }`}
               >
-                <AdjustmentsHorizontalIcon className="h-5 w-5" />
+                <Faders className="h-5 w-5" />
               </button>
             </div>
 
@@ -208,7 +238,7 @@ export default function CurriculumList() {
                   <h3 className="text-md font-semibold">Filter By</h3>
                   <button
                     onClick={handleFilterReset}
-                    className="text-emerald-700 hover:text-emerald-800 text-sm"
+                    className="text-[#2A7251] hover:text-emerald-800 text-sm"
                   >
                     Reset
                   </button>
@@ -223,19 +253,13 @@ export default function CurriculumList() {
                       onClick={() =>
                         setFilterType(type as "Default" | "Custom" | "Both")
                       }
-                      className={`flex-1 px-4 py-2 rounded-lg ${
+                      className={`flex-1 px-4 py-2 ${
                         filterType === type
-                          ? "bg-emerald-700 text-white"
+                          ? "bg-[#2A7251] text-white"
                           : "border border-gray-200 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
-                      {type}(
-                      {
-                        curriculums.filter((c) =>
-                          type === "Both" ? true : c.type === type
-                        ).length
-                      }
-                      )
+                      {type}({filterCounts[type]})
                     </button>
                   ))}
                 </div>
@@ -292,7 +316,7 @@ export default function CurriculumList() {
                 {/* Apply Button */}
                 <button
                   onClick={() => handleApplyFilters()}
-                  className="w-full bg-emerald-700 text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
+                  className="w-full bg-[#2A7251] text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
                 >
                   Apply
                 </button>
@@ -304,15 +328,22 @@ export default function CurriculumList() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => router.push("/curriculums/new")}
-            className="bg-emerald-700 text-white px-4 py-2 rounded-[6px] hover:bg-emerald-800 transition-colors"
+            className="flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-[6px] hover:bg-[#2A7251] transition-colors"
           >
-            + Add
+            <Plus size={16} />
+            Add
           </motion.button>
         </motion.div>
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <span>Active</span>
+            <span
+              className={`text-16px ${
+                showArchived ? "text-[#494B56]" : "text-[#000] font-medium"
+              }`}
+            >
+              Active
+            </span>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowArchived(!showArchived)}
@@ -334,20 +365,26 @@ export default function CurriculumList() {
                 className="inline-block h-4 w-4 rounded-full bg-white"
               />
             </motion.button>
-            <span>Archived</span>
+            <span
+              className={`text-12px ${
+                showArchived ? "text-[#000] font-medium" : "text-[#494B56]"
+              }`}
+            >
+              Archived
+            </span>
           </div>
         </div>
       </div>
 
       <div className="flex-1 ">
-        <div className="max-h-96 overflow-y-auto ">
+        <div className="max-h-[510px] overflow-y-auto ">
           <motion.div
             variants={container}
             initial="hidden"
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
           >
-            {curriculums.length > 0 &&
+            {curriculums.length > 0 ? (
               curriculums.map((curriculum) => (
                 <motion.div key={curriculum.id} variants={item}>
                   <CurriculumCard
@@ -368,7 +405,10 @@ export default function CurriculumList() {
                     }
                   />
                 </motion.div>
-              ))}
+              ))
+            ) : (
+              <NoResultsFound />
+            )}
           </motion.div>
         </div>
       </div>

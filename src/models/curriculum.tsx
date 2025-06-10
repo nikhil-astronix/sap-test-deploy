@@ -30,10 +30,12 @@ export interface fetchCurriculumsRequestPayload {
   page: number;
   limit: number;
   search: string | null;
+  district_id?: string | null;
 }
 
 export interface createCurriculumPayload {
   title: string;
   description: string;
   type: string;
+  district_id?: string | null;
 }

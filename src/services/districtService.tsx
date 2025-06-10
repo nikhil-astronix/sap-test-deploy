@@ -2,7 +2,7 @@ import apiClient from "@/api/axiosInterceptor";
 
 export interface districtPayload {
   name: string;
-  network_id: string;
+  network_id: string | null;
   state: string;
   city: string;
   enrollment_range: string;
@@ -38,6 +38,18 @@ export const fetchAllDistricts = async (payload: getDistrictsPayload) => {
     const response = await apiClient.get("/v1/district", {
       params: payload,
     });
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error while fetching districts:", error);
+    return { success: false, error };
+  }
+};
+
+export const fetchAllDistrictsByNetwork = async (networkId: string) => {
+  try {
+    const response = await apiClient.get(
+      `/v1/district/by-network-id/${networkId}`
+    );
     return { success: true, data: response.data };
   } catch (error) {
     console.error("Error while fetching districts:", error);

@@ -78,7 +78,7 @@ const DateTimeStep = ({
 		<div className='max-w-2xl mx-auto'>
 			<div className='space-y-6'>
 				<div>
-					<label className='block text-sm font-medium mb-1'>
+					<label className='block text-[16px] text-balck-400 mb-2'>
 						Observation Date
 					</label>
 					<CustomCalendar
@@ -95,7 +95,9 @@ const DateTimeStep = ({
 				</div>
 
 				<div>
-					<label className='block text-sm font-medium mb-1'>Start Time</label>
+					<label className='block text-[16px] text-balck-400 mb-2'>
+						Start Time
+					</label>
 					<CustomTimePicker
 						value={startTime}
 						onChange={(time) => {
@@ -111,7 +113,9 @@ const DateTimeStep = ({
 				</div>
 
 				<div>
-					<label className='block text-sm font-medium mb-1'>End Time</label>
+					<label className='block text-[16px] text-balck-400 mb-2'>
+						End Time
+					</label>
 					<CustomTimePicker
 						value={endTime}
 						onChange={(time) => {
@@ -126,7 +130,7 @@ const DateTimeStep = ({
 					)}
 				</div>
 
-				<div className='flex justify-end space-x-4 pt-6'>
+				<div className='flex justify-between space-x-4 pt-6'>
 					<button
 						onClick={onCancel}
 						className='px-4 py-2 text-gray-700 hover:text-gray-900'
