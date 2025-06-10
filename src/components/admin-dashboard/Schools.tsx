@@ -107,8 +107,33 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
     },
   ];
 
+  // Background colors for school names
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#F9F5FF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
+  ];
+
   // Custom render function for cells
   const renderCell = (row: TableRow, column: string) => {
+    if (column === "name") {
+      const name = row[column] as string;
+      // Get a consistent color based on the school name
+      const colorIndex = Math.abs(name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % bgColors.length;
+      const bgColor = bgColors[colorIndex];
+      
+      return (
+        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}>
+          {name}
+        </span>
+      );
+    }
     if (column === "tools") {
       const tools = row[column] as string[];
       if (!tools || tools.length === 0) return "None";
@@ -173,7 +198,34 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       }
 
       return (
+        // <div className="relative group">
+        //   <div
+        //     className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
+        //         ? "bg-red-200"
+        //         : statusObj.status === "Partial"
+        //           ? "bg-yellow-200"
+        //           : "bg-green-200"
+        //       } ${color} px-2 py-1 rounded-full text-xs`}
+        //   >
+        //     <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
+        //     {statusObj.status}
+        //   </div>
+        //   {statusObj && (
+        //     <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
+        //       <div className="flex items-center justify-between whitespace-nowrap">
+        //         <span>Classroom {statusObj.classroom_count}</span>
+        //         <span className="mx-1">|</span>
+        //         <span>Tools {statusObj.tool_count}</span>
+        //       </div>
+        //     </div>
+        //   )}
+        // </div>
         <div className="relative group">
+          {/* <span
+            className={`inline-flex items-center gap-1 ${bgColor} ${textColor} px-2 py-1 rounded-full text-xs`}
+          >
+            <span className="w-2 h-2 bg-black rounded-full"></span> {statusObj.status}
+          </span> */}
           <div
             className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
                 ? "bg-red-200"
@@ -185,15 +237,15 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
             <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
             {statusObj.status}
           </div>
-          {statusObj && (
-            <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
-              <div className="flex items-center justify-between whitespace-nowrap">
-                <span>Classroom {statusObj.classroom_count}</span>
-                <span className="mx-1">|</span>
-                <span>Tools {statusObj.tool_count}</span>
-              </div>
+          <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
+              after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+            <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
+              <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
+              <span className="">Classroom {statusObj.classroom_count}</span>
+              <span className="mx-1">|</span>
+              <span className="">Tools {statusObj.tool_count}</span>
             </div>
-          )}
+          </div>
         </div>
       );
     }

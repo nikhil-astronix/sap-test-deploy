@@ -64,57 +64,8 @@ const PastSessions = ({
     fetchSessionData();
   }, [searchTerm, selectedFilters]);
 
-  // Sample dummy data for when API returns empty
-  const dummyData: TableRow[] = [
-    {
-      id: "1",
-      school: { id: "1", name: "Lincoln High School" },
-      date: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
-      start_time: "2025-05-25T10:00:00",
-      end_time: "2025-05-25T12:00:00",
-      session_admin: "John Smith",
-      observers: ["Emily Johnson", "Michael Brown"],
-      observation_tool: "IPG Core",
-      viewClassrooms: true,
-      status: "Completed"
-    },
-    {
-      id: "2",
-      school: { id: "2", name: "Washington Elementary" },
-      date: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString(),
-      start_time: "2025-05-23T11:30:00",
-      end_time: "2025-05-23T13:30:00",
-      session_admin: "Sarah Wilson",
-      observers: ["David Miller"],
-      observation_tool: "Math IPG",
-      viewClassrooms: true,
-      status: "Completed"
-    },
-    {
-      id: "3",
-      school: { id: "3", name: "Roosevelt Middle School" },
-      date: new Date(new Date().setDate(new Date().getDate() - 10)).toISOString(),
-      start_time: "2025-05-20T09:15:00",
-      end_time: "2025-05-20T11:15:00",
-      session_admin: "Robert Taylor",
-      observers: ["Jennifer Davis", "James Wilson", "Lisa Moore"],
-      observation_tool: "AAPS",
-      viewClassrooms: true,
-      status: "Completed"
-    },
-    {
-      id: "4",
-      school: { id: "4", name: "Jefferson Academy" },
-      date: new Date(new Date().setDate(new Date().getDate() - 14)).toISOString(),
-      start_time: "2025-05-16T14:00:00",
-      end_time: "2025-05-16T16:00:00",
-      session_admin: "Amanda Lee",
-      observers: ["Thomas Johnson"],
-      observation_tool: "IPG Core",
-      viewClassrooms: true,
-      status: "Completed"
-    }
-  ];
+  // Empty array for when API returns no data
+  const emptyData: TableRow[] = [];
 
   const fetchSessionData = async () => {
     setIsLoading(true);
@@ -136,22 +87,22 @@ const PastSessions = ({
         setPageSize(response.data.limit);
         console.log("sessions data fetch successfully");
       } else {
-        // Use dummy data when API returns empty
-        setSessionData(dummyData);
-        setTotalPages(1);
-        setTotalRecords(dummyData.length);
-        setPageNumber(1);
-        setPageSize(10);
-        console.log("Using dummy data for empty API response");
+        // Set empty data when API returns no sessions
+        setSessionData(emptyData);
+        setTotalPages(0);
+        setTotalRecords(0);
+        setPageNumber(0);
+        setPageSize(0);
+        console.log("No session data available");
       }
     } catch (error) {
       console.error("Error fetching session data:", error);
-      // Use dummy data on error
-      setSessionData(dummyData);
-      setTotalPages(1);
-      setTotalRecords(dummyData.length);
-      setPageNumber(1);
-      setPageSize(10);
+      // Set empty data on error
+      setSessionData(emptyData);
+      setTotalPages(0);
+      setTotalRecords(0);
+      setPageNumber(0);
+      setPageSize(0);
     } finally {
       setIsLoading(false);
     }
@@ -318,6 +269,7 @@ const PastSessions = ({
         pageNumber={pageNumber}
         pageSize={pageSize}
         isLoading={isLoading}
+        emptyMessage="No past sessions found"
       />
 
       {/* Edit Session Modal */}

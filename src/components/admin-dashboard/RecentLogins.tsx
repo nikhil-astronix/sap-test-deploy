@@ -1,6 +1,8 @@
 "use client";
 
-import { User, Calendar, Clock, School, Laptop } from "lucide-react";
+import { LuIdCard } from "react-icons/lu";
+import { LiaUserSolid } from "react-icons/lia";
+import { PiCalendarDots } from "react-icons/pi";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { useEffect, useState } from "react";
 import { TableFilters } from "../system-dashboard/DashboardTable";
@@ -73,32 +75,32 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
     {
       key: "full_name",
       label: "User",
-      icon: <User size={16} />,
+      icon: <LiaUserSolid size={20} />,
       sortable: true,
     },
     {
       key: "user_type",
       label: "Role",
-      icon: <User size={16} />,
+      icon: <LuIdCard size={20} />,
       sortable: true,
     },
     // {
     //   key: "school",
     //   label: "School",
-    //   icon: <School size={16} />,
+    //   icon: <School size={20} />,
     //   sortable: true,
     // },
     {
       key: "last_login_at",
       label: "Date",
-      icon: <Calendar size={16} />,
+      icon: <PiCalendarDots size={20} />,
       sortable: true,
     },
-    // { key: "time", label: "Time", icon: <Clock size={16} />, sortable: true },
+    // { key: "time", label: "Time", icon: <Clock size={20} />, sortable: true },
     // {
     //   key: "device",
     //   label: "Device",
-    //   icon: <Laptop size={16} />,
+    //   icon: <Laptop size={20} />,
     //   sortable: true,
     // },
   ];

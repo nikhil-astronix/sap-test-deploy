@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sessionViewType, setSessionViewType] = useState("today");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+
   // Add a key to force re-render of components
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
       return (
         <TodaySessionViewClassroom
           key={`classroom-view-${refreshKey}`}
-          schoolId={viewingClassrooms.school.id}
+          schoolId={viewingClassrooms.id} // Use session ID instead of school ID
           onBack={() => {
             // Clear the classroom view but maintain the session type
             setViewingClassrooms(null);
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
   // Determine if we should show session details or welcome message
   const showSessionDetails =
     viewingClassrooms !== null && activeTab === "Todays Sessions";
-    
+
   // Force re-render of session components when viewingClassrooms changes
   useEffect(() => {
     // This will trigger a re-render of the session components
@@ -135,28 +135,28 @@ export default function AdminDashboard() {
 
   const CalendarDate = ({ date }: { date: any }) => {
     const dateObj = new Date(date);
-    
+
     // Get month name
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const monthName = monthNames[dateObj.getMonth()];
-    
+
     // Get day of month
     const dayOfMonth = dateObj.getDate();
-    
+
     return (
       <div className="inline-block">
         {/* Calendar container */}
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden w-[40px] h-[40px]">
           {/* Month header */}
-          <div className="bg-green-600 text-white flex items-top text-center justify-center h-[16px]">
+          <div className="bg-gradient-to-b from-[#10472E] to-[#2A7251] text-white flex items-top text-center justify-center h-[16px]">
             <span className="text-xs h-[16px]">
               {monthName}
             </span>
           </div>
           {/* Day number */}
           <div className="flex items-center text-center justify-center flex-1 h-[24px]">
-            <span className="text-md font-bold text-green-600">
+            <span className="text-md font-bold bg-gradient-to-b from-[#10472E] to-[#2A7251] bg-clip-text text-transparent">
               {dayOfMonth}
             </span>
           </div>
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
           </p>
         </div>
       )}
-      
+
       <div className="rounded-md shadow-sm border border-gray-200 overflow-hidden">
         <AdminTabComponent
           tabs={tabs}
