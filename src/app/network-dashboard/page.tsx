@@ -34,8 +34,15 @@ export default function NetworkDashboard() {
     observationTool: string;
   } | null>(null);
 
-  const newName = localStorage.getItem("name");
-  console.log("viewClassroomMode checking hrer", viewClassroomMode);
+  const [newName, setNewName] = useState<string | null>(null);
+
+  // Safely access localStorage only on the client side
+  useEffect(() => {
+    // Check if window is defined (we're in the browser)
+    if (typeof window !== 'undefined') {
+      setNewName(localStorage.getItem("name"));
+    }
+  }, []);
 
   // Function to handle going back from classroom view to session list
   const handleBack = () => {

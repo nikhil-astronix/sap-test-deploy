@@ -107,10 +107,7 @@ function LoginPageContent() {
         console.log("response--------", response);
 
         localStorage.setItem("userrole", response.data.user_type);
-        localStorage.setItem(
-          "name",
-          response.data.first_name + " " + response.data.last_name
-        );
+        localStorage.setItem("name", response.data.first_name + " " + response.data.last_name);
         let role = response.data.user_type;
         if (role === "Super Admin") {
           router.push("/system-dashboard");
