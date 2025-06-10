@@ -82,7 +82,7 @@ export default function NewNetworkPage() {
 
         <div className="space-y-6">
           <label className="block text-[16px] text-black-400 mb-2">
-            Network <span className="text-[#22A469]">*</span>
+            Network Name <span className="text-[#22A469]">*</span>
           </label>
           <input
             type="text"
@@ -102,7 +102,13 @@ export default function NewNetworkPage() {
               {validationErrors.network}
             </p>
           )}
-          <div className="flex justify-end mt-6 px-2 ">
+          <div className="flex justify-between mt-6 px-2">
+            <button
+              onClick={() => router.push("/network")}
+              className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+            >
+              Cancel
+            </button>
             <button
               onClick={handleSubmit}
               disabled={isLoading}

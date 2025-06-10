@@ -113,7 +113,7 @@ function ResetPasswordPageContent() {
   };
 
   return (
-    <div className="w-xl mx-auto  rounded-xl p-6">
+    <div className="w-full  mx-auto p-11">
       <AnimatedContainer variant="stagger" staggerItems={true}>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           {isSetNewPw ? "Set New Password" : "Reset Password"}
@@ -236,8 +236,8 @@ function ResetPasswordPageContent() {
           type="submit"
           className={`w-full py-3 rounded-lg transition-colors flex items-center justify-center ${
             loading
-              ? "bg-emerald-500 cursor-not-allowed"
-              : "bg-emerald-600 hover:bg-emerald-700"
+              ? "bg-[#2A7251] cursor-not-allowed"
+              : "bg-[#2A7251] hover:bg-emerald-700"
           } text-white`}
           disabled={loading}
         >

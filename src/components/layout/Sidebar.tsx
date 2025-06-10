@@ -225,7 +225,7 @@ const Sidebar = () => {
               options={districts}
               selectedValues={selectedDistrict}
               onChange={(values) => setSelectedDistricts(values)}
-              placeholder="Select district"
+              placeholder="District"
               className="text-xs"
               required
               allowClear={false}

@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="w-xl mx-auto  rounded-xl p-6">
+    <div className="w-full  mx-auto p-11">
       <AnimatedContainer variant="stagger" staggerItems={true}>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           Forgot Password
@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
           <p className="text-red-500 mb-8 text-center">{cognitoError}</p>
         ) : (
           <p className="text-gray-600 mb-8 text-center">
-            Enter your email to reset the password
+            Please enter your registered email address to create a new password.
           </p>
         )}
       </AnimatedContainer>
@@ -85,8 +85,8 @@ export default function ForgotPasswordPage() {
           type="submit"
           className={`w-full py-3 rounded-lg transition-colors flex items-center justify-center ${
             loading
-              ? "bg-emerald-500 cursor-not-allowed"
-              : "bg-emerald-600 hover:bg-emerald-700"
+              ? "bg-[#2A7251] cursor-not-allowed"
+              : "bg-[#2A7251] hover:bg-emerald-700"
           } text-white`}
           disabled={loading}
         >
