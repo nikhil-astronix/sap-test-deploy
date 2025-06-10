@@ -13,7 +13,7 @@ import { z } from "zod";
 
 const COGNITO_DOMAIN = "us-east-2flbolrqfv.auth.us-east-2.amazoncognito.com";
 const CLIENT_ID = "6fajlmd3ran2auiu6vqn1d00kt";
-const REDIRECT_URI = "http://localhost:3000/auth/login";
+const REDIRECT_URI = "https://sap-internal-fe.vercel.app/auth/login";
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: cognitoConfig.region,
