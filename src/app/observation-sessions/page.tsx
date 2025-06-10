@@ -350,17 +350,17 @@ export default function ObservationSessionsPage() {
   };
 
   // Updated handler for editing state changes from SessionTables
-  const handleEditingChange = (
-    isEditing: boolean | ((prevState: boolean) => boolean),
-    sessionData = null
-  ) => {
-    setIsEditing(isEditing);
-    if (sessionData) {
-      setEditingData(sessionData);
-      // Also update the ref
-      latestEditingDataRef.current = sessionData;
-    }
-  };
+  // const handleEditingChange = (
+  // 	isEditing: boolean | ((prevState: boolean) => boolean),
+  // 	sessionData = null
+  // ) => {
+  // 	setIsEditing(isEditing);
+  // 	if (sessionData) {
+  // 		setEditingData(sessionData);
+  // 		// Also update the ref
+  // 		latestEditingDataRef.current = sessionData;
+  // 	}
+  // };
 
   // Add this function to get latest data from TabComponents
   const updateLatestEditingData = (data: any) => {
@@ -378,7 +378,7 @@ export default function ObservationSessionsPage() {
     }
 
     // Use data explicitly passed, OR the ref's latest data, OR fall back to state
-    const originalData = data || latestEditingDataRef.current || editingData;
+    const originalData = latestEditingDataRef.current;
 
     console.log("Original data before transformation:", originalData);
 
@@ -656,6 +656,7 @@ export default function ObservationSessionsPage() {
               </div>
             </div>
           )}
+
           <NetworkHeader
             title="Observation Sessions"
             description="Schedule and manage your observation sessions"
