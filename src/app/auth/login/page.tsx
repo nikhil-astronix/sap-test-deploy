@@ -72,9 +72,10 @@ function LoginPageContent() {
         await setAuthDataFromCode(code);
         setTimeout(() => {
           let role = localStorage.getItem("userRole");
+          console.log("user role checking here and there", role);
           if (role === "super-admin") {
             router.push("/system-dashboard");
-          } else if (role === "admin") {
+          } else if (role === "District admin") {
             router.push("/admin-dashboard");
           } else if (role === "network-dashboard") {
             router.push("/network-dashboard");
@@ -110,7 +111,7 @@ function LoginPageContent() {
         let role = response.data.user_type;
         if (role === "Super Admin") {
           router.push("/system-dashboard");
-        } else if (role === "Admin") {
+        } else if (role === "District Admin") {
           router.push("/admin-dashboard");
         } else if (role === "Network Admin") {
           router.push("/network-dashboard");

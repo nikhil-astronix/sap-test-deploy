@@ -17,7 +17,7 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   const loginsData: TableRow[] = [];
 
   const [filteredData, setFilteredData] = useState<TableRow[]>([]);
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(0);
@@ -44,18 +44,27 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       limit: selectedFilters.limit,
       user_type: "",
     };
-    const response = await fetchRecentLogins(requestPayload);
-    if (response.success) {
-      // const responseInfo = processData(response.data.users);
-      setFilteredData(response.data.users);
-      setTotalPages(response.data.pages);
-      setTotalRecords(response.data.total);
-      setPageNumber(response.data.page);
-      setPageSize(response.data.limit);
-      console.log("RecentLogin data fetch successfully");
-    } else {
+    setIsLoading(true);
+    try {
+      const response = await fetchRecentLogins(requestPayload);
+      if (response.success) {
+        // const responseInfo = processData(response.data.users);
+        setFilteredData(response.data.users);
+        setTotalPages(response.data.pages);
+        setTotalRecords(response.data.total);
+        setPageNumber(response.data.page);
+        setPageSize(response.data.limit);
+        console.log("RecentLogin data fetch successfully");
+      } else {
+        setFilteredData([]);
+        console.log("Error while fetching RecentLogin data");
+      }
+    } catch (error) {
+      console.error("Error fetching RecentLogin data:", error);
       setFilteredData([]);
-      console.log("Error while fetching RecentLogin data");
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -100,13 +109,12 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       const role = row[column] as string;
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            role === "Admin"
-              ? "bg-blue-100 text-blue-800"
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${role === "Admin"
+              ? "bg-[#D6FDFD] text-[#007778]"
               : role === "Principal"
-              ? "bg-purple-100 text-purple-800"
-              : "bg-green-100 text-green-800"
-          }`}
+                ? "bg-[#E9F3FF] text-[#2264AC]"
+                : "bg-[#E9F3FF] text-[#2264AC]"
+            }`}
         >
           {role}
         </span>
@@ -144,11 +152,12 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   };
 
   return (
+    <div>
     <AdminDashboardTable
       data={filteredData}
       columns={loginsColumns}
-      headerColor="green-800"
-      rowColor="green-50"
+      headerColor="bg-[#2A7251]"
+      rowColor="bg-[#E4F5EC]"
       renderCell={renderCell}
       searchTerm={searchTerm}
       onFiltersChange={handleFiltersChange}
@@ -156,7 +165,14 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       totalRecords={totalRecords}
       pageNumber={pageNumber}
       pageSize={pageSize}
+      isLoading={isLoading}
     />
+    {isLoading &&
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2A7251]"></div>
+      </div>
+    }
+    </div>
   );
 };
 

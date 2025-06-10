@@ -1,16 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  ClipboardList,
-  Building2,
-  FileText,
-  User,
-  UserCheck,
-  Calendar,
-  CheckCircle,
-  Hash,
-} from "lucide-react";
+import {User, Hash} from "lucide-react";
+import { BiBriefcaseAlt2 } from "react-icons/bi";
 import DashboardTable, {
   TableRow,
   Column,
@@ -73,31 +65,31 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     {
       key: "name",
       label: "Observation Tool",
-      icon: <ClipboardList size={16} />,
+      icon: <BiBriefcaseAlt2 size={20} />,
       sortable: true,
     },
     {
       key: "usage_count",
       label: "Total Sessions",
-      icon: <Hash size={16} />,
+      icon: <Hash size={20} />,
       sortable: true,
     },
     {
       key: "district_count",
       label: "Used in Districts",
-      icon: <Hash size={16} />,
+      icon: <Hash size={20} />,
       sortable: true,
     },
     {
       key: "school_count",
       label: "Used in Schools",
-      icon: <Hash size={16} />,
+      icon: <Hash size={20} />,
       sortable: true,
     },
     {
       key: "creator_name",
       label: "Created By",
-      icon: <User size={16} />,
+      icon: <User size={20} />,
       sortable: false,
     },
   ];

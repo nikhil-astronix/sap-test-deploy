@@ -21,6 +21,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedFilters, setSelectedFilters] = useState<TableFilters>({
     page: 1,
     limit: 9,
@@ -41,17 +42,26 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       page: selectedFilters.page,
       limit: selectedFilters.limit,
     };
-    const response = await fetchObservationTools(requestPayload);
-    if (response.success) {
-      setFilteredData(response.data.tools);
-      setTotalPages(response.data.pages);
-      setTotalRecords(response.data.total);
-      setPageNumber(response.data.page);
-      setPageSize(response.data.limit);
-      console.log("Observation data fetch successfully");
-    } else {
+    setIsLoading(true);
+    try {
+      const response = await fetchObservationTools(requestPayload);
+      if (response.success) {
+        setFilteredData(response.data.tools);
+        setTotalPages(response.data.pages);
+        setTotalRecords(response.data.total);
+        setPageNumber(response.data.page);
+        setPageSize(response.data.limit);
+        console.log("Observation data fetch successfully");
+      } else {
+        setFilteredData([]);
+        console.log("Error while fetching Observtion data");
+      }
+    } catch (error) {
+      console.error("Error fetching Observations data:", error);
       setFilteredData([]);
-      console.log("Error while fetching Observtion data");
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -89,15 +99,14 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       const name = row[column] as string;
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            name.includes("IPG")
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${name.includes("IPG")
               ? "bg-green-100 text-green-800"
               : name.includes("Math")
-              ? "bg-purple-100 text-purple-800"
-              : name.includes("AAPS")
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-blue-100 text-blue-800"
-          }`}
+                ? "bg-purple-100 text-purple-800"
+                : name.includes("AAPS")
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-blue-100 text-blue-800"
+            }`}
         >
           {name}
         </span>
@@ -154,11 +163,12 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   };
 
   return (
+    <div>
     <AdminDashboardTable
       data={filteredData}
       columns={toolsColumns}
-      headerColor="purple-800"
-      rowColor="purple-50"
+      headerColor="bg-[#6C4996]"
+      rowColor="bg-[#F9F5FF]"
       renderCell={renderCell}
       searchTerm={searchTerm}
       onFiltersChange={handleFiltersChange}
@@ -166,7 +176,14 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       totalRecords={totalRecords}
       pageNumber={pageNumber}
       pageSize={pageSize}
+      isLoading={isLoading}
     />
+    {isLoading &&
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6C4996]"></div>
+      </div>
+    }
+    </div>
   );
 };
 
