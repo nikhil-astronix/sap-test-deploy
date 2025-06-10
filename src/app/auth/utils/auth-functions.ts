@@ -40,7 +40,7 @@ const authDataSchema = z.object({
   userId: z.string().nullable(),
   userIdToken: z.string().nullable(),
   userRefreshToken: z.string().nullable(),
-  userRole: z.string().nullable(),
+  userGroup: z.string().nullable(),
 });
 
 type AuthData = z.infer<typeof authDataSchema>;
@@ -51,7 +51,7 @@ export const getAuthData = (): AuthData => {
     userId: localStorage.getItem("userId"),
     userIdToken: localStorage.getItem("userIdToken"),
     userRefreshToken: localStorage.getItem("userRefreshToken"),
-    userRole: localStorage.getItem("userRole"),
+    userGroup: localStorage.getItem("userGroup"),
   };
 };
 
@@ -66,10 +66,10 @@ const setAuthDataFromTokens = (
 
   const decodedUserIdToken = parseJwt(idToken || "");
   const userId = decodedUserIdToken["cognito:username"];
-  const userRole = decodedUserIdToken["cognito:groups"]?.[0] ?? "";
+  const userGroup = decodedUserIdToken["cognito:groups"]?.[0] ?? "";
 
   localStorage.setItem("userId", userId || "");
-  localStorage.setItem("userRole", userRole || "");
+  localStorage.setItem("userGroup", userGroup || "");
 };
 
 export const setAuthDataFromCode = async (code: string) => {
@@ -159,7 +159,12 @@ export const signIn = async (username: string, password: string) => {
     if (typeof error === "object" && error !== null) {
       const err = error as { name?: string; message?: string; __type?: string };
       const awsErrorCode = err.name || err.__type || "UnknownError";
-      const awsMessage = err.message || "Something went wrong.";
+      let awsMessage = err.message || "Something went wrong.";
+
+      if (awsMessage.includes("error")) {
+        const parts = awsMessage.split("error", 2);
+        awsMessage = parts[1]?.trim() || awsMessage;
+      }
 
       switch (awsErrorCode) {
         case "UserNotFoundException":
