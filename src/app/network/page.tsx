@@ -14,6 +14,7 @@ import {
   ClockClockwise,
   Archive,
   Trash,
+  CheckCircle,
 } from "@phosphor-icons/react";
 
 import { ChevronLeft, ChevronRight, Check, RotateCcw } from "lucide-react";
@@ -808,7 +809,7 @@ export default function NetworksPage() {
                       <div className="flex items-center justify-between">
                         {editing === network.id ? (
                           <input
-                            className="font-semibold text-sm py-1 px-0 bg-transparent border-b-2 border-blue-500 focus:outline-none focus:ring-0 w-full max-w-[250px]"
+                            className="font-semibold text-sm py-1 px-0 bg-transparent border-b-2 border-[#637381] focus:outline-none focus:ring-0 w-full max-w-[250px]"
                             value={editData.name}
                             onChange={(e) => handleEditChange(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
@@ -846,7 +847,7 @@ export default function NetworksPage() {
                                   handleSave(network);
                                 }}
                               >
-                                <Check size={18} />
+                                <CheckCircle size={18} color="#2264AC" />
                               </button>
                               <button
                                 className="text-gray-500"
