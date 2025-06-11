@@ -34,7 +34,7 @@ interface NetworkHeaderProps {
 	activeLabel?: string;
 	archivedLabel?: string;
 	isActiveArchived?: boolean; // If true, "active" means "archived" (reversed logic)
-
+	showDelete?: boolean; // Optional prop to control delete button visibility
 	// Add new prop for active tab
 	activeTab?: "Today" | "Upcoming" | "Past";
 }
@@ -62,6 +62,7 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
 	archivedLabel = "Archived",
 	isActiveArchived = false,
 	activeTab, // Add this new prop
+	showDelete = true, // Optional prop to control delete button visibility
 }) => {
 	const router = useRouter();
 
@@ -169,40 +170,43 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
 							)}
 
 							{/* Delete button - disable if on Today's tab */}
-							<button
-								className={`p-2 ${
-									hasSelectedItems() && !disableArchiveActions
-										? "text-gray-500 hover:text-gray-700"
-										: "text-gray-300 cursor-not-allowed"
-								}`}
-								disabled={!hasSelectedItems() || disableArchiveActions}
-								onClick={() =>
-									hasSelectedItems() &&
-									!disableArchiveActions &&
-									setShowDeleteModal(true)
-								}
-								title={
-									disableArchiveActions
-										? "Deletion not available for Today's Sessions"
-										: hasSelectedItems()
-										? "Delete selected"
-										: "Select items to delete"
-								}
-							>
-								<Trash
-									size={24}
-									className={
-										disableArchiveActions ? "text-gray-300" : "text-black"
+							{showDelete && (
+								<button
+									className={`p-2 ${
+										hasSelectedItems() && !disableArchiveActions
+											? "text-gray-500 hover:text-gray-700"
+											: "text-gray-300 cursor-not-allowed"
+									}`}
+									disabled={!hasSelectedItems() || disableArchiveActions}
+									onClick={() =>
+										hasSelectedItems() &&
+										!disableArchiveActions &&
+										setShowDeleteModal(true)
 									}
-								/>
-							</button>
-
+									title={
+										disableArchiveActions
+											? "Deletion not available for Today's Sessions"
+											: hasSelectedItems()
+											? "Delete selected"
+											: "Select items to delete"
+									}
+								>
+									<Trash
+										size={24}
+										className={
+											disableArchiveActions ? "text-gray-300" : "text-black"
+										}
+									/>
+								</button>
+							)}
 							{/* Add button */}
 							<motion.button
 								whileHover={{ scale: 1.02 }}
 								whileTap={{ scale: 0.98 }}
 								onClick={() => router.push(addButtonLink)}
-								className='flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-[6px] hover:bg-[#2A7251] transition-colors'
+								className={`flex gap-2 items-center bg-[#2A7251] text-white px-6 py-2 rounded-[6px] hover:bg-[#2A7251] transition-colors ${
+									!showDelete ? "ml-3" : ""
+								}`}
 							>
 								<Plus size={16} />
 								{addButtonText}
@@ -210,7 +214,46 @@ const NetworkHeader: React.FC<NetworkHeaderProps> = ({
 						</div>
 					</div>
 
-					{/* Switch button is completely removed - no conditional rendering */}
+					{/* Only show the Active/Archive toggle if NOT on Today's tab */}
+					{!disableArchiveActions && (
+						<div className='flex items-center gap-2 mb-4 mt-4'>
+							<div className='flex items-center space-x-2'>
+								<span
+									className={`text-12px ${
+										active ? "text-[#494B56]" : "text-[#000] font-medium"
+									}`}
+								>
+									{activeLabel}
+								</span>
+								<motion.button
+									whileTap={{ scale: 0.95 }}
+									onClick={() => setActive((a) => !a)}
+									className='relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-[#2A7251]'
+								>
+									<motion.span
+										layout
+										initial={false}
+										animate={{
+											x: active ? 24 : 4,
+										}}
+										transition={{
+											type: "spring",
+											stiffness: 500,
+											damping: 30,
+										}}
+										className='inline-block h-4 w-4 rounded-full bg-white'
+									/>
+								</motion.button>
+								<span
+									className={`text-12px ${
+										active ? "text-[#000] font-medium" : "text-[#494B56]"
+									}`}
+								>
+									{archivedLabel}
+								</span>
+							</div>
+						</div>
+					)}
 				</>
 			)}
 		</>

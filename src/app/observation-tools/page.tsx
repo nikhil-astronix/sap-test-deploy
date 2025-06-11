@@ -1,23 +1,41 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { AnimatedContainer } from "@/components/ui/animated-container";
 import {
-  FaSearch,
-  FaArchive,
-  FaPlus,
   FaSort,
   FaSortUp,
   FaSortDown,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import {
+  PencilSimpleLine,
+  Archive,
+  Warning,
+  ClockClockwise,
+  CalendarDots,
+  ArrowDownRight,
+  Briefcase,
+  User,
+} from "@phosphor-icons/react";
 import { BsBarChart, BsBarChartSteps } from "react-icons/bs";
 import { BsCalendarEvent, BsPeople } from "react-icons/bs";
 import { HiOutlineArrowsUpDown } from "react-icons/hi2";
 import { useRouter } from "next/navigation";
 import { getObservationTools } from "@/services/observationToolService";
+import NetworkHeader from "@/components/network/NetworkHeader";
+import {
+  archiveObservationTools,
+  restoreObservationTools,
+} from "@/services/observationToolService";
+import {
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 interface ObservationTool {
   id: string;
@@ -91,6 +109,7 @@ export default function ObservationToolsPage() {
   const router = useRouter();
   const [isActive, setIsActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: null,
     order: null,
@@ -104,6 +123,20 @@ export default function ObservationToolsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [itemsPerPage] = useState(10);
+
+  // New state for modals
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Add these to your existing state variables
+  const [selectedToolIds, setSelectedToolIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [selectAll, setSelectAll] = useState(false);
+
+  // Add this ref to track the timeout safely
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // API call function
   const fetchTools = useCallback(async (params: any) => {
@@ -153,40 +186,39 @@ export default function ObservationToolsPage() {
     }
   }, []);
 
-  // Debounced search function
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
-    null
-  );
+  // Implement debounced search effect with proper timeout management
+  useEffect(() => {
+    // Clear any existing timeout to avoid multiple timers
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
 
-  const handleSearch = useCallback(
-    (query: string) => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
+    // Set new timeout and store reference
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    // Cleanup function
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
+    };
+  }, [searchQuery]);
 
-      const timeout = setTimeout(() => {
-        setCurrentPage(1); // Reset to first curr_page on new search
-        fetchTools({
-          curr_page: 1,
-          per_page: itemsPerPage,
-          search: query || undefined,
-          sort_by: sortConfig.field || undefined,
-          sort_order: sortConfig.order || undefined,
-          is_archived: isActive ? true : false,
-        });
-      }, 500); // 500ms debounce
-
-      setSearchTimeout(timeout);
-    },
-    [fetchTools, itemsPerPage, sortConfig, isActive, searchTimeout]
-  );
-
-  // Handle search input change
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    handleSearch(value);
-  };
+  // Effect to fetch data when debounced search changes
+  useEffect(() => {
+    // Reset to first page when search changes
+    setCurrentPage(1);
+    fetchTools({
+      curr_page: 1,
+      per_page: itemsPerPage,
+      search: debouncedSearchQuery || undefined,
+      sort_by: sortConfig.field || undefined,
+      sort_order: sortConfig.order || undefined,
+      is_archived: isActive ? true : false,
+    });
+  }, [debouncedSearchQuery, isActive, sortConfig, itemsPerPage]);
 
   // Handle sorting
   const handleSort = (field: SortField) => {
@@ -253,26 +285,27 @@ export default function ObservationToolsPage() {
     });
   }, []); // Only run on component mount
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }
-    };
-  }, [searchTimeout]);
-
   const getSortIcon = (field: SortField) => {
-    if (sortConfig.field !== field) {
-      return <HiOutlineArrowsUpDown className="ml-auto w-3 h-3 " />;
-    }
-    if (sortConfig.order === "asc") {
-      return <FaSortUp className="ml-auto w-3 h-3" />;
-    }
-    if (sortConfig.order === "desc") {
-      return <FaSortDown className="ml-auto w-3 h-3" />;
-    }
-    return <FaSort className="ml-auto w-3 h-3" />;
+    return (
+      <div className="flex flex-col items-end mr-1">
+        <ChevronUp
+          size={12}
+          className={`${
+            sortConfig.field === field && sortConfig.order === "asc"
+              ? "text-white"
+              : "text-gray-300"
+          }`}
+        />
+        <ChevronDown
+          size={12}
+          className={`${
+            sortConfig.field === field && sortConfig.order === "desc"
+              ? "text-white"
+              : "text-gray-300"
+          }`}
+        />
+      </div>
+    );
   };
 
   const handleAddTool = () => {
@@ -299,94 +332,191 @@ export default function ObservationToolsPage() {
     return pages;
   };
 
+  // Update your hasSelectedItems function for proper implementation
+  const hasSelectedItems = () => {
+    return selectedToolIds.size > 0;
+  };
+
+  // Add this function to get info about selected items (for modals)
+  const getSelectedItemsInfo = () => {
+    const items: { text: string; type: string }[] = [];
+
+    selectedToolIds.forEach((id) => {
+      const tool = tools.find((t) => t.id === id);
+      if (tool) {
+        items.push({
+          text: tool.name,
+          type: "Observation Tool",
+        });
+      }
+    });
+
+    return items;
+  };
+
+  // Add these selection handler functions
+  const handleSelectRow = (
+    toolId: string,
+    event?: React.MouseEvent | React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    const newSelected = new Set(selectedToolIds);
+
+    if (newSelected.has(toolId)) {
+      newSelected.delete(toolId);
+    } else {
+      newSelected.add(toolId);
+    }
+
+    setSelectedToolIds(newSelected);
+    updateSelectAllState(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (!selectAll) {
+      // Select all tools
+      const newSelected = new Set<string>();
+      tools.forEach((tool) => {
+        newSelected.add(tool.id);
+      });
+      setSelectedToolIds(newSelected);
+    } else {
+      // Deselect all tools
+      setSelectedToolIds(new Set());
+    }
+
+    setSelectAll(!selectAll);
+  };
+
+  const updateSelectAllState = (selected: Set<string>) => {
+    // Set selectAll to true only when all tools are selected
+    setSelectAll(tools.length > 0 && selected.size === tools.length);
+  };
+
+  // Update archive, restore, and delete handlers to use the selected IDs
+  const handleArchive = async () => {
+    const selectedIds = Array.from(selectedToolIds);
+
+    if (selectedIds.length === 0) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Replace with your actual API call for archiving tools
+      const response = await archiveObservationTools({ ids: selectedIds });
+
+      if (response.success) {
+        fetchTools({
+          curr_page: currentPage,
+          per_page: itemsPerPage,
+          search: searchQuery || undefined,
+          sort_by: sortConfig.field || undefined,
+          sort_order: sortConfig.order || undefined,
+          is_archived: isActive ? true : false,
+        });
+        setSelectedToolIds(new Set());
+      }
+    } catch (err) {
+      console.error("Error archiving tools:", err);
+      setError("Failed to archive selected tools");
+    } finally {
+      setLoading(false);
+      setShowArchiveModal(false);
+    }
+  };
+
+  // Add this with your other handler functions
+  const handleRestore = async () => {
+    const selectedIds = Array.from(selectedToolIds);
+
+    if (selectedIds.length === 0) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Replace with your actual API call for restoring tools
+      const response = await restoreObservationTools({ ids: selectedIds });
+
+      if (response.success) {
+        fetchTools({
+          curr_page: currentPage,
+          per_page: itemsPerPage,
+          search: searchQuery || undefined,
+          sort_by: sortConfig.field || undefined,
+          sort_order: sortConfig.order || undefined,
+          is_archived: isActive ? true : false,
+        });
+        setSelectedToolIds(new Set());
+      }
+    } catch (err) {
+      console.error("Error restoring tools:", err);
+      setError("Failed to restore selected tools");
+    } finally {
+      setLoading(false);
+      setShowRestoreModal(false);
+    }
+  };
+
+  // Similar updates for handleRestore and handleDelete...
+
+  // Now let's update the table UI to handle selection
+
+  // In your table head, update the checkbox:
+  // <th className='w-12 px-4 py-3 text-left font-medium text-sm border-r border-blue-400 first:border-l-0'>
+  //   <input
+  //     type='checkbox'
+  //     className='rounded border-gray-300'
+  //     checked={selectAll}
+  //     onChange={handleSelectAll}
+  //   />
+  // </th>
+
+  // And in your table body rows, update each checkbox:
+  // <td className='w-12 px-4 py-3 border-b border-gray-200 border-r first:border-l-0'>
+  //   <input
+  //     type='checkbox'
+  //     className='rounded border-gray-300'
+  //     checked={selectedToolIds.has(tool.id)}
+  //     onChange={(e) => handleSelectRow(tool.id, e)}
+  //   />
+  // </td>
+
   return (
     <AnimatedContainer
       variant="fade"
       className="p-8 bg-white rounded-lg shadow-sm h-full"
     >
-      <AnimatedContainer variant="slide" className="mb-6">
-        <h1 className="text-2xl font-semibold mb-2 text-center">
-          Observation Tools
-        </h1>
-        <p className="text-gray-600 text-center">
-          Browse all observation tools across the platform. Add, update, or
-          archive tools as needed.
-        </p>
-      </AnimatedContainer>
+      <NetworkHeader
+        title="Observation Tools"
+        description="Browse all observation tools across the platform. Add, update, or archive tools as needed."
+        search={searchQuery}
+        setSearch={setSearchQuery}
+        active={isActive}
+        setActive={setIsActive}
+        hasSelectedItems={hasSelectedItems}
+        setShowArchiveModal={setShowArchiveModal}
+        setShowRestoreModal={setShowRestoreModal}
+        setShowDeleteModal={setShowDeleteModal}
+        addButtonLink="/observation-tools/new"
+        addButtonText="Add"
+        activeLabel="Active"
+        archivedLabel="Archived"
+        showDelete={false}
+      />
 
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex-1 max-w-md relative">
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            disabled={loading}
-          />
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <button className="p-2 text-gray-600 hover:text-gray-800">
-            <FaArchive className="w-5 h-5" />
-          </button>
-          <button
-            onClick={handleAddTool}
-            className="flex items-center px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
-          >
-            <FaPlus className="w-4 h-4 mr-2" />
-            Add
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 mb-4 mt-4">
-          <div className="flex items-center space-x-2">
-            <span
-              className={`text-12px ${
-                isActive ? "text-[#494B56]" : "text-[#000] font-medium"
-              }`}
-            >
-              Active
-            </span>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsActive((a) => !a)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-emerald-700`}
-            >
-              <motion.span
-                layout
-                initial={false}
-                animate={{
-                  x: isActive ? 24 : 4,
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 500,
-                  damping: 30,
-                }}
-                className="inline-block h-4 w-4 rounded-full bg-white"
-              />
-            </motion.button>
-            <span
-              className={`text-12px ${
-                isActive ? "text-[#000] font-medium" : "text-[#494B56]"
-              }`}
-            >
-              Archived
-            </span>
-          </div>
-        </div>
-
-        {/* Results count */}
-        <div className="text-sm text-gray-600">
-          Showing {(currentPage - 1) * itemsPerPage + 1}-
-          {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
-          results
-        </div>
-      </div>
+      {/* Results count */}
+      {/* <div className='flex justify-end mb-6'>
+				<div className='text-sm text-gray-600'>
+					Showing {(currentPage - 1) * itemsPerPage + 1}-
+					{Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
+					results
+				</div>
+			</div> */}
 
       {/* Error message */}
       {error && (
@@ -400,7 +530,7 @@ export default function ObservationToolsPage() {
                 search: searchQuery || undefined,
                 sort_by: sortConfig.field || undefined,
                 sort_order: sortConfig.order || undefined,
-                is_archived: isActive ? "active" : "archived",
+                is_archived: isActive ? true : false,
               })
             }
             className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
@@ -414,42 +544,68 @@ export default function ObservationToolsPage() {
         <table className="w-full border-separate border-spacing-0">
           <thead>
             <tr className="bg-[#2264AC] text-white">
-              <th className="w-12 px-4 py-3 text-left font-medium text-sm border-r border-blue-400 first:border-l-0">
-                <input type="checkbox" className="rounded border-gray-300" />
+              <th className="w-12 px-4 py-3 text-left font-medium text-sm ">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 relative appearance-none border border-white rounded-sm bg-primary-blue
+    checked:after:content-['✓'] checked:after:absolute checked:after:inset-0 
+    checked:after:flex checked:after:items-center checked:after:justify-center 
+    checked:after:text-white checked:after:text-xs"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                />
               </th>
               <th
-                className="px-4 py-3 text-left font-medium text-sm border-r border-blue-400 cursor-pointer"
+                className="px-4 py-3 text-left text-[14px] font-semibold text-[#F9F5FF] border-r border-gray-400 cursor-pointer"
                 onClick={() => handleSort("name")}
               >
-                <div className="flex items-center">
-                  <BsBarChart className="mr-2 w-4 h-4" />
-                  <span>Observation Tool</span>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-2">
+                    <Briefcase size={24} />
+                    <span>Observation Tool</span>
+                  </div>
                   {getSortIcon("name")}
                 </div>
               </th>
+
               <th
-                className="px-4 py-3 text-left font-medium text-sm border-r border-blue-400 cursor-pointer"
+                className="px-4 py-3 text-left text-[14px] font-semibold text-[#F9F5FF] border-r border-gray-400 cursor-pointer"
                 onClick={() => handleSort("created_at")}
               >
-                <div className="flex items-center">
-                  <BsCalendarEvent className="mr-2 w-4 h-4" />
-                  <span>Created On</span>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-2">
+                    <CalendarDots size={24} />
+                    <span>Created On</span>
+                  </div>
                   {getSortIcon("created_at")}
                 </div>
               </th>
+
               <th
-                className="px-4 py-3 text-left font-medium text-sm border-r border-blue-400 cursor-pointer"
+                className="px-4 py-3 text-left text-[14px] font-semibold text-[#F9F5FF] border-r border-gray-400 cursor-pointer"
                 onClick={() => handleSort("createdBy")}
               >
-                <div className="flex items-center">
-                  <BsPeople className="mr-2 w-4 h-4" />
-                  <span>Created By</span>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-2">
+                    <User size={24} />
+                    <span>Created By</span>
+                  </div>
                   {getSortIcon("createdBy")}
                 </div>
               </th>
-              <th className="px-4 py-3 text-left font-medium text-sm last:border-r-0">
-                <div className="flex items-center">
-                  <span>Action</span>
+
+              <th
+                className="w-[100px] min-w-[120px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
+                style={{
+                  backgroundColor: "#2264AC",
+                  boxShadow: "inset 1px 0 0 #E5E7EB",
+                }}
+              >
+                <div className="flex justify-center items-center space-x-2">
+                  <ArrowDownRight size={24} />
+                  <span className="text-[14px] text-white font-semibold">
+                    Action
+                  </span>
                 </div>
               </th>
             </tr>
@@ -476,17 +632,20 @@ export default function ObservationToolsPage() {
                   key={tool.id}
                   className={`${index % 2 === 1 ? "bg-[#EFF6FF]" : "bg-white"}`}
                   whileHover={{ backgroundColor: "rgba(239, 246, 255, 0.9)" }}
+                  // onClick={(e) => handleSelectRow(tool.id, e)}
                 >
-                  <td className="w-12 px-4 py-3 border-b border-gray-200 border-r first:border-l-0">
+                  <td className="w-12 px-4 py-3   first:border-l-0">
                     <input
                       type="checkbox"
-                      className="rounded border-gray-300"
+                      className="h-4 w-4 rounded border-gray-300 accent-primary-blue"
+                      checked={selectedToolIds.has(tool.id)}
+                      onChange={(e) => handleSelectRow(tool.id, e)}
                     />
                   </td>
-                  <td className="px-4 py-3 border-b border-gray-200 border-r text-sm">
+                  <td className="py-3 border-b border-gray-200 border-r text-sm">
                     {tool.name}
                   </td>
-                  <td className="px-4 py-3 border-b border-gray-200 border-r text-sm text-gray-600">
+                  <td className="px-4 py-3 border-b border-gray-200 border-r text-sm">
                     {tool.created_at}
                   </td>
                   <td className="px-4 py-3 border-b border-gray-200 border-r text-sm">
@@ -501,21 +660,9 @@ export default function ObservationToolsPage() {
                       </span>
                     ))}
                   </td>
-                  <td className="px-4 py-3 border-b border-gray-200 last:border-r-0">
-                    <button className="text-emerald-600 hover:text-emerald-800">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                        />
-                      </svg>
+                  <td className="px-4 py-3 last:border-r-0 flex justify-center">
+                    <button className="text-primary-emerald hover:text-emerald-800">
+                      <PencilSimpleLine size={20} color="#2A7251" />
                     </button>
                   </td>
                 </motion.tr>
@@ -563,6 +710,202 @@ export default function ObservationToolsPage() {
             >
               <FaChevronRight className="w-3 h-3" />
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Confirmation Modal */}
+      {showArchiveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-4">
+              <Archive className="text-gray-600" size={30} />
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
+            </div>
+
+            {/* Description */}
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
+              {getSelectedItemsInfo().length === 0
+                ? "Please select observation tools to archive."
+                : `Are you sure you want to archive ${
+                    getSelectedItemsInfo().length === 1
+                      ? "this observation tool?"
+                      : "these observation tools?"
+                  }`}
+            </p>
+
+            {/* Selected Items Display */}
+            {getSelectedItemsInfo().length > 0 && (
+              <div
+                className={`rounded-lg bg-[#F4F6F8] p-2 ${
+                  getSelectedItemsInfo().length > 2
+                    ? "max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
+                    : ""
+                }`}
+              >
+                {getSelectedItemsInfo().map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
+                  >
+                    <div className="flex flex-col items-start">
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
+                    </div>
+                    <div className="text-[12px] text-gray font-semibold text-right">
+                      {item.type}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Warning Box */}
+            <div className="bg-bg-warring-red border-l-4 border-primary-red p-4 mb-6 mt-[10px]">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <Warning size={24} className="text-primary-red" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
+                </div>
+              </div>
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
+                {getSelectedItemsInfo().length === 0
+                  ? "No observation tools selected. Please select at least one observation tool to archive."
+                  : `Archiving ${
+                      getSelectedItemsInfo().length === 1
+                        ? "this observation tool"
+                        : "these observation tools"
+                    } will remove ${
+                      getSelectedItemsInfo().length === 1 ? "it" : "them"
+                    } from active dashboards and make ${
+                      getSelectedItemsInfo().length === 1 ? "it" : "them"
+                    } unavailable for new sessions. ${
+                      getSelectedItemsInfo().length === 1 ? "It" : "They"
+                    } will remain in the system and can be restored later if needed.`}
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowArchiveModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleArchive}
+                disabled={getSelectedItemsInfo().length === 0}
+                className={`px-4 py-2 ${
+                  getSelectedItemsInfo().length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#B4351C] hover:bg-[#943015]"
+                } text-white font-medium rounded-lg transition-colors`}
+              >
+                Archive
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Restore Confirmation Modal */}
+      {showRestoreModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-xl w-full mx-4 transform transition-all duration-300 ease-in-out">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-4">
+              <ClockClockwise className="text-blue-600" size={24} />
+              <h2 className="text-[16px] text-black font-medium">Restore</h2>
+            </div>
+
+            {/* Description */}
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
+              {getSelectedItemsInfo().length === 0
+                ? "Please select observation tools to restore."
+                : `Are you sure you want to restore ${
+                    getSelectedItemsInfo().length === 1
+                      ? "this observation tool?"
+                      : "these observation tools?"
+                  }`}
+            </p>
+
+            {/* Selected Items Display */}
+            {getSelectedItemsInfo().length > 0 && (
+              <div
+                className={`rounded-lg bg-[#F4F6F8] p-2 mb-6 shadow-md ${
+                  getSelectedItemsInfo().length > 2
+                    ? "max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 shadow-md"
+                    : ""
+                }`}
+              >
+                {getSelectedItemsInfo().map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
+                  >
+                    <div className="flex flex-col items-start">
+                      <p className="text-[12px] text-black font-semibold">
+                        {item.text}
+                      </p>
+                    </div>
+                    <div className="text-[12px] text-gray font-semibold text-right">
+                      {item.type}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Note Box */}
+            <div className="bg-blue-50 border-l-4 border-[#2264AC] p-4 mb-6 mt-[10px] text-[#2264AC]">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <BsCalendarEvent size={16} color="#2264AC" />
+                </div>
+                <div className="ml-1">
+                  <p className="text-sm font-medium">Note</p>
+                </div>
+              </div>
+              <p className="text-left text-sm mt-2 font-medium">
+                {getSelectedItemsInfo().length === 0
+                  ? "No observation tools selected. Please select at least one observation tool to restore."
+                  : `Restoring ${
+                      getSelectedItemsInfo().length === 1
+                        ? "this observation tool"
+                        : "these observation tools"
+                    } will make ${
+                      getSelectedItemsInfo().length === 1 ? "it" : "them"
+                    } available again for new sessions. ${
+                      getSelectedItemsInfo().length === 1 ? "It" : "They"
+                    } will reappear in all relevant views and become selectable across the platform.`}
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowRestoreModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRestore}
+                disabled={getSelectedItemsInfo().length === 0}
+                className={`px-4 py-2 ${
+                  getSelectedItemsInfo().length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-emerald-700 hover:bg-emerald-800"
+                } text-white font-medium rounded-lg transition-colors`}
+              >
+                Restore
+              </button>
+            </div>
           </div>
         </div>
       )}
