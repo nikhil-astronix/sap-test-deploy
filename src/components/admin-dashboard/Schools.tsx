@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  School as SchoolIcon,
-  Hash,
-  BookOpen,
-  Clock,
-  Settings,
-  Info,
-} from "lucide-react";
+import {GraduationCap, Hash, Toolbox, GearFine, Note} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { TableFilters } from "../system-dashboard/DashboardTable";
 import { fetchDistrictsPayload } from "@/models/dashboard";
@@ -49,7 +42,7 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       page: selectedFilters.page,
       limit: selectedFilters.limit,
     };
-    setIsLoading(true);
+      setIsLoading(true);
     try {
       const response = await fetchSchools(requestPayload);
       console.log(response.data.schools, 'checking the schools data');
@@ -75,36 +68,11 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
 
   // Column definitions for Schools tab
   const schoolsColumns: Column[] = [
-    {
-      key: "name",
-      label: "School",
-      icon: <SchoolIcon size={16} />,
-      sortable: true,
-    },
-    {
-      key: "classroom_count",
-      label: "Number of Classrooms",
-      icon: <Hash size={16} />,
-      sortable: true,
-    },
-    {
-      key: "tools",
-      label: "Observation Tool(s)",
-      icon: <BookOpen size={16} />,
-      sortable: false,
-    },
-    {
-      key: "last_observation",
-      label: "Last Session",
-      icon: <Clock size={16} />,
-      sortable: true,
-    },
-    {
-      key: "setup_status",
-      label: "Setup Status",
-      icon: <Settings size={16} />,
-      sortable: true,
-    },
+    {key: "name",label: "School",icon: <GraduationCap size={20} />, sortable: true,},
+    {key: "classroom_count",label: "Number of Classrooms",icon: <Hash size={20} />, sortable: true,},
+    {key: "tools",label: "Observation Tool(s)",icon: <Toolbox size={20} />, sortable: false,},
+    {key: "last_observation",label: "Last Session",icon: <Note size={20} />,sortable: true,},
+    {key: "setup_status",label: "Setup Status",icon: <GearFine size={20} />,sortable: true,},
   ];
 
   // Background colors for school names
@@ -259,25 +227,21 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
 
   return (
     <div>
-    <AdminDashboardTable
-      data={filteredData}
-      columns={schoolsColumns}
-      headerColor="bg-[#2264AC]"
-      rowColor="bg-[#E9F3FF]"
-      renderCell={renderCell}
-      searchTerm={searchTerm}
-      onFiltersChange={handleFiltersChange}
-      totalPages={totalPages}
-      totalRecords={totalRecords}
-      pageNumber={pageNumber}
-      pageSize={pageSize}
-      isLoading={isLoading}
-    />
-    {isLoading &&
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2264AC]"></div>
-      </div>
-    }
+      <AdminDashboardTable
+        data={filteredData}
+        columns={schoolsColumns}
+        headerColor="bg-[#2264AC]"
+        rowColor="bg-[#E9F3FF]"
+        renderCell={renderCell}
+        searchTerm={searchTerm}
+        onFiltersChange={handleFiltersChange}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        isLoading={isLoading}
+        emptyMessage="No schools found"
+      />
     </div>
   );
 };

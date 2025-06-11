@@ -1,13 +1,6 @@
 "use client";
 
-import { Clock, Play } from 'lucide-react';
-import { PiUsers } from "react-icons/pi";
-import { LuUserRoundCog } from "react-icons/lu";
-import { GoArrowDownRight } from "react-icons/go";
-import { IoSchoolOutline } from "react-icons/io5";
-import { BiBriefcaseAlt2 } from "react-icons/bi";
-import { PiCalendarDots } from "react-icons/pi";
-import { RiEdit2Line } from "react-icons/ri";
+import {GraduationCap, ChartBar, CalendarDots, Clock, Users, UserGear, ArrowDownRight, Play, PencilSimpleLine} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "../../AdminDashboardTable";
 import { useEffect, useState } from "react";
 import EditSession from "../actions/EditSession";
@@ -108,14 +101,14 @@ const UpcomingSessions = ({
 
   // Column definitions for sessions table
   const sessionsColumns: Column[] = [
-    { key: 'school', label: 'School', icon: <IoSchoolOutline size={20} />, sortable: true },
-    { key: 'date', label: 'Date', icon: <PiCalendarDots size={20} />, sortable: true },
+    { key: 'school', label: 'School', icon: <GraduationCap size={20} />, sortable: true },
+    { key: 'date', label: 'Date', icon: <CalendarDots size={20} />, sortable: true },
     { key: 'start_time', label: 'Start Time', icon: <Clock size={20} />, sortable: true },
     { key: 'end_time', label: 'End Time', icon: <Clock size={20} />, sortable: true },
-    { key: 'session_admin', label: 'Session Admin', icon: <LuUserRoundCog size={20} />, sortable: true },
-    { key: 'observers', label: 'Observer(s)', icon: <PiUsers size={20} />, sortable: true },
-    { key: "observation_tool", label: 'Observation Tool(s)', icon: <BiBriefcaseAlt2 size={20} />, sortable: true },
-    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false },
+    { key: 'session_admin', label: 'Session Admin', icon: <UserGear size={20} />, sortable: true },
+    { key: 'observers', label: 'Observer(s)', icon: <Users size={20} />, sortable: true },
+    { key: "observation_tool", label: 'Observation Tool(s)', icon: <ChartBar size={20} />, sortable: true },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false },
   ];
 
   // State for modals
@@ -133,7 +126,7 @@ const UpcomingSessions = ({
             className="text-[#007778] flex items-center"
           >
             <span className="mr-1">Edit Session</span>
-            <RiEdit2Line size={18} />
+            <PencilSimpleLine size={20} />
           </button>
           <p className="text-[#007778] flex items-center ml-2 mr-2">|</p>
           {/* {row.viewClassrooms && ( */}
@@ -280,11 +273,11 @@ const UpcomingSessions = ({
           onSave={handleSaveSession}
         />
       )}
-      {isLoading && (
+      {/* {isLoading && (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007778]"></div>
         </div>
-      )}
+      )} */}
 
       {/* View Classrooms Modal removed - now handled by parent component */}
     </div>

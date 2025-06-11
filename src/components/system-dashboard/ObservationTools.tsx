@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {User, Hash} from "lucide-react";
-import { BiBriefcaseAlt2 } from "react-icons/bi";
+import {Hash, User, Toolbox} from "@phosphor-icons/react";
 import DashboardTable, {
   TableRow,
   Column,
@@ -36,6 +35,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   }, [searchTerm, selectedFilters]);
 
   const fetchObservations = async () => {
+    // Always show loading indicator when fetching data from API
     setIsLoading(true);
     const requestPayload: fetchObservationToolsPayload = {
       search: searchTerm,
@@ -44,18 +44,23 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       page: selectedFilters.page,
       limit: selectedFilters.limit,
     };
-    const response = await fetchObservationTools(requestPayload);
-    if (response.success) {
-      setFilteredData(response.data.tools);
-      setTotalPages(response.data.pages);
-      setTotalRecords(response.data.total);
-      setPageNumber(response.data.page);
-      setPageSize(response.data.limit);
-      console.log("Observation data fetch successfully");
-      setIsLoading(false);
-    } else {
+    try {
+      const response = await fetchObservationTools(requestPayload);
+      if (response.success) {
+        setFilteredData(response.data.tools);
+        setTotalPages(response.data.pages);
+        setTotalRecords(response.data.total);
+        setPageNumber(response.data.page);
+        setPageSize(response.data.limit);
+        console.log("Observation data fetch successfully");
+      } else {
+        setFilteredData([]);
+        console.log("Error while fetching Observation data");
+      }
+    } catch (error) {
+      console.error("Error fetching observation tools:", error);
       setFilteredData([]);
-      console.log("Error while fetching Observation data");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -65,7 +70,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     {
       key: "name",
       label: "Observation Tool",
-      icon: <BiBriefcaseAlt2 size={20} />,
+      icon: <Toolbox size={20} />,
       sortable: true,
     },
     {

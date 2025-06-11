@@ -27,7 +27,8 @@ export default function Dashboard() {
   const colorClasses = ['#2264AC', '#6C4996', '#007778'];
   
   return (
-    <div className="p-6 w-full shadow-lg rounded-lg bg-white border border-gray-200">
+    // <div className="p-6 w-full shadow-lg rounded-lg bg-white border border-gray-200">
+    <div className="p-6 pl-12 pr-12 w-full shadow-lg rounded-lg bg-white border border-gray-200">
       <div className="mb-6">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-2">Welcome, System Admin</h1>

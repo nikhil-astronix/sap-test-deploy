@@ -1,8 +1,6 @@
 "use client";
 
-import { LuIdCard } from "react-icons/lu";
-import { LiaUserSolid } from "react-icons/lia";
-import { PiCalendarDots } from "react-icons/pi";
+import {CalendarDots, IdentificationCard, User} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { useEffect, useState } from "react";
 import { TableFilters } from "../system-dashboard/DashboardTable";
@@ -75,34 +73,21 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
     {
       key: "full_name",
       label: "User",
-      icon: <LiaUserSolid size={20} />,
+      icon: <User size={20} />,
       sortable: true,
     },
     {
       key: "user_type",
       label: "Role",
-      icon: <LuIdCard size={20} />,
+      icon: <IdentificationCard size={20} />,
       sortable: true,
     },
-    // {
-    //   key: "school",
-    //   label: "School",
-    //   icon: <School size={20} />,
-    //   sortable: true,
-    // },
     {
       key: "last_login_at",
       label: "Date",
-      icon: <PiCalendarDots size={20} />,
+      icon: <CalendarDots size={20} />,
       sortable: true,
     },
-    // { key: "time", label: "Time", icon: <Clock size={20} />, sortable: true },
-    // {
-    //   key: "device",
-    //   label: "Device",
-    //   icon: <Laptop size={20} />,
-    //   sortable: true,
-    // },
   ];
 
   // Custom render function for cells
@@ -155,25 +140,21 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
 
   return (
     <div>
-    <AdminDashboardTable
-      data={filteredData}
-      columns={loginsColumns}
-      headerColor="bg-[#2A7251]"
-      rowColor="bg-[#E4F5EC]"
-      renderCell={renderCell}
-      searchTerm={searchTerm}
-      onFiltersChange={handleFiltersChange}
-      totalPages={totalPages}
-      totalRecords={totalRecords}
-      pageNumber={pageNumber}
-      pageSize={pageSize}
-      isLoading={isLoading}
-    />
-    {isLoading &&
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2A7251]"></div>
-      </div>
-    }
+      <AdminDashboardTable
+        data={filteredData}
+        columns={loginsColumns}
+        headerColor="bg-[#2A7251]"
+        rowColor="bg-[#E4F5EC]"
+        renderCell={renderCell}
+        searchTerm={searchTerm}
+        onFiltersChange={handleFiltersChange}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        isLoading={isLoading}
+        emptyMessage="No recent logins found"
+      />
     </div>
   );
 };

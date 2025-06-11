@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { User, Book, FileText, Eye } from 'lucide-react';
-import { RiEdit2Line } from "react-icons/ri";
-import { GoArrowDownRight } from "react-icons/go";
+import {Student, Exam, ArrowDownRight, PencilSimpleLine, Eye, Notebook, Book } from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from '../../AdminDashboardTable';
 import { viewClassroomSession } from '@/services/networkService';
 
@@ -55,12 +53,67 @@ export default function PastSessionViewClassroom({ schoolId, onBack }: ViewClass
 
   // Define columns for classroom table
   const classroomColumns: Column[] = [
-    { key: 'teacher', label: 'Teacher', icon: <User size={20} />, sortable: true },
-    { key: 'course', label: 'Course/Subject', icon: <Book size={20} />, sortable: true },
-    { key: 'grade', label: 'Grade', icon: <FileText size={20} />, sortable: true },
-    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <FileText size={20} />, sortable: false },
-    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false }
+    { key: 'teacher', label: 'Teacher', icon: <Student size={20} />, sortable: true },
+    { key: 'course', label: 'Course/Subject', icon: <Notebook size={20} />, sortable: true },
+    { key: 'grade', label: 'Grade', icon: <Exam size={20} />, sortable: true },
+    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <Book size={20} />, sortable: false },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false }
   ];
+
+  // Handle search term changes
+  useEffect(() => {
+    if (schoolId && searchTerm !== undefined) {
+      const fetchWithSearch = async () => {
+        setIsLoading(true);
+        try {
+          // Check if viewClassroomSession accepts a second parameter for options
+          const response = await viewClassroomSession(schoolId, {
+            search: searchTerm,
+            page: currentPage,
+            limit: pageSize
+          });
+          
+          if (response.success && response.data) {
+            setSessionData(response.data);
+            
+            if (response.data.observation_classrooms && response.data.observation_classrooms.length > 0) {
+              const tableData: TableRow[] = response.data.observation_classrooms.map((classroom: any) => ({
+                id: classroom.classroom_id,
+                name: `${classroom.teacher_name}'s Classroom`,
+                teacher: classroom.teacher_name,
+                course: classroom.course,
+                grade: classroom.grades.join(', '),
+                instructionalMaterials: [...classroom.curriculums, ...classroom.interventions],
+                school: response.data.school,
+                action: classroom.submission_state
+              }));
+              
+              setClassroomTableData(tableData);
+              setTotalRecords(response.data.total_observation_classrooms);
+              setTotalPages(response.data.total_pages);
+              setCurrentPage(response.data.curr_page);
+              setPageSize(response.data.per_page);
+            } else {
+              setClassroomTableData([]);
+              setTotalRecords(0);
+              setTotalPages(0);
+            }
+          }
+        } catch (error) {
+          console.error('Error searching session data:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      // Use a small delay to avoid too many API calls while typing
+      const timer = setTimeout(() => {
+        fetchWithSearch();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [searchTerm, schoolId, currentPage, pageSize]);
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -74,6 +127,7 @@ export default function PastSessionViewClassroom({ schoolId, onBack }: ViewClass
       
       try {
         console.log('Calling viewClassroomSession API with session ID:', schoolId);
+        // Make sure viewClassroomSession function is updated to accept options parameter
         const response = await viewClassroomSession(schoolId);
         
         if (response.success && response.data) {
@@ -120,10 +174,57 @@ export default function PastSessionViewClassroom({ schoolId, onBack }: ViewClass
     fetchSessionData();
   }, [schoolId]);
 
-  // Handle filters change for server-side pagination
-  const handleFiltersChange = (filters: any) => {
+  // Handle filters change for server-side pagination, sorting and searching
+  const handleFiltersChange = async (filters: any) => {
     setCurrentPage(filters.page);
     setPageSize(filters.limit);
+    
+    // If sorting is changed, we need to refetch data
+    if (schoolId && (filters.sort_by || filters.sort_order)) {
+      setIsLoading(true);
+      try {
+        // Add sorting parameters to the API call
+        const response = await viewClassroomSession(schoolId, {
+          page: filters.page,
+          limit: filters.limit,
+          sort_by: filters.sort_by,
+          sort_order: filters.sort_order,
+          search: searchTerm
+        });
+        
+        if (response.success && response.data) {
+          setSessionData(response.data);
+          
+          if (response.data.observation_classrooms && response.data.observation_classrooms.length > 0) {
+            // Transform classrooms to match TableRow format
+            const tableData: TableRow[] = response.data.observation_classrooms.map((classroom: any) => ({
+              id: classroom.classroom_id,
+              name: `${classroom.teacher_name}'s Classroom`,
+              teacher: classroom.teacher_name,
+              course: classroom.course,
+              grade: classroom.grades.join(', '),
+              instructionalMaterials: [...classroom.curriculums, ...classroom.interventions],
+              school: response.data.school,
+              action: classroom.submission_state
+            }));
+            
+            setClassroomTableData(tableData);
+            setTotalRecords(response.data.total_observation_classrooms);
+            setTotalPages(response.data.total_pages);
+            setCurrentPage(response.data.curr_page);
+            setPageSize(response.data.per_page);
+          } else {
+            setClassroomTableData([]);
+            setTotalRecords(0);
+            setTotalPages(0);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching sorted/filtered session data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   // Custom render function for cells
@@ -131,18 +232,18 @@ export default function PastSessionViewClassroom({ schoolId, onBack }: ViewClass
     if (column === 'action') {
       return (
         <div className="flex space-x-2 items-center">
-          <button 
+          {/* <button 
             className="text-xs text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors"
           >
             <span className="mr-1">Edit Observation</span>
-            <RiEdit2Line size={14} />
+            <PencilSimpleLine size={20} />
           </button>
-          <span className="mx-1 text-xs">|</span>
+          <span className="mx-1 text-xs">|</span> */}
           <button 
             className="text-xs text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors"
           >
             <span className="mr-1">View Calibration</span>
-            <Eye size={14} />
+            <Eye size={20} />
           </button>
         </div>
       );

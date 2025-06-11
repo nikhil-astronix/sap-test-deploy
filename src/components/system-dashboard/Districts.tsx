@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Network,
-  Users,
-  Hash,
-} from "lucide-react";
-import { PiCity } from "react-icons/pi";
-import { IoDocumentTextOutline } from "react-icons/io5";
-import { PiGearFine } from "react-icons/pi";
+import {Network, City, Note, Hash, GearFine, Users} from "@phosphor-icons/react";
 import DashboardTable, {
   TableRow,
   Column,
@@ -45,6 +38,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
   }, [selectedFilters, searchTerm]);
 
   const fetchDistrictsInfo = async () => {
+    // Always show loading indicator when fetching data from API
     setIsLoading(true);
     const requestPayload: fetchDistrictsPayload = {
       search: searchTerm,
@@ -82,7 +76,7 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
     {
       key: "name",
       label: "District",
-      icon: <PiCity size={20} />,
+      icon: <City size={20} />,
       sortable: true,
     },
     {
@@ -101,19 +95,19 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       key: "last_observation",
       label: "Last Session",
       // icon: <Clock size={16} />,
-      icon: <IoDocumentTextOutline size={20} />,
+      icon: <Note size={20} />,
       sortable: true,
     },
     {
       key: "session_status",
       label: "Session Status",
-      icon: <PiGearFine size={20} />,
+      icon: <GearFine size={20} />,
       sortable: true,
     },
     {
       key: "setup_status",
       label: "Setup Status",
-      icon: <PiGearFine size={20} />,
+      icon: <GearFine size={20} />,
       sortable: true,
     },
   ];

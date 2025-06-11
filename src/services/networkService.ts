@@ -97,11 +97,36 @@ export const getSessionsByNetwork = async (filter_type: SessionFilterType = 'tod
     console.error("user profile service error:", error);
     return { success: false, error };
   }
-};  
+};
 
-export const viewClassroomSession = async (session_id: string) => {
+interface ClassroomSessionOptions {
+  search?: string;
+  page?: number;
+  limit?: number;
+  sort_by?: string;
+  sort_order?: string | null;
+}
+
+export const viewClassroomSession = async (session_id: string, options?: ClassroomSessionOptions) => {
   try {
-    const response = await apiClient.get(`/v1/observation/get_observation_classrooms/${session_id}`);
+    let url = `/v1/observation/get_observation_classrooms/${session_id}`;
+
+    // Add query parameters if options are provided
+    if (options) {
+      const params = new URLSearchParams();
+      if (options.search) params.append("search", options.search);
+      if (options.page) params.append("page", options.page.toString());
+      if (options.limit) params.append("limit", options.limit.toString());
+      if (options.sort_by) params.append("sort_by", options.sort_by);
+      if (options.sort_order) params.append("sort_order", options.sort_order);
+
+      const queryString = params.toString();
+      if (queryString) {
+        url = `${url}?${queryString}`;
+      }
+    }
+
+    const response = await apiClient.get(url);
     return { success: true, data: response.data };
   } catch (error) {
     console.error("user profile service error:", error);

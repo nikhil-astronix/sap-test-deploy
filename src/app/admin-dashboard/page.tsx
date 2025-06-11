@@ -11,6 +11,8 @@ import ObservationTools from "@/components/admin-dashboard/ObservationTools";
 import RecentLogins from "@/components/admin-dashboard/RecentLogins";
 import Schools from "@/components/admin-dashboard/Schools";
 import TodaySessionViewClassroom from "@/components/admin-dashboard/sessions/TodaySession/TodaySessionViewClassroom";
+import PastSessionViewClassroom from "@/components/admin-dashboard/sessions/PastSession/PastSessionViewClassroom";
+import UpcomingSessionViewClassroom from "@/components/admin-dashboard/sessions/UpcomingSession/UpcomingSessionViewClassroom";
 import { date } from "zod";
 import { GoArrowLeft } from "react-icons/go";
 
@@ -72,20 +74,57 @@ export default function AdminDashboard() {
   }, []); // No dependencies needed
 
   const renderSessionComponent = () => {
-    // If viewing classrooms, show the TodaySessionViewClassroom component
+    // If viewing classrooms, show the appropriate ViewClassroom component based on session type
     if (viewingClassrooms && activeTab === "Todays Sessions") {
-      return (
-        <TodaySessionViewClassroom
-          key={`classroom-view-${refreshKey}`}
-          schoolId={viewingClassrooms.id} // Use session ID instead of school ID
-          onBack={() => {
-            // Clear the classroom view but maintain the session type
-            setViewingClassrooms(null);
-            // Force re-render
-            setRefreshKey(prev => prev + 1);
-          }}
-        />
-      );
+      // Select the appropriate ViewClassroom component based on session type
+      switch(sessionViewType) {
+        case "today":
+          return (
+            <TodaySessionViewClassroom
+              key={`classroom-view-${refreshKey}`}
+              schoolId={viewingClassrooms.id} // Use session ID instead of school ID
+              onBack={() => {
+                // Clear the classroom view but maintain the session type
+                setViewingClassrooms(null);
+                // Force re-render
+                setRefreshKey(prev => prev + 1);
+              }}
+            />
+          );
+        case "past":
+          return (
+            <PastSessionViewClassroom
+              key={`classroom-view-${refreshKey}`}
+              schoolId={viewingClassrooms.id}
+              onBack={() => {
+                setViewingClassrooms(null);
+                setRefreshKey(prev => prev + 1);
+              }}
+            />
+          );
+        case "upcoming":
+          return (
+            <UpcomingSessionViewClassroom
+              key={`classroom-view-${refreshKey}`}
+              schoolId={viewingClassrooms.id}
+              onBack={() => {
+                setViewingClassrooms(null);
+                setRefreshKey(prev => prev + 1);
+              }}
+            />
+          );
+        default:
+          return (
+            <TodaySessionViewClassroom
+              key={`classroom-view-${refreshKey}`}
+              schoolId={viewingClassrooms.id}
+              onBack={() => {
+                setViewingClassrooms(null);
+                setRefreshKey(prev => prev + 1);
+              }}
+            />
+          );
+      }
     }
 
     // Otherwise show the regular session components with a key to force re-render
