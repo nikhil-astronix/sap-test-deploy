@@ -229,14 +229,19 @@ export default function NetworkDashboard() {
         {/* Calendar container */}
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden w-[40px] h-[40px]">
           {/* Month header */}
-          <div className="bg-green-600 text-white flex items-top text-center justify-center h-[16px]">
+          <div className="bg-gradient-to-b from-[#10472E] to-[#2A7251] text-white flex items-top text-center justify-center h-[16px]">
             <span className="text-xs h-[16px]">
               {monthName}
             </span>
           </div>
           {/* Day number */}
-          <div className="flex items-center text-center justify-center flex-1 h-[24px]">
+          {/* <div className="flex items-center text-center justify-center flex-1 h-[24px]">
             <span className="text-md font-bold text-green-600">
+              {dayOfMonth}
+            </span>
+          </div> */}
+          <div className="flex items-center text-center justify-center flex-1 h-[24px]">
+            <span className="text-md font-bold bg-gradient-to-b from-[#10472E] to-[#2A7251] bg-clip-text text-transparent">
               {dayOfMonth}
             </span>
           </div>

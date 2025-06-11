@@ -44,57 +44,8 @@ const UpcomingSessions = ({
     fetchSessionData();
   }, [searchTerm, selectedFilters]);
 
-  // Sample dummy data for when API returns empty
-  const dummyData: TableRow[] = [
-    {
-      id: "1",
-      school: { id: "1", name: "Lincoln High School" },
-      date: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString(),
-      start_time: "2025-06-10T10:00:00",
-      end_time: "2025-06-10T12:00:00",
-      session_admin: "John Smith",
-      observers: ["Emily Johnson", "Michael Brown"],
-      observation_tool: "IPG Core",
-      viewClassrooms: true,
-      status: "Scheduled"
-    },
-    {
-      id: "2",
-      school: { id: "2", name: "Washington Elementary" },
-      date: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString(),
-      start_time: "2025-06-12T11:30:00",
-      end_time: "2025-06-12T13:30:00",
-      session_admin: "Sarah Wilson",
-      observers: ["David Miller"],
-      observation_tool: "Math IPG",
-      viewClassrooms: true,
-      status: "Scheduled"
-    },
-    {
-      id: "3",
-      school: { id: "3", name: "Roosevelt Middle School" },
-      date: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(),
-      start_time: "2025-06-14T09:15:00",
-      end_time: "2025-06-14T11:15:00",
-      session_admin: "Robert Taylor",
-      observers: ["Jennifer Davis", "James Wilson", "Lisa Moore"],
-      observation_tool: "AAPS",
-      viewClassrooms: true,
-      status: "Scheduled"
-    },
-    {
-      id: "4",
-      school: { id: "4", name: "Jefferson Academy" },
-      date: new Date(new Date().setDate(new Date().getDate() + 10)).toISOString(),
-      start_time: "2025-06-17T14:00:00",
-      end_time: "2025-06-17T16:00:00",
-      session_admin: "Amanda Lee",
-      observers: ["Thomas Johnson"],
-      observation_tool: "IPG Core",
-      viewClassrooms: true,
-      status: "Scheduled"
-    }
-  ];
+  // Empty array for when API returns no data
+  const emptyData: TableRow[] = [];
 
   // Helper functions to format date and time
   const formatDate = (dateStr: string) => {
@@ -134,22 +85,22 @@ const UpcomingSessions = ({
         setPageSize(response.data.limit);
         console.log("sessions data fetch successfully");
       } else {
-        // Use dummy data when API returns empty
-        setSessionData(dummyData);
-        setTotalPages(1);
-        setTotalRecords(dummyData.length);
-        setPageNumber(1);
-        setPageSize(10);
-        console.log("Using dummy data for empty API response");
+        // Set empty data when API returns no sessions
+        setSessionData(emptyData);
+        setTotalPages(0);
+        setTotalRecords(0);
+        setPageNumber(0);
+        setPageSize(0);
+        console.log("No session data available");
       }
     } catch (error) {
       console.error("Error fetching session data:", error);
-      // Use dummy data on error
-      setSessionData(dummyData);
-      setTotalPages(1);
-      setTotalRecords(dummyData.length);
-      setPageNumber(1);
-      setPageSize(10);
+      // Set empty data on error
+      setSessionData(emptyData);
+      setTotalPages(0);
+      setTotalRecords(0);
+      setPageNumber(0);
+      setPageSize(0);
     } finally {
       setIsLoading(false);
     }
@@ -318,6 +269,7 @@ const UpcomingSessions = ({
         pageNumber={pageNumber}
         pageSize={pageSize}
         isLoading={isLoading}
+        emptyMessage="No upcoming sessions found"
       />
 
       {/* Edit Session Modal */}

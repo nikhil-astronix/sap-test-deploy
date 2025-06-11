@@ -54,45 +54,8 @@ const TodaysSessions = ({
     fetchSessionData();
   }, [searchTerm, selectedFilters]);
 
-  // Sample dummy data for when API returns empty
-  const dummyData: TableRow[] = [
-    {
-      id: "1",
-      school: { id: "1", name: "Lincoln High School" },
-      date: new Date().toISOString(),
-      start_time: new Date().toISOString(),
-      end_time: new Date(new Date().getTime() + 2 * 60 * 60 * 1000).toISOString(),
-      session_admin: "John Smith",
-      observers: ["Emily Johnson", "Michael Brown"],
-      observation_tool: "IPG Core",
-      viewClassrooms: true,
-      status: "In Progress"
-    },
-    {
-      id: "2",
-      school: { id: "2", name: "Washington Elementary" },
-      date: new Date().toISOString(),
-      start_time: new Date(new Date().getTime() + 1 * 60 * 60 * 1000).toISOString(),
-      end_time: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString(),
-      session_admin: "Sarah Wilson",
-      observers: ["David Miller"],
-      observation_tool: "Math IPG",
-      viewClassrooms: true,
-      status: "Scheduled"
-    },
-    {
-      id: "3",
-      school: { id: "3", name: "Roosevelt Middle School" },
-      date: new Date().toISOString(),
-      start_time: new Date(new Date().getTime() - 1 * 60 * 60 * 1000).toISOString(),
-      end_time: new Date(new Date().getTime() + 1 * 60 * 60 * 1000).toISOString(),
-      session_admin: "Robert Taylor",
-      observers: ["Jennifer Davis", "James Wilson", "Lisa Moore"],
-      observation_tool: "AAPS",
-      viewClassrooms: true,
-      status: "Completed"
-    }
-  ];
+  // Empty array for when API returns no data
+  const emptyData: TableRow[] = [];
 
   const fetchSessionData = async () => {
     setIsLoading(true);
@@ -115,22 +78,22 @@ const TodaysSessions = ({
         setPageSize(response.data.limit);
         console.log("sessions data fetch successfully");
       } else {
-        // Use dummy data when API returns empty
-        setSessionData(dummyData);
-        setTotalPages(1);
-        setTotalRecords(dummyData.length);
-        setPageNumber(1);
-        setPageSize(10);
-        console.log("Using dummy data for empty API response");
+        // Set empty data when API returns no sessions
+        setSessionData(emptyData);
+        setTotalPages(0);
+        setTotalRecords(0);
+        setPageNumber(0);
+        setPageSize(0);
+        console.log("No session data available");
       }
     } catch (error) {
       console.error("Error fetching session data:", error);
-      // Use dummy data on error
-      setSessionData(dummyData);
-      setTotalPages(1);
-      setTotalRecords(dummyData.length);
-      setPageNumber(1);
-      setPageSize(10);
+      // Set empty data on error
+      setSessionData(emptyData);
+      setTotalPages(0);
+      setTotalRecords(0);
+      setPageNumber(0);
+      setPageSize(0);
     } finally {
       setIsLoading(false);
     }
@@ -311,6 +274,7 @@ const TodaysSessions = ({
         pageNumber={pageNumber}
         pageSize={pageSize}
         isLoading={isLoading}
+        emptyMessage="No sessions found"
       />
 
       {/* Edit Session Modal */}
