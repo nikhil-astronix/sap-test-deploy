@@ -122,7 +122,7 @@ export default function ObservationToolsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // New state for modals
   const [showArchiveModal, setShowArchiveModal] = useState(false);
@@ -135,6 +135,7 @@ export default function ObservationToolsPage() {
   );
   const [selectAll, setSelectAll] = useState(false);
 
+  const [rowsPerPageOptions] = useState([5, 10, 25, 50, 100]);
   // Add this ref to track the timeout safely
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -260,6 +261,19 @@ export default function ObservationToolsPage() {
         is_archived: isActive ? true : false,
       });
     }
+  };
+
+  const handleRowsPerPageChange = (newPerPage: number) => {
+    setItemsPerPage(newPerPage);
+    setCurrentPage(1);
+    fetchTools({
+      curr_page: 1,
+      per_page: newPerPage,
+      search: searchQuery || undefined,
+      sort_by: sortConfig.field || undefined,
+      sort_order: sortConfig.order || undefined,
+      is_archived: isActive ? true : false,
+    });
   };
 
   // Handle is_archived toggle (Active/Archived)
@@ -613,10 +627,9 @@ export default function ObservationToolsPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center">
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
-                    <span>Loading...</span>
+                <td colSpan={6} className="py-8">
+                  <div className="flex justify-center items-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
                   </div>
                 </td>
               </tr>
@@ -673,7 +686,7 @@ export default function ObservationToolsPage() {
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6">
           <div className="text-sm text-gray-600">
             page {currentPage} of {totalPages}
@@ -712,7 +725,66 @@ export default function ObservationToolsPage() {
             </button>
           </div>
         </div>
-      )}
+      )} */}
+      <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
+        <div>
+          <p className="text-sm text-gray-500">
+            {tools.length > 0
+              ? `${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
+                  currentPage * itemsPerPage,
+                  totalItems
+                )} of ${totalItems}`
+              : "0 results"}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center space-x-1">
+            <span className="text-sm text-gray">Rows per page:</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
+              className="text-sm px-1 py-1"
+              disabled={loading}
+            >
+              {rowsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1 || loading}
+              className={`p-1 border rounded ${
+                currentPage === 1 || loading
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <span className="text-sm px-1 text-gray-500">
+              {currentPage}/{totalPages || 1}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={
+                currentPage === totalPages || totalPages === 0 || loading
+              }
+              className={`p-1 border rounded ${
+                currentPage === totalPages || totalPages === 0 || loading
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
