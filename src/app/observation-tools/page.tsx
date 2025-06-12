@@ -503,7 +503,7 @@ export default function ObservationToolsPage() {
   return (
     <AnimatedContainer
       variant="fade"
-      className="p-8 bg-white rounded-lg shadow-md h-full"
+      className="container text-center mx-auto px-4 py-8 bg-white rounded-lg shadow-md"
     >
       <NetworkHeader
         title="Observation Tools"
@@ -570,7 +570,7 @@ export default function ObservationToolsPage() {
                 />
               </th>
               <th
-                className=" py-3 text-left text-[14px] font-semibold text-[#F9F5FF] border-r border-gray-400 cursor-pointer"
+                className="pr-4 py-3 text-left text-[14px] font-semibold text-[#F9F5FF] border-r border-gray-400 cursor-pointer"
                 onClick={() => handleSort("name")}
               >
                 <div className="flex items-center justify-between w-full">
@@ -643,11 +643,13 @@ export default function ObservationToolsPage() {
               tools.map((tool, index) => (
                 <motion.tr
                   key={tool.id}
-                  className={`${index % 2 === 1 ? "bg-[#EFF6FF]" : "bg-white"}`}
+                  className={`border-[#D4D4D4] border-b ${
+                    index % 2 === 1 ? "bg-[#EFF6FF]" : "bg-white"
+                  } `}
                   whileHover={{ backgroundColor: "rgba(239, 246, 255, 0.9)" }}
                   // onClick={(e) => handleSelectRow(tool.id, e)}
                 >
-                  <td className="w-12 px-4 py-3   first:border-l-0">
+                  <td className="w-12 px-4 py-4   first:border-l-0 border-[#D4D4D4] border-b">
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 accent-primary-blue"
@@ -656,13 +658,13 @@ export default function ObservationToolsPage() {
                       style={{ accentColor: "#2264AC" }}
                     />
                   </td>
-                  <td className="py-3 border-b border-gray-200 border-r text-sm">
+                  <td className="py-4 border-b border-[#D4D4D4] border-r text-sm text-left">
                     {tool.name}
                   </td>
-                  <td className="px-4 py-3 border-b border-gray-200 border-r text-sm">
+                  <td className="px-4 py-4 border-b border-[#D4D4D4] border-r text-sm text-left">
                     {tool.created_at}
                   </td>
-                  <td className="px-4 py-3 border-b border-gray-200 border-r text-sm">
+                  <td className="px-4 py-4 border-b border-[#D4D4D4] border-r text-sm text-left">
                     {tool.createdBy.map((creator, idx) => (
                       <span key={idx}>
                         {idx > 0 && idx < tool.createdBy.length - 1 && ", "}
@@ -674,9 +676,20 @@ export default function ObservationToolsPage() {
                       </span>
                     ))}
                   </td>
-                  <td className="px-4 py-3 last:border-r-0 flex justify-center">
+                  {/* <td className="px-4 py-4 last:border-r-0 border-[#D4D4D4] border-b flex justify-center">
                     <button className="text-primary-emerald hover:text-emerald-800">
                       <PencilSimpleLine size={20} color="#2A7251" />
+                    </button>
+                  </td> */}
+                  <td
+                    className="w-[100px] min-w-[100px] text-center last:border-r-0 sticky right-0 border-l-2  px-2 py-4 border-[#D4D4D4] border-b"
+                    style={{
+                      backgroundColor: "#ffffff",
+                      boxShadow: "inset 2px 0 0 #D4D4D4",
+                    }}
+                  >
+                    <button className="text-emerald-700">
+                      <PencilSimpleLine size={16} color="#2A7251" />
                     </button>
                   </td>
                 </motion.tr>
@@ -684,109 +697,71 @@ export default function ObservationToolsPage() {
             )}
           </tbody>
         </table>
-      </div>
 
-      {/* Pagination */}
-      {/* {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
-          <div className="text-sm text-gray-600">
-            page {currentPage} of {totalPages}
+        {/* Pagination */}
+
+        <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
+          <div>
+            <p className="text-sm text-gray-500">
+              {tools.length > 0
+                ? `${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
+                    currentPage * itemsPerPage,
+                    totalItems
+                  )} of ${totalItems}`
+                : "0 results"}
+            </p>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || loading}
-              className="px-3 py-1 rounded-md border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-            >
-              <FaChevronLeft className="w-3 h-3" />
-            </button>
-
-            {getPageNumbers().map((curr_page) => (
-              <button
-                key={curr_page}
-                onClick={() => handlePageChange(curr_page)}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center space-x-1">
+              <span className="text-sm text-gray">Rows per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) =>
+                  handleRowsPerPageChange(Number(e.target.value))
+                }
+                className="text-sm py-1"
                 disabled={loading}
-                className={`px-3 py-1 rounded-md text-sm ${
-                  curr_page === currentPage
-                    ? "bg-emerald-600 text-white"
-                    : "border border-gray-300 hover:bg-gray-50"
-                } disabled:cursor-not-allowed`}
               >
-                {curr_page}
+                {rowsPerPageOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || loading}
+                className={`p-1 border rounded ${
+                  currentPage === 1 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronLeft size={18} />
               </button>
-            ))}
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || loading}
-              className="px-3 py-1 rounded-md border border-gray-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-            >
-              <FaChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
-      )} */}
-      <div className="flex flex-wrap items-center justify-between py-2 px-4 gap-y-2 border-t border-gray-200">
-        <div>
-          <p className="text-sm text-gray-500">
-            {tools.length > 0
-              ? `${(currentPage - 1) * itemsPerPage + 1}-${Math.min(
-                  currentPage * itemsPerPage,
-                  totalItems
-                )} of ${totalItems}`
-              : "0 results"}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center space-x-1">
-            <span className="text-sm text-gray">Rows per page:</span>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
-              className="text-sm py-1"
-              disabled={loading}
-            >
-              {rowsPerPageOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1 || loading}
-              className={`p-1 border rounded ${
-                currentPage === 1 || loading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <span className="text-sm px-1 text-gray-500">
-              {currentPage}/{totalPages || 1}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={
-                currentPage === totalPages || totalPages === 0 || loading
-              }
-              className={`p-1 border rounded ${
-                currentPage === totalPages || totalPages === 0 || loading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <ChevronRight size={18} />
-            </button>
+              <span className="text-sm px-1 text-gray-500">
+                {currentPage}/{totalPages || 1}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={
+                  currentPage === totalPages || totalPages === 0 || loading
+                }
+                className={`p-1 border rounded ${
+                  currentPage === totalPages || totalPages === 0 || loading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

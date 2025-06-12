@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { SignOut, UserCircle } from "@phosphor-icons/react";
 import { usePathname } from "next/navigation";
+import { navItemsAdmin, navItemsSystemAdmin } from "./Sidebar";
 
 const Header = ({
   handleSetupClick,
@@ -26,16 +27,22 @@ const Header = ({
   const pathname = usePathname();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  const navItems = role === "Super Admin" ? navItemsSystemAdmin : navItemsAdmin;
   useEffect(() => {
+    const currentItem = navItems.find((item) => item.path === pathname);
     let storedRole = localStorage.getItem("userrole");
     let firstname = localStorage.getItem("name");
     setRole(storedRole);
     setName(firstname);
 
-    if (pathname === "/" || pathname === "/system-dashboard") {
+    if (
+      pathname === "/" ||
+      pathname === "/system-dashboard" ||
+      pathname === "/admin-dashboard" ||
+      pathname === "/network-dashboard"
+    ) {
       setActiveTab("dashboard");
-    } else if (pathname === "/network") {
+    } else if (currentItem) {
       setActiveTab("setup");
     } else {
       setActiveTab(null);
@@ -101,19 +108,21 @@ const Header = ({
         >
           Dashboard
         </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`px-6 py-1.5 text-sm transition-colors font-medium ${
-            activeTab === "setup"
-              ? "text-[#2A7251] text-[14px]-400"
-              : "text-black text-[14px]-400"
-          }  hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
-          onClick={handleSetupClickInternal}
-        >
-          Setup
-        </motion.button>
+        {role === "Super Admin" ||
+          (role === "District Admin" && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-6 py-1.5 text-sm transition-colors font-medium ${
+                activeTab === "setup"
+                  ? "text-[#2A7251] text-[14px]-400"
+                  : "text-black text-[14px]-400"
+              }  hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
+              onClick={handleSetupClickInternal}
+            >
+              Setup
+            </motion.button>
+          ))}
 
         <motion.div
           className="flex items-center"

@@ -20,6 +20,7 @@ import {
   Plus,
   Trash,
   Archive,
+  PencilSimpleLine,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
@@ -1226,13 +1227,7 @@ TableProps) {
                               className="text-green-500 hover:text-green-700"
                               title="Edit"
                             >
-                              <Image
-                                src="/actionrow.svg"
-                                height={20}
-                                width={20}
-                                alt="Edit"
-                                className="inline"
-                              />
+                              <PencilSimpleLine size={16} color="#2A7251" />
                             </button>
                           </div>
                         </td>
