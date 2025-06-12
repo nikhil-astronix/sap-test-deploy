@@ -679,12 +679,12 @@ const SessionTable = ({
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             <span className="text-sm text-gray-500">Rows per page:</span>
             <select
               value={externalRowsPerPage}
               onChange={handleRowsPerPageChange}
-              className="text-sm  px-2 py-1"
+              className="text-sm py-1"
               disabled={false} // Set to your loading state if available
             >
               {rowsPerPageOptions.map((option) => (

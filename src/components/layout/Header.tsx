@@ -92,7 +92,7 @@ const Header = ({
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`px-6 py-1.5 text-sm transition-colors font-medium ${
+          className={`pl-6 pr-2 py-1.5 text-sm transition-colors font-medium ${
             activeTab === "dashboard"
               ? "text-[#2A7251] text-[14px]-400"
               : "text-black text-[14px]-400"

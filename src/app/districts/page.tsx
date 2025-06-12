@@ -935,7 +935,7 @@ const DistrictsPage = () => {
                       <tr
                         key={district.id}
                         style={{
-                          backgroundColor: index % 2 === 1 ? "#E9F3FF" : "#fff",
+                          backgroundColor: index % 2 === 1 ? "#F3F8FF" : "#fff",
                         }}
                         className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
                         //onClick={(e) => handleSelectRow(district.id, e)}
@@ -1038,7 +1038,7 @@ const DistrictsPage = () => {
                   onChange={(e) => {
                     handleRowsPerPageChange(Number(e.target.value));
                   }}
-                  className="text-sm  px-1 py-1"
+                  className="text-sm py-1"
                   disabled={loading}
                 >
                   {[5, 10, 25, 50, 100].map((option) => (

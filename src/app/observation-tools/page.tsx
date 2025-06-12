@@ -503,7 +503,7 @@ export default function ObservationToolsPage() {
   return (
     <AnimatedContainer
       variant="fade"
-      className="p-8 bg-white rounded-lg shadow-sm h-full"
+      className="p-8 bg-white rounded-lg shadow-md h-full"
     >
       <NetworkHeader
         title="Observation Tools"
@@ -744,7 +744,7 @@ export default function ObservationToolsPage() {
             <select
               value={itemsPerPage}
               onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
-              className="text-sm px-1 py-1"
+              className="text-sm py-1"
               disabled={loading}
             >
               {rowsPerPageOptions.map((option) => (
