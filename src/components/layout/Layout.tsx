@@ -46,6 +46,9 @@ const Layout = ({ children }: LayoutProps) => {
     } else if (role === "District Admin") {
       localStorage.setItem("activeTab", "dashboard");
       router.push("/admin-dashboard");
+    }else if (role === "Admin") {
+      localStorage.setItem("activeTab", "dashboard");
+      router.push("/admin-dashboard");
     } else if (role === "Network Admin") {
       localStorage.setItem("activeTab", "dashboard");
       router.push("/network-dashboard");

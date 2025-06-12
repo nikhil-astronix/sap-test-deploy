@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import { getSessionsByNetwork, SessionFilterType } from '@/services/networkService';
 import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
 import TodaySessionViewClassroom from './TodaySessionViewClassroom';
-import {Clock, Play} from 'lucide-react';
-import { PiUsers } from "react-icons/pi";
-import { LuUserRoundCog } from "react-icons/lu";
-import { GoArrowDownRight } from "react-icons/go";
-import { IoSchoolOutline } from "react-icons/io5";
-import { BiBriefcaseAlt2 } from "react-icons/bi";
-import { PiCalendarDots } from "react-icons/pi";
+import {GraduationCap, CalendarDots, Clock, Users, UserGear, ArrowDownRight, Play, Toolbox} from "@phosphor-icons/react";
 interface TodaySessionProps {
   searchTerm?: string;
   parentViewClassroomMode?: boolean;
@@ -35,14 +29,14 @@ export default function TodaySession({
 
   // Column definitions for sessions table
   const sessionsColumns: NetworkColumn[] = [
-    { key: 'school', label: 'School', icon: <IoSchoolOutline size={20} />, sortable: true },
-    { key: 'date', label: 'Date', icon: <PiCalendarDots size={20} />, sortable: true },
+    { key: 'school', label: 'School', icon: <GraduationCap size={20} />, sortable: true },
+    { key: 'date', label: 'Date', icon: <CalendarDots size={20} />, sortable: true },
     { key: 'startTime', label: 'Start Time', icon: <Clock size={20} />, sortable: true },
     { key: 'endTime', label: 'End Time', icon: <Clock size={20} />, sortable: true },
-    { key: 'sessionAdmin', label: 'Session Admin', icon: <LuUserRoundCog size={20} />, sortable: true },
-    { key: 'observer', label: 'Observer(s)', icon: <PiUsers size={20} />, sortable: true },
-    { key: 'observationTool', label: 'Observation Tool(s)', icon: <BiBriefcaseAlt2 size={20} />, sortable: true },
-    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false },
+    { key: 'sessionAdmin', label: 'Session Admin', icon: <UserGear size={20} />, sortable: true },
+    { key: 'observer', label: 'Observer(s)', icon: <Users size={20} />, sortable: true },
+    { key: 'observationTool', label: 'Observation Tool(s)', icon: <Toolbox size={20} />, sortable: true },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false },
   ];
 
   const fetchSessions = async () => {

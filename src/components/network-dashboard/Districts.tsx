@@ -1,20 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Hash } from "lucide-react";
-import { PiCity } from "react-icons/pi";
-import { IoDocumentTextOutline } from "react-icons/io5";
-import { PiGearFine } from "react-icons/pi";
-import { format } from "date-fns";
+import {City, Note, Hash, GearFine, Users} from "@phosphor-icons/react";
 import NetworkDashboardTable, {
   NetworkColumn,
   NetworkTableRow,
-  NetworkAdmin,
-  SessionStatusType,
   NetworkTableFilters
 } from "./NetworkDashboardTable";
 import { getDistrictsByNetwork } from "@/services/networkService";
-import { fetchDistrictsPayload } from "@/models/dashboard";
 
 interface DistrictsProps {
   searchTerm?: string;
@@ -39,7 +32,7 @@ export default function Districts({ searchTerm = '' }: DistrictsProps) {
     {
       key: "districtname",
       label: "District",
-      icon: <PiCity size={20} />,
+      icon: <City size={20} />,
       sortable: true,
     },
     {
@@ -63,13 +56,13 @@ export default function Districts({ searchTerm = '' }: DistrictsProps) {
     {
       key: "lastSession",
       label: "Last Session",
-      icon: <IoDocumentTextOutline size={20} />,
+      icon: <Note size={20} />,
       sortable: true,
     },
     {
       key: "sessionStatus",
       label: "Session Status",
-      icon: <PiGearFine size={20} />,
+      icon: <GearFine size={20} />,
       sortable: true,
     },
   ];
@@ -79,6 +72,7 @@ export default function Districts({ searchTerm = '' }: DistrictsProps) {
     setIsLoading(true);
     try {
       const response = await getDistrictsByNetwork();
+      console.log(response.data.networks[0].districts, 'checking the in districts response here');
       if (response && response.data && response.data.networks && response.data.networks[0] && response.data.networks[0].districts) {
         // Extract districts from the API response
         const districts = response.data.networks[0].districts;
@@ -194,6 +188,12 @@ export default function Districts({ searchTerm = '' }: DistrictsProps) {
   useEffect(() => {
     filterAndSortData();
   }, [selectedFilters, searchTerm, districtsData]);
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
 
   // Handle filter changes from the table component
   const handleFiltersChange = (filters: NetworkTableFilters) => {
@@ -348,7 +348,7 @@ export default function Districts({ searchTerm = '' }: DistrictsProps) {
             <span className="w-2 h-2 bg-black rounded-full"></span> {statusObj.status}
           </span>
           <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
-              after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+              after:content-[''] after:absolute after:top-full after:left-1/2 after:border-4 after:border-transparent after:border-t-black">
             <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
               <span className={`w-2 h-2 mx-1 left-0 ${bgColor} rounded-full`}></span>
               <span className="">Completed {statusObj.completed_count}</span>
@@ -367,7 +367,7 @@ export default function Districts({ searchTerm = '' }: DistrictsProps) {
       } else {
         return (
           <span className="text-xs text-black font-normal">
-            {format(new Date(row.last_observation), "MMMM d, yyyy")}
+            {formatDate(row.last_observation)}
           </span>
         );
       }

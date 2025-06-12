@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PiNotebook } from "react-icons/pi";
-import { BiBookAlt } from "react-icons/bi";
-import { GoArrowDownRight } from "react-icons/go";
-import { FileText } from 'lucide-react';
-import { PiGraduationCapLight } from "react-icons/pi";
+import {Student, Exam, ArrowDownRight, Eye, Notebook, Book } from "@phosphor-icons/react";
 import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
 import { viewClassroomSession } from '@/services/networkService';
 
@@ -95,11 +91,11 @@ export default function PastSessionViewClassroom({ schoolId, onBack }: ViewClass
 
   // Define columns for the NetworkDashboardTable
   const classroomColumns: NetworkColumn[] = [
-    { key: 'teacher', label: 'Teacher', sortable: true, icon: <PiGraduationCapLight size={20} /> },
-    { key: 'course', label: 'Course/Subject', sortable: true, icon: <PiNotebook size={20} /> },
-    { key: 'grade', label: 'Grade', sortable: true, icon: <FileText size={20} /> },
-    { key: 'materials', label: 'Instructional Material(s)', sortable: false, icon: <BiBookAlt size={20} /> },
-    { key: 'action', label: 'Action', sortable: false, icon: <GoArrowDownRight size={20} /> }
+    { key: 'teacher', label: 'Teacher', sortable: true, icon: <Student size={20} /> },
+    { key: 'course', label: 'Course/Subject', sortable: true, icon: <Notebook size={20} /> },
+    { key: 'grade', label: 'Grade', sortable: true, icon: <Exam size={20} /> },
+    { key: 'materials', label: 'Instructional Material(s)', sortable: false, icon: <Book size={20} /> },
+    { key: 'action', label: 'Action', sortable: false, icon: <ArrowDownRight size={20} /> }
   ];
 
   // Custom render function for cells
@@ -107,18 +103,19 @@ export default function PastSessionViewClassroom({ schoolId, onBack }: ViewClass
     if (column === 'action') {
       return (
         <div className="flex space-x-2">
-          <button 
+          {/* <button 
             className="text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors duration-200"
             onClick={() => console.log('Edit observation for classroom:', row.id)}
           >
             <span className="mr-1">Edit Observation</span>
           </button>
-          <span className="mx-1">|</span>
+          <span className="mx-1">|</span> */}
           <button 
             className="text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors duration-200"
             onClick={() => console.log('View calibration for classroom:', row.id)}
           >
             <span className="mr-1">View Calibration</span>
+            <Eye size={20} />
           </button>
         </div>
       );
