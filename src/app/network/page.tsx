@@ -945,7 +945,7 @@ export default function NetworksPage() {
                 onChange={(e) =>
                   handleRowsPerPageChange(Number(e.target.value))
                 }
-                className="text-sm  px-1 py-1"
+                className="text-sm  py-1"
                 disabled={loading}
               >
                 {rowsPerPageOptions.map((option) => (
