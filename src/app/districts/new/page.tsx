@@ -19,7 +19,7 @@ const districtSchema = z.object({
   state: z.string().min(1, "State is required"),
   city: z
     .string()
-    .min(1, "City/Town is required")
+    .min(1, "City / Town is required")
     .max(100, "City name cannot exceed 100 characters")
     .trim(),
   network: z.string(), // Network is optional

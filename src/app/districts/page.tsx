@@ -306,7 +306,7 @@ const DistrictsPage = () => {
     },
     {
       key: "city",
-      label: "City/Town",
+      label: "City / Town",
       sortable: true,
       icon: <Building size={20} />,
       editable: true,
