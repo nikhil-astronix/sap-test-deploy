@@ -440,11 +440,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black font-semibold">
+                      <p className="text-[14px] text-black font-semibold">
                         {item.text}
                       </p>
                     </div>
-                    <div className="text-[12px] text-gray font-semibold text-right">
+                    <div className="text-[14px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -548,11 +548,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black font-semibold">
+                      <p className="text-[14px] text-black font-semibold">
                         {item.text}
                       </p>
                     </div>
-                    <div className="text-[12px] text-gray font-semibold text-right">
+                    <div className="text-[14px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -636,11 +636,11 @@ export default function NetworksPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black font-semibold">
+                      <p className="text-[14px] text-black font-semibold">
                         {item.text}
                       </p>
                     </div>
-                    <div className="text-[12px] text-black font-semibold text-right">
+                    <div className="text-[14px] text-black font-semibold text-right">
                       {item.type}
                     </div>
                   </div>

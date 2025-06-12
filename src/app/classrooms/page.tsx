@@ -674,11 +674,11 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[14px] text-black-400 font-medium">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[14px]  text-right font-medium">
+                    <div className="text-[14px]  text-right font-semibold">
                       Classroom
                     </div>
                   </div>
@@ -779,11 +779,11 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[14px] text-black-400 font-medium">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[14px]  text-right font-medium">
+                    <div className="text-[14px]  text-right font-semibold">
                       Classroom
                     </div>
                   </div>
@@ -874,11 +874,11 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[14px] text-black-400 font-medium">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[14px] text-right font-medium">
+                    <div className="text-[14px] text-right font-semibold">
                       Classroom
                     </div>
                   </div>

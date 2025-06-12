@@ -570,7 +570,7 @@ export default function ObservationToolsPage() {
                 />
               </th>
               <th
-                className="px-4 py-3 text-left text-[14px] font-semibold text-[#F9F5FF] border-r border-gray-400 cursor-pointer"
+                className=" py-3 text-left text-[14px] font-semibold text-[#F9F5FF] border-r border-gray-400 cursor-pointer"
                 onClick={() => handleSort("name")}
               >
                 <div className="flex items-center justify-between w-full">
@@ -653,6 +653,7 @@ export default function ObservationToolsPage() {
                       className="h-4 w-4 rounded border-gray-300 accent-primary-blue"
                       checked={selectedToolIds.has(tool.id)}
                       onChange={(e) => handleSelectRow(tool.id, e)}
+                      style={{ accentColor: "#2264AC" }}
                     />
                   </td>
                   <td className="py-3 border-b border-gray-200 border-r text-sm">
@@ -822,11 +823,11 @@ export default function ObservationToolsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black font-semibold">
+                      <p className="text-[14px] text-black font-semibold">
                         {item.text}
                       </p>
                     </div>
-                    <div className="text-[12px] text-gray font-semibold text-right">
+                    <div className="text-[14px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
@@ -838,7 +839,17 @@ export default function ObservationToolsPage() {
             <div className="bg-bg-warring-red border-l-4 border-primary-red p-4 mb-6 mt-[10px]">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <Warning size={24} className="text-primary-red" />
+                  <svg
+                    className="h-5 w-5 text-[#C23E19]"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </div>
                 <div className="ml-3">
                   <p className="text-sm text-[#C23E19] font-medium"> Warning</p>
@@ -921,11 +932,11 @@ export default function ObservationToolsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-3"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black font-semibold">
+                      <p className="text-[14px] text-black font-semibold">
                         {item.text}
                       </p>
                     </div>
-                    <div className="text-[12px] text-gray font-semibold text-right">
+                    <div className="text-[14px] text-gray font-semibold text-right">
                       {item.type}
                     </div>
                   </div>
