@@ -511,11 +511,11 @@ const DistrictsPage = () => {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400 font-semibold">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[12px] text-right font-semibold">
+                    <div className="text-[14px] text-right font-semibold">
                       District
                     </div>
                   </div>
@@ -617,11 +617,11 @@ const DistrictsPage = () => {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400 font-semibold">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[12px] text-right font-semibold">
+                    <div className="text-[14px] text-right font-semibold">
                       District
                     </div>
                   </div>
