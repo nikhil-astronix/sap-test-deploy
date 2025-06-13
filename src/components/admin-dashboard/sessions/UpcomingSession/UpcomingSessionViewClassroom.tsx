@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { User, Book, FileText, Eye } from 'lucide-react';
-import { RiEdit2Line } from "react-icons/ri";
-import { GoArrowDownRight } from "react-icons/go";
+import {Student, Exam, ArrowDownRight, PencilSimpleLine, Eye, Notebook, Book } from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from '../../AdminDashboardTable';
 import { viewClassroomSession } from '@/services/networkService';
 
@@ -55,36 +53,54 @@ export default function UpcomingSessionViewClassroom({ schoolId, onBack }: ViewC
 
   // Define columns for classroom table
   const classroomColumns: Column[] = [
-    { key: 'teacher', label: 'Teacher', icon: <User size={16} />, sortable: true },
-    { key: 'course', label: 'Course/Subject', icon: <Book size={16} />, sortable: true },
-    { key: 'grade', label: 'Grade', icon: <FileText size={16} />, sortable: true },
-    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <FileText size={16} />, sortable: false },
-    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={16} />, sortable: false }
+    { key: 'teacher', label: 'Teacher', icon: <Student size={20} />, sortable: true },
+    { key: 'course', label: 'Course/Subject', icon: <Notebook size={20} />, sortable: true },
+    { key: 'grade', label: 'Grade', icon: <Exam size={20} />, sortable: true },
+    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <Book size={20} />, sortable: false },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false }
   ];
 
   console.log('UpcomingSessionViewClassroom initialized with ID:', schoolId);
 
+  // Combined data fetching logic for initial load, search, and pagination
   useEffect(() => {
-    const fetchSessionData = async () => {
-      console.log('Fetching session data for ID:', schoolId);
-      if (!schoolId) {
-        console.log('Error: No session ID provided');
-        return;
+    // Skip if no schoolId is provided
+    if (!schoolId) {
+      console.log('Error: No session ID provided');
+      return;
+    }
+    
+    const fetchData = async () => {
+      // Only show loading on initial load or pagination, not during search
+      const isInitialLoad = !searchTerm;
+      const isSearching = searchTerm !== '';
+      
+      // Only show loading indicator for initial load or pagination, not for search
+      if (isInitialLoad) {
+        setIsLoading(true);
       }
-      setIsLoading(true);
       
       try {
-        console.log('Calling viewClassroomSession API with session ID:', schoolId);
-        const response = await viewClassroomSession(schoolId);
-        console.log('API response received:', response, 'for session ID:', schoolId);
+        // Prepare request parameters
+        const params: any = {
+          page: currentPage,
+          limit: pageSize
+        };
+        
+        // Only add search param if there's a search term
+        if (searchTerm) {
+          params.search = searchTerm;
+        }
+        
+        const response = await viewClassroomSession(schoolId, params);
+        
         if (response.success && response.data) {
           setSessionData(response.data);
           
           if (response.data.observation_classrooms && response.data.observation_classrooms.length > 0) {
-            // Transform classrooms to match TableRow format
-            const tableData: TableRow[] = response.data.observation_classrooms.map((classroom: ObservationClassroom) => ({
+            const tableData: TableRow[] = response.data.observation_classrooms.map((classroom: any) => ({
               id: classroom.classroom_id,
-              name: `${classroom.teacher_name}'s Classroom`, // Required by TableRow type
+              name: `${classroom.teacher_name}'s Classroom`,
               teacher: classroom.teacher_name,
               course: classroom.course,
               grade: classroom.grades.join(', '),
@@ -99,7 +115,6 @@ export default function UpcomingSessionViewClassroom({ schoolId, onBack }: ViewC
             setCurrentPage(response.data.curr_page);
             setPageSize(response.data.per_page);
           } else {
-            // If no classrooms found, set empty data
             setClassroomTableData([]);
             setTotalRecords(0);
             setTotalPages(0);
@@ -118,13 +133,30 @@ export default function UpcomingSessionViewClassroom({ schoolId, onBack }: ViewC
       }
     };
     
-    fetchSessionData();
-  }, [schoolId]);
+    // Use debounce for search to avoid too many API calls
+    if (searchTerm) {
+      const timer = setTimeout(() => {
+        fetchData();
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    } else {
+      // Immediate fetch for initial load or pagination
+      fetchData();
+    }
+  }, [searchTerm, schoolId, currentPage, pageSize]);
 
-  // Handle filters change for server-side pagination
+  // This useEffect has been consolidated with the one above
+  // The combined useEffect now handles both initial data loading and search functionality
+
+  // Handle filters change for server-side pagination, sorting and searching
   const handleFiltersChange = (filters: any) => {
+    // Update state with new filter values
     setCurrentPage(filters.page);
     setPageSize(filters.limit);
+    
+    // The useEffect will automatically trigger a data fetch with the updated values
+    // This avoids duplicate API calls and loading states
   };
 
   // Custom render function for cells
@@ -132,18 +164,18 @@ export default function UpcomingSessionViewClassroom({ schoolId, onBack }: ViewC
     if (column === 'action') {
       return (
         <div className="flex space-x-2 items-center">
-          <button 
+          {/* <button 
             className="text-xs text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors"
           >
             <span className="mr-1">Edit Observation</span>
-            <RiEdit2Line size={14} />
+            <PencilSimpleLine size={20} />
           </button>
-          <span className="mx-1 text-xs">|</span>
+          <span className="mx-1 text-xs">|</span> */}
           <button 
             className="text-xs text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors"
           >
             <span className="mr-1">View Calibration</span>
-            <Eye size={14} />
+            <Eye size={20} />
           </button>
         </div>
       );

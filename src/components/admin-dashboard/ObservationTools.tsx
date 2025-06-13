@@ -1,9 +1,6 @@
 "use client";
 
-import { Hash } from "lucide-react";
-import { IoSchoolOutline } from "react-icons/io5";
-import { PiUsers } from "react-icons/pi";
-import { BiBriefcaseAlt2 } from "react-icons/bi";
+import {GraduationCap, Hash, Toolbox, Users} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { TableFilters } from "../system-dashboard/DashboardTable";
 import { useEffect, useState } from "react";
@@ -74,7 +71,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     {
       key: "name",
       label: "Observation Tool",
-      icon: <BiBriefcaseAlt2 size={20} />,
+      icon: <Toolbox size={20} />,
       sortable: true,
     },
     {
@@ -86,13 +83,13 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     {
       key: "schools",
       label: "School",
-      icon: <IoSchoolOutline size={20} />,
+      icon: <GraduationCap size={20} />,
       sortable: true,
     },
     {
       key: "creator_name",
       label: "Created By",
-      icon: <PiUsers size={20} />,
+      icon: <Users size={20} />,
       sortable: false,
     },
   ];
@@ -101,14 +98,12 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   // Background colors for tool names
   const bgColors = [
     "bg-[#E9F3FF]",
-    "bg-[#F9F5FF]",
-    "bg-[#EDFFFF]",
-    "bg-[#F9F5FF]",
     "bg-[#D1FAE5]",
-    "bg-[#EDFFFF]",
     "bg-[#EDFFFF]",
     "bg-[#FFFCDD]",
     "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
   ];
 
   const renderCell = (row: TableRow, column: string) => {
@@ -181,25 +176,21 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
 
   return (
     <div>
-    <AdminDashboardTable
-      data={filteredData}
-      columns={toolsColumns}
-      headerColor="bg-[#6C4996]"
-      rowColor="bg-[#F9F5FF]"
-      renderCell={renderCell}
-      searchTerm={searchTerm}
-      onFiltersChange={handleFiltersChange}
-      totalPages={totalPages}
-      totalRecords={totalRecords}
-      pageNumber={pageNumber}
-      pageSize={pageSize}
-      isLoading={isLoading}
-    />
-    {isLoading &&
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6C4996]"></div>
-      </div>
-    }
+      <AdminDashboardTable
+        data={filteredData}
+        columns={toolsColumns}
+        headerColor="bg-[#6C4996]"
+        rowColor="bg-[#F9F5FF]"
+        renderCell={renderCell}
+        searchTerm={searchTerm}
+        onFiltersChange={handleFiltersChange}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        isLoading={isLoading}
+        emptyMessage="No observation tools found"
+      />
     </div>
   );
 };

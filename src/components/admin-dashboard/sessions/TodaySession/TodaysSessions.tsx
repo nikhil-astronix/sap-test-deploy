@@ -1,17 +1,9 @@
 "use client";
 
-import { Clock, Play } from 'lucide-react';
-import { PiUsers } from "react-icons/pi";
-import { LuUserRoundCog } from "react-icons/lu";
-import { GoArrowDownRight } from "react-icons/go";
-import { IoSchoolOutline } from "react-icons/io5";
-import { BiBriefcaseAlt2 } from "react-icons/bi";
-import { PiCalendarDots } from "react-icons/pi";
-import { RiEdit2Line } from "react-icons/ri";
+import {GraduationCap, ChartBar, CalendarDots, Clock, Users, UserGear, ArrowDownRight, Play, PencilSimpleLine} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "../../AdminDashboardTable";
 // import AdminDashboardTable, { TableRow, Column } from "../../AdminDashboardTable";
 import { useEffect, useState } from "react";
-import ViewClass from "../actions/ViewClass";
 import EditSession from "../actions/EditSession";
 import { TableFilters } from "@/components/system-dashboard/DashboardTable";
 import { observationSessionPayload } from "@/models/dashboard";
@@ -101,14 +93,14 @@ const TodaysSessions = ({
 
   // Column definitions for sessions table
   const sessionsColumns: Column[] = [
-    { key: 'school', label: 'School', icon: <IoSchoolOutline size={20} />, sortable: true },
-    { key: 'date', label: 'Date', icon: <PiCalendarDots size={20} />, sortable: true },
+    { key: 'school', label: 'School', icon: <GraduationCap size={20} />, sortable: true },
+    { key: 'date', label: 'Date', icon: <CalendarDots size={20} />, sortable: true },
     { key: 'start_time', label: 'Start Time', icon: <Clock size={20} />, sortable: true },
     { key: 'end_time', label: 'End Time', icon: <Clock size={20} />, sortable: true },
-    { key: 'session_admin', label: 'Session Admin', icon: <LuUserRoundCog size={20} />, sortable: true },
-    { key: 'observers', label: 'Observer(s)', icon: <PiUsers size={20} />, sortable: true },
-    { key: "observation_tool", label: 'Observation Tool(s)', icon: <BiBriefcaseAlt2 size={20} />, sortable: true },
-    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false },
+    { key: 'session_admin', label: 'Session Admin', icon: <UserGear size={20} />, sortable: true },
+    { key: 'observers', label: 'Observer(s)', icon: <Users size={20} />, sortable: true },
+    { key: "observation_tool", label: 'Observation Tool(s)', icon: <ChartBar size={20} />, sortable: true },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false },
   ];
 
   // Helper functions to format date and time
@@ -129,6 +121,16 @@ const TodaysSessions = ({
     return `${hour12}:${minutes} ${ampm}`;
   };
 
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+  ];
+
   // Custom render function for cells
   const renderCell = (row: TableRow, column: string) => {
     if (column === "action") {
@@ -136,15 +138,15 @@ const TodaysSessions = ({
         <div className="flex space-x-2 text-xs">
           <button
             onClick={() => handleEditSession(row)}
-            className="text-[#007778] flex items-center"
+            className="text-[#007778] hover:bg-[#007778] hover:text-white px-3 py-1 rounded-md flex items-center"
           >
             <span className="mr-1">Edit Session</span>
-            <RiEdit2Line size={18} />
+            <PencilSimpleLine size={20} />
           </button>
           <p className="text-[#007778] flex items-center ml-2 mr-2">|</p>
           {/* {row.viewClassrooms && ( */}
           <button
-            className="text-[#007778] flex items-center"
+            className="text-[#007778] hover:bg-[#007778] hover:text-white px-3 py-1 rounded-md flex items-center"
             onClick={() => handleViewClassrooms(row)}
           >
             <span className="mr-1">View Classrooms</span>
@@ -157,16 +159,15 @@ const TodaysSessions = ({
 
     if (column === "observation_tool") {
       const tool = row[column] as string;
+      if (!tool) return '-';
+      
+      // Get index based on row index to cycle through background colors
+      const index = sessionData.findIndex(item => item === row);
+      const bgColor = bgColors[index % bgColors.length];
+      
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${typeof tool === "string" && tool.includes("IPG")
-              ? "bg-green-100 text-green-800"
-              : typeof tool === "string" && tool.includes("Math")
-                ? "bg-purple-100 text-purple-800"
-                : typeof tool === "string" && tool.includes("AAPS")
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-blue-100 text-blue-800"
-            }`}
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
         >
           {tool}
         </span>
@@ -285,11 +286,11 @@ const TodaysSessions = ({
           onSave={handleSaveSession}
         />
       )}
-      {isLoading && (
+      {/* {isLoading && (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007778]"></div>
         </div>
-      )}
+      )} */}
 
       {/* View Classrooms Modal removed - now handled by parent component */}
     </div>

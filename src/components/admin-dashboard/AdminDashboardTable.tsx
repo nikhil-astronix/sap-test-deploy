@@ -83,6 +83,9 @@ const AdminDashboardTable = ({
   useEffect(() => {
     setFilteredData(initialData);
   }, [initialData]);
+  
+  // Create a state to track if sorting/filtering is happening locally
+  const [isLocalOperation, setIsLocalOperation] = useState(false);
 
   useEffect(() => {
     const updatedFilters: TableFilters = {
@@ -105,8 +108,15 @@ const AdminDashboardTable = ({
         direction = null;
       }
     }
-
+    
+    // Set local operation flag to true before sorting
+    setIsLocalOperation(true);
     setSortConfig({ key, direction });
+    
+    // Reset the flag after a short delay
+    setTimeout(() => {
+      setIsLocalOperation(false);
+    }, 300);
   };
 
   // Get current page data
@@ -316,8 +326,15 @@ const AdminDashboardTable = ({
             </tr>
           </thead>
           <tbody>
-            {
-            filteredData?.length > 0 ? (
+            {isLoading && !isLocalOperation ? (
+              <tr>
+                <td colSpan={columns.length} className="border-b border-gray-200 py-8 text-center">
+                  <div className="flex justify-center items-center py-8">
+                    <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${headerColor.includes('[') ? headerColor.replace('bg-[', 'border-[') : headerColor.replace('bg-', 'border-')}`}></div>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredData?.length > 0 ? (
               filteredData?.map((row, rowIndex) => (
                 <tr
                   key={row.id}
@@ -339,16 +356,14 @@ const AdminDashboardTable = ({
               ))
             ) : (
               <tr>
-                {!isLoading && filteredData?.length === 0 && 
                 <td
                   colSpan={columns.length}
-                  className="border-b border-gray-200 py-2 text-center"
+                  className="border-b border-gray-200 py-8 text-center"
                 >
-                  <div className="flex flex-col items-center justify-center p-2">
+                  <div className="flex flex-col items-center justify-center p-4">
                     <p className="text-gray-500 text-base font-medium">{emptyMessage}</p>
                   </div>
                 </td>
-                }
               </tr>
             )}
           </tbody>

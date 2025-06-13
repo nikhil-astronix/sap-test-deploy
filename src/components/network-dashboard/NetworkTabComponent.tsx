@@ -20,7 +20,7 @@ interface NetworkTabComponentProps {
     setIsDropdownOpen = () => {}
   }: NetworkTabComponentProps) => {
     return (
-      <div className="flex border-b border-gray-200">
+      <div className="flex rounded-md">
         {tabs.map((tab, index) => {
           if (tab === 'Sessions') {
             return (
