@@ -18,6 +18,17 @@ export default function ObservationTools({ searchTerm = '' }: ObservationToolsPr
   const [error, setError] = useState<any>(null);
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
 
+  // Background colors for observation tool names
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+  ];
+
   // Define columns for observation tools table
   const toolsColumns: NetworkColumn[] = [
     {
@@ -27,25 +38,25 @@ export default function ObservationTools({ searchTerm = '' }: ObservationToolsPr
       sortable: true,
     },
     {
-      key: "sessions",
+      key: "usage_count",
       label: "Total Sessions",
       icon: <Hash size={20} />,
       sortable: true,
     },
     {
-      key: "districts",
+      key: "district_count",
       label: "Used In Districts",
       icon: <Hash size={20} />,
       sortable: true,
     },
     {
-      key: "schools",
+      key: "schools_count",
       label: "Used In Schools",
       icon: <Hash size={20} />,
       sortable: true,
     },
     {
-      key: "lastUsedDate",
+      key: "last_used",
       label: "Last Used Date",
       icon: <CalendarDots size={20} />,
       sortable: true,
@@ -55,22 +66,37 @@ export default function ObservationTools({ searchTerm = '' }: ObservationToolsPr
   // Custom cell renderer for observation tools table
   const renderCell = (row: NetworkTableRow, columnKey: string) => {
     switch (columnKey) {
-      case "districts":
-        if (!row.districtsList || row.districtsList.length === 0) return "None";
+      case "name":
+        const name = row[columnKey] as string;
+        // Get index based on row index to cycle through background colors
+        const index = toolsData.findIndex(item => item === row);
+        const bgColor = bgColors[index % bgColors.length];
+        
+        return (
+          <span
+            className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
+          >
+            {name}
+          </span>
+        );
+
+      case "district_count":
+        const districts = row.districts_used as string[];
+        if (!districts || districts.length === 0) return "None";
         
         // Show first two districts and then +X more if there are more
-        const displayDistricts = row.districtsList.slice(0, 2);
-        const remainingCount = row.districtsList.length - 2;
+        const displayDistricts = districts.slice(0, 2);
+        const remainingCount = districts.length - 2;
         
         return (
           <div>
             {displayDistricts.join(", ")}
-            {remainingCount > 0 && ` +${remainingCount} more`}
+            {remainingCount > 0 && <span className="text-[#F9F5FF]"> +{remainingCount} more</span>}
           </div>
         );
       
-      case "lastUsedDate":
-        return row.lastUsedDate || "None";
+      case "last_used":
+        return row[columnKey] || "None";
         
       default:
         return row[columnKey];

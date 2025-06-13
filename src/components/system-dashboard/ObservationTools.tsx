@@ -65,6 +65,17 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     }
   };
 
+  // Background colors for observation tool names
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+  ];
+
   // Column definitions for Observation Tools tab
   const observationColumns: Column[] = [
     {
@@ -103,17 +114,13 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   const renderCell = (row: TableRow, column: string) => {
     if (column === "name") {
       const name = row[column] as string;
+      // Get index based on row index to cycle through background colors
+      const index = filteredData.findIndex(item => item === row);
+      const bgColor = bgColors[index % bgColors.length];
+      
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            name.includes("IPG")
-              ? "bg-green-100 text-green-800"
-              : name.includes("Math")
-              ? "bg-purple-100 text-purple-800"
-              : name.includes("AAPS")
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-blue-100 text-blue-800"
-          }`}
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
         >
           {name}
         </span>

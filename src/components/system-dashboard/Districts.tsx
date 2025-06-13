@@ -155,6 +155,12 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       }
     }
 
+    // ${statusObj.status === "Incomplete"
+    //   ? "bg-red-200"
+    //   : statusObj.status === "Partial"
+    //     ? "bg-yellow-200"
+    //     : "bg-green-200"
+
     if (column === "setup_status") {
       const statusObj = row[column];
       // const statusData = (row as any).setupStatusData;
@@ -183,29 +189,14 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       return (
         <div className="relative group">
           <div
-            className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
-                ? "bg-red-200"
-                : statusObj.status === "Partial"
-                  ? "bg-yellow-200"
-                  : "bg-green-200"
-              } ${color} px-2 py-1 rounded-full text-xs`}
+            className={`inline-flex items-center gap-1 ${color} px-2 py-1 rounded-md text-xs`}
           >
             <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
             {statusObj.status}
           </div>
           {statusObj && (
-            // <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
-            //   <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
-            //     <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
-            //     <span>
-            //       Classroom {statusObj.school_count}
-            //     </span>
-            //     <span className="mx-1">|</span>
-            //     <span>Tools {statusObj.tool_count}</span>
-            //   </div>
-            // </div>
             <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
-                after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+                after:content-[''] after:absolute after:top-full after:left-1/2 after:border-4 after:border-transparent after:border-t-black">
               <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
                 <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
                 <span>
@@ -246,12 +237,12 @@ const Districts = ({ searchTerm = "" }: DistrictsProps) => {
       return (
         <div className="relative group">
           <span
-            className={`inline-flex items-center gap-1 ${bgColor} ${textColor} px-2 py-1 rounded-full text-xs`}
+            className={`inline-flex items-center gap-1 ${bgColor} ${textColor} px-2 py-1 rounded-md text-xs`}
           >
-            <span className="w-2 h-2 bg-black rounded-full"></span> {status}
+            <span className={`w-2 h-2 ${bgColor.replace('bg-', '').includes('green') ? 'bg-green-600' : bgColor.replace('bg-', '').includes('yellow') ? 'bg-yellow-600' : 'bg-red-600'} rounded-full`}></span> {status}
           </span>
             <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
-                after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+                after:content-[''] after:absolute after:top-full after:left-1/2 after:border-4 after:border-transparent after:border-t-black">
               <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
                 <span className={`w-2 h-2 mx-1 left-0 ${bgColor} rounded-full`}></span>
               <span className="">Completed {completed_count}</span>

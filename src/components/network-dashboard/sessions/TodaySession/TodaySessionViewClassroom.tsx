@@ -59,6 +59,7 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
     
     try {
       setIsLoading(true);
+      console.log("schoolId", schoolId);
       const response = await viewClassroomSession(schoolId);
       
       if (response.success) {

@@ -131,6 +131,16 @@ const PastSessions = ({
     return `${hour12}:${minutes} ${ampm}`;
   };
 
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+  ];
+
   // Custom render function for cells
   const renderCell = (row: TableRow, column: string) => {
     if (column === "action") {
@@ -159,16 +169,15 @@ const PastSessions = ({
 
     if (column === "observation_tool") {
       const tool = row[column] as string;
+      if (!tool) return '-';
+      
+      // Get index based on row index to cycle through background colors
+      const index = sessionData.findIndex(item => item === row);
+      const bgColor = bgColors[index % bgColors.length];
+      
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${typeof tool === "string" && tool.includes("IPG")
-              ? "bg-green-100 text-green-800"
-              : typeof tool === "string" && tool.includes("Math")
-                ? "bg-purple-100 text-purple-800"
-                : typeof tool === "string" && tool.includes("AAPS")
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-blue-100 text-blue-800"
-            }`}
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
         >
           {tool}
         </span>

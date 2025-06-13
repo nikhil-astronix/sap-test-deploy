@@ -98,14 +98,12 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
   // Background colors for tool names
   const bgColors = [
     "bg-[#E9F3FF]",
-    "bg-[#F9F5FF]",
-    "bg-[#EDFFFF]",
-    "bg-[#F9F5FF]",
     "bg-[#D1FAE5]",
-    "bg-[#EDFFFF]",
     "bg-[#EDFFFF]",
     "bg-[#FFFCDD]",
     "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
   ];
 
   const renderCell = (row: TableRow, column: string) => {
