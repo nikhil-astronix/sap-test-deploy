@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Hash, School, User } from "lucide-react";
+import {GraduationCap, Hash, Toolbox, Users} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { TableFilters } from "../system-dashboard/DashboardTable";
 import { useEffect, useState } from "react";
@@ -45,6 +45,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     setIsLoading(true);
     try {
       const response = await fetchObservationTools(requestPayload);
+      console.log(response?.data?.tools, 'checking the observation tools data');
       if (response.success) {
         setFilteredData(response.data.tools);
         setTotalPages(response.data.pages);
@@ -70,86 +71,97 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     {
       key: "name",
       label: "Observation Tool",
-      icon: <BookOpen size={16} />,
+      icon: <Toolbox size={20} />,
       sortable: true,
     },
     {
       key: "usage_count",
       label: "Total Sessions",
-      icon: <Hash size={16} />,
+      icon: <Hash size={20} />,
       sortable: true,
     },
     {
       key: "schools",
       label: "School",
-      icon: <School size={16} />,
+      icon: <GraduationCap size={20} />,
       sortable: true,
     },
     {
-      key: "creator",
+      key: "creator_name",
       label: "Created By",
-      icon: <User size={16} />,
+      icon: <Users size={20} />,
       sortable: false,
     },
   ];
 
   // Custom render function for cells
+  // Background colors for tool names
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+  ];
+
   const renderCell = (row: TableRow, column: string) => {
     if (column === "name") {
       const name = row[column] as string;
+      // Get a consistent color based on the tool name
+      const colorIndex = Math.abs(name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % bgColors.length;
+      const bgColor = bgColors[colorIndex];
+      
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${name.includes("IPG")
-              ? "bg-green-100 text-green-800"
-              : name.includes("Math")
-                ? "bg-purple-100 text-purple-800"
-                : name.includes("AAPS")
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-blue-100 text-blue-800"
-            }`}
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
         >
           {name}
         </span>
       );
     }
 
+    // if (column === "schools") {
+    //   const schools = row[column] as string[];
+    //   return (
+    //     <div className="text-xs">
+    //       {schools.map((school, index) => (
+    //         <span key={index}>{school},</span>
+    //       ))}
+    //     </div>
+    //   );
+    // }
+
     if (column === "schools") {
-      const schools = row[column] as { name: string; moreCount: number };
+      const schools = row[column] as string[];
+      const displayCount = 2;
+      const remaining = schools.length - displayCount;
+    
       return (
-        <div>
-          {schools.name}
-          {schools.moreCount > 0 && (
-            <span className="ml-1 text-xs text-gray-400">
-              +{schools.moreCount} more
+        <div className="text-xs">
+          {schools.slice(0, displayCount).map((school, index) => (
+            <span key={index}>
+              {school}
+              {index < Math.min(displayCount, schools.length) - 1 ? ', ' : ''}
+            </span>
+          ))}
+          {remaining > 0 && (
+            <span className="text-[#6C4996]">
+              +{remaining} more
             </span>
           )}
         </div>
       );
     }
 
-    // if (column === "createdBy") {
-    //   const createdBy = row[column] as { name: string; date: string };
-    //   return (
-    //     <div>
-    //       {createdBy.name}
-    //       <div className="text-xs text-gray-400">{createdBy.date}</div>
-    //     </div>
-    //   );
-    // }
-
-    if (column === "creator" && row.creator) {
-      const creator = row.creator as {
-        first_name: string;
-        last_name: string;
-        email: string;
-      };
+    if (column === "creator_name") {
+      const creatorName = row[column] as string;
       return (
         <div>
-          <div className="text-xs text-black font-normal">
-            {creator.first_name}
-          </div>
+          <div className="text-xs text-black font-normal">{creatorName}</div>
           <div className="text-xs text-gray-500">
-            {format(new Date(row.created_at), "MMMM d, yyyy h:mm a")}
+            {format(new Date(row.created_at as string), "MMMM d, yyyy h:mm a")}
           </div>
         </div>
       );
@@ -164,25 +176,21 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
 
   return (
     <div>
-    <AdminDashboardTable
-      data={filteredData}
-      columns={toolsColumns}
-      headerColor="bg-[#6C4996]"
-      rowColor="bg-[#F9F5FF]"
-      renderCell={renderCell}
-      searchTerm={searchTerm}
-      onFiltersChange={handleFiltersChange}
-      totalPages={totalPages}
-      totalRecords={totalRecords}
-      pageNumber={pageNumber}
-      pageSize={pageSize}
-      isLoading={isLoading}
-    />
-    {isLoading &&
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6C4996]"></div>
-      </div>
-    }
+      <AdminDashboardTable
+        data={filteredData}
+        columns={toolsColumns}
+        headerColor="bg-[#6C4996]"
+        rowColor="bg-[#F9F5FF]"
+        renderCell={renderCell}
+        searchTerm={searchTerm}
+        onFiltersChange={handleFiltersChange}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        isLoading={isLoading}
+        emptyMessage="No observation tools found"
+      />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import {
   fetchObservationToolsPayload,
   fetchUsersPayload,
   observationSessionPayload,
+  editObservationSessionPayload
 } from "@/models/dashboard";
 
 export const fetchSchools = async (requestPayload: fetchDistrictsPayload) => {
@@ -68,6 +69,22 @@ export const districtAdminObservationSessions = async (
     return { success: true, data: response.data };
   } catch (error) {
     console.error("Error while fetching Observation tools:", error);
+    return { success: false, error };
+  }
+};
+
+export const editObservationSession = async (
+  requestPayload: editObservationSessionPayload
+) => {
+  try {
+    const response = await apiClient.post(
+      `/v1/observation_session/edit_observation_session/${requestPayload.id}`,
+      requestPayload
+    );
+
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error while editing observation session:", error);
     return { success: false, error };
   }
 };

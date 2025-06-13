@@ -49,6 +49,7 @@ interface AdminDashboardTableProps {
   totalPages: number;
   pageSize: number;
   isLoading?: boolean;
+  emptyMessage?: string;
 }
 
 const AdminDashboardTable = ({
@@ -63,7 +64,8 @@ const AdminDashboardTable = ({
   pageNumber,
   totalPages,
   pageSize,
-  isLoading = false,
+  isLoading,
+  emptyMessage = "No data available",
 }: AdminDashboardTableProps) => {
   // State for current data, sorting, and pagination
   const [filteredData, setFilteredData] = useState<TableRow[]>(initialData);
@@ -81,6 +83,9 @@ const AdminDashboardTable = ({
   useEffect(() => {
     setFilteredData(initialData);
   }, [initialData]);
+  
+  // Create a state to track if sorting/filtering is happening locally
+  const [isLocalOperation, setIsLocalOperation] = useState(false);
 
   useEffect(() => {
     const updatedFilters: TableFilters = {
@@ -103,8 +108,15 @@ const AdminDashboardTable = ({
         direction = null;
       }
     }
-
+    
+    // Set local operation flag to true before sorting
+    setIsLocalOperation(true);
     setSortConfig({ key, direction });
+    
+    // Reset the flag after a short delay
+    setTimeout(() => {
+      setIsLocalOperation(false);
+    }, 300);
   };
 
   // Get current page data
@@ -314,29 +326,19 @@ const AdminDashboardTable = ({
             </tr>
           </thead>
           <tbody>
-            {
-            // isLoading ? (
-            //   // Loading skeleton rows
-            //   Array.from({ length: 3 }).map((_, rowIndex) => (
-            //     <tr key={`skeleton-${rowIndex}`} className="animate-pulse">
-            //       {columns
-            //         .filter((col) => visibleColumns.includes(col.key))
-            //         .map((column, index) => (
-            //           <td
-            //             key={`skeleton-${rowIndex}-${column.key}`}
-            //             className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm"
-            //           >
-            //             <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            //           </td>
-            //         ))}
-            //     </tr>
-            //   ))
-            // ) : 
-            filteredData?.length > 0 ? (
+            {isLoading && !isLocalOperation ? (
+              <tr>
+                <td colSpan={columns.length} className="border-b border-gray-200 py-8 text-center">
+                  <div className="flex justify-center items-center py-8">
+                    <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${headerColor.includes('[') ? headerColor.replace('bg-[', 'border-[') : headerColor.replace('bg-', 'border-')}`}></div>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredData?.length > 0 ? (
               filteredData?.map((row, rowIndex) => (
                 <tr
                   key={row.id}
-                  className={`hover:bg-gray-50 ${
+                  className={`text-xs hover:bg-gray-50 ${
                     rowIndex % 2 === 1 ? rowColor : "bg-white"
                   }`}
                 >
@@ -345,7 +347,7 @@ const AdminDashboardTable = ({
                     .map((column, index) => (
                       <td
                         key={`${row.id}-${column.key}`}
-                        className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-sm"
+                        className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-xs"
                       >
                         {renderCell(row, column.key)}
                       </td>
@@ -354,33 +356,14 @@ const AdminDashboardTable = ({
               ))
             ) : (
               <tr>
-                {!isLoading &&
                 <td
                   colSpan={columns.length}
                   className="border-b border-gray-200 py-8 text-center"
                 >
                   <div className="flex flex-col items-center justify-center p-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-12 w-12 text-gray-400 mb-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <p className="text-gray-500 text-lg font-medium">No data available</p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      No matching records found for the current search criteria
-                    </p>
+                    <p className="text-gray-500 text-base font-medium">{emptyMessage}</p>
                   </div>
                 </td>
-                }
               </tr>
             )}
           </tbody>

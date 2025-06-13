@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PiNotebook } from "react-icons/pi";
-import { BiBookAlt } from "react-icons/bi";
-import { GoArrowDownRight } from "react-icons/go";
-import { FileText } from 'lucide-react';
-import { PiGraduationCapLight } from "react-icons/pi";
+import {Student, Exam, ArrowDownRight, PencilSimpleLine, Eye, Notebook, Book } from "@phosphor-icons/react";
 import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
 import { viewClassroomSession } from '@/services/networkService';
 
@@ -51,11 +47,11 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
 
   // Define columns for classroom table
   const classroomColumns: NetworkColumn[] = [
-    { key: 'teacher', label: 'Teacher', icon: <PiGraduationCapLight size={20} />, sortable: true },
-    { key: 'course', label: 'Course/Subject', icon: <PiNotebook size={20} />, sortable: true },
-    { key: 'grade', label: 'Grade', icon: <FileText size={20} />, sortable: true },
-    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <BiBookAlt size={20} />, sortable: false },
-    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false }
+    { key: 'teacher', label: 'Teacher', icon: <Student size={20} />, sortable: true },
+    { key: 'course', label: 'Course/Subject', icon: <Notebook size={20} />, sortable: true },
+    { key: 'grade', label: 'Grade', icon: <Exam size={20} />, sortable: true },
+    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <Book size={20} />, sortable: false },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false }
   ];
 
   const getClassroomData = async () => {
@@ -63,6 +59,7 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
     
     try {
       setIsLoading(true);
+      console.log("schoolId", schoolId);
       const response = await viewClassroomSession(schoolId);
       
       if (response.success) {
@@ -136,12 +133,14 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
             className="text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors duration-200"
           >
             <span className="mr-1">Edit Observation</span>
+            <PencilSimpleLine size={20} />
           </button>
           <span className="mx-1">|</span>
           <button 
             className="text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors duration-200"
           >
             <span className="mr-1">View Calibration</span>
+            <Eye size={20} />
           </button>
         </div>
       );

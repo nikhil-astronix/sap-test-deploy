@@ -73,7 +73,7 @@ export default function RestoreInterventionModal({
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-black mb-4 text-sm font-medium"
+                  className="text-black mb-4 text-[14px] font-medium"
                 >
                   Are you sure you want to restore this{" "}
                   {item.itemType === "Curriculum"
@@ -84,12 +84,12 @@ export default function RestoreInterventionModal({
 
                 <motion.div
                   whileHover={{ scale: 1.01 }}
-                  className="bg-gray-50 p-2 rounded-lg shadow-md mb-4 flex justify-between items-center"
+                  className="bg-[#F4F6F8] p-2 rounded-lg shadow-md mb-4 flex justify-between items-center py-4"
                 >
-                  <span className="text-gray-900 text-sm font-medium">
+                  <span className="text-black-400 text-[14px] font-semibold">
                     {item.title}
                   </span>
-                  <span className="text-gray-900 text-sm font-medium">
+                  <span className="text-black-400 text-[14px] font-semibold">
                     {item.itemType === "Curriculum"
                       ? "Instructional Material"
                       : "Tags & Attributes"}
@@ -110,7 +110,7 @@ export default function RestoreInterventionModal({
                           <Info size={18} color="#2264AC" />
                           Note
                         </h3>
-                        <p className="text-[#2264AC] text-xs font-medium">
+                        <p className="text-[#2264AC] text-sm font-medium">
                           {item.itemType === "Curriculum"
                             ? "Restoring this Instructional Material will make it active again. It will become accessible for adding to classrooms or schools. Please confirm before proceeding."
                             : "Restoring this Tags & Attributes will make it active again. It will become accessible for adding to classrooms or schools. Please confirm before proceeding."}

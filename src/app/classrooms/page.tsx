@@ -674,11 +674,11 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[14px] text-black-400 font-medium">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[14px]  text-right font-medium">
+                    <div className="text-[14px]  text-right font-semibold">
                       Classroom
                     </div>
                   </div>
@@ -779,11 +779,11 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[14px] text-black-400 font-medium">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[14px]  text-right font-medium">
+                    <div className="text-[14px]  text-right font-semibold">
                       Classroom
                     </div>
                   </div>
@@ -874,11 +874,11 @@ export default function ClassroomsPage() {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[14px] text-black-400 font-medium">
+                      <p className="text-[14px] text-black-400 font-semibold">
                         {item}
                       </p>
                     </div>
-                    <div className="text-[14px] text-right font-medium">
+                    <div className="text-[14px] text-right font-semibold">
                       Classroom
                     </div>
                   </div>
@@ -1011,296 +1011,318 @@ export default function ClassroomsPage() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {paginatedSchools.map((school) => (
-              <React.Fragment key={school.schoolId}>
-                <tr
-                  className="bg-[#F3F8FF] hover:bg-[#E5F0FF] cursor-pointer border-y border-gray-300"
-                  onClick={(e) => {
-                    // School row should ONLY handle expansion on click
-                    e.stopPropagation();
-                    handleExpand(school.schoolId);
-                  }}
-                >
-                  <td
-                    className="px-4 py-3 border-gray-200 bg-[#F8FAFC]"
+            {isLoading ? (
+              <tr>
+                <td colSpan={6} className="py-8">
+                  <div className="flex justify-center items-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                  </div>
+                </td>
+              </tr>
+            ) : paginatedSchools.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center">
+                  No data available
+                </td>
+              </tr>
+            ) : (
+              paginatedSchools.map((school) => (
+                <React.Fragment key={school.schoolId}>
+                  <tr
+                    className="bg-[#F3F8FF] hover:bg-[#E5F0FF] cursor-pointer border-y border-gray-300"
                     onClick={(e) => {
+                      // School row should ONLY handle expansion on click
                       e.stopPropagation();
+                      handleExpand(school.schoolId);
                     }}
                   >
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.schools.has(school.schoolId)}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          handleSelectRow(school.schoolId, "all", e);
-                        }}
-                        // className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
-                        className="h-4 w-4 cursor-pointer"
-                        style={{ accentColor: "#2264AC" }}
-                      />
-                    </div>
-                  </td>
-                  <td
-                    colSpan={6}
-                    className="pr-4 py-4 border-b border-gray-300"
-                  >
-                    <div className="flex items-center justify-between mr-2.5">
-                      <span className="font-semibold text-sm">
-                        {school.school}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          // Make expansion explicitly tied to the caret icon
-                          e.stopPropagation();
-                          handleExpand(school.schoolId);
-                        }}
-                        className="bg-transparent border-0 p-0 cursor-pointer"
-                      >
-                        {expanded === school.schoolId ? (
-                          <CaretCircleUp
-                            className="text-gray-600"
-                            size={16}
-                            color="#2264AC"
-                          />
-                        ) : (
-                          <CaretCircleDown
-                            className="text-gray-600"
-                            size={16}
-                            color="#2264AC"
-                          />
-                        )}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {expanded === school.schoolId &&
-                  school.classes.length > 0 &&
-                  school.classes.map((classroom: Classroom) => (
-                    <tr
-                      key={classroom.id}
-                      className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
-                      // Don't automatically select on row click
+                    <td
+                      className="px-4 py-3 border-gray-200 bg-[#F8FAFC]"
                       onClick={(e) => {
                         e.stopPropagation();
                       }}
                     >
-                      <td
-                        className="px-4 py-3 "
-                        onClick={(e) => e.stopPropagation()}
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedRows.schools.has(school.schoolId)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleSelectRow(school.schoolId, "all", e);
+                          }}
+                          // className="w-4 h-4 rounded-md border-2 border-white text-[#2264AC] cursor-pointer"
+                          className="h-4 w-4 cursor-pointer"
+                          style={{ accentColor: "#2264AC" }}
+                        />
+                      </div>
+                    </td>
+                    <td
+                      colSpan={6}
+                      className="pr-4 py-4 border-b border-gray-300"
+                    >
+                      <div className="flex items-center justify-between mr-2.5">
+                        <span className="font-semibold text-sm">
+                          {school.school}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            // Make expansion explicitly tied to the caret icon
+                            e.stopPropagation();
+                            handleExpand(school.schoolId);
+                          }}
+                          className="bg-transparent border-0 p-0 cursor-pointer"
+                        >
+                          {expanded === school.schoolId ? (
+                            <CaretCircleUp
+                              className="text-gray-600"
+                              size={16}
+                              color="#2264AC"
+                            />
+                          ) : (
+                            <CaretCircleDown
+                              className="text-gray-600"
+                              size={16}
+                              color="#2264AC"
+                            />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {expanded === school.schoolId &&
+                    school.classes.length > 0 &&
+                    school.classes.map((classroom: Classroom) => (
+                      <tr
+                        key={classroom.id}
+                        className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                        // Don't automatically select on row click
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={selectedRows.classes.has(
-                              `${school.schoolId}-${classroom.id}`
-                            )}
-                            onChange={(e) => {
-                              e.stopPropagation();
-
-                              handleSelectRow(school.schoolId, classroom.id, e);
-                            }}
-                            // className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
-                            className="h-4 w-4 cursor-pointer"
-                            style={{ accentColor: "#2264AC" }}
-                          />
-                        </div>
-                      </td>
-                      {editing &&
-                      editing.schoolId === school.schoolId &&
-                      editing.classroomId === classroom.id ? (
-                        <>
-                          <td className="pr-4 py-2 border-r border-gray-200">
+                        <td
+                          className="px-4 py-3 "
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center">
                             <input
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2264AC] text-sm"
-                              value={editData?.course || ""}
-                              onChange={(e) =>
-                                handleEditChange("course", e.target.value)
-                              }
-                            />
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <input
-                              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                              value={editData?.teacher || ""}
-                              onChange={(e) =>
-                                handleEditChange("teacher", e.target.value)
-                              }
-                            />
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <MultiSelect
-                              options={
-                                school.classes
-                                  ?.flatMap((cls: any) => cls.grades)
-                                  ?.filter(
-                                    (
-                                      val: any,
-                                      index: any,
-                                      arr: string | any[]
-                                    ) => arr.indexOf(val) === index
-                                  ) // Unique grades
-                                  ?.map((grade: any) => ({
-                                    label: grade,
-                                    value: grade,
-                                  })) || []
-                              }
-                              values={editData?.grades || []}
-                              onChange={(vals) =>
-                                handleEditChange("grades", vals)
-                              }
-                              isGrade={true}
-                              placeholder="Select grades"
-                            />
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <MultiSelect
-                              options={curriculums}
-                              values={editData?.curriculums || []}
-                              onChange={(vals) =>
-                                handleEditChange("curriculums", vals)
-                              }
-                              placeholder="Select materials"
-                            />
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            <MultiSelect
-                              options={interventions}
-                              values={editData?.interventions || []}
-                              onChange={(vals) =>
-                                handleEditChange("interventions", vals)
-                              }
-                              placeholder="Select tags"
-                            />
-                          </td>
+                              type="checkbox"
+                              checked={selectedRows.classes.has(
+                                `${school.schoolId}-${classroom.id}`
+                              )}
+                              onChange={(e) => {
+                                e.stopPropagation();
 
-                          <td className="px-4 py-2 text-center">
-                            {!editing && !active && (
-                              <button
-                                className="text-emerald-700"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEdit(school.schoolId, classroom);
-                                }}
-                              >
-                                <PencilSimpleLine size={16} color="#2264AC" />
-                              </button>
-                            )}
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className=" py-2 border-r border-gray-200">
-                            {classroom.course}
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200">
-                            {classroom.teacher}
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200 relative group">
-                            {classroom.grades.length > 0 ? (
-                              <Tooltip
-                                content={
-                                  <div className="flex flex-col space-y-1">
-                                    {classroom.grades.map((grade, idx) => (
-                                      <div key={idx}>{grade}</div>
-                                    ))}
-                                  </div>
+                                handleSelectRow(
+                                  school.schoolId,
+                                  classroom.id,
+                                  e
+                                );
+                              }}
+                              // className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer"
+                              className="h-4 w-4 cursor-pointer"
+                              style={{ accentColor: "#2264AC" }}
+                            />
+                          </div>
+                        </td>
+                        {editing &&
+                        editing.schoolId === school.schoolId &&
+                        editing.classroomId === classroom.id ? (
+                          <>
+                            <td className="pr-4 py-2 border-r border-gray-200">
+                              <input
+                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2264AC] text-sm"
+                                value={editData?.course || ""}
+                                onChange={(e) =>
+                                  handleEditChange("course", e.target.value)
                                 }
-                              >
-                                <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
-                                  <span className="truncate max-w-[150px]">
-                                    {classroom.grades[0]}
-                                  </span>
-                                  {classroom.grades.length > 1 && (
-                                    <span className="text-blue-700 ml-1 cursor-pointer">
-                                      +{classroom.grades.length - 1} more
+                              />
+                            </td>
+                            <td className="px-4 py-2 border-r border-gray-200">
+                              <input
+                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                value={editData?.teacher || ""}
+                                onChange={(e) =>
+                                  handleEditChange("teacher", e.target.value)
+                                }
+                              />
+                            </td>
+                            <td className="px-4 py-2 border-r border-gray-200">
+                              <MultiSelect
+                                options={
+                                  school.classes
+                                    ?.flatMap((cls: any) => cls.grades)
+                                    ?.filter(
+                                      (
+                                        val: any,
+                                        index: any,
+                                        arr: string | any[]
+                                      ) => arr.indexOf(val) === index
+                                    ) // Unique grades
+                                    ?.map((grade: any) => ({
+                                      label: grade,
+                                      value: grade,
+                                    })) || []
+                                }
+                                values={editData?.grades || []}
+                                onChange={(vals) =>
+                                  handleEditChange("grades", vals)
+                                }
+                                isGrade={true}
+                                placeholder="Select grades"
+                              />
+                            </td>
+                            <td className="px-4 py-2 border-r border-gray-200">
+                              <MultiSelect
+                                options={curriculums}
+                                values={editData?.curriculums || []}
+                                onChange={(vals) =>
+                                  handleEditChange("curriculums", vals)
+                                }
+                                placeholder="Select materials"
+                              />
+                            </td>
+                            <td className="px-4 py-2 border-r border-gray-200">
+                              <MultiSelect
+                                options={interventions}
+                                values={editData?.interventions || []}
+                                onChange={(vals) =>
+                                  handleEditChange("interventions", vals)
+                                }
+                                placeholder="Select tags"
+                              />
+                            </td>
+
+                            <td className="px-4 py-2 text-center">
+                              {!editing && !active && (
+                                <button
+                                  className="text-emerald-700"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEdit(school.schoolId, classroom);
+                                  }}
+                                >
+                                  <PencilSimpleLine size={16} color="#2264AC" />
+                                </button>
+                              )}
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className=" py-2 border-r border-gray-200">
+                              {classroom.course}
+                            </td>
+                            <td className="px-4 py-2 border-r border-gray-200">
+                              {classroom.teacher}
+                            </td>
+                            <td className="px-4 py-2 border-r border-gray-200 relative group">
+                              {classroom.grades.length > 0 ? (
+                                <Tooltip
+                                  content={
+                                    <div className="flex flex-col space-y-1">
+                                      {classroom.grades.map((grade, idx) => (
+                                        <div key={idx}>{grade}</div>
+                                      ))}
+                                    </div>
+                                  }
+                                >
+                                  <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
+                                    <span className="truncate max-w-[150px]">
+                                      {classroom.grades[0]}
                                     </span>
-                                  )}
-                                </div>
-                              </Tooltip>
-                            ) : (
-                              "None"
-                            )}
-                          </td>
-                          <td className="px-4 py-2 border-r border-gray-200 relative group">
-                            {classroom.curriculums.length > 0 ? (
-                              <Tooltip
-                                content={
-                                  <div className="flex flex-col space-y-1">
-                                    {classroom.curriculums.map(
-                                      (curriculum, idx) => (
-                                        <div key={idx}>{curriculum}</div>
-                                      )
+                                    {classroom.grades.length > 1 && (
+                                      <span className="text-blue-700 ml-1 cursor-pointer">
+                                        +{classroom.grades.length - 1} more
+                                      </span>
                                     )}
                                   </div>
-                                }
-                              >
-                                <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
-                                  <span className="truncate max-w-[150px]">
-                                    {classroom?.curriculums[0]}
-                                  </span>
-                                  {classroom.curriculums.length > 1 && (
-                                    <span className="text-blue-700 ml-1 cursor-pointer">
-                                      +{classroom?.curriculums?.length - 1} more
+                                </Tooltip>
+                              ) : (
+                                "None"
+                              )}
+                            </td>
+                            <td className="px-4 py-2 border-r border-gray-200 relative group">
+                              {classroom.curriculums.length > 0 ? (
+                                <Tooltip
+                                  content={
+                                    <div className="flex flex-col space-y-1">
+                                      {classroom.curriculums.map(
+                                        (curriculum, idx) => (
+                                          <div key={idx}>{curriculum}</div>
+                                        )
+                                      )}
+                                    </div>
+                                  }
+                                >
+                                  <div className="flex items-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
+                                    <span className="truncate max-w-[150px]">
+                                      {classroom?.curriculums[0]}
                                     </span>
-                                  )}
-                                </div>
-                              </Tooltip>
-                            ) : (
-                              "None"
-                            )}
-                          </td>
-                          <td
-                            className={`px-4 py-2  border-gray-200 relative group ${
-                              !active ? "border-r-2" : "border-r-0"
-                            }`}
-                          >
-                            {classroom.interventions.length > 0 ? (
-                              <Tooltip
-                                content={
-                                  <div className="flex flex-col space-y-1">
-                                    {classroom.interventions.map(
-                                      (intv, idx) => (
-                                        <div key={idx}>{intv}</div>
-                                      )
+                                    {classroom.curriculums.length > 1 && (
+                                      <span className="text-blue-700 ml-1 cursor-pointer">
+                                        +{classroom?.curriculums?.length - 1}{" "}
+                                        more
+                                      </span>
                                     )}
                                   </div>
-                                }
-                              >
-                                <div className="flex flex-col w-full truncate max-w-[150px]">
-                                  <span className="truncate">
-                                    {classroom.interventions[0]}
-                                  </span>
-                                  {classroom?.interventions?.length > 1 && (
-                                    <span className="text-blue-700 cursor-pointer">
-                                      +{classroom.interventions.length - 1} more
+                                </Tooltip>
+                              ) : (
+                                "None"
+                              )}
+                            </td>
+                            <td
+                              className={`px-4 py-2  border-gray-200 relative group ${
+                                !active ? "border-r-2" : "border-r-0"
+                              }`}
+                            >
+                              {classroom.interventions.length > 0 ? (
+                                <Tooltip
+                                  content={
+                                    <div className="flex flex-col space-y-1">
+                                      {classroom.interventions.map(
+                                        (intv, idx) => (
+                                          <div key={idx}>{intv}</div>
+                                        )
+                                      )}
+                                    </div>
+                                  }
+                                >
+                                  <div className="flex flex-col w-full truncate max-w-[150px]">
+                                    <span className="truncate">
+                                      {classroom.interventions[0]}
                                     </span>
-                                  )}
-                                </div>
-                              </Tooltip>
-                            ) : (
-                              "None"
-                            )}
-                          </td>
-                          <td className="px-4 py-2 text-center">
-                            {!editing && !active && (
-                              <button
-                                className="text-emerald-700"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEdit(school.schoolId, classroom);
-                                }}
-                              >
-                                <PencilSimpleLine size={16} color="#2264AC" />
-                              </button>
-                            )}
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-              </React.Fragment>
-            ))}
+                                    {classroom?.interventions?.length > 1 && (
+                                      <span className="text-blue-700 cursor-pointer">
+                                        +{classroom.interventions.length - 1}{" "}
+                                        more
+                                      </span>
+                                    )}
+                                  </div>
+                                </Tooltip>
+                              ) : (
+                                "None"
+                              )}
+                            </td>
+                            <td className="px-4 py-2 text-center">
+                              {!editing && !active && (
+                                <button
+                                  className="text-emerald-700"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEdit(school.schoolId, classroom);
+                                  }}
+                                >
+                                  <PencilSimpleLine size={16} color="#2264AC" />
+                                </button>
+                              )}
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                </React.Fragment>
+              ))
+            )}
           </tbody>
         </table>
         {/* Pagination */}
@@ -1323,7 +1345,7 @@ export default function ClassroomsPage() {
                 onChange={(e) =>
                   handleRowsPerPageChange(Number(e.target.value))
                 }
-                className="text-sm  px-1 py-1"
+                className="text-sm py-1"
                 disabled={isLoading}
               >
                 {rowsPerPageOptions.map((option) => (

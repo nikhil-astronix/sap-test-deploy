@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  School as SchoolIcon,
-  Hash,
-  BookOpen,
-  Clock,
-  Settings,
-  Info,
-} from "lucide-react";
+import {GraduationCap, Hash, Toolbox, GearFine, Note} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { TableFilters } from "../system-dashboard/DashboardTable";
 import { fetchDistrictsPayload } from "@/models/dashboard";
@@ -49,7 +42,7 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       page: selectedFilters.page,
       limit: selectedFilters.limit,
     };
-    setIsLoading(true);
+      setIsLoading(true);
     try {
       const response = await fetchSchools(requestPayload);
       console.log(response.data.schools, 'checking the schools data');
@@ -75,40 +68,40 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
 
   // Column definitions for Schools tab
   const schoolsColumns: Column[] = [
-    {
-      key: "name",
-      label: "School",
-      icon: <SchoolIcon size={16} />,
-      sortable: true,
-    },
-    {
-      key: "classroom_count",
-      label: "Number of Classrooms",
-      icon: <Hash size={16} />,
-      sortable: true,
-    },
-    {
-      key: "tools",
-      label: "Observation Tool(s)",
-      icon: <BookOpen size={16} />,
-      sortable: false,
-    },
-    {
-      key: "last_observation",
-      label: "Last Session",
-      icon: <Clock size={16} />,
-      sortable: true,
-    },
-    {
-      key: "setup_status",
-      label: "Setup Status",
-      icon: <Settings size={16} />,
-      sortable: true,
-    },
+    {key: "name",label: "School",icon: <GraduationCap size={20} />, sortable: true,},
+    {key: "classroom_count",label: "Number of Classrooms",icon: <Hash size={20} />, sortable: true,},
+    {key: "tools",label: "Observation Tool(s)",icon: <Toolbox size={20} />, sortable: false,},
+    {key: "last_observation",label: "Last Session",icon: <Note size={20} />,sortable: true,},
+    {key: "setup_status",label: "Setup Status",icon: <GearFine size={20} />,sortable: true,},
+  ];
+
+  // Background colors for school names
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#F9F5FF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
   ];
 
   // Custom render function for cells
   const renderCell = (row: TableRow, column: string) => {
+    if (column === "name") {
+      const name = row[column] as string;
+      // Get a consistent color based on the school name
+      const colorIndex = Math.abs(name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % bgColors.length;
+      const bgColor = bgColors[colorIndex];
+      
+      return (
+        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}>
+          {name}
+        </span>
+      );
+    }
     if (column === "tools") {
       const tools = row[column] as string[];
       if (!tools || tools.length === 0) return "None";
@@ -173,27 +166,49 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       }
 
       return (
+        // <div className="relative group">
+        //   <div
+        //     className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
+        //         ? "bg-red-200"
+        //         : statusObj.status === "Partial"
+        //           ? "bg-yellow-200"
+        //           : "bg-green-200"
+        //       } ${color} px-2 py-1 rounded-full text-xs`}
+        //   >
+        //     <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
+        //     {statusObj.status}
+        //   </div>
+        //   {statusObj && (
+        //     <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
+        //       <div className="flex items-center justify-between whitespace-nowrap">
+        //         <span>Classroom {statusObj.classroom_count}</span>
+        //         <span className="mx-1">|</span>
+        //         <span>Tools {statusObj.tool_count}</span>
+        //       </div>
+        //     </div>
+        //   )}
+        // </div>
         <div className="relative group">
+          {/* <span
+            className={`inline-flex items-center gap-1 ${bgColor} ${textColor} px-2 py-1 rounded-full text-xs`}
+          >
+            <span className="w-2 h-2 bg-black rounded-full"></span> {statusObj.status}
+          </span> */}
           <div
-            className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
-                ? "bg-red-200"
-                : statusObj.status === "Partial"
-                  ? "bg-yellow-200"
-                  : "bg-green-200"
-              } ${color} px-2 py-1 rounded-full text-xs`}
+            className={`inline-flex items-center gap-1 ${color} px-2 py-1 rounded-full text-xs`}
           >
             <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
             {statusObj.status}
           </div>
-          {statusObj && (
-            <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-1">
-              <div className="flex items-center justify-between whitespace-nowrap">
-                <span>Classroom {statusObj.classroom_count}</span>
-                <span className="mx-1">|</span>
-                <span>Tools {statusObj.tool_count}</span>
-              </div>
+          <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
+              after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+            <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
+              <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
+              <span className="">Classroom {statusObj.classroom_count}</span>
+              <span className="mx-1">|</span>
+              <span className="">Tools {statusObj.tool_count}</span>
             </div>
-          )}
+          </div>
         </div>
       );
     }
@@ -207,25 +222,21 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
 
   return (
     <div>
-    <AdminDashboardTable
-      data={filteredData}
-      columns={schoolsColumns}
-      headerColor="bg-[#2264AC]"
-      rowColor="bg-[#E9F3FF]"
-      renderCell={renderCell}
-      searchTerm={searchTerm}
-      onFiltersChange={handleFiltersChange}
-      totalPages={totalPages}
-      totalRecords={totalRecords}
-      pageNumber={pageNumber}
-      pageSize={pageSize}
-      isLoading={isLoading}
-    />
-    {isLoading &&
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2264AC]"></div>
-      </div>
-    }
+      <AdminDashboardTable
+        data={filteredData}
+        columns={schoolsColumns}
+        headerColor="bg-[#2264AC]"
+        rowColor="bg-[#E9F3FF]"
+        renderCell={renderCell}
+        searchTerm={searchTerm}
+        onFiltersChange={handleFiltersChange}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        pageNumber={pageNumber}
+        pageSize={pageSize}
+        isLoading={isLoading}
+        emptyMessage="No schools found"
+      />
     </div>
   );
 };

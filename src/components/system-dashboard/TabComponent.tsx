@@ -7,7 +7,7 @@ interface TabComponentProps {
 
 const TabComponent = ({ tabs, activeTab, onTabChange, colorClasses }: TabComponentProps) => {
   return (
-    <div className="flex border-b border-gray-200">
+    <div className="flex rounded-full">
       {tabs.map((tab, index) => (
         <button
           key={tab}

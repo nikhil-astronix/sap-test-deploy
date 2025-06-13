@@ -20,6 +20,7 @@ import {
   Plus,
   Trash,
   Archive,
+  PencilSimpleLine,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import CustomDropdown from "./CustomDropdown";
@@ -351,20 +352,20 @@ TableProps) {
                       // User view - show name and email
                       <div className="flex justify-between w-full">
                         <div>
-                          <p className="text-[12px] text-black-400 text-start font-medium">
+                          <p className="text-[14px] text-black-400 text-start font-medium">
                             {
                               data.find((row) => row.id === selectedRows[0])
                                 ?.first_name
                             }
                           </p>
-                          <p className="text-[12px] text-[#637381]-400 font-medium">
+                          <p className="text-[14px] text-[#637381]-400 font-medium">
                             {
                               data.find((row) => row.id === selectedRows[0])
                                 ?.email
                             }
                           </p>
                         </div>
-                        <p className="text-[12px] text-gray-500 font-medium">
+                        <p className="text-[14px] text-gray-500 font-medium">
                           {data.find((row) => row.id === selectedRows[0])
                             ?.role || "User"}
                         </p>
@@ -372,13 +373,13 @@ TableProps) {
                     ) : (
                       // School view - show school name
                       <div className="flex justify-between w-full">
-                        <p className="text-[12px] text-black-400 font-medium">
+                        <p className="text-[14px] text-black-400 font-medium">
                           {data.find((row) => row.id === selectedRows[0])
                             ?.school ||
                             data.find((row) => row.id === selectedRows[0])
                               ?.name}
                         </p>
-                        <p className="text-[12px] text-gray-500 font-medium">
+                        <p className="text-[14px] text-gray-500 font-medium">
                           School
                         </p>
                       </div>
@@ -409,20 +410,20 @@ TableProps) {
                       <div className="flex flex-col items-start">
                         {isUser ? (
                           <>
-                            <p className="text-[12px] text-black-400 font-medium">
+                            <p className="text-[14px] text-black-400 font-medium">
                               {item?.first_name}
                             </p>
-                            <p className="text-[12px] text-[#637381]-400 font-medium">
+                            <p className="text-[14px] text-[#637381]-400 font-medium">
                               {item?.email}
                             </p>
                           </>
                         ) : (
-                          <p className="text-[12px] text-black-400 font-medium">
+                          <p className="text-[14px] text-black-400 font-medium">
                             {item?.school || item?.name}
                           </p>
                         )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right font-medium">
+                      <div className="text-[14px] text-black-400 text-right font-medium">
                         {isUser ? item?.role : "School"}
                       </div>
                     </div>
@@ -524,13 +525,13 @@ TableProps) {
                     {data.find((row) => row.id === selectedRows[0])
                       ?.first_name ? (
                       <>
-                        <p className="text-[12px] text-black-400 font-medium">
+                        <p className="text-[14px] text-black-400 font-medium">
                           {
                             data.find((row) => row.id === selectedRows[0])
                               ?.first_name
                           }
                         </p>
-                        <p className="text-[12px] text-[#637381]-400 font-medium">
+                        <p className="text-[14px] text-[#637381]-400 font-medium">
                           {
                             data.find((row) => row.id === selectedRows[0])
                               ?.email
@@ -540,7 +541,7 @@ TableProps) {
                     ) : (
                       <div className="flex flex-col items-start w-full">
                         <div className="flex justify-between w-full">
-                          <p className="text-[12px] text-black-400 font-medium">
+                          <p className="text-[14px] text-black-400 font-medium">
                             {data.find((row) => row.id === selectedRows[0])
                               ?.school ||
                               data.find((row) => row.id === selectedRows[0])
@@ -550,7 +551,7 @@ TableProps) {
                       </div>
                     )}
                   </div>
-                  <div className="text-[12px] text-black-400 items-center font-medium">
+                  <div className="text-[14px] text-black-400 items-center font-medium">
                     {data.find((row) => row.id === selectedRows[0])?.role ||
                       (data.find((row) => row.id === selectedRows[0])?.school
                         ? ""
@@ -581,20 +582,20 @@ TableProps) {
                       <div className="flex flex-col items-start">
                         {isUser ? (
                           <>
-                            <p className="text-[12px] text-black-400 font-medium">
+                            <p className="text-[14px] text-black-400 font-medium">
                               {item?.first_name}
                             </p>
-                            <p className="text-[12px] text-[#637381]-400 font-medium">
+                            <p className="text-[14px] text-[#637381]-400 font-medium">
                               {item?.email}
                             </p>
                           </>
                         ) : (
-                          <p className="text-[12px] text-black-400 font-medium">
+                          <p className="text-[14px] text-black-400 font-medium">
                             {item?.school || item?.name}
                           </p>
                         )}
                       </div>
-                      <div className="text-[12px] text-black-400 text-right font-medium">
+                      <div className="text-[14px] text-black-400 text-right font-medium">
                         {isUser ? item?.role : "School"}
                       </div>
                     </div>
@@ -689,12 +690,12 @@ TableProps) {
                       className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5"
                     >
                       <div className="flex flex-col items-start">
-                        <p className="text-[12px] text-black-400 font-medium">
+                        <p className="text-[14px] text-black-400 font-medium">
                           {item?.name || item?.school}
                         </p>
                       </div>
 
-                      <p className="text-[12px] text-black-400 font-medium">
+                      <p className="text-[14px] text-black-400 font-medium">
                         School
                       </p>
                     </div>
@@ -1226,13 +1227,7 @@ TableProps) {
                               className="text-green-500 hover:text-green-700"
                               title="Edit"
                             >
-                              <Image
-                                src="/actionrow.svg"
-                                height={20}
-                                width={20}
-                                alt="Edit"
-                                className="inline"
-                              />
+                              <PencilSimpleLine size={16} color="#2A7251" />
                             </button>
                           </div>
                         </td>
@@ -1260,7 +1255,7 @@ TableProps) {
               <select
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
-                className="text-sm  px-1 py-1"
+                className="text-sm  py-1"
                 disabled={loading}
               >
                 {rowsPerPageOptions.map((option) => (

@@ -34,7 +34,7 @@ interface NavItem {
   path: string;
 }
 
-const navItems: NavItem[] = [
+export const navItemsSystemAdmin: NavItem[] = [
   {
     icon: <Network className="w-5 h-5" />,
     label: "Networks",
@@ -45,6 +45,45 @@ const navItems: NavItem[] = [
     label: "Districts",
     path: "/districts",
   },
+  {
+    icon: <Tag className="w-5 h-5" />,
+    label: "Tags & Attributes",
+    path: "/interventions",
+  },
+  {
+    icon: <Book className="w-5 h-5" />,
+    label: "Instructional Materials",
+    path: "/curriculums",
+  },
+  {
+    icon: <GraduationCap className="w-5 h-5" />,
+    label: "Schools",
+    path: "/schools",
+  },
+  {
+    icon: <ChalkboardTeacher className="w-5 h-5" />,
+    label: "Classrooms",
+    path: "/classrooms",
+  },
+  { icon: <Users className="w-5 h-5" />, label: "Users", path: "/users" },
+  {
+    icon: <Toolbox className="w-5 h-5" />,
+    label: "Observation Tools",
+    path: "/observation-tools",
+  },
+  {
+    icon: <Note className="w-5 h-5" />,
+    label: "Observation Sessions",
+    path: "/observation-sessions",
+  },
+  {
+    icon: <FaClipboardList className="w-5 h-5" />,
+    label: "Observation Form",
+    path: "/observation-form",
+  },
+];
+
+export const navItemsAdmin: NavItem[] = [
   {
     icon: <Tag className="w-5 h-5" />,
     label: "Tags & Attributes",
@@ -96,9 +135,12 @@ const Sidebar = () => {
   const [selectedDistrict, setSelectedDistricts] = useState<string[]>(
     globalDistrict ? [globalDistrict] : []
   );
+  const [role, setRole] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
+    let storedRole = localStorage.getItem("userrole");
+    setRole(storedRole);
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
@@ -114,15 +156,18 @@ const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const navItems = role === "Super Admin" ? navItemsSystemAdmin : navItemsAdmin;
+  const routing = role === "Super Admin" ? "/network" : "/interventions";
   useEffect(() => {
     if (selectedDistrict.length > 0) {
       setGlobalDistrict(selectedDistrict[0]);
+
       const navItemsPath = navItems.map((item) => item.path);
       if (
         pathname === "/select-district" ||
         !navItemsPath.includes(pathname || "")
       ) {
-        router.push("/network");
+        router.push(routing);
       } else {
         router.refresh();
       }

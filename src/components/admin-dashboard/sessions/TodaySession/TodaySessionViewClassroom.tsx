@@ -1,27 +1,38 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronDown, ChevronUp, ChevronRight, Search, User, Book, FileText } from 'lucide-react';
+import {Student, Exam, ArrowDownRight, PencilSimpleLine, Eye, Notebook, Book } from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from '../../AdminDashboardTable';
+import { viewClassroomSession } from '@/services/networkService';
 
 // Define types directly in the component file
-interface ClassroomData {
-  id: string;
-  teacher: string;
+interface ObservationClassroom {
+  observation_id: string;
+  classroom_id: string;
+  teacher_name: string;
   course: string;
-  grade: number;
-  instructionalMaterials: string[];
-  action?: string;
+  grades: string[];
+  interventions: string[];
+  curriculums: string[];
+  submission_state: string;
 }
 
-interface SchoolData {
-  id: string;
-  name: string;
+interface SessionData {
   date: string;
-  observationTool: string;
-  classrooms: ClassroomData[];
+  school: string;
+  school_id: string;
+  observation_tool: string;
+  observation_tool_id: string;
+  observation_classrooms: ObservationClassroom[];
+  total_observation_classrooms: number;
+  total_pages: number;
+  curr_page: number;
+  per_page: number;
 }
 
 interface ViewClassroomProps {
-  schoolId?: string;
+  // Although named schoolId, this should actually be the session ID for the API call
+  schoolId?: string; // This is the session ID, not the school ID
   onBack?: () => void;
 }
 
@@ -30,105 +41,8 @@ function isSchoolObject(value: any): value is { id: string, name: string } {
   return value && typeof value === 'object' && 'name' in value;
 }
 
-// Mock data
-const mockSchoolData: SchoolData[] = [
-  {
-    id: '1',
-    name: 'Elmwood Elementary School',
-    date: 'Jan 20',
-    observationTool: 'Literacy FS',
-    classrooms: [
-      {
-        id: '1',
-        teacher: 'Teacher Sample A',
-        course: 'Course Sample A',
-        grade: 2,
-        instructionalMaterials: ['Illustrative Math', 'Amplify', '2 more']
-      },
-      {
-        id: '2',
-        teacher: 'Teacher Sample B',
-        course: 'Course Sample B',
-        grade: 2,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
-      },
-      {
-        id: '3',
-        teacher: 'Teacher Sample C',
-        course: 'Course Sample C',
-        grade: 3,
-        instructionalMaterials: ['Amplify', 'Illustrative Math']
-      },
-      {
-        id: '4',
-        teacher: 'Teacher Sample D',
-        course: 'Course Sample D',
-        grade: 4,
-        instructionalMaterials: ['Illustrative Math', 'Amplify']
-      },
-      {
-        id: '5',
-        teacher: 'Teacher Sample E',
-        course: 'Course Sample E',
-        grade: 5,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '1 more']
-      },
-      {
-        id: '6',
-        teacher: 'Teacher Sample F',
-        course: 'Course Sample F',
-        grade: 6,
-        instructionalMaterials: ['Illustrative Math', 'Amplify']
-      },
-      {
-        id: '7',
-        teacher: 'Teacher Sample G',
-        course: 'Course Sample G',
-        grade: 7,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
-      },
-      {
-        id: '8',
-        teacher: 'Teacher Sample H',
-        course: 'Course Sample H',
-        grade: 8,
-        instructionalMaterials: ['Illustrative Math', 'Amplify', '2 more']
-      },
-      {
-        id: '9',
-        teacher: 'Teacher Sample I',
-        course: 'Course Sample I',
-        grade: 9,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '3 more']
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Riverside Middle School',
-    date: 'Jan 22',
-    observationTool: 'Math FS',
-    classrooms: [
-      {
-        id: '10',
-        teacher: 'Teacher Sample J',
-        course: 'Course Sample J',
-        grade: 6,
-        instructionalMaterials: ['Illustrative Math', 'Amplify', '1 more']
-      },
-      {
-        id: '11',
-        teacher: 'Teacher Sample K',
-        course: 'Course Sample K',
-        grade: 7,
-        instructionalMaterials: ['Amplify', 'Illustrative Math', '2 more']
-      }
-    ]
-  }
-];
-
 export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClassroomProps) {
-  const [schoolData, setSchoolData] = useState<SchoolData | null>(null);
+  const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [classroomTableData, setClassroomTableData] = useState<TableRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -139,126 +53,190 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
 
   // Define columns for classroom table
   const classroomColumns: Column[] = [
-    { key: 'teacher', label: 'Teacher', icon: <User size={16} />, sortable: true },
-    { key: 'course', label: 'Course/Subject', icon: <Book size={16} />, sortable: true },
-    { key: 'grade', label: 'Grade', icon: <FileText size={16} />, sortable: true },
-    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <FileText size={16} />, sortable: false },
-    { key: 'action', label: 'Action', icon: <FileText size={16} />, sortable: false }
+    { key: 'teacher', label: 'Teacher', icon: <Student size={20} />, sortable: true },
+    { key: 'course', label: 'Course/Subject', icon: <Notebook size={20} />, sortable: true },
+    { key: 'grade', label: 'Grade', icon: <Exam size={20} />, sortable: true },
+    { key: 'instructionalMaterials', label: 'Instructional Material(s)', icon: <Book size={20} />, sortable: false },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false }
   ];
 
-  // Create dummy data for when no real data is available
-  const createDummyClassroomData = (): TableRow[] => {
-    return [
-      {
-        id: 'dummy-1',
-        name: 'Sample Classroom 1', // Required by TableRow type
-        teacher: 'Sample Teacher 1',
-        course: 'Sample Course 1',
-        grade: 3,
-        instructionalMaterials: ['Sample Material 1', 'Sample Material 2'],
-        school: 'Sample School', // Add school as a string, not an object
-        action: 'view'
-      },
-      {
-        id: 'dummy-2',
-        name: 'Sample Classroom 2', // Required by TableRow type
-        teacher: 'Sample Teacher 2',
-        course: 'Sample Course 2',
-        grade: 5,
-        instructionalMaterials: ['Sample Material 3'],
-        school: 'Sample School', // Add school as a string, not an object
-        action: 'view'
-      }
-    ];
-  };
+  // Handle search term changes
+  useEffect(() => {
+    if (schoolId && searchTerm !== undefined) {
+      const fetchWithSearch = async () => {
+        setIsLoading(true);
+        try {
+          const response = await viewClassroomSession(schoolId, {
+            search: searchTerm,
+            page: currentPage,
+            limit: pageSize
+          });
+          
+          if (response.success && response.data) {
+            setSessionData(response.data);
+            
+            if (response.data.observation_classrooms && response.data.observation_classrooms.length > 0) {
+              const tableData: TableRow[] = response.data.observation_classrooms.map((classroom: any) => ({
+                id: classroom.classroom_id,
+                name: `${classroom.teacher_name}'s Classroom`,
+                teacher: classroom.teacher_name,
+                course: classroom.course,
+                grade: classroom.grades.join(', '),
+                instructionalMaterials: [...classroom.curriculums, ...classroom.interventions],
+                school: response.data.school,
+                action: classroom.submission_state
+              }));
+              
+              setClassroomTableData(tableData);
+              setTotalRecords(response.data.total_observation_classrooms);
+              setTotalPages(response.data.total_pages);
+              setCurrentPage(response.data.curr_page);
+              setPageSize(response.data.per_page);
+            } else {
+              setClassroomTableData([]);
+              setTotalRecords(0);
+              setTotalPages(0);
+            }
+          }
+        } catch (error) {
+          console.error('Error searching session data:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      // Use a small delay to avoid too many API calls while typing
+      const timer = setTimeout(() => {
+        fetchWithSearch();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [searchTerm, schoolId]);
 
   useEffect(() => {
-    // Using dummy/mock data rather than API calls
-    setIsLoading(true);
-    
-    // Simulate a brief loading time
-    const timeoutId = setTimeout(() => {
-      if (schoolId) {
-        const foundSchool = mockSchoolData.find(school => school.id === schoolId);
-        setSchoolData(foundSchool || null);
-        
-        if (foundSchool && foundSchool.classrooms && foundSchool.classrooms.length > 0) {
-          // Transform classrooms to match TableRow format
-          const tableData: TableRow[] = foundSchool.classrooms.map(classroom => ({
-            id: classroom.id,
-            name: `${classroom.teacher}'s Classroom`, // Required by TableRow type
-            teacher: classroom.teacher,
-            course: classroom.course,
-            grade: classroom.grade,
-            instructionalMaterials: classroom.instructionalMaterials,
-            // Make sure school is a string, not an object
-            school: foundSchool.name,
-            action: ""
-          }));
-          setClassroomTableData(tableData);
-          setTotalRecords(tableData.length);
-          setTotalPages(Math.ceil(tableData.length / pageSize));
-        } else {
-          // If no classrooms found or empty classrooms array, provide dummy data
-          const dummyData = createDummyClassroomData();
-          setClassroomTableData(dummyData);
-          setTotalRecords(dummyData.length);
-          setTotalPages(Math.ceil(dummyData.length / pageSize));
-        }
-      } else {
-        // Use first school as default if no schoolId provided
-        const defaultSchool = mockSchoolData[0];
-        setSchoolData(defaultSchool || null);
-        
-        if (defaultSchool && defaultSchool.classrooms && defaultSchool.classrooms.length > 0) {
-          const tableData: TableRow[] = defaultSchool.classrooms.map(classroom => ({
-            id: classroom.id,
-            name: `${classroom.teacher}'s Classroom`, // Required by TableRow type
-            teacher: classroom.teacher,
-            course: classroom.course,
-            grade: classroom.grade,
-            instructionalMaterials: classroom.instructionalMaterials,
-            // Make sure school is a string, not an object
-            school: defaultSchool.name,
-            action: 'view'
-          }));
-          setClassroomTableData(tableData);
-          setTotalRecords(tableData.length);
-          setTotalPages(Math.ceil(tableData.length / pageSize));
-        } else {
-          // If no classrooms found or empty classrooms array, provide dummy data
-          const dummyData = createDummyClassroomData();
-          setClassroomTableData(dummyData);
-          setTotalRecords(dummyData.length);
-          setTotalPages(Math.ceil(dummyData.length / pageSize));
-        }
-      }
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timeoutId);
-  }, [schoolId, pageSize]);
+    const fetchSessionData = async () => {
+      if (!schoolId) return;
 
-  // Handle filters change for server-side pagination
-  const handleFiltersChange = (filters: any) => {
+      setIsLoading(true);
+
+      try {
+        const response = await viewClassroomSession(schoolId);
+
+        if (response.success && response.data) {
+          setSessionData(response.data);
+
+          if (response.data.observation_classrooms && response.data.observation_classrooms.length > 0) {
+            // Transform classrooms to match TableRow format
+            const tableData: TableRow[] = response.data.observation_classrooms.map((classroom: { classroom_id: any; teacher_name: any; course: any; grades: any[]; curriculums: any; interventions: any; submission_state: any; }) => ({
+              id: classroom.classroom_id,
+              name: `${classroom.teacher_name}'s Classroom`, // Required by TableRow type
+              teacher: classroom.teacher_name,
+              course: classroom.course,
+              grade: classroom.grades.join(', '),
+              instructionalMaterials: [...classroom.curriculums, ...classroom.interventions],
+              school: response.data.school,
+              action: classroom.submission_state
+            }));
+
+            setClassroomTableData(tableData);
+            setTotalRecords(response.data.total_observation_classrooms);
+            setTotalPages(response.data.total_pages);
+            setCurrentPage(response.data.curr_page);
+            setPageSize(response.data.per_page);
+          } else {
+            // If no classrooms found, set empty data
+            setClassroomTableData([]);
+            setTotalRecords(0);
+            setTotalPages(0);
+          }
+        } else {
+          console.error('Failed to fetch session data');
+          setClassroomTableData([]);
+          setTotalRecords(0);
+          setTotalPages(0);
+        }
+      } catch (error) {
+        console.error('Error fetching session data:', error);
+        setClassroomTableData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSessionData();
+  }, [schoolId]); // Only re-run when schoolId changes
+
+  // Handle filters change for server-side pagination, sorting and searching
+  const handleFiltersChange = async (filters: any) => {
     setCurrentPage(filters.page);
     setPageSize(filters.limit);
+    
+    // If sorting is changed, we need to refetch data
+    if (schoolId && (filters.sort_by || filters.sort_order)) {
+      setIsLoading(true);
+      try {
+        // Add sorting parameters to the API call
+        const response = await viewClassroomSession(schoolId, {
+          page: filters.page,
+          limit: filters.limit,
+          sort_by: filters.sort_by,
+          sort_order: filters.sort_order,
+          search: searchTerm
+        });
+        
+        if (response.success && response.data) {
+          setSessionData(response.data);
+          
+          if (response.data.observation_classrooms && response.data.observation_classrooms.length > 0) {
+            // Transform classrooms to match TableRow format
+            const tableData: TableRow[] = response.data.observation_classrooms.map((classroom: any) => ({
+              id: classroom.classroom_id,
+              name: `${classroom.teacher_name}'s Classroom`,
+              teacher: classroom.teacher_name,
+              course: classroom.course,
+              grade: classroom.grades.join(', '),
+              instructionalMaterials: [...classroom.curriculums, ...classroom.interventions],
+              school: response.data.school,
+              action: classroom.submission_state
+            }));
+            
+            setClassroomTableData(tableData);
+            setTotalRecords(response.data.total_observation_classrooms);
+            setTotalPages(response.data.total_pages);
+            setCurrentPage(response.data.curr_page);
+            setPageSize(response.data.per_page);
+          } else {
+            setClassroomTableData([]);
+            setTotalRecords(0);
+            setTotalPages(0);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching sorted/filtered session data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   // Custom render function for cells
   const renderCell = (row: TableRow, column: string) => {
     if (column === 'action') {
       return (
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 items-center">
           <button 
-            className="text-teal-600 hover:text-teal-800 flex items-center bg-teal-100 px-3 py-1 rounded-md"
+            className="text-xs text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors"
           >
             <span className="mr-1">Edit Observation</span>
+            <PencilSimpleLine size={20} />
           </button>
-          <span className="mx-1">|</span>
+          <span className="mx-1 text-xs">|</span>
           <button 
-            className="text-blue-600 hover:text-blue-800 flex items-center"
+            className="text-xs text-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors"
           >
             <span className="mr-1">View Calibration</span>
+            <Eye size={20} />
           </button>
         </div>
       );
@@ -266,17 +244,29 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
 
     if (column === 'instructionalMaterials') {
       const materials = row[column] as string[];
-      return materials?.length ? (
+      if (!materials?.length) return <span className="text-xs">-</span>;
+      
+      const displayCount = 2;
+      const remaining = materials.length - displayCount;
+      
+      return (
         <div className="flex flex-col gap-1">
-          {materials.map((material, index) => (
-            <span key={index} className="text-sm">{material}</span>
+          {materials.slice(0, displayCount).map((material, index) => (
+            <span key={index} className="text-xs">{material}{index < displayCount - 1 && materials.length > 1 ? ', ' : ''}</span>
           ))}
+          {remaining > 0 && (
+            <span className="text-xs text-[#007778]">
+              +{remaining} more
+            </span>
+          )}
         </div>
-      ) : (
-        "No materials"
       );
     }
-    
+
+    if (column === 'grade') {
+      return row[column] || "N/A";
+    }
+
     // Handle school column to ensure it's rendered as a string
     if (column === 'school') {
       const school = row[column];
@@ -291,19 +281,18 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
     return undefined;
   };
 
-  // Always render component with table headers, even if no school data is found
+  // Always render component with table headers, even if no session data is found
   const hasClassroomData = classroomTableData && classroomTableData.length > 0;
-  
-  // Create a default school name if schoolData is null
-  const schoolName = schoolData ? schoolData.name : "Unknown School";
-  const sessionDate = schoolData ? schoolData.date : "Today";
-  const observationTool = schoolData ? schoolData.observationTool : "Not Available";
-  
+
+  // Create a default school name if sessionData is null
+  const schoolName = sessionData ? sessionData.school : "Unknown School";
+  const sessionDate = sessionData ? sessionData.date : "Today";
+  const observationTool = sessionData ? sessionData.observation_tool : "Not Available";
 
   return (
     <div className="border border-gray-200 rounded-md shadow-sm overflow-hidden">
       {/* <div className="p-4 border-b border-gray-200 flex items-center">
-        <button 
+        <button
           onClick={() => {
             // First send a message to close the classroom view
             window.postMessage({ type: "CLOSE_CLASSROOMS" }, "*");
@@ -318,7 +307,7 @@ export default function TodaySessionViewClassroom({ schoolId, onBack }: ViewClas
           }} 
           className="text-blue-600 hover:text-blue-800 flex items-center"
         >
-          <ChevronLeft size={16} className="mr-1" />
+          <ChevronLeft size={20} className="mr-1" />
           Back
         </button>
       </div> */}
