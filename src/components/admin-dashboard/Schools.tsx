@@ -195,12 +195,7 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
             <span className="w-2 h-2 bg-black rounded-full"></span> {statusObj.status}
           </span> */}
           <div
-            className={`inline-flex items-center gap-1 ${statusObj.status === "Incomplete"
-                ? "bg-red-200"
-                : statusObj.status === "Partial"
-                  ? "bg-yellow-200"
-                  : "bg-green-200"
-              } ${color} px-2 py-1 rounded-full text-xs`}
+            className={`inline-flex items-center gap-1 ${color} px-2 py-1 rounded-full text-xs`}
           >
             <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
             {statusObj.status}

@@ -96,13 +96,17 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
       const role = row[column] as string;
       return (
         <span
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${role === "Admin"
+          className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-md ${role === "Admin"
               ? "bg-[#D6FDFD] text-[#007778]"
               : role === "Principal"
                 ? "bg-[#E9F3FF] text-[#2264AC]"
                 : "bg-[#E9F3FF] text-[#2264AC]"
             }`}
         >
+          <span className={`w-2 h-2 mx-1 left-0 ${role === "Admin"
+              ? "bg-[#007778]": role === "Principal"? "bg-[#2264AC]": "bg-[#2264AC]"
+            } rounded-full`}>
+          </span>
           {role}
         </span>
       );

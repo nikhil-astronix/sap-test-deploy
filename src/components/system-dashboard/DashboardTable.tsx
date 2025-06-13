@@ -80,7 +80,7 @@ const DashboardTable = ({
     direction: null,
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(9);
   const rowsPerPageOptions = [5, 9, 25, 50, 100];
   const [active, setActive] = useState(false);
   const [search, setSearch] = useState("");

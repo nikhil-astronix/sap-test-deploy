@@ -91,7 +91,7 @@ export default function NetworkDashboardTable({
   });
   const [currentPage, setCurrentPage] = useState(pageNumber);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
-  const rowsPerPageOptions = [5, 10, 25, 50, 100];
+  const rowsPerPageOptions = [5, 9, 25, 50, 100];
   const [active, setActive] = useState(false);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -392,14 +392,6 @@ export default function NetworkDashboardTable({
 
   return (
     <div className="overflow-hidden border border-gray-200 rounded-md w-full mx-auto">
-
-      {/* Search Term Display */}
-      {searchTerm && (
-        <div className="p-2 bg-gray-50 border-b border-gray-200 flex items-center">
-          <Search size={14} className="text-gray-500 mr-1" />
-          <p className="text-sm text-gray-600">Search results for: <span className="font-medium">{searchTerm}</span></p>
-        </div>
-      )}
 
       {/* Table */}
       <div className="overflow-x-auto">

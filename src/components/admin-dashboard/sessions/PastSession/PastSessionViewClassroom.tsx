@@ -72,7 +72,7 @@ export default function PastSessionViewClassroom({ schoolId, onBack }: ViewClass
             page: currentPage,
             limit: pageSize
           });
-          
+          console.log('response', response);
           if (response.success && response.data) {
             setSessionData(response.data);
             

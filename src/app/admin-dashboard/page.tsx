@@ -210,7 +210,7 @@ export default function AdminDashboard() {
         <div className="mb-4">
           <button
             onClick={() => setViewingClassrooms(null)}
-            className="flex gap-1 rounded-xl text-sm items-center bg-gray-100 rounded-md p-1 pl-2 pr-4 pt-1 pb-1 hover:bg-gray-200 border border-gray-300"
+            className="flex gap-1 rounded-xl text-sm items-center bg-gray-100 rounded-md p-1 pl-2 pr-4 pt-1 pb-1 hover:bg-gray-200"
           >
             <GoArrowLeft size={18} />
             <span>Back</span>
@@ -246,7 +246,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      <div className="rounded-md shadow-sm border border-gray-200 overflow-hidden">
+      <div className="rounded-md shadow-sm overflow-hidden">
         <AdminTabComponent
           tabs={tabs}
           colorClasses={colorClasses}
@@ -258,14 +258,14 @@ export default function AdminDashboard() {
           setIsDropdownOpen={setIsDropdownOpen}
         />
 
-        <div className="p-4">
-          <div className="relative w-full md:w-64 mb-4">
+        <div>
+          <div className="relative w-full md:w-64 mb-3 mt-3">
             <input
               type="text"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-2 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none"
             />
             <Search
               size={18}

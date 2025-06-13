@@ -320,37 +320,41 @@ export default function Districts({ searchTerm = '' }: DistrictsProps) {
       const statusObj = row.session_status;
       if (!statusObj) return "No Session";
 
-      let bgColor, textColor;
+      let bgColor, textColor, dotColor;
 
       switch (statusObj.status) {
         case "Active":
           bgColor = "bg-green-200";
+          dotColor = "bg-green-600";
           textColor = "text-green-800";
           break;
         case "Inactive":
           bgColor = "bg-yellow-200";
+          dotColor = "bg-yellow-600";
           textColor = "text-yellow-800";
           break;
         case "No Session":
           bgColor = "bg-red-200";
+          dotColor = "bg-red-600";
           textColor = "text-red-800";
           break;
         default:
           bgColor = "bg-gray-200";
+          dotColor = "bg-gray-600";
           textColor = "text-gray-800";
       }
 
       return (
         <div className="relative group">
           <span
-            className={`inline-flex items-center gap-1 ${bgColor} ${textColor} px-2 py-1 rounded-full text-xs`}
+            className={`inline-flex items-center gap-1 ${bgColor} ${textColor} px-2 py-1 rounded-md text-xs`}
           >
-            <span className="w-2 h-2 bg-black rounded-full"></span> {statusObj.status}
+            <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span> {statusObj.status}
           </span>
           <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
               after:content-[''] after:absolute after:top-full after:left-1/2 after:border-4 after:border-transparent after:border-t-black">
             <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
-              <span className={`w-2 h-2 mx-1 left-0 ${bgColor} rounded-full`}></span>
+              <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
               <span className="">Completed {statusObj.completed_count}</span>
               <span className="mx-1">|</span>
               <span className="">Upcoming {statusObj.upcoming_count}</span>

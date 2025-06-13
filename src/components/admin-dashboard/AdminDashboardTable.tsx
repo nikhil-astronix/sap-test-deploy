@@ -330,7 +330,7 @@ const AdminDashboardTable = ({
               <tr>
                 <td colSpan={columns.length} className="border-b border-gray-200 py-8 text-center">
                   <div className="flex justify-center items-center py-8">
-                    <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${headerColor.replace('bg-', 'border-')}`}></div>
+                    <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${headerColor.includes('[') ? headerColor.replace('bg-[', 'border-[') : headerColor.replace('bg-', 'border-')}`}></div>
                   </div>
                 </td>
               </tr>

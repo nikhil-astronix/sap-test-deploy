@@ -133,7 +133,7 @@ const UpcomingSessions = ({
         <div className="flex space-x-2 text-xs">
           <button
             onClick={() => handleEditSession(row)}
-            className="text-[#007778] flex items-center"
+            className="text-[#007778] hover:bg-[#007778] hover:text-white px-3 py-1 rounded-md flex items-center"
           >
             <span className="mr-1">Edit Session</span>
             <PencilSimpleLine size={20} />
@@ -141,7 +141,7 @@ const UpcomingSessions = ({
           <p className="text-[#007778] flex items-center ml-2 mr-2">|</p>
           {/* {row.viewClassrooms && ( */}
           <button
-            className="text-[#007778] flex items-center"
+            className="text-[#007778] hover:bg-[#007778] hover:text-white px-3 py-1 rounded-md flex items-center"
             onClick={() => handleViewClassrooms(row)}
           >
             <span className="mr-1">View Classrooms</span>
