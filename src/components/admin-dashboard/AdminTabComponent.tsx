@@ -9,15 +9,15 @@ interface AdminTabComponentProps {
   setIsDropdownOpen?: (isOpen: boolean) => void;
 }
 
-const AdminTabComponent = ({ 
-  tabs, 
-  activeTab, 
-  onTabChange, 
+const AdminTabComponent = ({
+  tabs,
+  activeTab,
+  onTabChange,
   colorClasses,
   sessionViewType = 'today',
-  setSessionViewType = () => {},
+  setSessionViewType = () => { },
   isDropdownOpen = false,
-  setIsDropdownOpen = () => {}
+  setIsDropdownOpen = () => { }
 }: AdminTabComponentProps) => {
   return (
     <div className="flex border-b border-gray-200">
@@ -26,22 +26,21 @@ const AdminTabComponent = ({
           return (
             <div key={tab} className={`relative w-full`}>
               <button
-                className={`w-full py-3 px-6 font-medium text-sm focus:outline-none transition-colors duration-200 ${
-                  activeTab === tab
+                className={`w-full py-3 px-6 font-medium text-sm focus:outline-none transition-colors duration-200 ${activeTab === tab
                     ? `bg-${colorClasses[index]} text-white`
                     : `bg-gray-100 text-gray-500 hover:bg-gray-200`
-                }`}
+                  }`}
                 onClick={() => onTabChange(tab)}
               >
                 <div className="flex items-center justify-center space-x-1">
                   <span>
-                    {sessionViewType === 'today' ? 'Today\'s Sessions' : 
-                     sessionViewType === 'upcoming' ? 'Upcoming Sessions' : 'Past Sessions'}
+                    {sessionViewType === 'today' ? 'Today\'s Sessions' :
+                      sessionViewType === 'upcoming' ? 'Upcoming Sessions' : 'Past Sessions'}
                   </span>
-                  <svg 
-                    className="h-4 w-4" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    viewBox="0 0 20 20" 
+                  <svg
+                    className="h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
                     fill="currentColor"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -88,15 +87,14 @@ const AdminTabComponent = ({
             </div>
           );
         }
-        
+
         return (
           <button
             key={tab}
-            className={`w-full py-3 px-6 font-medium text-sm focus:outline-none transition-colors duration-200 ${
-              activeTab === tab
+            className={`w-full py-3 px-6 font-medium text-sm focus:outline-none transition-colors duration-200 ${activeTab === tab
                 ? `bg-${colorClasses[index]} text-white`
                 : `bg-gray-100 text-gray-500 hover:bg-gray-200`
-            }`}
+              }`}
             onClick={() => onTabChange(tab)}
           >
             {tab}

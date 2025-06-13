@@ -72,10 +72,13 @@ function LoginPageContent() {
         await setAuthDataFromCode(code);
         setTimeout(() => {
           let role = localStorage.getItem("userRole");
+          console.log("user role checking here and there", role);
           if (role === "super-admin") {
             router.push("/system-dashboard");
-          } else if (role === "admin") {
+          } else if (role === "District admin") {
             router.push("/admin-dashboard");
+          } else if (role === "network-dashboard") {
+            router.push("/network-dashboard");
           } else {
             router.push("/users");
           }
@@ -101,18 +104,17 @@ function LoginPageContent() {
 
       if (res?.status === "LOGIN_SUCCESS") {
         const response = await getCurrentUser();
-        console.log("response--------", response);
-
+        const full_name =
+          response.data.first_name + " " + response.data.last_name;
         localStorage.setItem("userrole", response.data.user_type);
-        localStorage.setItem(
-          "name",
-          response.data.first_name + " " + response.data.last_name
-        );
+        localStorage.setItem("name", full_name);
         let role = response.data.user_type;
         if (role === "Super Admin") {
           router.push("/system-dashboard");
-        } else if (role === "Admin") {
+        } else if (role === "District Admin") {
           router.push("/admin-dashboard");
+        } else if (role === "Network Admin") {
+          router.push("/network-dashboard");
         } else {
           router.push("/users");
         }
@@ -139,10 +141,10 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="w-96 mx-auto p-6">
+    <div className="w-full  mx-auto p-6">
       <AnimatedContainer variant="stagger" staggerItems={true}>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
-          Login to Your Account
+          Sign In
         </h2>
 
         {isResetSuccessful ? (
@@ -153,7 +155,7 @@ function LoginPageContent() {
           <p className="text-red-500 mb-8 text-center">{cognitoError}</p>
         ) : (
           <p className="text-gray-600 mb-8 text-center">
-            Enter your email and password
+            Welcome back! Please enter your details.
           </p>
         )}
       </AnimatedContainer>
@@ -224,7 +226,7 @@ function LoginPageContent() {
           <input
             {...register("email")}
             type="email"
-            className="w-full px-4 py-3 rounded-lg bg-gray-50 border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
+            className="w-full px-4 py-3 rounded-lg bg-[#F4F6F8] border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
             placeholder="Enter your email"
           />
           {errors.email && (
@@ -240,7 +242,7 @@ function LoginPageContent() {
             <input
               {...register("password")}
               type={showPassword ? "text" : "password"}
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors pr-10"
+              className="w-full px-4 py-3 rounded-lg bg-[#F4F6F8] border text-gray-800 border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors pr-10"
               placeholder="Enter your password"
             />
             <button

@@ -65,3 +65,46 @@ export const deleteNetwork = async (data: { ids: string[] }) => {
     return { success: false, error };
   }
 };
+
+export const getDistrictsByNetwork = async () => {
+  try {
+    const response = await apiClient.get(`/v1/dashboard/network-admin-districts`);
+    return { success: true, data: response?.data };
+  } catch (error) {
+    console.error("user profile service error:", error);
+    return { success: false, error };
+  }
+};
+
+export const getObservationToolsByNetwork = async () => {
+  try {
+    const response = await apiClient.get(`/v1/dashboard/network-admin-observation-tools`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("user profile service error:", error);
+    return { success: false, error };
+  }
+};
+
+export type SessionFilterType = 'all' | 'today' | 'upcoming' | 'past';
+
+export const getSessionsByNetwork = async (filter_type: SessionFilterType = 'today') => {
+  try {
+    // Add filter_type as a query parameter to filter sessions on the server side
+    const response = await apiClient.get(`/v1/dashboard/network-admin-observation-sessions?filter_type=${filter_type}`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("user profile service error:", error);
+    return { success: false, error };
+  }
+};  
+
+export const viewClassroomSession = async (session_id: string) => {
+  try {
+    const response = await apiClient.get(`/v1/observation/get_observation_classrooms/${session_id}`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("user profile service error:", error);
+    return { success: false, error };
+  }
+};

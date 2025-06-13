@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MultiSelect from "@/components/ui/MultiSelect";
 import Dropdown from "@/components/ui/Dropdown";
 
@@ -35,11 +35,25 @@ const AssignUsersStep = ({
 		label: `${user.name} (${user.email})`,
 	}));
 
+	// Filter options for session admin to only include selected users
+	const sessionAdminOptions = userOptions.filter((option) =>
+		selectedUsers.includes(option.value)
+	);
+
+	// Reset session admin if it's not in the selected users list
+	useEffect(() => {
+		if (sessionAdmin && !selectedUsers.includes(sessionAdmin)) {
+			onSessionAdminChange("");
+		}
+	}, [selectedUsers, sessionAdmin, onSessionAdminChange]);
+
 	return (
 		<div className='max-w-2xl mx-auto'>
 			<div className='space-y-6'>
 				<div>
-					<label className='block text-sm font-medium mb-1'>User(s)</label>
+					<label className='block text-[16px] text-balck-400 mb-2'>
+						User(s)
+					</label>
 					<div className='space-y-2'>
 						{selectedUsers.map((id) => {
 							const user = users.find((u) => u.id === id);
@@ -89,16 +103,26 @@ const AssignUsersStep = ({
 				</div>
 
 				<div>
-					<label className='block text-sm font-medium mb-1'>
+					<label className='block text-[16px] text-balck-400 mb-2'>
 						Session Admin
 					</label>
 					<Dropdown
-						options={userOptions}
+						options={sessionAdminOptions}
 						value={sessionAdmin}
 						onChange={onSessionAdminChange}
-						placeholder='Select session admin'
+						placeholder={
+							selectedUsers.length > 0
+								? "Select session admin"
+								: "First select users above"
+						}
 						className='bg-gray-50'
+						disabled={sessionAdminOptions.length === 0}
 					/>
+					{sessionAdminOptions.length === 0 && (
+						<p className='text-sm text-gray-500 mt-1'>
+							Please select users above to assign as session admin
+						</p>
+					)}
 				</div>
 
 				<div className='flex justify-between space-x-4 pt-6 w-full'>
@@ -119,6 +143,7 @@ const AssignUsersStep = ({
 						<button
 							onClick={onNext}
 							className='px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors'
+							disabled={selectedUsers.length > 0 && !sessionAdmin}
 						>
 							Next
 						</button>

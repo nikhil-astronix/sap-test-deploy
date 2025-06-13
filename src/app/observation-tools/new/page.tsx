@@ -349,7 +349,10 @@ function SortableQuestion({
                   ×
                 </button>
               )}
-              <select className="ml-8 border rounded p-1" disabled={question.isImported}>
+              <select
+                className="ml-8 border rounded p-1"
+                disabled={question.isImported}
+              >
                 <option>Choose</option>
                 {question.subsections &&
                   question.subsections.length > 0 &&
@@ -400,12 +403,12 @@ function SortableQuestion({
           {question.subsections && question.subsections.length > 0 && (
             <div className="mt-6 border border-gray-200 rounded-lg p-4">
               <div className="flex gap-2 ml-auto flex-row justify-end">
-                <button
+                {/* <button
                   className="px-4 py-2 rounded bg-green-700 text-white"
                   style={{ background: "#2E7D32" }}
                 >
                   Save Subsection
-                </button>
+                </button> */}
                 <button
                   className="px-4 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100"
                   onClick={() => handleRemoveSubsection(activeSubsection)}
@@ -459,7 +462,9 @@ function SortableQuestion({
                         borderBottomColor: "#2264AC",
                         background: "transparent",
                       }}
-                      disabled={question.subsections[activeSubsection].isImported}
+                      disabled={
+                        question.subsections[activeSubsection].isImported
+                      }
                     />
                     <textarea
                       placeholder="Add Description"
@@ -475,7 +480,9 @@ function SortableQuestion({
                         borderBottomColor: "#2264AC",
                         background: "white",
                       }}
-                      disabled={question.subsections[activeSubsection].isImported}
+                      disabled={
+                        question.subsections[activeSubsection].isImported
+                      }
                     />
                   </div>
                   {/* Sub-Questions List */}
@@ -716,7 +723,9 @@ function SortableQuestion({
                                                 }
                                               : q
                                           );
-                                          handleSetSubQuestions(updatedQuestions);
+                                          handleSetSubQuestions(
+                                            updatedQuestions
+                                          );
                                         }}
                                       >
                                         <span className="text-2xl">×</span>
@@ -833,7 +842,13 @@ function SortableQuestion({
           {showMCSubQs &&
             showMCSubQs[index] &&
             mcSubQData &&
-            (mcSubQData[index] as { title: string; options: string[]; isMandatory: boolean }[]).map((subQ, subIdx: number) => (
+            (
+              mcSubQData[index] as {
+                title: string;
+                options: string[];
+                isMandatory: boolean;
+              }[]
+            ).map((subQ, subIdx: number) => (
               <MultipleChoiceSubQuestionCard
                 key={subIdx}
                 subQuestion={subQ}
@@ -844,7 +859,13 @@ function SortableQuestion({
           {showCheckboxSubQs &&
             showCheckboxSubQs[index] &&
             checkboxSubQData &&
-            (checkboxSubQData[index] as { title: string; options: string[]; isMandatory: boolean }[]).map((subQ, subIdx: number) => (
+            (
+              checkboxSubQData[index] as {
+                title: string;
+                options: string[];
+                isMandatory: boolean;
+              }[]
+            ).map((subQ, subIdx: number) => (
               <CheckboxSubQuestionCard
                 key={subIdx}
                 subQuestion={subQ}
@@ -855,7 +876,13 @@ function SortableQuestion({
           {showOpenEndedSubQs &&
             showOpenEndedSubQs[index] &&
             openEndedSubQData &&
-            (openEndedSubQData[index] as { title: string; subText: string; isMandatory: boolean }[]).map((subQ, subIdx: number) => (
+            (
+              openEndedSubQData[index] as {
+                title: string;
+                subText: string;
+                isMandatory: boolean;
+              }[]
+            ).map((subQ, subIdx: number) => (
               <OpenEndedSubQuestionCard
                 key={subIdx}
                 subQuestion={subQ}
@@ -1413,21 +1440,41 @@ export default function NewObservationToolPage() {
   const [modalSubsectionIdx, setModalSubsectionIdx] = useState<number | null>(
     null
   );
-  const [showMCSubQs, setShowMCSubQs] = useState<{ [sectionIdx: number]: { [qIdx: number]: boolean } }>({});
+  const [showMCSubQs, setShowMCSubQs] = useState<{
+    [sectionIdx: number]: { [qIdx: number]: boolean };
+  }>({});
   const [mcSubQData, setMcSubQData] = useState<{
-    [sectionIdx: number]: { [qIdx: number]: { title: string; options: string[]; isMandatory: boolean }[] };
+    [sectionIdx: number]: {
+      [qIdx: number]: {
+        title: string;
+        options: string[];
+        isMandatory: boolean;
+      }[];
+    };
   }>({});
   const [showOpenEndedSubQs, setShowOpenEndedSubQs] = useState<{
     [sectionIdx: number]: { [qIdx: number]: boolean };
   }>({});
   const [openEndedSubQData, setOpenEndedSubQData] = useState<{
-    [sectionIdx: number]: { [qIdx: number]: { title: string; subText: string; isMandatory: boolean }[] };
+    [sectionIdx: number]: {
+      [qIdx: number]: {
+        title: string;
+        subText: string;
+        isMandatory: boolean;
+      }[];
+    };
   }>({});
   const [showCheckboxSubQs, setShowCheckboxSubQs] = useState<{
     [sectionIdx: number]: { [qIdx: number]: boolean };
   }>({});
   const [checkboxSubQData, setCheckboxSubQData] = useState<{
-    [sectionIdx: number]: { [qIdx: number]: { title: string; options: string[]; isMandatory: boolean }[] };
+    [sectionIdx: number]: {
+      [qIdx: number]: {
+        title: string;
+        options: string[];
+        isMandatory: boolean;
+      }[];
+    };
   }>({});
   // State for existing tools fetched from API
   const [existingTools, setExistingTools] = useState<ExistingTool[]>([]);
@@ -1463,23 +1510,28 @@ export default function NewObservationToolPage() {
                 jump_to: "",
               };
             }),
-            sub_sections:
-              ((q as Question).subsections ?? []).map((sub: Subsection, subIdx: number) => ({
+            sub_sections: ((q as Question).subsections ?? []).map(
+              (sub: Subsection, subIdx: number) => ({
                 id: `subsec${qIdx}_${subIdx}`,
                 name: sub.name,
                 description: sub.description,
-                questions: sub.questions.map((subQ: Question, subQIdx: number) => ({
-                  id: subQ.id,
-                  text: subQ.title,
-                  sub_text: subQ.subText,
-                  is_mandatory: subQ.isMandatory,
-                  options: subQ.options.map((opt: string, optIdx: number) => ({
-                    id: `subqopt${subQIdx}_${optIdx}`,
-                    text: opt,
-                  })),
-                  sub_questions: [],
-                })),
-              })),
+                questions: sub.questions.map(
+                  (subQ: Question, subQIdx: number) => ({
+                    id: subQ.id,
+                    text: subQ.title,
+                    sub_text: subQ.subText,
+                    is_mandatory: subQ.isMandatory,
+                    options: subQ.options.map(
+                      (opt: string, optIdx: number) => ({
+                        id: `subqopt${subQIdx}_${optIdx}`,
+                        text: opt,
+                      })
+                    ),
+                    sub_questions: [],
+                  })
+                ),
+              })
+            ),
             sub_questions: [],
           })),
         })),
@@ -1487,7 +1539,6 @@ export default function NewObservationToolPage() {
     };
     try {
       const response = await createObservationTool(payload);
-      alert("Tool saved successfully!");
       router.push("/observation-tools");
     } catch (error) {
       alert("Failed to save tool");
@@ -1576,9 +1627,17 @@ export default function NewObservationToolPage() {
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (active.id !== over.id) {
-      const oldIndex = currentSection.questions.findIndex((q) => q.id === active.id);
-      const newIndex = currentSection.questions.findIndex((q) => q.id === over.id);
-      const updatedQuestions = arrayMove(currentSection.questions, oldIndex, newIndex);
+      const oldIndex = currentSection.questions.findIndex(
+        (q) => q.id === active.id
+      );
+      const newIndex = currentSection.questions.findIndex(
+        (q) => q.id === over.id
+      );
+      const updatedQuestions = arrayMove(
+        currentSection.questions,
+        oldIndex,
+        newIndex
+      );
       setCurrentSection({ ...currentSection, questions: updatedQuestions });
     }
   };
@@ -1599,7 +1658,10 @@ export default function NewObservationToolPage() {
     if (type === "multiple_choice") {
       setShowMCSubQs((prev) => ({
         ...prev,
-        [currentSectionIdx]: { ...(prev[currentSectionIdx] || {}), [modalParentIdx]: true },
+        [currentSectionIdx]: {
+          ...(prev[currentSectionIdx] || {}),
+          [modalParentIdx]: true,
+        },
       }));
       setMcSubQData((prev) => {
         const prevSection = prev[currentSectionIdx] || {};
@@ -1625,7 +1687,10 @@ export default function NewObservationToolPage() {
     if (type === "checkbox") {
       setShowCheckboxSubQs((prev) => ({
         ...prev,
-        [currentSectionIdx]: { ...(prev[currentSectionIdx] || {}), [modalParentIdx]: true },
+        [currentSectionIdx]: {
+          ...(prev[currentSectionIdx] || {}),
+          [modalParentIdx]: true,
+        },
       }));
       setCheckboxSubQData((prev) => {
         const prevSection = prev[currentSectionIdx] || {};
@@ -1651,7 +1716,10 @@ export default function NewObservationToolPage() {
     if (type === "open_ended") {
       setShowOpenEndedSubQs((prev) => ({
         ...prev,
-        [currentSectionIdx]: { ...(prev[currentSectionIdx] || {}), [modalParentIdx]: true },
+        [currentSectionIdx]: {
+          ...(prev[currentSectionIdx] || {}),
+          [modalParentIdx]: true,
+        },
       }));
       setOpenEndedSubQData((prev) => {
         const prevSection = prev[currentSectionIdx] || {};
@@ -1727,19 +1795,24 @@ export default function NewObservationToolPage() {
 
   React.useEffect(() => {
     // Get the bearer token from localStorage
-    const bearerToken = typeof window !== 'undefined' ? localStorage.getItem('userIdToken') : null;
+    const bearerToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("userIdToken")
+        : null;
     if (!bearerToken) {
-      console.warn('No userIdToken found in localStorage');
+      console.warn("No userIdToken found in localStorage");
       return;
     }
     getObservationTools({ bearerToken })
       .then((res) => {
         console.log("getObservationTools response:", res);
         if (res && Array.isArray(res.observation_tools)) {
-          setExistingTools(res.observation_tools.map((tool: any) => ({
-            id: tool.id,
-            name: tool.name,
-          })));
+          setExistingTools(
+            res.observation_tools.map((tool: any) => ({
+              id: tool.id,
+              name: tool.name,
+            }))
+          );
         }
       })
       .catch((err) => {
@@ -1749,20 +1822,23 @@ export default function NewObservationToolPage() {
 
   React.useEffect(() => {
     if (!selectedTool) return;
-    const bearerToken = typeof window !== 'undefined' ? localStorage.getItem('userIdToken') : null;
+    const bearerToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("userIdToken")
+        : null;
     if (!bearerToken) {
-      console.warn('No userIdToken found in localStorage');
+      console.warn("No userIdToken found in localStorage");
       return;
     }
     getObservationToolById({ bearerToken, toolId: selectedTool.id })
       .then((res) => {
-        console.log('getObservationToolById response:', res);
+        console.log("getObservationToolById response:", res);
         // Map and set imported sections
         const importedSections = mapApiToolToSections(res);
         setSections(importedSections.length > 0 ? importedSections : []);
       })
       .catch((err) => {
-        console.error('getObservationToolById error:', err);
+        console.error("getObservationToolById error:", err);
       });
   }, [selectedTool]);
 
@@ -1861,11 +1937,7 @@ export default function NewObservationToolPage() {
               </div>
             </div>
           </div>
-          <div className="flex items-center  gap-4">
-            
-            
-          </div>
-          
+          <div className="flex items-center  gap-4"></div>
         </div>
         <div className="flex justify-end">
           <button
@@ -1894,7 +1966,12 @@ export default function NewObservationToolPage() {
                 disabled={section.isImported}
               >
                 {section.name || `Untitled Section ${idx + 1}`}
-                {section.isImported && <span style={{fontSize:12, color:'#888'}}> (imported)</span>}
+                {section.isImported && (
+                  <span style={{ fontSize: 12, color: "#888" }}>
+                    {" "}
+                    (imported)
+                  </span>
+                )}
               </button>
             ))}
             <button
@@ -1907,17 +1984,16 @@ export default function NewObservationToolPage() {
             </button>
           </div>
         </div>
-  
-       
- 
-        
+
         {/* Section Name/Description */}
         <div className="bg-white rounded-lg border p-6 mb-4 border-gray-200 shadow-md">
           <input
             type="text"
             placeholder="Untitled Section"
             value={currentSection.name}
-            onChange={(e) => setCurrentSection({ ...currentSection, name: e.target.value })}
+            onChange={(e) =>
+              setCurrentSection({ ...currentSection, name: e.target.value })
+            }
             className="w-full text-xl font-medium mb-4 p-2 border-b focus:outline-none"
             style={{ borderBottomColor: "#2264AC" }}
             disabled={currentSection.isImported}
@@ -1925,7 +2001,12 @@ export default function NewObservationToolPage() {
           <textarea
             placeholder="Add Description"
             value={currentSection.description}
-            onChange={(e) => setCurrentSection({ ...currentSection, description: e.target.value })}
+            onChange={(e) =>
+              setCurrentSection({
+                ...currentSection,
+                description: e.target.value,
+              })
+            }
             className="w-full h-24 p-2 border-b focus:outline-none resize-none"
             style={{ borderBottomColor: "#2264AC" }}
             disabled={currentSection.isImported}
@@ -1957,86 +2038,122 @@ export default function NewObservationToolPage() {
                   question={question}
                   index={idx}
                   questions={currentSection.questions}
-                  setQuestions={(qs) => setCurrentSection({ ...currentSection, questions: qs })}
+                  setQuestions={(qs) =>
+                    setCurrentSection({ ...currentSection, questions: qs })
+                  }
                   onAddSubQuestion={() => handleOpenQuestionTypeModal(idx)}
                   showMCSubQs={showMCSubQs[currentSectionIdx] || {}}
                   mcSubQData={mcSubQData[currentSectionIdx] || {}}
-                  setMcSubQData={(qIdx: number, subQIdx: number, q: any) => setMcSubQData((prev) => {
-                    const prevSection = prev[currentSectionIdx] || {};
-                    const prevArr = prevSection[qIdx] || [];
-                    const newArr = prevArr.map((item, idx) => idx === subQIdx ? q : item);
-                    return {
-                      ...prev,
-                      [currentSectionIdx]: {
-                        ...prevSection,
-                        [qIdx]: newArr,
-                      },
-                    };
-                  })}
-                  setShowMCQ={(qIdx: number, subQIdx: number) => setMcSubQData((prev) => {
-                    const prevSection = prev[currentSectionIdx] || {};
-                    const prevArr = prevSection[qIdx] || [];
-                    const newArr = prevArr.filter((_, idx) => idx !== subQIdx);
-                    return {
-                      ...prev,
-                      [currentSectionIdx]: {
-                        ...prevSection,
-                        [qIdx]: newArr,
-                      },
-                    };
-                  })}
+                  setMcSubQData={(qIdx: number, subQIdx: number, q: any) =>
+                    setMcSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.map((item, idx) =>
+                        idx === subQIdx ? q : item
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  setShowMCQ={(qIdx: number, subQIdx: number) =>
+                    setMcSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.filter(
+                        (_, idx) => idx !== subQIdx
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
                   showCheckboxSubQs={showCheckboxSubQs[currentSectionIdx] || {}}
                   checkboxSubQData={checkboxSubQData[currentSectionIdx] || {}}
-                  setCheckboxSubQData={(qIdx: number, subQIdx: number, q: any) => setCheckboxSubQData((prev) => {
-                    const prevSection = prev[currentSectionIdx] || {};
-                    const prevArr = prevSection[qIdx] || [];
-                    const newArr = prevArr.map((item, idx) => idx === subQIdx ? q : item);
-                    return {
-                      ...prev,
-                      [currentSectionIdx]: {
-                        ...prevSection,
-                        [qIdx]: newArr,
-                      },
-                    };
-                  })}
-                  setShowCheckboxSubQs={(qIdx: number, subQIdx: number) => setCheckboxSubQData((prev) => {
-                    const prevSection = prev[currentSectionIdx] || {};
-                    const prevArr = prevSection[qIdx] || [];
-                    const newArr = prevArr.filter((_, idx) => idx !== subQIdx);
-                    return {
-                      ...prev,
-                      [currentSectionIdx]: {
-                        ...prevSection,
-                        [qIdx]: newArr,
-                      },
-                    };
-                  })}
-                  showOpenEndedSubQs={showOpenEndedSubQs[currentSectionIdx] || {}}
+                  setCheckboxSubQData={(
+                    qIdx: number,
+                    subQIdx: number,
+                    q: any
+                  ) =>
+                    setCheckboxSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.map((item, idx) =>
+                        idx === subQIdx ? q : item
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  setShowCheckboxSubQs={(qIdx: number, subQIdx: number) =>
+                    setCheckboxSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.filter(
+                        (_, idx) => idx !== subQIdx
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  showOpenEndedSubQs={
+                    showOpenEndedSubQs[currentSectionIdx] || {}
+                  }
                   openEndedSubQData={openEndedSubQData[currentSectionIdx] || {}}
-                  setOpenEndedSubQData={(qIdx: number, subQIdx: number, q: any) => setOpenEndedSubQData((prev) => {
-                    const prevSection = prev[currentSectionIdx] || {};
-                    const prevArr = prevSection[qIdx] || [];
-                    const newArr = prevArr.map((item, idx) => idx === subQIdx ? q : item);
-                    return {
-                      ...prev,
-                      [currentSectionIdx]: {
-                        ...prevSection,
-                        [qIdx]: newArr,
-                      },
-                    };
-                  })}
-                  setShowOpenEndedSubQs={(qIdx: number, subQIdx: number) => setOpenEndedSubQData((prev) => {
-                    const prevSection = prev[currentSectionIdx] || {};
-                    const prevArr = prevSection[qIdx] || [];
-                    const newArr = prevArr.filter((_, idx) => idx !== subQIdx);
-                    return {
-                      ...prev,
-                      [currentSectionIdx]: {
-                        ...prevSection,
-                        [qIdx]: newArr,
-                      },
-                    };
-                  })}
+                  setOpenEndedSubQData={(
+                    qIdx: number,
+                    subQIdx: number,
+                    q: any
+                  ) =>
+                    setOpenEndedSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.map((item, idx) =>
+                        idx === subQIdx ? q : item
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
+                  setShowOpenEndedSubQs={(qIdx: number, subQIdx: number) =>
+                    setOpenEndedSubQData((prev) => {
+                      const prevSection = prev[currentSectionIdx] || {};
+                      const prevArr = prevSection[qIdx] || [];
+                      const newArr = prevArr.filter(
+                        (_, idx) => idx !== subQIdx
+                      );
+                      return {
+                        ...prev,
+                        [currentSectionIdx]: {
+                          ...prevSection,
+                          [qIdx]: newArr,
+                        },
+                      };
+                    })
+                  }
                 />
               ))
             )}

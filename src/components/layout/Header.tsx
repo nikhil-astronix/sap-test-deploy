@@ -7,6 +7,7 @@ import { AnimatedContainer } from "@/components/ui/animated-container";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { SignOut, UserCircle } from "@phosphor-icons/react";
+import { usePathname } from "next/navigation";
 
 const Header = ({
   handleSetupClick,
@@ -20,8 +21,9 @@ const Header = ({
   const [name, setName] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "setup" | null>(
-    "dashboard"
+    null
   );
+  const pathname = usePathname();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +32,14 @@ const Header = ({
     let firstname = localStorage.getItem("name");
     setRole(storedRole);
     setName(firstname);
+
+    if (pathname === "/" || pathname === "/system-dashboard") {
+      setActiveTab("dashboard");
+    } else if (pathname === "/network") {
+      setActiveTab("setup");
+    } else {
+      setActiveTab(null);
+    }
 
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -42,7 +52,7 @@ const Header = ({
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -79,27 +89,27 @@ const Header = ({
         staggerItems={true}
         className="flex items-center space-x-6"
       >
-        <motion.div whileHover={{ y: -2 }} whileTap={{ y: 0 }}>
-          <button
-            className={`text-sm font-medium ${
-              activeTab === "dashboard"
-                ? "text-[#2A7251] text-[14px]-400"
-                : "text-black text-[14px]-400"
-            }`}
-            onClick={handleDashboardClickInternal}
-          >
-            Dashboard
-          </button>
-        </motion.div>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`px-6 py-1.5 text-sm transition-colors font-medium ${
+            activeTab === "dashboard"
+              ? "text-[#2A7251] text-[14px]-400"
+              : "text-black text-[14px]-400"
+          } hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
+          onClick={handleDashboardClickInternal}
+        >
+          Dashboard
+        </motion.button>
 
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`px-6 py-1.5 text-sm transition-colors ${
+          className={`px-6 py-1.5 text-sm transition-colors font-medium ${
             activeTab === "setup"
               ? "text-[#2A7251] text-[14px]-400"
               : "text-black text-[14px]-400"
-          }`}
+          }  hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
           onClick={handleSetupClickInternal}
         >
           Setup
@@ -155,7 +165,7 @@ const Header = ({
                   ) : null}
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-black bg-white rounded-b-md hover:bg-gray-100"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-black bg-white rounded hover:bg-[#2A7251] hover:text-white"
                   >
                     <SignOut className="text-black-400" size={16} />
                     Logout

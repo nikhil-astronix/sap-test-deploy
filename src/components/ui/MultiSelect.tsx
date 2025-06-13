@@ -16,7 +16,8 @@ interface MultiSelectProps {
 	className?: string;
 	error?: string;
 	showSelectedTags?: boolean;
-	showSlectedOptions?: boolean; // Fixed typo
+	showSlectedOptions?: boolean; // Preserved prop name in case used elsewhere
+	isGrade?: boolean; // 👈 Only show "Select All" if true
 }
 
 export default function MultiSelect({
@@ -27,24 +28,17 @@ export default function MultiSelect({
 	className = "",
 	error,
 	showSelectedTags = false,
-	showSlectedOptions = true, // Fixed typo
+	showSlectedOptions = true,
+	isGrade = false,
 }: MultiSelectProps) {
 	const [isOpen, setIsOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState("");
 	const [internalValues, setInternalValues] = useState<string[]>(values || []);
 	const dropdownRef = useRef<HTMLDivElement>(null);
-	const prevValuesRef = useRef<string[]>(values || []);
 
-	// Update internal values when props change with proper comparison
 	useEffect(() => {
-		// Directly set the internal values when external values change
-		// This ensures the checkboxes stay in sync with parent component state
 		setInternalValues(values || []);
-		prevValuesRef.current = values || [];
 	}, [values]);
-
-	// Get selected options with labels - ensure options exist before filtering
-	const selectedOptions =
-		options?.filter((opt) => internalValues?.includes(opt.value)) || [];
 
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
@@ -64,13 +58,12 @@ export default function MultiSelect({
 		const newValues = internalValues.includes(value)
 			? internalValues.filter((v) => v !== value)
 			: [...internalValues, value];
-
 		setInternalValues(newValues);
 		onChange(newValues);
 	};
 
 	const removeOption = (valueToRemove: string, e: React.MouseEvent) => {
-		e.stopPropagation(); // Prevent opening the dropdown
+		e.stopPropagation();
 		const newValues = internalValues.filter((v) => v !== valueToRemove);
 		setInternalValues(newValues);
 		onChange(newValues);
@@ -82,14 +75,21 @@ export default function MultiSelect({
 		onChange([]);
 	};
 
-	// Safe check for options existence
+	const selectedOptions =
+		options?.filter((opt) => internalValues.includes(opt.value)) || [];
+
 	const hasOptions = Array.isArray(options) && options.length > 0;
-	// Safe check for selected options
 	const hasSelectedOptions = selectedOptions.length > 0;
+
+	const filteredOptions = options.filter((opt) =>
+		opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+	);
+
+	const allSelected =
+		isGrade && options.length > 0 && internalValues.length === options.length;
 
 	return (
 		<div className={`relative ${className}`} ref={dropdownRef}>
-			{/* Selected Tags (Optional) */}
 			{showSelectedTags && hasSelectedOptions && (
 				<div className='flex flex-wrap gap-2 mb-2'>
 					{selectedOptions.map((option) => (
@@ -122,11 +122,10 @@ export default function MultiSelect({
 				</div>
 			)}
 
-			{/* Dropdown Button */}
 			<button
 				type='button'
 				onClick={() => setIsOpen(!isOpen)}
-				className={`w-full px-3 py-2 text-left rounded-lg border ${className} ${
+				className={`w-full px-3 py-2 text-left rounded-lg border ${
 					error ? "border-red-500" : "border-gray-200"
 				} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors`}
 				aria-expanded={isOpen}
@@ -134,7 +133,7 @@ export default function MultiSelect({
 			>
 				<div className='flex items-center justify-between'>
 					<span
-						className={`${
+						className={`overflow-hidden ${
 							hasSelectedOptions ? "text-gray-700" : "text-gray-500"
 						}`}
 					>
@@ -184,7 +183,6 @@ export default function MultiSelect({
 				</div>
 			</button>
 
-			{/* Dropdown Menu */}
 			<AnimatePresence>
 				{isOpen && (
 					<motion.div
@@ -196,20 +194,53 @@ export default function MultiSelect({
 						role='listbox'
 						aria-multiselectable='true'
 					>
-						{!hasOptions ? (
-							<div className='px-4 py-2 text-sm text-gray-500'>
-								No options available
-							</div>
-						) : (
-							options.map((option) => {
-								// Explicit check to ensure the option value is in internalValues
-								const isSelected = internalValues.includes(option.value);
+						{/* Search Input */}
+						<div className='px-3 py-2'>
+							<input
+								type='text'
+								className='w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500'
+								placeholder='Search...'
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+							/>
+						</div>
 
+						{/* "Select All" only if isGrade === true */}
+						{isGrade && filteredOptions.length > 0 && (
+							<label className='flex items-center px-4 py-2 hover:bg-emerald-50 space-x-2 cursor-pointer'>
+								<input
+									type='checkbox'
+									className='accent-emerald-600 w-4 h-4'
+									checked={allSelected}
+									onChange={() => {
+										const newValues = allSelected
+											? []
+											: options.map((opt) => opt.value);
+										setInternalValues(newValues);
+										onChange(newValues);
+									}}
+								/>
+								<span
+									className={`${
+										allSelected
+											? "font-medium text-emerald-700"
+											: "text-gray-700"
+									}`}
+								>
+									Select All
+								</span>
+							</label>
+						)}
+
+						{filteredOptions.length > 0 ? (
+							filteredOptions.map((option) => {
+								const isSelected = internalValues.includes(option.value);
 								return (
 									<label
 										key={option.value}
-										className={`flex items-center w-full px-4 py-2 text-left hover:
-											 space-x-2 cursor-pointer ${isSelected ? "bg-emerald-50" : ""}`}
+										className={`flex items-center px-4 py-2 hover:bg-emerald-50 space-x-2 cursor-pointer ${
+											isSelected ? "bg-emerald-50" : ""
+										}`}
 										role='option'
 										aria-selected={isSelected}
 									>
@@ -231,6 +262,10 @@ export default function MultiSelect({
 									</label>
 								);
 							})
+						) : (
+							<div className='px-4 py-2 text-sm text-gray-500'>
+								No options found
+							</div>
 						)}
 					</motion.div>
 				)}

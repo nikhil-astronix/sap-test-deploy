@@ -16,7 +16,10 @@ import {
   restoreIntervention,
 } from "@/services/interventionService";
 import { Intervention, InterventionType } from "@/types/interventionData";
-import { Plus } from "@phosphor-icons/react";
+import { Plus, Faders } from "@phosphor-icons/react";
+import Header from "@/components/Header";
+import { useDistrict } from "@/context/DistrictContext";
+import NoResultsFound from "@/components/ui/NoResultsFound";
 
 type InterventionWithCreatedAt = Intervention & {
   createdAt: Date;
@@ -49,9 +52,13 @@ export default function InterventionsPage() {
     "newest"
   );
   const filterRef = useRef<HTMLDivElement>(null);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   // Initialize with mock data - replace with actual data fetching
   const [interventions, setInterventions] = useState<Intervention[]>([]);
+  const [bothInterventions, setBothInterventions] = useState();
+  const [defaultInterventions, setDefaultInterventions] = useState();
+  const [customInterventions, setCustomInterventions] = useState();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -81,23 +88,37 @@ export default function InterventionsPage() {
   };
 
   const getData = async () => {
+    const districtId = localStorage.getItem("globalDistrict");
     const obj = {
       is_archived: isActive,
-      filter: filterType,
+      filter: filterType === "Both" ? null : filterType,
       search: searchQuery,
       per_page: 100,
-      sort_order: sortBy === "az" ? "asc" : sortBy === "za" ? "desc" : sortBy,
-      sort_by: sortBy === "oldest" ? "title" : "created_at",
+      sort_order:
+        sortBy === "az"
+          ? "asc"
+          : sortBy === "za"
+          ? "desc"
+          : sortBy === "newest"
+          ? "desc"
+          : "asc",
+      sort_by:
+        sortBy === "oldest" || sortBy === "newest" ? "created_at" : "name",
+      district_id: districtId || null,
     };
 
     console.log("sortBy:", obj.sort_order);
+
     const response = await getInterventions(obj);
 
     setInterventions(response.data.interventions);
+    setBothInterventions(response.data.total_both_interventions);
+    setDefaultInterventions(response.data.total_default_interventions);
+    setCustomInterventions(response.data.total_custom_interventions);
   };
   useEffect(() => {
     getData();
-  }, [isActive, searchQuery, showFilters]);
+  }, [isActive, searchQuery, showFilters, globalDistrict]);
 
   const handleArchiveConfirm = async () => {
     if (archivingIntervention) {
@@ -111,7 +132,12 @@ export default function InterventionsPage() {
       } else {
         const response = await restoreIntervention(archivingIntervention.id);
       }
-      const obj = { is_archived: isActive, type: filterType };
+      const districtId = localStorage.getItem("globalDistrict");
+      const obj = {
+        is_archived: isActive,
+        type: filterType,
+        districtId: districtId || null,
+      };
       const response = await getInterventions(obj);
       setInterventions(response.data.interventions);
       setArchivingIntervention(null);
@@ -130,7 +156,12 @@ export default function InterventionsPage() {
       // } else {
       const response1 = await restoreIntervention(archivingIntervention.id);
       //}
-      const obj = { is_archived: isActive, type: filterType };
+      const districtId = localStorage.getItem("globalDistrict");
+      const obj = {
+        is_archived: isActive,
+        type: filterType,
+        districtId: districtId || null,
+      };
       const response = await getInterventions(obj);
       setInterventions(response.data.interventions);
       setArchivingIntervention(null);
@@ -163,9 +194,9 @@ export default function InterventionsPage() {
   // Replace the hardcoded filter counts with a useMemo hook
   const filterCounts = useMemo(() => {
     return {
-      Default: interventions.filter((item) => item.type === "Default").length,
-      Custom: interventions.filter((item) => item.type === "Custom").length,
-      Both: interventions.length,
+      Default: defaultInterventions, //interventions.filter((item) => item.type === "Default").length,
+      Custom: customInterventions, //interventions.filter((item) => item.type === "Custom").length,
+      Both: bothInterventions, //interventions.length,
     };
   }, [interventions]);
 
@@ -177,19 +208,10 @@ export default function InterventionsPage() {
       className="p-8  bg-white rounded-lg shadow-md min-h-full"
     >
       <div className="flex flex-col min-h-[calc(100vh-12rem)]">
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-          className="flex-none mb-8 items-center justify-center"
-        >
-          <div className="text-[24px] mb-2 text-center text-black-400">
-            Tags & Attributes
-          </div>
-          <p className="text-[#454F5B] text-center text-[16px]">
-            Helping educators and students succeed together.
-          </p>
-        </motion.div>
+        <Header
+          title="Tags & Attributes"
+          description="Unique attributes to collect data across your system."
+        />
 
         <motion.div
           initial={{ y: 20, opacity: 0 }}
@@ -216,7 +238,7 @@ export default function InterventionsPage() {
                     : "border border-gray-300 bg-gray-100"
                 }`}
               >
-                <AdjustmentsHorizontalIcon className="h-5 w-5" />
+                <Faders className="h-5 w-5" />
               </button>
             </div>
 
@@ -227,7 +249,7 @@ export default function InterventionsPage() {
                   <h3 className="text-md font-semibold">Filter By</h3>
                   <button
                     onClick={handleFilterReset}
-                    className="text-emerald-700 hover:text-emerald-800 text-sm"
+                    className="text-[#2A7251] hover:text-emerald-800 text-sm"
                   >
                     Reset
                   </button>
@@ -239,10 +261,10 @@ export default function InterventionsPage() {
                     <button
                       key={type}
                       onClick={() => setFilterType(type)}
-                      className={`flex-1 px-4 py-2 rounded-lg ${
+                      className={`flex-1 px-4 py-2 ${
                         filterType === type
-                          ? "bg-emerald-700 text-white"
-                          : "border border-gray-200 text-gray-600 hover:bg-gray-200"
+                          ? "bg-[#2A7251] text-white"
+                          : "border  border-gray-200 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       {type}({filterCounts[type]})
@@ -296,7 +318,7 @@ export default function InterventionsPage() {
                 {/* Apply Button */}
                 <button
                   onClick={() => setShowFilters(false)}
-                  className="w-full bg-emerald-700 text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
+                  className="w-full bg-[#2A7251] text-white py-2 rounded-[6px] hover:bg-emerald-800 transition-colors mt-4"
                 >
                   Apply
                 </button>
@@ -322,7 +344,7 @@ export default function InterventionsPage() {
           className="flex-none flex items-center gap-2 mb-6"
         >
           <span
-            className={`text-12px ${
+            className={`text-16px ${
               isActive ? "text-[#494B56]" : "text-[#000] font-medium"
             }`}
           >
@@ -361,25 +383,29 @@ export default function InterventionsPage() {
           </span>
         </motion.div>
 
-        <div className="flex-1 max-h-96 overflow-y-auto ">
+        <div className="flex-1 max-h-[510px] overflow-y-auto ">
           <motion.div
             variants={container}
             initial="hidden"
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-2"
           >
-            {interventions.map((intervention) => (
-              <InterventionCard
-                key={intervention.id}
-                type={intervention.type}
-                title={intervention.name}
-                description={intervention.description}
-                isArchived={intervention.isArchived}
-                viewMode={isActive ? "archived" : "active"} // Pass the current view mode
-                onEdit={() => handleEdit(intervention)}
-                onArchive={() => handleArchive(intervention)}
-              />
-            ))}
+            {interventions.length > 0 ? (
+              interventions.map((intervention) => (
+                <InterventionCard
+                  key={intervention.id}
+                  type={intervention.type}
+                  title={intervention.name}
+                  description={intervention.description}
+                  isArchived={intervention.isArchived}
+                  viewMode={isActive ? "archived" : "active"} // Pass the current view mode
+                  onEdit={() => handleEdit(intervention)}
+                  onArchive={() => handleArchive(intervention)}
+                />
+              ))
+            ) : (
+              <NoResultsFound />
+            )}
           </motion.div>
         </div>
       </div>

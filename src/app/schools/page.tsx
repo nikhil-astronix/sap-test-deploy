@@ -15,10 +15,13 @@ import {
   ChartBar,
   Book,
   ChartLine,
+  GraduationCap,
 } from "@phosphor-icons/react";
 import { getInterventions } from "@/services/interventionService";
 import { fetchAllCurriculums } from "@/services/curriculumsService";
 import { fetchCurriculumsRequestPayload } from "@/models/curriculum";
+import { useDistrict } from "@/context/DistrictContext";
+import Header from "@/components/Header";
 
 export default function SchoolsPage() {
   const [schoolsData, setSchoolsData] = useState<any[]>([]);
@@ -38,6 +41,7 @@ export default function SchoolsPage() {
   );
   const [curriculums, setCurriculums] = useState<any[]>([]);
   const [interventions, setInterventions] = useState<any[]>([]);
+  const { globalDistrict, setGlobalDistrict } = useDistrict();
 
   const gradeOptions = [
     { label: "Kindergarten", value: "Kindergarten" },
@@ -69,21 +73,21 @@ export default function SchoolsPage() {
       isArchived,
       searchQuery
     );
-  }, [currentPage, rowsPerPage, isArchived, searchQuery]);
+  }, [currentPage, rowsPerPage, isArchived, searchQuery, globalDistrict]);
 
   const columns: Column[] = [
     {
       key: "name",
       label: "School",
       sortable: true,
-      icon: <ChalkboardTeacher size={16} />,
+      icon: <GraduationCap size={20} />,
       editable: true,
     },
     {
       key: "grades",
       label: "Grade(s)",
       sortable: true,
-      icon: <ChartBar size={16} />,
+      icon: <ChartBar size={20} />,
       editable: true,
       options: gradeOptions,
     },
@@ -91,7 +95,7 @@ export default function SchoolsPage() {
       key: "curriculums",
       label: "Instructional Materials",
       sortable: true,
-      icon: <Book size={16} />,
+      icon: <Book size={20} />,
       editable: true,
       options: curriculums,
     },
@@ -99,7 +103,7 @@ export default function SchoolsPage() {
       key: "interventions",
       label: "Tags & Attributes",
       sortable: true,
-      icon: <ChartLine size={16} />,
+      icon: <ChartLine size={20} />,
       editable: true,
       options: interventions,
     },
@@ -114,9 +118,10 @@ export default function SchoolsPage() {
 
   const handleSave = async (updatedRow: any) => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       let data = {
         name: updatedRow.name,
-        district: "661943fd4ccf5f44a9a1a002",
+        district: districtId || "",
         grades: updatedRow.grades,
         curriculums: updatedRow.curriculums?.filter(
           (c: string) => c !== "None"
@@ -236,8 +241,10 @@ export default function SchoolsPage() {
   ) => {
     setLoading(true);
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: isArchived,
+        district_id: districtId || "",
         sort_by: sortBy,
         sort_order: sortOrder,
         curr_page: page,
@@ -257,6 +264,7 @@ export default function SchoolsPage() {
 
   const fetchCurriculums = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload: fetchCurriculumsRequestPayload = {
         is_archived: false,
         type: ["Default", "Custom"].join(","),
@@ -265,6 +273,7 @@ export default function SchoolsPage() {
         search: null,
         page: 1,
         limit: 100,
+        district_id: districtId || null,
       };
       const data = await fetchAllCurriculums(requesPayload);
 
@@ -285,6 +294,7 @@ export default function SchoolsPage() {
 
   const fetchInterventions = async () => {
     try {
+      const districtId = localStorage.getItem("globalDistrict");
       const requesPayload = {
         is_archived: false,
         filter: null,
@@ -293,6 +303,7 @@ export default function SchoolsPage() {
         search: null,
         curr_page: 1,
         per_page: 100,
+        district_id: districtId || null,
       };
       const data = await getInterventions(requesPayload);
       if (data.success) {
@@ -312,10 +323,11 @@ export default function SchoolsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-full bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl mb-3 text-center ">Schools</h1>
-      <p className="text-center text-gray-600 mb-6">
-        Manage all your Schools in one place.
-      </p>
+      <Header
+        title="Schools"
+        description="Manage all your schools in one place."
+      />
+
       <Table
         columns={columns}
         data={schoolsData}

@@ -11,6 +11,7 @@ import {
 } from "../utils/auth-functions";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IconLoader2 } from "@tabler/icons-react";
+import { getCurrentUser } from "@/services/userService";
 
 export default function ResetPasswordPage() {
   return (
@@ -79,7 +80,21 @@ function ResetPasswordPageContent() {
             "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
           document.cookie =
             "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-          router.push("/observations");
+          const response = await getCurrentUser();
+          const full_name =
+            response.data.first_name + " " + response.data.last_name;
+
+          localStorage.setItem("userrole", response.data.user_type);
+          localStorage.setItem("name", full_name);
+
+          const role = response.data.user_type;
+          if (role === "Super Admin") {
+            router.push("/system-dashboard");
+          } else if (role === "Admin") {
+            router.push("/admin-dashboard");
+          } else {
+            router.push("/users");
+          }
         }
       } else {
         await confirmForgotPassword(
@@ -98,7 +113,7 @@ function ResetPasswordPageContent() {
   };
 
   return (
-    <div className="w-xl mx-auto shadow-xl rounded-xl p-6">
+    <div className="w-full  mx-auto p-11">
       <AnimatedContainer variant="stagger" staggerItems={true}>
         <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
           {isSetNewPw ? "Set New Password" : "Reset Password"}
@@ -221,8 +236,8 @@ function ResetPasswordPageContent() {
           type="submit"
           className={`w-full py-3 rounded-lg transition-colors flex items-center justify-center ${
             loading
-              ? "bg-emerald-500 cursor-not-allowed"
-              : "bg-emerald-600 hover:bg-emerald-700"
+              ? "bg-[#2A7251] cursor-not-allowed"
+              : "bg-[#2A7251] hover:bg-emerald-700"
           } text-white`}
           disabled={loading}
         >

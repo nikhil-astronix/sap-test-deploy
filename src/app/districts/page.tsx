@@ -14,6 +14,7 @@ import {
   PencilSimpleLine,
   ClockClockwise,
   Info,
+  Archive,
 } from "@phosphor-icons/react";
 import {
   ChevronUp,
@@ -22,7 +23,6 @@ import {
   ChevronRight,
   Edit2,
   Trash2,
-  Archive,
   Check,
   X,
   Save,
@@ -43,6 +43,7 @@ import { Column } from "@/components/ui/table";
 import { Span } from "next/dist/trace";
 import { getNetwork } from "@/services/networkService";
 import { fetchNetworkRequestPayload } from "@/types/userData";
+import Header from "@/components/Header";
 
 interface District {
   id: string;
@@ -151,27 +152,35 @@ const DistrictsPage = () => {
   }, []);
 
   const fetchNetworks = async () => {
-    const payload: fetchNetworkRequestPayload = {
-      is_archived: false,
-      sort_by: null,
-      sort_order: null,
-      curr_page: 1,
-      per_page: 100,
-      search: null,
-    };
-    const response = await getNetwork(payload);
-    console.log("response from network is ", response);
-    if (response.success) {
-      let result: any[] = [];
-      response.data.networks.forEach((network: any) => {
-        result.push({
-          id: network.id,
-          label: network.name,
-          value: network.id,
-        });
-      });
+    setLoading(true);
+    try {
+      const payload: fetchNetworkRequestPayload = {
+        is_archived: false,
+        sort_by: null,
+        sort_order: null,
+        curr_page: 1,
+        per_page: 100,
+        search: null,
+      };
 
-      setNetworks(result);
+      const response = await getNetwork(payload);
+      console.log("response from network is ", response);
+      if (response.success) {
+        let result: any[] = [];
+        response.data.networks.forEach((network: any) => {
+          result.push({
+            label: network.name,
+            value: network.id,
+          });
+        });
+
+        setNetworks(result);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -271,7 +280,8 @@ const DistrictsPage = () => {
     Array.from(selectedRows).forEach((districtId) => {
       const district = districts.find((d) => d.id === districtId);
       if (district) {
-        items.push(`${district.name} - ${district.state}, ${district.city}`);
+        items.push(`${district.name}`);
+        //items.push(`${district.name} - ${district.state}, ${district.city}`);
       }
     });
 
@@ -296,7 +306,7 @@ const DistrictsPage = () => {
     },
     {
       key: "city",
-      label: "City",
+      label: "City/Town",
       sortable: true,
       icon: <Building size={20} />,
       editable: true,
@@ -472,11 +482,11 @@ const DistrictsPage = () => {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <Archive className="text-gray-600" size={24} />
-              <h2 className="text-[16px] text-black-400">Archive</h2>
+              <h2 className="text-[16px] text-black font-medium">Archive</h2>
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4 ">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium ">
               {getSelectedItemsInfo().length === 0
                 ? "Please select districts to archive."
                 : `Are you sure you want to archive ${
@@ -501,9 +511,13 @@ const DistrictsPage = () => {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[12px] text-black-400 font-semibold">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-right">District</div>
+                    <div className="text-[12px] text-right font-semibold">
+                      District
+                    </div>
                   </div>
                 ))}
               </div>
@@ -526,10 +540,10 @@ const DistrictsPage = () => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-[#C23E19]">Warning</p>
+                  <p className="text-sm text-[#C23E19] font-medium">Warning</p>
                 </div>
               </div>
-              <p className="text-left text-sm text-[#C23E19] mt-2">
+              <p className="text-left text-sm text-[#C23E19] mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No districts selected. Please select at least one district to archive."
                   : `Archiving ${
@@ -548,7 +562,7 @@ const DistrictsPage = () => {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowArchiveModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -559,7 +573,7 @@ const DistrictsPage = () => {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#B4351C] hover:bg-[#943015]"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Archive
               </button>
@@ -574,13 +588,11 @@ const DistrictsPage = () => {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
               <ClockClockwise className="text-blue-600" size={24} />
-              <h2 className="text-[20px] font-normal text-black-400">
-                Restore
-              </h2>
+              <h2 className="text-[16px] text-black font-medium">Restore</h2>
             </div>
 
             {/* Description */}
-            <p className="text-left text-black-400 text-[14px] mb-4">
+            <p className="text-left text-black-400 text-[14px] mb-4 font-medium">
               {getSelectedItemsInfo().length === 0
                 ? "Please select districts to restore."
                 : `Are you sure you want to restore ${
@@ -605,9 +617,13 @@ const DistrictsPage = () => {
                     className="flex justify-between items-center border-b-2 border-gray-200 last:border-0 py-1.5 min-h-16"
                   >
                     <div className="flex flex-col items-start">
-                      <p className="text-[12px] text-black-400">{item}</p>
+                      <p className="text-[12px] text-black-400 font-semibold">
+                        {item}
+                      </p>
                     </div>
-                    <div className="text-[12px] text-right">District</div>
+                    <div className="text-[12px] text-right font-semibold">
+                      District
+                    </div>
                   </div>
                 ))}
               </div>
@@ -620,10 +636,10 @@ const DistrictsPage = () => {
                   <Info className="h-5 w-5 text-[#2264AC]" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm">Note</p>
+                  <p className="text-sm font-medium">Note</p>
                 </div>
               </div>
-              <p className="text-left text-sm mt-2">
+              <p className="text-left text-sm mt-2 font-medium">
                 {getSelectedItemsInfo().length === 0
                   ? "No districts selected. Please select at least one district to restore."
                   : `Restoring ${
@@ -641,7 +657,7 @@ const DistrictsPage = () => {
             <div className="flex justify-between">
               <button
                 onClick={() => setShowRestoreModal(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -652,7 +668,7 @@ const DistrictsPage = () => {
                   getSelectedItemsInfo().length === 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-emerald-700 hover:bg-emerald-800"
-                } text-white rounded-[6px] transition-colors`}
+                } text-white font-medium rounded-[6px] transition-colors`}
               >
                 Restore
               </button>
@@ -661,12 +677,11 @@ const DistrictsPage = () => {
         </div>
       )}
 
-      {/* container mx-auto px-4 py-8 h-full bg-white rounded-lg shadow-md */}
-      <div className="container text-center mx-auto px-4 py-8 bg-white">
-        <h1 className="text-2xl text-center mb-2">Districts</h1>
-        <p className="text-center text-gray-600 mb-6">
-          View and manage all districts in the system.
-        </p>
+      <div className="container text-center mx-auto px-4 py-8 bg-white rounded-lg shadow-md">
+        <Header
+          title="Districts"
+          description="View and manage all districts in the system."
+        />
 
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2 sm:w-2/3 w-full">
@@ -721,7 +736,7 @@ const DistrictsPage = () => {
                     : "Select items to archive"
                 }
               >
-                <Archive size={20} className="text-black" />
+                <Archive size={24} className="text-black" />
               </button>
             ) : (
               <button
@@ -740,7 +755,7 @@ const DistrictsPage = () => {
                     : "Select items to restore"
                 }
               >
-                <ClockClockwise size={20} className="text-black" />
+                <ClockClockwise size={24} className="text-black" />
               </button>
             )}
             <motion.button
@@ -766,7 +781,10 @@ const DistrictsPage = () => {
             </span>
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => setActive((a) => !a)}
+              onClick={() => {
+                setActive((a) => !a);
+                setSelectedRows(new Set());
+              }}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-emerald-700`}
             >
               <motion.span
@@ -793,8 +811,8 @@ const DistrictsPage = () => {
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 shadow-sm">
-          <div className="overflow-x-auto rounded-lg">
+        <div className="rounded-xl border border-gray-200 shadow-sm ">
+          <div className="overflow-x-auto rounded-lg ">
             <table className="w-full">
               <thead>
                 <tr
@@ -811,79 +829,95 @@ const DistrictsPage = () => {
                         }
                         onChange={handleSelectAll}
                         className="h-4 w-4 appearance-none border border-white rounded-sm checked:bg-[color:var(--accent)] checked:border-white checked:after:content-['✓'] checked:after:text-white checked:after:text-xs checked:after:flex checked:after:items-center checked:after:justify-center"
-                        style={{ accentColor: "#6C4996" }}
+                        style={{ accentColor: "#2264AC" }}
                       />
                     </div>
                   </th>
                   {/* )} */}
-                  {columns.map((column) => (
-                    <th
-                      key={column.key}
-                      className="min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200"
-                    >
-                      <div
-                        className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
-                          column.sortable ? "cursor-pointer" : ""
+                  {columns.map((column, colIndex) => {
+                    const isLastColumn = colIndex === columns.length - 1;
+                    return (
+                      <th
+                        key={column.key}
+                        className={`min-w-[200px] px-4 py-3 text-left whitespace-nowrap font-semibold border-r-2 border-gray-200 ${
+                          isLastColumn && active
+                            ? "rounded-tr-xl"
+                            : "border-r-2 border-[#D4D4D4]"
                         }`}
-                        onClick={() =>
-                          column.sortable && handleSort(column.key)
-                        }
                       >
-                        {/* Left side: icon and label */}
-                        <div className="flex items-center space-x-2">
-                          {column.icon && <span>{column.icon}</span>}
-                          <span>{column.label}</span>
-                        </div>
-
-                        {/* Right side: sorting indicators */}
-                        {column.sortable && (
-                          <div className="ml-4 flex flex-col items-end">
-                            <ChevronUp
-                              size={12}
-                              className={`${
-                                sortConfig.key === column.key &&
-                                sortConfig.direction === "asc"
-                                  ? "text-white"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                            <ChevronDown
-                              size={12}
-                              className={`${
-                                sortConfig.key === column.key &&
-                                sortConfig.direction === "desc"
-                                  ? "text-white"
-                                  : "text-gray-300"
-                              }`}
-                            />
+                        <div
+                          className={`flex items-center justify-between w-full text-[14px] font-semibold text-[#F9F5FF] ${
+                            column.sortable ? "cursor-pointer" : ""
+                          }`}
+                          onClick={() =>
+                            column.sortable && handleSort(column.key)
+                          }
+                        >
+                          {/* Left side: icon and label */}
+                          <div className="flex items-center space-x-2">
+                            {column.icon && <span>{column.icon}</span>}
+                            <span>{column.label}</span>
                           </div>
-                        )}
+                          {/* Right side: sorting indicators */}
+                          {column.sortable && (
+                            <div className="ml-4 flex flex-col items-end">
+                              <ChevronUp
+                                size={12}
+                                className={`${
+                                  sortConfig.key === column.key &&
+                                  sortConfig.direction === "asc"
+                                    ? "text-white"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                              <ChevronDown
+                                size={12}
+                                className={`${
+                                  sortConfig.key === column.key &&
+                                  sortConfig.direction === "desc"
+                                    ? "text-white"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </th>
+                    );
+                  })}
+                  {!active && (
+                    <th
+                      className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
+                      style={{
+                        backgroundColor: "#2264AC",
+                        boxShadow: "inset 1px 0 0 #E5E7EB",
+                      }}
+                    >
+                      <div className="flex justify-center items-center space-x-2">
+                        <Image
+                          src="/action.svg"
+                          height={13}
+                          width={13}
+                          alt="Action"
+                        />
+                        <span className="text-[14px] text-white font-semibold">
+                          Action
+                        </span>
                       </div>
                     </th>
-                  ))}
-                  <th
-                    className="w-[100px] min-w-[100px] text-center text-[12px] font-normal text-[#F9F5FF] sticky right-0 z-20 border-l-2 border-gray-200 px-2 py-3"
-                    style={{
-                      backgroundColor: "#2264AC",
-                      boxShadow: "inset 1px 0 0 #E5E7EB",
-                    }}
-                  >
-                    <div className="flex justify-center items-center space-x-2">
-                      <Image
-                        src="/action.svg"
-                        height={13}
-                        width={13}
-                        alt="Action"
-                      />
-                      <span className="text-[12px]-400 text-white font-semibold">
-                        Action
-                      </span>
-                    </div>
-                  </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {districts.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="py-8">
+                      <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-600"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : districts.length === 0 ? (
                   <tr>
                     <td
                       colSpan={columns.length + 2}
@@ -896,6 +930,7 @@ const DistrictsPage = () => {
                   districts.map((district, index) => {
                     const rowId = district.id;
                     const isEditing = editingRowId === rowId;
+
                     return (
                       <tr
                         key={district.id}
@@ -911,59 +946,72 @@ const DistrictsPage = () => {
                               type="checkbox"
                               checked={selectedRows.has(district.id)}
                               onChange={(e) => handleSelectRow(district.id, e)}
-                              className="w-4 h-4 rounded-md border-2 border-gray-300 text-[#2264AC] bg-white cursor-pointer "
+                              className="h-4 w-4"
+                              style={{ accentColor: "#2264AC" }}
                             />
                           </div>
                         </td>
-                        {columns.map((column) => (
-                          <td
-                            key={`${rowId || index}-${column.key}`}
-                            className="px-3 py-4 whitespace-nowrap border-r-2 border-[#D4D4D4] text-left bg-transparent"
-                          >
-                            {isEditing && column.editable ? (
-                              column.options ? (
-                                <div className="relative text-left">
-                                  {
-                                    <CustomDropdown
-                                      value={editingData[column.key]}
-                                      options={column.options}
-                                      onChange={(val: any) =>
-                                        handleEditChange(column.key, val)
-                                      }
-                                    />
-                                  }
-                                </div>
+                        {columns.map((column, colIndex) => {
+                          const isLastColumn = colIndex === columns.length - 1;
+                          return (
+                            <td
+                              key={`${rowId || index}-${column.key}`}
+                              className={`px-3 py-4 whitespace-nowrap text-left bg-transparent border-[#D4D4D4] ${
+                                isLastColumn && active
+                                  ? "border-r-0"
+                                  : "border-r-2"
+                              }`}
+                            >
+                              {isEditing && column.editable ? (
+                                column.options ? (
+                                  <div className="relative text-left">
+                                    {
+                                      <CustomDropdown
+                                        value={editingData[column.key]}
+                                        options={column.options}
+                                        onChange={(val: any) =>
+                                          handleEditChange(column.key, val)
+                                        }
+                                      />
+                                    }
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={editingData[column.key]}
+                                    onChange={(e) =>
+                                      handleEditChange(
+                                        column.key,
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-left"
+                                  />
+                                )
                               ) : (
-                                <input
-                                  type="text"
-                                  value={editingData[column.key]}
-                                  onChange={(e) =>
-                                    handleEditChange(column.key, e.target.value)
-                                  }
-                                  className="w-full px-3 py-2 border-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-left"
-                                />
-                              )
-                            ) : (
-                              <div className="text-left">
-                                {renderCell(district, column.key)}
-                              </div>
-                            )}
-                          </td>
-                        ))}
-                        <td
-                          className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
-                          style={{
-                            backgroundColor: "#ffffff",
-                            boxShadow: "inset 2px 0 0 #D4D4D4",
-                          }}
-                        >
-                          <button
-                            className="text-emerald-700"
-                            onClick={() => handleStartEdit(district)}
+                                <div className="text-left text-[14px]">
+                                  {renderCell(district, column.key)}
+                                </div>
+                              )}
+                            </td>
+                          );
+                        })}
+                        {!active && (
+                          <td
+                            className="w-[100px] min-w-[100px] text-center sticky right-0 border-l-2 border-gray-400 px-2 py-4"
+                            style={{
+                              backgroundColor: "#ffffff",
+                              boxShadow: "inset 2px 0 0 #D4D4D4",
+                            }}
                           >
-                            <PencilSimpleLine size={16} color="#2264AC" />
-                          </button>
-                        </td>
+                            <button
+                              className="text-emerald-700"
+                              onClick={() => handleStartEdit(district)}
+                            >
+                              <PencilSimpleLine size={16} color="#2A7251" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     );
                   })
@@ -983,14 +1031,14 @@ const DistrictsPage = () => {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">Rows per page:</span>
+              <div className="flex items-center space-x-1">
+                <span className="text-sm text-gray ">Rows per page:</span>
                 <select
                   value={rowsPerPage}
                   onChange={(e) => {
                     handleRowsPerPageChange(Number(e.target.value));
                   }}
-                  className="text-sm border rounded px-2 py-1"
+                  className="text-sm  px-1 py-1"
                   disabled={loading}
                 >
                   {[5, 10, 25, 50, 100].map((option) => (
@@ -1013,7 +1061,7 @@ const DistrictsPage = () => {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 px-1">
                   {currentPage}/{totalPages || 1}
                 </span>
                 <button
