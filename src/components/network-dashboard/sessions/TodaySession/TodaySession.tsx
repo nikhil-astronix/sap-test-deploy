@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import { getSessionsByNetwork, SessionFilterType } from '@/services/networkService';
 import NetworkDashboardTable, { NetworkTableRow, NetworkColumn } from '../../NetworkDashboardTable';
 import TodaySessionViewClassroom from './TodaySessionViewClassroom';
-import {Clock, Play} from 'lucide-react';
-import { PiUsers } from "react-icons/pi";
-import { LuUserRoundCog } from "react-icons/lu";
-import { GoArrowDownRight } from "react-icons/go";
-import { IoSchoolOutline } from "react-icons/io5";
-import { BiBriefcaseAlt2 } from "react-icons/bi";
-import { PiCalendarDots } from "react-icons/pi";
+import {GraduationCap, CalendarDots, Clock, Users, UserGear, ArrowDownRight, Play, Toolbox} from "@phosphor-icons/react";
 interface TodaySessionProps {
   searchTerm?: string;
   parentViewClassroomMode?: boolean;
@@ -35,14 +29,14 @@ export default function TodaySession({
 
   // Column definitions for sessions table
   const sessionsColumns: NetworkColumn[] = [
-    { key: 'school', label: 'School', icon: <IoSchoolOutline size={20} />, sortable: true },
-    { key: 'date', label: 'Date', icon: <PiCalendarDots size={20} />, sortable: true },
+    { key: 'school', label: 'School', icon: <GraduationCap size={20} />, sortable: true },
+    { key: 'date', label: 'Date', icon: <CalendarDots size={20} />, sortable: true },
     { key: 'startTime', label: 'Start Time', icon: <Clock size={20} />, sortable: true },
     { key: 'endTime', label: 'End Time', icon: <Clock size={20} />, sortable: true },
-    { key: 'sessionAdmin', label: 'Session Admin', icon: <LuUserRoundCog size={20} />, sortable: true },
-    { key: 'observer', label: 'Observer(s)', icon: <PiUsers size={20} />, sortable: true },
-    { key: 'observationTool', label: 'Observation Tool(s)', icon: <BiBriefcaseAlt2 size={20} />, sortable: true },
-    { key: 'action', label: 'Action', icon: <GoArrowDownRight size={20} />, sortable: false },
+    { key: 'sessionAdmin', label: 'Session Admin', icon: <UserGear size={20} />, sortable: true },
+    { key: 'observer', label: 'Observer(s)', icon: <Users size={20} />, sortable: true },
+    { key: 'observationTool', label: 'Observation Tool(s)', icon: <Toolbox size={20} />, sortable: true },
+    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false },
   ];
 
   const fetchSessions = async () => {
@@ -95,6 +89,16 @@ export default function TodaySession({
     const hour12 = hour % 12 || 12;
     return `${hour12}:${minutes} ${ampm}`;
   };
+
+  const bgColors = [
+    "bg-[#E9F3FF]",
+    "bg-[#D1FAE5]",
+    "bg-[#EDFFFF]",
+    "bg-[#FFFCDD]",
+    "bg-[#F4EBFF]",
+    "bg-[#EDFFFF]",
+    "bg-[#F9F5FF]",
+  ];
   
   // Custom render function for cells
   const renderCell = (row: NetworkTableRow, column: string) => {
@@ -102,7 +106,7 @@ export default function TodaySession({
       return (
         <div className="flex space-x-2">
           <button 
-            className="text-teal-600 hover:text-teal-800 flex items-center"
+            className="text-[#007778] hover:text-white hover:bg-[#007778] hover:text-white hover:bg-[#007778] flex items-center px-3 py-1 rounded-md transition-colors duration-200"
             onClick={() => {
               // Store the selected school ID and switch to classroom view
               setSelectedSchoolId(row.id);
@@ -155,7 +159,7 @@ export default function TodaySession({
         <div>
           <span className="text-xs">{displayObservers}</span>
           {extraCount > 0 && (
-            <span className="text-[#007778] text-xs ml-1">+{extraCount} more</span>
+            <span className="text-[#2264AC] text-xs ml-1">+{extraCount} more</span>
           )}
         </div>
       );
@@ -165,14 +169,13 @@ export default function TodaySession({
       const tool = row[column] as string;
       if (!tool) return '-';
       
+      // Get index based on row index to cycle through background colors
+      const index = sessionData.findIndex(item => item === row);
+      const bgColor = bgColors[index % bgColors.length];
+      
       return (
         <span 
-          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            tool.includes('IPG') ? 'bg-green-100 text-green-800' : 
-            tool.includes('Math') ? 'bg-purple-100 text-purple-800' : 
-            tool.includes('AAPS') ? 'bg-yellow-100 text-yellow-800' :
-            'bg-blue-100 text-blue-800'
-          }`}
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
         >
           {tool}
         </span>

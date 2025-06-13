@@ -157,7 +157,7 @@ import { Navigation } from "@/components/calibration-dashboard/Navigation";
 import { TabNavigation } from "@/components/calibration-dashboard/TabNavigation";
 import { ObservationSection } from "@/components/calibration-dashboard/ObservationSection";
 import { QuickNotes } from "@/components/calibration-dashboard/QuickNotes";
-import { ObservationAPI } from "@/models/calibration";
+import { ObservationAPI, Section } from "@/models/calibration";
 // import { getCalibarationData } from "@/services/calibarationService";
 
 export default function ObservationPage() {
@@ -183,16 +183,13 @@ export default function ObservationPage() {
   //   fetchData();
   // }, []);
 
-  if (!data) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <span>Loading...</span>
-      </div>
-    );
-  }
+  if (!data) return null;
 
   const sections = data.data;
-  const tabNames = [...sections.map((sec) => sec.section_name), "Quick Notes"];
+  const tabNames = [
+    ...sections.map((sec: Section) => sec.section_name),
+    "Quick Notes",
+  ];
 
   const isQuickNotesTab = activeTab === sections.length;
 

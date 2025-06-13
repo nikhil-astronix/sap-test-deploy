@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  User,
-  Network,
-} from "lucide-react";
-import { PiCity } from "react-icons/pi";
-import { LuIdCard } from "react-icons/lu";
-import { PiCalendarDots } from "react-icons/pi";
+import {Network, City, IdentificationCard, User, CalendarDots} from "@phosphor-icons/react";
 import DashboardTable, {
   TableRow,
   Column,
@@ -44,6 +38,7 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
   }, [searchTerm, selectedFilters]);
 
   const fetchRecentLoginInfo = async () => {
+    // Always show loading indicator when fetching data from API
     setIsLoading(true);
     const requestPayload: fetchUsersPayload = {
       search: searchTerm,
@@ -86,19 +81,19 @@ const RecentLogins = ({ searchTerm = "" }: RecentLoginsProps) => {
     {
       key: "districts",
       label: "District",
-      icon: <PiCity size={20} />,
+      icon: <City size={20} />,
       sortable: true,
     },
     {
       key: "user_type",
       label: "Role",
-      icon: <LuIdCard size={20} />,
+      icon: <IdentificationCard size={20} />,
       sortable: true,
     },
     {
       key: "last_login_at",
       label: "Date",
-      icon: <PiCalendarDots size={20} />,
+      icon: <CalendarDots size={20} />,
       sortable: true,
     },
   ];

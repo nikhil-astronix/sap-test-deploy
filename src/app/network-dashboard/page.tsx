@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Search, ChevronLeft } from 'lucide-react';
+import {Network} from "@phosphor-icons/react";
+import { GoArrowLeft } from "react-icons/go";
 import NetworkTabComponent from "@/components/network-dashboard/NetworkTabComponent";
 import TodaySession from "@/components/network-dashboard/sessions/TodaySession/TodaySession";
 import UpcomingSession from "@/components/network-dashboard/sessions/UpcomingSession/UpcomingSession";
@@ -9,11 +11,9 @@ import PastSession from "@/components/network-dashboard/sessions/PastSession/Pas
 import Districts from "@/components/network-dashboard/Districts";
 import ObservationTools from "@/components/network-dashboard/ObservationTools";
 import { getDistrictsByNetwork } from "@/services/networkService";
-import { PiNetworkLight } from "react-icons/pi";
 import TodaySessionViewClassroom from "@/components/network-dashboard/sessions/TodaySession/TodaySessionViewClassroom";
 import UpcomingSessionViewClassroom from "@/components/network-dashboard/sessions/UpcomingSession/UpcomingSessionViewClassroom";
 import PastSessionViewClassroom from "@/components/network-dashboard/sessions/PastSession/PastSessionViewClassroom";
-import { GoArrowLeft } from "react-icons/go";
 
 export default function NetworkDashboard() {
   const [viewClassroomMode, setViewClassroomMode] = useState(false);
@@ -256,7 +256,7 @@ export default function NetworkDashboard() {
         <div className="mb-4">
           <button
             onClick={handleBack}
-            className="flex gap-1 rounded-xl text-sm items-center bg-gray-100 rounded-md p-1 pl-2 pr-4 pt-1 pb-1 hover:bg-gray-200 border border-gray-300"
+            className="flex gap-1 rounded-xl text-sm items-center bg-gray-100 rounded-md p-1 pl-2 pr-4 pt-1 pb-1 hover:bg-gray-200"
           >
             <GoArrowLeft size={18} />
             <span>Back</span>
@@ -284,15 +284,15 @@ export default function NetworkDashboard() {
       ) : (
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-2">Welcome, Network Admin</h1>
-          <p className="text-gray-600">This dashboard provides a quick overview of network metrics and scheduled observation sessions. You can manage districts, sessions, and observation tools from here.</p>
+          <p className="text-gray-600">View and compare data across all districts under your purview. Quickly access insights into observation activity, districts, and tool usage.</p>
           <div className="flex flex-row gap-3 mt-4 p-3 bg-gray-100 items-center rounded-xl border border-gray-200">
-            <PiNetworkLight size={22} className="text-gray-600" />
+            <Network size={22} className="text-gray-600" />
             <h1 className="text-lg font-semibold">{newName}</h1>
           </div>
         </div>
       )}
 
-      <div className="rounded-md shadow-sm border border-gray-200 overflow-hidden">
+      <div className="rounded-md shadow-sm  overflow-hidden">
         <NetworkTabComponent
           tabs={tabs}
           colorClasses={colorClasses}
@@ -304,14 +304,14 @@ export default function NetworkDashboard() {
           setIsDropdownOpen={setIsDropdownOpen}
         />
 
-        <div className="p-4">
+        <div className="mt-2">
           <div className="relative w-full md:w-64 mb-4">
             <input
               type="text"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-2 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none"
             />
             <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>

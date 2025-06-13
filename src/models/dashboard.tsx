@@ -33,3 +33,16 @@ export interface observationSessionPayload {
   page: number;
   limit: number;
 }
+
+export interface editObservationSessionPayload {
+  id: any;
+  date: string;
+  start_time: string;
+  end_time: string;
+  district: string;
+  school: string;
+  classrooms: string[];
+  observation_tool: string;
+  users: string[];
+  session_admin: string;
+}

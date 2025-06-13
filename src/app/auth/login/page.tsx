@@ -77,6 +77,8 @@ function LoginPageContent() {
             router.push("/system-dashboard");
           } else if (role === "District admin") {
             router.push("/admin-dashboard");
+          } else if (role === "Admin") {
+            router.push("/admin-dashboard");
           } else if (role === "network-dashboard") {
             router.push("/network-dashboard");
           } else {
@@ -114,6 +116,8 @@ function LoginPageContent() {
         if (role === "Super Admin") {
           router.push("/system-dashboard");
         } else if (role === "District Admin") {
+          router.push("/admin-dashboard");
+        } else if (role === "Admin") {
           router.push("/admin-dashboard");
         } else if (role === "Network Admin") {
           router.push("/network-dashboard");
