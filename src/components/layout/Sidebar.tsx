@@ -124,6 +124,9 @@ export const navItemsAdmin: NavItem[] = [
 
 const Sidebar = () => {
   const pathname = usePathname();
+  if (pathname === "/observation-form") {
+    return null;
+  }
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
