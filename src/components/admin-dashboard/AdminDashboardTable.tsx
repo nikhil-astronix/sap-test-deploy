@@ -57,7 +57,7 @@ const AdminDashboardTable = ({
   columns,
   headerColor,
   renderCell: customRenderCell,
-  rowColor = "bg-blue-50",
+  rowColor = "#E9F3FF",
   searchTerm = "",
   onFiltersChange,
   totalRecords,
@@ -83,7 +83,7 @@ const AdminDashboardTable = ({
   useEffect(() => {
     setFilteredData(initialData);
   }, [initialData]);
-  
+
   // Create a state to track if sorting/filtering is happening locally
   const [isLocalOperation, setIsLocalOperation] = useState(false);
 
@@ -108,11 +108,11 @@ const AdminDashboardTable = ({
         direction = null;
       }
     }
-    
+
     // Set local operation flag to true before sorting
     setIsLocalOperation(true);
     setSortConfig({ key, direction });
-    
+
     // Reset the flag after a short delay
     setTimeout(() => {
       setIsLocalOperation(false);
@@ -311,12 +311,22 @@ const AdminDashboardTable = ({
                         // </span>
                         <div className="flex flex-col">
                           {/* Always show up arrow, highlight when active */}
-                          <ChevronUp 
-                            className={`h-3 w-3 ${sortConfig.key === column.key && sortConfig.direction === "asc" ? "" : "opacity-30"}`} 
+                          <ChevronUp
+                            className={`h-3 w-3 ${
+                              sortConfig.key === column.key &&
+                              sortConfig.direction === "asc"
+                                ? ""
+                                : "opacity-30"
+                            }`}
                           />
                           {/* Always show down arrow, highlight when active */}
-                          <ChevronDown 
-                            className={`h-3 w-3 ${sortConfig.key === column.key && sortConfig.direction === "desc" ? "" : "opacity-30"}`} 
+                          <ChevronDown
+                            className={`h-3 w-3 ${
+                              sortConfig.key === column.key &&
+                              sortConfig.direction === "desc"
+                                ? ""
+                                : "opacity-30"
+                            }`}
                           />
                         </div>
                       )}
@@ -328,9 +338,18 @@ const AdminDashboardTable = ({
           <tbody>
             {isLoading && !isLocalOperation ? (
               <tr>
-                <td colSpan={columns.length} className="border-b border-gray-200 py-8 text-center">
+                <td
+                  colSpan={columns.length}
+                  className="border-b border-gray-200 py-8 text-center"
+                >
                   <div className="flex justify-center items-center py-8">
-                    <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${headerColor.includes('[') ? headerColor.replace('bg-[', 'border-[') : headerColor.replace('bg-', 'border-')}`}></div>
+                    <div
+                      className={`animate-spin rounded-full h-8 w-8 border-b-2 ${
+                        headerColor.includes("[")
+                          ? headerColor.replace("bg-[", "border-[")
+                          : headerColor.replace("bg-", "border-")
+                      }`}
+                    ></div>
                   </div>
                 </td>
               </tr>
@@ -338,7 +357,7 @@ const AdminDashboardTable = ({
               filteredData?.map((row, rowIndex) => (
                 <tr
                   key={row.id}
-                  className={`text-xs hover:bg-gray-50 ${
+                  className={`text-[14px] hover:bg-gray-50 ${
                     rowIndex % 2 === 1 ? rowColor : "bg-white"
                   }`}
                 >
@@ -347,7 +366,7 @@ const AdminDashboardTable = ({
                     .map((column, index) => (
                       <td
                         key={`${row.id}-${column.key}`}
-                        className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-xs"
+                        className="whitespace-nowrap border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 p-3 text-[14px]"
                       >
                         {renderCell(row, column.key)}
                       </td>
@@ -361,7 +380,9 @@ const AdminDashboardTable = ({
                   className="border-b border-gray-200 py-8 text-center"
                 >
                   <div className="flex flex-col items-center justify-center p-4">
-                    <p className="text-gray-500 text-base font-medium">{emptyMessage}</p>
+                    <p className="text-gray-500 text-base font-medium">
+                      {emptyMessage}
+                    </p>
                   </div>
                 </td>
               </tr>
@@ -404,10 +425,11 @@ const AdminDashboardTable = ({
               <button
                 onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1 || isLoading}
-                className={`p-1 border rounded ${currentPage === 1 || isLoading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                className={`p-1 border rounded ${
+                  currentPage === 1 || isLoading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
               >
                 <ChevronLeft size={18} />
               </button>
@@ -415,14 +437,15 @@ const AdminDashboardTable = ({
                 {currentPage}/{totalPages || 1}
               </span>
               <button
-                onClick={() => 
+                onClick={() =>
                   setCurrentPage(Math.min(currentPage + 1, totalPages))
                 }
                 disabled={currentPage >= totalPages || isLoading}
-                className={`p-1 border rounded text-[12px] ${currentPage >= totalPages || isLoading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                className={`p-1 border rounded text-[12px] ${
+                  currentPage >= totalPages || isLoading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
               >
                 <ChevronRight size={18} />
               </button>

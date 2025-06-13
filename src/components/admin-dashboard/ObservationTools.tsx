@@ -1,6 +1,6 @@
 "use client";
 
-import {GraduationCap, Hash, Toolbox, Users} from "@phosphor-icons/react";
+import { GraduationCap, Hash, Toolbox, Users } from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { TableFilters } from "../system-dashboard/DashboardTable";
 import { useEffect, useState } from "react";
@@ -45,7 +45,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     setIsLoading(true);
     try {
       const response = await fetchObservationTools(requestPayload);
-      console.log(response?.data?.tools, 'checking the observation tools data');
+      console.log(response?.data?.tools, "checking the observation tools data");
       if (response.success) {
         setFilteredData(response.data.tools);
         setTotalPages(response.data.pages);
@@ -60,8 +60,7 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     } catch (error) {
       console.error("Error fetching Observations data:", error);
       setFilteredData([]);
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
@@ -110,9 +109,12 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
     if (column === "name") {
       const name = row[column] as string;
       // Get a consistent color based on the tool name
-      const colorIndex = Math.abs(name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % bgColors.length;
+      const colorIndex =
+        Math.abs(
+          name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        ) % bgColors.length;
       const bgColor = bgColors[colorIndex];
-      
+
       return (
         <span
           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
@@ -137,19 +139,17 @@ const ObservationTools = ({ searchTerm = "" }: ObservationToolsProps) => {
       const schools = row[column] as string[];
       const displayCount = 2;
       const remaining = schools.length - displayCount;
-    
+
       return (
         <div className="text-xs">
           {schools.slice(0, displayCount).map((school, index) => (
             <span key={index}>
               {school}
-              {index < Math.min(displayCount, schools.length) - 1 ? ', ' : ''}
+              {index < Math.min(displayCount, schools.length) - 1 ? ", " : ""}
             </span>
           ))}
           {remaining > 0 && (
-            <span className="text-[#6C4996]">
-              +{remaining} more
-            </span>
+            <span className="text-[#6C4996]">+{remaining} more</span>
           )}
         </div>
       );

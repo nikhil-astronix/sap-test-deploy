@@ -110,8 +110,9 @@ function LoginPageContent() {
           response.data.first_name + " " + response.data.last_name;
         localStorage.setItem("userrole", response.data.user_type);
         localStorage.setItem("name", full_name);
-        // localStorage.setItem("district", response.data.district_name);
+        //localStorage.setItem("district", response.data.district_name);
         //  localStorage.setItem("district_id", response.data.district_id);
+        localStorage.setItem("networkname", response.data.network_name);
         let role = response.data.user_type;
         if (role === "Super Admin") {
           router.push("/system-dashboard");

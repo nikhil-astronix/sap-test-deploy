@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {GraduationCap, Hash, Toolbox, GearFine, Note} from "@phosphor-icons/react";
+import {
+  GraduationCap,
+  Hash,
+  Toolbox,
+  GearFine,
+  Note,
+} from "@phosphor-icons/react";
 import AdminDashboardTable, { TableRow, Column } from "./AdminDashboardTable";
 import { TableFilters } from "../system-dashboard/DashboardTable";
 import { fetchDistrictsPayload } from "@/models/dashboard";
@@ -42,10 +48,10 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       page: selectedFilters.page,
       limit: selectedFilters.limit,
     };
-      setIsLoading(true);
+    setIsLoading(true);
     try {
       const response = await fetchSchools(requestPayload);
-      console.log(response.data.schools, 'checking the schools data');
+      console.log(response.data.schools, "checking the schools data");
       if (response.success) {
         setFilteredData(response.data.schools);
         setTotalPages(response.data.pages);
@@ -60,19 +66,43 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
     } catch (error) {
       console.error("Error fetching Schools data:", error);
       setFilteredData([]);
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
 
   // Column definitions for Schools tab
   const schoolsColumns: Column[] = [
-    {key: "name",label: "School",icon: <GraduationCap size={20} />, sortable: true,},
-    {key: "classroom_count",label: "Number of Classrooms",icon: <Hash size={20} />, sortable: true,},
-    {key: "tools",label: "Observation Tool(s)",icon: <Toolbox size={20} />, sortable: false,},
-    {key: "last_observation",label: "Last Session",icon: <Note size={20} />,sortable: true,},
-    {key: "setup_status",label: "Setup Status",icon: <GearFine size={20} />,sortable: true,},
+    {
+      key: "name",
+      label: "School",
+      icon: <GraduationCap size={20} />,
+      sortable: true,
+    },
+    {
+      key: "classroom_count",
+      label: "Number of Classrooms",
+      icon: <Hash size={20} />,
+      sortable: true,
+    },
+    {
+      key: "tools",
+      label: "Observation Tool(s)",
+      icon: <Toolbox size={20} />,
+      sortable: false,
+    },
+    {
+      key: "last_observation",
+      label: "Last Session",
+      icon: <Note size={20} />,
+      sortable: true,
+    },
+    {
+      key: "setup_status",
+      label: "Setup Status",
+      icon: <GearFine size={20} />,
+      sortable: true,
+    },
   ];
 
   // Background colors for school names
@@ -93,11 +123,16 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
     if (column === "name") {
       const name = row[column] as string;
       // Get a consistent color based on the school name
-      const colorIndex = Math.abs(name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % bgColors.length;
+      const colorIndex =
+        Math.abs(
+          name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        ) % bgColors.length;
       const bgColor = bgColors[colorIndex];
-      
+
       return (
-        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}>
+        <span
+          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
+        >
           {name}
         </span>
       );
@@ -107,18 +142,19 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
       if (!tools || tools.length === 0) return "None";
 
       return (
-        <div className="flex flex-col space-y-1">
+        <div className=" flex-col space-y-1">
           {tools.map((tool: any) => (
             <span
               key={tool.id}
               className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                 ${typeof tool.name === "string" && tool.name.includes("IPG")
-                  ? "bg-green-100 text-green-800"
-                  : typeof tool.name === "string" &&
-                    tool.name.includes("Math")
-                    ? "bg-purple-100 text-purple-800"
-                    : "bg-blue-100 text-blue-800"
-                }
+                 ${
+                   typeof tool.name === "string" && tool.name.includes("IPG")
+                     ? "bg-[#EDFFFF] text-green-800"
+                     : typeof tool.name === "string" &&
+                       tool.name.includes("Math")
+                     ? "bg-[#F4EBFF] text-purple-800"
+                     : "bg-[#E9F3FF] text-blue-800"
+                 }
               `}
             >
               {tool.name}
@@ -200,10 +236,14 @@ const Schools = ({ searchTerm = "" }: SchoolsProps) => {
             <span className={`w-2 h-2 ${dotColor} rounded-full`}></span>
             {statusObj.status}
           </div>
-          <div className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
-              after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black">
+          <div
+            className="absolute z-10 invisible group-hover:visible bg-black text-white text-xs rounded py-1 px-2 right-0 bottom-full mb-3
+              after:content-[''] after:absolute after:top-full after:left-12 after:border-4 after:border-transparent after:border-t-black"
+          >
             <div className="flex items-center text-center justify-between whitespace-nowrap p-1">
-              <span className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}></span>
+              <span
+                className={`w-2 h-2 mx-1 left-0 ${dotColor} rounded-full`}
+              ></span>
               <span className="">Classroom {statusObj.classroom_count}</span>
               <span className="mx-1">|</span>
               <span className="">Tools {statusObj.tool_count}</span>

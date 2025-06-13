@@ -1,7 +1,20 @@
 "use client";
 
-import {GraduationCap, ChartBar, CalendarDots, Clock, Users, UserGear, ArrowDownRight, Play, PencilSimpleLine} from "@phosphor-icons/react";
-import AdminDashboardTable, { TableRow, Column } from "../../AdminDashboardTable";
+import {
+  GraduationCap,
+  ChartBar,
+  CalendarDots,
+  Clock,
+  Users,
+  UserGear,
+  ArrowDownRight,
+  Play,
+  PencilSimpleLine,
+} from "@phosphor-icons/react";
+import AdminDashboardTable, {
+  TableRow,
+  Column,
+} from "../../AdminDashboardTable";
 import { useEffect, useState } from "react";
 import EditSession from "../actions/EditSession";
 import { TableFilters } from "@/components/system-dashboard/DashboardTable";
@@ -72,7 +85,12 @@ const PastSessions = ({
         filter_type: "past",
       };
       const response = await districtAdminObservationSessions(requestPayload);
-      if (response.success && response.data && response.data.sessions && response.data.sessions.length > 0) {
+      if (
+        response.success &&
+        response.data &&
+        response.data.sessions &&
+        response.data.sessions.length > 0
+      ) {
         setSessionData(response.data.sessions);
         setTotalPages(response.data.pages);
         setTotalRecords(response.data.total);
@@ -103,30 +121,74 @@ const PastSessions = ({
 
   // Column definitions for sessions table
   const sessionsColumns: Column[] = [
-    { key: 'school', label: 'School', icon: <GraduationCap size={20} />, sortable: true },
-    { key: 'date', label: 'Date', icon: <CalendarDots size={20} />, sortable: true },
-    { key: 'start_time', label: 'Start Time', icon: <Clock size={20} />, sortable: true },
-    { key: 'end_time', label: 'End Time', icon: <Clock size={20} />, sortable: true },
-    { key: 'session_admin', label: 'Session Admin', icon: <UserGear size={20} />, sortable: true },
-    { key: 'observers', label: 'Observer(s)', icon: <Users size={20} />, sortable: true },
-    { key: "observation_tool", label: 'Observation Tool(s)', icon: <ChartBar size={20} />, sortable: true },
-    { key: 'action', label: 'Action', icon: <ArrowDownRight size={20} />, sortable: false },
+    {
+      key: "school",
+      label: "School",
+      icon: <GraduationCap size={20} />,
+      sortable: true,
+    },
+    {
+      key: "date",
+      label: "Date",
+      icon: <CalendarDots size={20} />,
+      sortable: true,
+    },
+    {
+      key: "start_time",
+      label: "Start Time",
+      icon: <Clock size={20} />,
+      sortable: true,
+    },
+    {
+      key: "end_time",
+      label: "End Time",
+      icon: <Clock size={20} />,
+      sortable: true,
+    },
+    {
+      key: "session_admin",
+      label: "Session Admin",
+      icon: <UserGear size={20} />,
+      sortable: true,
+    },
+    {
+      key: "observers",
+      label: "Observer(s)",
+      icon: <Users size={20} />,
+      sortable: true,
+    },
+    {
+      key: "observation_tool",
+      label: "Observation Tool(s)",
+      icon: <ChartBar size={20} />,
+      sortable: true,
+    },
+    {
+      key: "action",
+      label: "Action",
+      icon: <ArrowDownRight size={20} />,
+      sortable: false,
+    },
   ];
 
   // Helper functions to format date and time
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return 'N/A';
+    if (!dateStr) return "N/A";
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const formatTime = (timeStr: string) => {
-    if (!timeStr) return 'N/A';
-    const timePart = timeStr.includes('T') ? timeStr.split('T')[1] : timeStr;
-    const time = timePart.split('+')[0]; // Remove timezone part if present
-    const [hours, minutes] = time.split(':');
+    if (!timeStr) return "N/A";
+    const timePart = timeStr.includes("T") ? timeStr.split("T")[1] : timeStr;
+    const time = timePart.split("+")[0]; // Remove timezone part if present
+    const [hours, minutes] = time.split(":");
     const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const ampm = hour >= 12 ? "PM" : "AM";
     const hour12 = hour % 12 || 12;
     return `${hour12}:${minutes} ${ampm}`;
   };
@@ -146,14 +208,14 @@ const PastSessions = ({
     if (column === "action") {
       return (
         <div className="flex space-x-2 text-xs">
-          <button
+          {/* <button
             onClick={() => handleEditSession(row)}
             className="text-[#007778] hover:bg-[#007778] hover:text-white px-3 py-1 rounded-md flex items-center"
           >
             <span className="mr-1">Edit Session</span>
             <PencilSimpleLine size={20} />
-          </button>
-          <p className="text-[#007778] flex items-center ml-2 mr-2">|</p>
+          </button> 
+          <p className="text-[#007778] flex items-center ml-2 mr-2">|</p>*/}
           {/* {row.viewClassrooms && ( */}
           <button
             className="text-[#007778] hover:bg-[#007778] hover:text-white px-3 py-1 rounded-md flex items-center"
@@ -169,12 +231,12 @@ const PastSessions = ({
 
     if (column === "observation_tool") {
       const tool = row[column] as string;
-      if (!tool) return '-';
-      
+      if (!tool) return "-";
+
       // Get index based on row index to cycle through background colors
-      const index = sessionData.findIndex(item => item === row);
+      const index = sessionData.findIndex((item) => item === row);
       const bgColor = bgColors[index % bgColors.length];
-      
+
       return (
         <span
           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
@@ -186,9 +248,7 @@ const PastSessions = ({
 
     if (column === "school") {
       return (
-        <span className="text-xs text-black font-normal">
-          {row[column]}
-        </span>
+        <span className="text-xs text-black font-normal">{row[column]}</span>
       );
     }
 
@@ -218,9 +278,7 @@ const PastSessions = ({
     if (column === "session_admin") {
       if (row[column]) {
         return (
-          <span className="text-xs text-black font-normal">
-            {row[column]}
-          </span>
+          <span className="text-xs text-black font-normal">{row[column]}</span>
         );
       } else {
         return "-";

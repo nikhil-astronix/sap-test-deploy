@@ -6,12 +6,16 @@ import {
   ChevronUp,
   ChevronLeft,
   ChevronRight,
-  Search
+  Search,
 } from "lucide-react";
 
 // Define the data structure
 export type NetworkStatusType = "Active" | "Inactive" | "Archived";
-export type SessionStatusType = "No Session" | "Upcoming" | "In Progress" | "Completed";
+export type SessionStatusType =
+  | "No Session"
+  | "Upcoming"
+  | "In Progress"
+  | "Completed";
 
 export interface NetworkAdmin {
   id: string;
@@ -81,7 +85,8 @@ export default function NetworkDashboardTable({
   error,
 }: NetworkDashboardTableProps) {
   // State for current data, sorting, and pagination
-  const [filteredData, setFilteredData] = useState<NetworkTableRow[]>(initialData);
+  const [filteredData, setFilteredData] =
+    useState<NetworkTableRow[]>(initialData);
   const [sortConfig, setSortConfig] = useState<{
     key: string | null;
     direction: "asc" | "desc" | null;
@@ -102,9 +107,9 @@ export default function NetworkDashboardTable({
     // Clear any duplicate data by creating a fresh copy
     // Add null/undefined check to prevent "initialData is not iterable" error
     const data = Array.isArray(initialData) ? [...initialData] : [];
-    
+
     // Apply search filtering if searchTerm is provided
-    if (searchTerm && searchTerm.trim() !== '') {
+    if (searchTerm && searchTerm.trim() !== "") {
       const filtered = filterData(data, searchTerm);
       setFilteredData(filtered);
     } else {
@@ -149,23 +154,27 @@ export default function NetworkDashboardTable({
     }
 
     setSortConfig({ key, direction });
-    
+
     // If we're not using server-side filtering (no onFiltersChange), sort locally
     if (!onFiltersChange) {
       const sortedData = [...filteredData];
       if (direction !== null) {
         sortedData.sort((a, b) => {
-          const valueA = a[key] !== undefined ? a[key] : '';
-          const valueB = b[key] !== undefined ? b[key] : '';
-          
-          if (typeof valueA === 'string' && typeof valueB === 'string') {
-            return direction === 'asc' 
-              ? valueA.localeCompare(valueB) 
+          const valueA = a[key] !== undefined ? a[key] : "";
+          const valueB = b[key] !== undefined ? b[key] : "";
+
+          if (typeof valueA === "string" && typeof valueB === "string") {
+            return direction === "asc"
+              ? valueA.localeCompare(valueB)
               : valueB.localeCompare(valueA);
           } else {
-            return direction === 'asc'
-              ? (valueA > valueB ? 1 : -1)
-              : (valueA < valueB ? 1 : -1);
+            return direction === "asc"
+              ? valueA > valueB
+                ? 1
+                : -1
+              : valueA < valueB
+              ? 1
+              : -1;
           }
         });
       }
@@ -175,87 +184,102 @@ export default function NetworkDashboardTable({
 
   // Function to filter data based on search term
   const filterData = (data: NetworkTableRow[], term: string) => {
-    if (!term || term.trim() === '') return data;
-    
+    if (!term || term.trim() === "") return data;
+
     const lowerCaseTerm = term.toLowerCase();
-    return data.filter(row => {
+    return data.filter((row) => {
       // First check name field which is common in most rows
-      if (row.name && typeof row.name === 'string' && 
-          row.name.toLowerCase().includes(lowerCaseTerm)) {
+      if (
+        row.name &&
+        typeof row.name === "string" &&
+        row.name.toLowerCase().includes(lowerCaseTerm)
+      ) {
         return true;
       }
-      
+
       // Generic search across all visible columns
-      return visibleColumns.some(colKey => {
+      return visibleColumns.some((colKey) => {
         const cellValue = row[colKey];
-        
+
         // Handle special case for admins array
-        if (colKey === 'admins' && Array.isArray(row.admins)) {
-          return row.admins.some(admin => 
-            `${admin.first_name} ${admin.last_name}`.toLowerCase().includes(lowerCaseTerm) ||
-            (admin.email && admin.email.toLowerCase().includes(lowerCaseTerm))
+        if (colKey === "admins" && Array.isArray(row.admins)) {
+          return row.admins.some(
+            (admin) =>
+              `${admin.first_name} ${admin.last_name}`
+                .toLowerCase()
+                .includes(lowerCaseTerm) ||
+              (admin.email && admin.email.toLowerCase().includes(lowerCaseTerm))
           );
         }
-        
+
         // For session admin or school, perform specific search
-        if ((colKey === 'sessionAdmin' || colKey === 'school') && 
-            typeof cellValue === 'string' && 
-            cellValue.toLowerCase().includes(lowerCaseTerm)) {
+        if (
+          (colKey === "sessionAdmin" || colKey === "school") &&
+          typeof cellValue === "string" &&
+          cellValue.toLowerCase().includes(lowerCaseTerm)
+        ) {
           return true;
         }
-        
+
         // For districts, perform specific search
-        if (colKey === 'districts' && 
-            typeof cellValue === 'number' && 
-            String(cellValue).includes(lowerCaseTerm)) {
+        if (
+          colKey === "districts" &&
+          typeof cellValue === "number" &&
+          String(cellValue).includes(lowerCaseTerm)
+        ) {
           return true;
         }
-        
+
         // For regular string values
-        if (typeof cellValue === 'string' && 
-            cellValue.toLowerCase().includes(lowerCaseTerm)) {
+        if (
+          typeof cellValue === "string" &&
+          cellValue.toLowerCase().includes(lowerCaseTerm)
+        ) {
           return true;
         }
-        
+
         return false;
       });
     });
   };
 
   // Calculate pagination display values
-  const indexOfFirstRow = onFiltersChange 
-    ? (pageNumber - 1) * pageSize + 1 
+  const indexOfFirstRow = onFiltersChange
+    ? (pageNumber - 1) * pageSize + 1
     : (currentPage - 1) * rowsPerPage + 1;
-  
+
   const indexOfLastRow = onFiltersChange
     ? Math.min(indexOfFirstRow + pageSize - 1, totalRecords)
     : Math.min(indexOfFirstRow + rowsPerPage - 1, filteredData.length);
-  
-  const calculatedTotalPages = onFiltersChange 
-    ? totalPages 
+
+  const calculatedTotalPages = onFiltersChange
+    ? totalPages
     : Math.ceil(filteredData.length / rowsPerPage);
 
   // Handle page change for both server-side and client-side pagination
   const handlePageChange = (page: number) => {
     // Ensure page is valid and within bounds
-    const validPage = Math.max(1, Math.min(page, onFiltersChange ? totalPages : calculatedTotalPages));
+    const validPage = Math.max(
+      1,
+      Math.min(page, onFiltersChange ? totalPages : calculatedTotalPages)
+    );
     setCurrentPage(validPage);
-    
+
     // If we're not using server-side pagination, no need to do anything else
     // The getPaginatedData function will handle slicing the data correctly
   };
-  
+
   // Get paginated data for client-side pagination
   const getPaginatedData = () => {
     // If using server-side pagination, just return the data as-is
     if (onFiltersChange) return filteredData;
-    
+
     // For client-side pagination, slice the data based on current page
     const startIdx = (currentPage - 1) * rowsPerPage;
     const endIdx = startIdx + rowsPerPage;
     return filteredData.slice(startIdx, endIdx);
   };
-  
+
   // Calculate paginated data only when needed, ensuring it's always fresh
   const paginatedData = getPaginatedData();
 
@@ -357,13 +381,14 @@ export default function NetworkDashboardTable({
       // Handle admins display
       const admins = row.admins;
       if (admins.length === 0) return "-";
-      
-      const displayNames = admins.slice(0, 2).map(admin => 
-        `${admin.first_name} ${admin.last_name}`
-      ).join(", ");
-      
+
+      const displayNames = admins
+        .slice(0, 2)
+        .map((admin) => `${admin.first_name} ${admin.last_name}`)
+        .join(", ");
+
       const more = admins.length > 2 ? admins.length - 2 : 0;
-      
+
       return (
         <div>
           {displayNames}
@@ -392,7 +417,6 @@ export default function NetworkDashboardTable({
 
   return (
     <div className="overflow-hidden border border-gray-200 rounded-md w-full mx-auto">
-
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
@@ -403,7 +427,7 @@ export default function NetworkDashboardTable({
                 .map((column) => (
                   <th
                     key={column.key}
-                    className={`p-3 text-left text-sm font-medium cursor-pointer ${
+                    className={`p-3 text-left text-sm font-medium cursor-pointer border-r ${
                       sortConfig.key === column.key
                         ? "bg-opacity-90"
                         : "bg-opacity-70"
@@ -411,7 +435,7 @@ export default function NetworkDashboardTable({
                     style={{ backgroundColor: headerColor }}
                     onClick={() => column.sortable && requestSort(column.key)}
                   >
-                    <div className="flex items-center justify-between text-white">
+                    <div className="flex items-center justify-between text-white ">
                       <div className="flex items-center gap-2">
                         {column.icon}
                         <span>{column.label}</span>
@@ -420,12 +444,22 @@ export default function NetworkDashboardTable({
                       {column.sortable && (
                         <div className="flex flex-col">
                           {/* Always show up arrow, highlight when active */}
-                          <ChevronUp 
-                            className={`h-3 w-3 ${sortConfig.key === column.key && sortConfig.direction === "asc" ? "" : "opacity-30"}`} 
+                          <ChevronUp
+                            className={`h-3 w-3 ${
+                              sortConfig.key === column.key &&
+                              sortConfig.direction === "asc"
+                                ? ""
+                                : "opacity-30"
+                            }`}
                           />
                           {/* Always show down arrow, highlight when active */}
-                          <ChevronDown 
-                            className={`h-3 w-3 ${sortConfig.key === column.key && sortConfig.direction === "desc" ? "" : "opacity-30"}`} 
+                          <ChevronDown
+                            className={`h-3 w-3 ${
+                              sortConfig.key === column.key &&
+                              sortConfig.direction === "desc"
+                                ? ""
+                                : "opacity-30"
+                            }`}
                           />
                         </div>
                       )}
@@ -440,7 +474,9 @@ export default function NetworkDashboardTable({
               paginatedData.map((row, rowIndex) => (
                 <tr
                   key={`${row.id}-${rowIndex}`}
-                  style={rowIndex % 2 === 1 ? { backgroundColor: rowColor } : {}}
+                  style={
+                    rowIndex % 2 === 1 ? { backgroundColor: rowColor } : {}
+                  }
                   className={`hover:bg-gray-50 ${
                     rowIndex % 2 === 0 ? "bg-white" : ""
                   }`}
@@ -450,7 +486,7 @@ export default function NetworkDashboardTable({
                     .map((column, index) => (
                       <td
                         key={`${row.id}-${column.key}`}
-                        className="border-b border-gray-200 border-r border-r-gray-100 last:border-r-0 p-3 text-[12px]"
+                        className="border-b border-gray-200 border-r border-r-gray-300 last:border-r-0 p-3 text-[14px]"
                       >
                         {renderCell(row, column.key)}
                       </td>
@@ -477,14 +513,15 @@ export default function NetworkDashboardTable({
           <div>
             <p className="text-[12px] text-gray-500">
               {(onFiltersChange ? totalRecords : filteredData.length) > 0
-                ? `Showing ${indexOfFirstRow}-${indexOfLastRow} of ${onFiltersChange ? totalRecords : filteredData.length} records`
-                : "0 records"}
+                ? `${indexOfFirstRow}-${indexOfLastRow} of ${
+                    onFiltersChange ? totalRecords : filteredData.length
+                  }`
+                : "0"}
             </p>
-
           </div>
           <div className="flex flex-wrap items-center gap-2 text-[12px]">
             <div className="flex items-center space-x-2 text-[12px]">
-              <span className="text-[12px] text-gray-500">Rows per page:</span>
+              <span className="text-[14px] text-gray-500">Rows per page:</span>
               <select
                 value={rowsPerPage}
                 onChange={(e) => {
@@ -495,7 +532,7 @@ export default function NetworkDashboardTable({
                     setCurrentPage(1);
                   }
                 }}
-                className="text-[12px] border rounded px-2 py-1"
+                className="text-[12px] rounded  py-1"
               >
                 {rowsPerPageOptions.map((value) => (
                   <option key={value} value={value}>
@@ -504,37 +541,53 @@ export default function NetworkDashboardTable({
                 ))}
               </select>
             </div>
-            <div className="flex items-center space-x-1 text-[12px]">
+            <div className="flex items-center text-[12px]">
               <button
-                onClick={() => handlePageChange(Math.max(onFiltersChange ? pageNumber - 1 : currentPage - 1, 1))}
-                disabled={onFiltersChange ? pageNumber === 1 : currentPage === 1}
-                className={`p-1 border rounded ${(onFiltersChange ? pageNumber === 1 : currentPage === 1) || isLoading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                onClick={() =>
+                  handlePageChange(
+                    Math.max(
+                      onFiltersChange ? pageNumber - 1 : currentPage - 1,
+                      1
+                    )
+                  )
+                }
+                disabled={
+                  onFiltersChange ? pageNumber === 1 : currentPage === 1
+                }
+                className={`p-1 border rounded ${
+                  (onFiltersChange ? pageNumber === 1 : currentPage === 1) ||
+                  isLoading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
               >
                 <ChevronLeft size={16} />
               </button>
               <span className="text-[12px] text-gray-500 px-2">
-                {onFiltersChange ? pageNumber : currentPage} of {onFiltersChange ? totalPages : calculatedTotalPages || 1}
+                {onFiltersChange ? pageNumber : currentPage} /{" "}
+                {onFiltersChange ? totalPages : calculatedTotalPages || 1}
               </span>
               <button
-                onClick={() => 
-                  handlePageChange(Math.min(
-                    onFiltersChange ? pageNumber + 1 : currentPage + 1, 
-                    onFiltersChange ? totalPages : calculatedTotalPages
-                  ))
+                onClick={() =>
+                  handlePageChange(
+                    Math.min(
+                      onFiltersChange ? pageNumber + 1 : currentPage + 1,
+                      onFiltersChange ? totalPages : calculatedTotalPages
+                    )
+                  )
                 }
-                disabled={onFiltersChange 
-                  ? pageNumber >= totalPages 
-                  : currentPage >= calculatedTotalPages
+                disabled={
+                  onFiltersChange
+                    ? pageNumber >= totalPages
+                    : currentPage >= calculatedTotalPages
                 }
-                className={`p-1 border rounded text-[12px] ${(onFiltersChange 
-                  ? pageNumber >= totalPages 
-                  : currentPage >= calculatedTotalPages) || isLoading
-                  ? "text-gray-300"
-                  : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                className={`p-1 border rounded text-[12px] ${
+                  (onFiltersChange
+                    ? pageNumber >= totalPages
+                    : currentPage >= calculatedTotalPages) || isLoading
+                    ? "text-gray-300"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
               >
                 <ChevronRight size={16} />
               </button>
