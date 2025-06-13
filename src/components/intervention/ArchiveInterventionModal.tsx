@@ -74,7 +74,7 @@ export default function ArchiveModal({
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="text-black mb-4 text-sm font-medium"
+                  className="text-black mb-4 text-[14px] font-medium"
                 >
                   Are you sure you want to {actionText} this{" "}
                   {item.itemType == "Curriculum"
@@ -85,12 +85,12 @@ export default function ArchiveModal({
 
                 <motion.div
                   whileHover={{ scale: 1.01 }}
-                  className="bg-gray-50 p-2 rounded-[6px] shadow-md mb-4 flex justify-between items-center"
+                  className="bg-[#F4F6F8] p-2 rounded-[6px] shadow-md mb-4 flex justify-between items-center py-4"
                 >
-                  <span className="text-gray-900 text-sm font-medium">
+                  <span className="text-black-400 text-[14px] font-semibold">
                     {item.title}
                   </span>
-                  <span className="text-gray-900 text-sm font-medium">
+                  <span className="text-black-400 text-[14px] font-semibold">
                     {item.itemType === "Curriculum"
                       ? "Instructional Material"
                       : "Tags & Attributes"}
@@ -134,7 +134,7 @@ export default function ArchiveModal({
                             item.isArchived
                               ? "text-emerald-600"
                               : "text-[#C23E19]"
-                          } text-xs font-medium`}
+                          } text-sm font-medium`}
                         >
                           {item.isArchived
                             ? `Unarchiving this Tags & Attributes will make it visible in active views and restore all related access.`

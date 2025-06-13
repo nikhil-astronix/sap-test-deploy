@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createCurriculum } from "@/services/curriculumsService";
 import { createCurriculumPayload } from "@/models/curriculum";
@@ -28,10 +28,11 @@ const curriculumSchema = z.object({
 type CurriculumFormData = z.infer<typeof curriculumSchema>;
 
 const NewCurriculumPage = () => {
+  const [role, setRole] = useState<string | null>(null);
   const [formData, setFormData] = useState<CurriculumFormData>({
     title: "",
     description: "",
-    type: "Default",
+    type: role === "Super Admin" ? "Default" : "Custom",
   });
   const [validationErrors, setValidationErrors] = useState<{
     title?: string;
@@ -83,6 +84,11 @@ const NewCurriculumPage = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    let storedRole = localStorage.getItem("userrole");
+    setRole(storedRole);
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8 bg-white rounded-lg shadow-md min-h-full">
@@ -154,63 +160,64 @@ const NewCurriculumPage = () => {
               </p>
             )}
           </motion.div>
-
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.3 }}
-          >
-            <label className="block text-sm font-medium mb-1">
-              Type <span className="text-[#2A7251]">*</span>
-            </label>
-            <div className="flex gap-4 text-sm flex-col">
-              {(["Default", "Custom"] as const).map((option, index) => (
-                <motion.label
-                  key={option}
-                  className="flex items-center gap-2 cursor-pointer"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="relative flex items-center justify-center w-5 h-5">
-                    <input
-                      type="radio"
-                      value={option}
-                      checked={formData.type === option}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          type: e.target.value as "Default" | "Custom",
-                        })
-                      }
-                      className="sr-only"
-                    />
-                    <motion.div
-                      className={`w-4 h-4 rounded-full border-2 ${
-                        formData.type === option
-                          ? "border-emerald-700"
-                          : "border-gray-300"
-                      }`}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      {formData.type === option && (
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-700 rounded-full" />
-                      )}
-                    </motion.div>
-                  </div>
-                  <span>{option}</span>
-                </motion.label>
-              ))}
-            </div>
-            {validationErrors.type && (
-              <p className="mt-1 text-sm text-red-600">
-                {validationErrors.type}
-              </p>
-            )}
-          </motion.div>
+          {role === "Super Admin" && (
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.3 }}
+            >
+              <label className="block text-sm font-medium mb-1">
+                Type <span className="text-[#2A7251]">*</span>
+              </label>
+              <div className="flex gap-4 text-sm flex-col">
+                {(["Default", "Custom"] as const).map((option, index) => (
+                  <motion.label
+                    key={option}
+                    className="flex items-center gap-2 cursor-pointer"
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="relative flex items-center justify-center w-5 h-5">
+                      <input
+                        type="radio"
+                        value={option}
+                        checked={formData.type === option}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            type: e.target.value as "Default" | "Custom",
+                          })
+                        }
+                        className="sr-only"
+                      />
+                      <motion.div
+                        className={`w-4 h-4 rounded-full border-2 ${
+                          formData.type === option
+                            ? "border-emerald-700"
+                            : "border-gray-300"
+                        }`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {formData.type === option && (
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-700 rounded-full" />
+                        )}
+                      </motion.div>
+                    </div>
+                    <span>{option}</span>
+                  </motion.label>
+                ))}
+              </div>
+              {validationErrors.type && (
+                <p className="mt-1 text-sm text-red-600">
+                  {validationErrors.type}
+                </p>
+              )}
+            </motion.div>
+          )}
 
           <motion.div
             className="flex gap-4 justify-end pt-4 text-sm"
