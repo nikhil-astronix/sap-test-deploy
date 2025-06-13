@@ -108,21 +108,20 @@ const Header = ({
         >
           Dashboard
         </motion.button>
-        {role === "Super Admin" ||
-          (role === "District Admin" && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-6 py-1.5 text-sm transition-colors font-medium ${
-                activeTab === "setup"
-                  ? "text-[#2A7251] text-[14px]-400"
-                  : "text-black text-[14px]-400"
-              }  hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
-              onClick={handleSetupClickInternal}
-            >
-              Setup
-            </motion.button>
-          ))}
+        {(role === "Super Admin" || role === "District Admin") && (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`px-6 py-1.5 text-sm transition-colors font-medium ${
+              activeTab === "setup"
+                ? "text-[#2A7251] text-[14px]-400"
+                : "text-black text-[14px]-400"
+            }  hover:bg-[#2A7251] hover:text-white px-2 py-2 rounded`}
+            onClick={handleSetupClickInternal}
+          >
+            Setup
+          </motion.button>
+        )}
 
         <motion.div
           className="flex items-center"

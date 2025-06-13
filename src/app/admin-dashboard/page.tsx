@@ -35,6 +35,14 @@ export default function AdminDashboard() {
 
   // Single state for the currently viewed classroom session
   const [viewingClassrooms, setViewingClassrooms] = useState<any>(null);
+  const [newName, setNewName] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check if window is defined (we're in the browser)
+    if (typeof window !== "undefined") {
+      setNewName(localStorage.getItem("name"));
+    }
+  }, []);
 
   // Custom tab change handler to reset views
   const handleTabChange = (tab: string) => {
@@ -62,10 +70,10 @@ export default function AdminDashboard() {
         // Clear the classroom data
         setViewingClassrooms(null);
         // Force re-render by incrementing the refresh key
-        setRefreshKey(prev => prev + 1);
+        setRefreshKey((prev) => prev + 1);
       } else if (event.data && event.data.type === "REFRESH_SESSIONS") {
         // Force refresh of the sessions view
-        setRefreshKey(prev => prev + 1);
+        setRefreshKey((prev) => prev + 1);
       }
     };
 
@@ -77,7 +85,7 @@ export default function AdminDashboard() {
     // If viewing classrooms, show the appropriate ViewClassroom component based on session type
     if (viewingClassrooms && activeTab === "Todays Sessions") {
       // Select the appropriate ViewClassroom component based on session type
-      switch(sessionViewType) {
+      switch (sessionViewType) {
         case "today":
           return (
             <TodaySessionViewClassroom
@@ -87,7 +95,7 @@ export default function AdminDashboard() {
                 // Clear the classroom view but maintain the session type
                 setViewingClassrooms(null);
                 // Force re-render
-                setRefreshKey(prev => prev + 1);
+                setRefreshKey((prev) => prev + 1);
               }}
             />
           );
@@ -98,7 +106,7 @@ export default function AdminDashboard() {
               schoolId={viewingClassrooms.id}
               onBack={() => {
                 setViewingClassrooms(null);
-                setRefreshKey(prev => prev + 1);
+                setRefreshKey((prev) => prev + 1);
               }}
             />
           );
@@ -109,7 +117,7 @@ export default function AdminDashboard() {
               schoolId={viewingClassrooms.id}
               onBack={() => {
                 setViewingClassrooms(null);
-                setRefreshKey(prev => prev + 1);
+                setRefreshKey((prev) => prev + 1);
               }}
             />
           );
@@ -120,7 +128,7 @@ export default function AdminDashboard() {
               schoolId={viewingClassrooms.id}
               onBack={() => {
                 setViewingClassrooms(null);
-                setRefreshKey(prev => prev + 1);
+                setRefreshKey((prev) => prev + 1);
               }}
             />
           );
@@ -130,13 +138,27 @@ export default function AdminDashboard() {
     // Otherwise show the regular session components with a key to force re-render
     switch (sessionViewType) {
       case "today":
-        return <TodaysSessions key={`today-${refreshKey}`} searchTerm={searchTerm} />;
+        return (
+          <TodaysSessions key={`today-${refreshKey}`} searchTerm={searchTerm} />
+        );
       case "upcoming":
-        return <UpcomingSessions key={`upcoming-${refreshKey}`} searchTerm={searchTerm} />;
+        return (
+          <UpcomingSessions
+            key={`upcoming-${refreshKey}`}
+            searchTerm={searchTerm}
+          />
+        );
       case "past":
-        return <PastSessions key={`past-${refreshKey}`} searchTerm={searchTerm} />;
+        return (
+          <PastSessions key={`past-${refreshKey}`} searchTerm={searchTerm} />
+        );
       default:
-        return <TodaysSessions key={`today-default-${refreshKey}`} searchTerm={searchTerm} />;
+        return (
+          <TodaysSessions
+            key={`today-default-${refreshKey}`}
+            searchTerm={searchTerm}
+          />
+        );
     }
   };
 
@@ -166,7 +188,7 @@ export default function AdminDashboard() {
       // Small delay to ensure state updates properly
       const timer = setTimeout(() => {
         // Force re-render by toggling a state
-        setSearchTerm(searchTerm => searchTerm + "");
+        setSearchTerm((searchTerm) => searchTerm + "");
       }, 50);
       return () => clearTimeout(timer);
     }
@@ -176,8 +198,20 @@ export default function AdminDashboard() {
     const dateObj = new Date(date);
 
     // Get month name
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const monthName = monthNames[dateObj.getMonth()];
 
     // Get day of month
@@ -189,9 +223,7 @@ export default function AdminDashboard() {
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden w-[40px] h-[40px]">
           {/* Month header */}
           <div className="bg-gradient-to-b from-[#10472E] to-[#2A7251] text-white flex items-top text-center justify-center h-[16px]">
-            <span className="text-xs h-[16px]">
-              {monthName}
-            </span>
+            <span className="text-xs h-[16px]">{monthName}</span>
           </div>
           {/* Day number */}
           <div className="flex items-center text-center justify-center flex-1 h-[24px]">
@@ -237,7 +269,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-2">Get the details of the school</h1>
+          <h1 className="text-2xl font-semibold mb-2">Welcome, {newName}</h1>
           <p className="text-gray-600">
             This dashboard provides a quick overview of platform usage within
             your system. You can also view scheduled observation sessions and
