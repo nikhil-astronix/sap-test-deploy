@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -34,6 +34,12 @@ interface NavItem {
   path: string;
 }
 
+export interface Option {
+  id: string | number;
+  label: string;
+  value: string;
+  email?: string;
+}
 export const navItemsSystemAdmin: NavItem[] = [
   {
     icon: <Network className="w-5 h-5" />,
@@ -127,13 +133,17 @@ const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [districts, setDistricts] = useState([]);
+  const [districts, setDistricts] = useState<Option[]>([]);
   const { globalDistrict, setGlobalDistrict } = useDistrict();
   const [selectedDistrict, setSelectedDistricts] = useState<string[]>(
     globalDistrict ? [globalDistrict] : []
   );
+  const [selectedDistrictName, setSelectedDistrictName] = useState<string[]>(
+    []
+  );
   const [role, setRole] = useState<string | null>(null);
   const router = useRouter();
+  const [isDistrictAdmin, setIsDistrictAdmin] = useState(false);
 
   useEffect(() => {
     let storedRole = localStorage.getItem("userrole");
@@ -216,6 +226,18 @@ const Sidebar = () => {
     }
   };
 
+  useEffect(() => {
+    if ("District Admin" === role) {
+      const foundDistrict = districts.find(
+        (district: any) => district?.id === globalDistrict
+      );
+      const districtLabel = foundDistrict ? foundDistrict.label : "";
+      setSelectedDistrictName([districtLabel]);
+
+      setIsDistrictAdmin(true);
+    }
+  }, [districts]);
+
   const MobileMenuButton = () => (
     <button
       onClick={toggleSidebar}
@@ -263,7 +285,7 @@ const Sidebar = () => {
           </h2>
         </AnimatedContainer>
 
-        {isExpanded && (
+        {isExpanded && !isDistrictAdmin && (
           <AnimatedContainer variant="fade" className="mb-3">
             <MultiSelectDropdown
               label="District"
@@ -277,6 +299,14 @@ const Sidebar = () => {
               isMulti={false}
             />
           </AnimatedContainer>
+        )}
+        {isExpanded && isDistrictAdmin && (
+          <>
+            <p className="text-base font-medium">District</p>
+            <p className="bg-[#E6EBF0] px-4 py-2 mt-2 mb-4 rounded-lg text-sm">
+              {selectedDistrictName}
+            </p>
+          </>
         )}
 
         <AnimatedContainer variant="stagger" staggerItems={true}>

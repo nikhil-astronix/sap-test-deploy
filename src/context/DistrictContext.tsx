@@ -15,13 +15,20 @@ export const DistrictProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [globalDistrict, setGlobalDistrictState] = useState<string | null>(
-    null
+  const [globalDistrict, setGlobalDistrictState] = useState<string | null>(() =>
+    typeof window !== "undefined"
+      ? localStorage.getItem("globalDistrict")
+      : null
   );
 
   useEffect(() => {
-    const stored = localStorage.getItem("globalDistrict");
-    if (stored) setGlobalDistrictState(stored);
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === "globalDistrict") {
+        setGlobalDistrictState(event.newValue);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   const setGlobalDistrict = (district: string) => {
