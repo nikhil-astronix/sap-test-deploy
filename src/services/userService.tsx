@@ -24,6 +24,18 @@ export const getUser = async (requestPayload: fetchUsersRequestPayload) => {
   }
 };
 
+export const getObservers = async (school_id: string) => {
+  try {
+    const response = await apiClient.get(
+      `/v1/observation_session/observers/${school_id}`
+    );
+    return { success: true, data: response.data, error: response };
+  } catch (error) {
+    console.error("user profile service error:", error);
+    return { success: false, error };
+  }
+};
+
 export const editUser = async (user_id: string, data: userData) => {
   try {
     const response = await apiClient.post(
